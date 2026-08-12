@@ -79,8 +79,13 @@ def player_total(
 
 
 def list_seasons():
-    return list(
-        query_lab.season_files().keys()
+    rows = query_lab.load_identity_registry()
+
+    return sorted(
+        {
+            row["season"]
+            for row in rows
+        }
     )
 
 
