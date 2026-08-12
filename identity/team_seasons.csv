@@ -1,0 +1,201 @@
+team_season_id,season,club_id,canonical_name,persistent_team_code,local_team_id,source_name,mapping_status,mapping_source
+2016-17:3,2016-17,3,Arsenal,3,1,Arsenal,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:91,2016-17,91,Bournemouth,91,2,Bournemouth,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:90,2016-17,90,Burnley,90,3,Burnley,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:8,2016-17,8,Chelsea,8,4,Chelsea,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:31,2016-17,31,Crystal_Palace,31,5,Crystal_Palace,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:11,2016-17,11,Everton,11,6,Everton,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:88,2016-17,88,Hull_City,88,7,Hull_City,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:13,2016-17,13,Leicester_City,13,8,Leicester_City,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:14,2016-17,14,Liverpool,14,9,Liverpool,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:43,2016-17,43,Manchester_City,43,10,Manchester_City,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:1,2016-17,1,Manchester_United,1,11,Manchester_United,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:25,2016-17,25,Middlesbrough,25,12,Middlesbrough,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:20,2016-17,20,Southampton,20,13,Southampton,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:110,2016-17,110,Stoke_City,110,14,Stoke_City,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:56,2016-17,56,Sunderland,56,15,Sunderland,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:80,2016-17,80,Swansea_City,80,16,Swansea_City,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:6,2016-17,6,Tottenham_Hotspur,6,17,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:57,2016-17,57,Watford,57,18,Watford,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:35,2016-17,35,West_Bromwich_Albion,35,19,West_Bromwich_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2016-17:21,2016-17,21,West_Ham_United,21,20,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:3,2017-18,3,Arsenal,3,1,Arsenal,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:91,2017-18,91,Bournemouth,91,2,Bournemouth,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:36,2017-18,36,Brighton_and_Hove_Albion,36,3,Brighton_and_Hove_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:90,2017-18,90,Burnley,90,4,Burnley,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:8,2017-18,8,Chelsea,8,5,Chelsea,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:31,2017-18,31,Crystal_Palace,31,6,Crystal_Palace,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:11,2017-18,11,Everton,11,7,Everton,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:38,2017-18,38,Huddersfield_Town,38,8,Huddersfield_Town,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:13,2017-18,13,Leicester_City,13,9,Leicester_City,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:14,2017-18,14,Liverpool,14,10,Liverpool,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:43,2017-18,43,Manchester_City,43,11,Manchester_City,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:1,2017-18,1,Manchester_United,1,12,Manchester_United,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:4,2017-18,4,Newcastle_United,4,13,Newcastle_United,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:20,2017-18,20,Southampton,20,14,Southampton,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:110,2017-18,110,Stoke_City,110,15,Stoke_City,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:80,2017-18,80,Swansea_City,80,16,Swansea_City,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:6,2017-18,6,Tottenham_Hotspur,6,17,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:57,2017-18,57,Watford,57,18,Watford,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:35,2017-18,35,West_Bromwich_Albion,35,19,West_Bromwich_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2017-18:21,2017-18,21,West_Ham_United,21,20,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:3,2018-19,3,Arsenal,3,1,Arsenal,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:91,2018-19,91,Bournemouth,91,2,Bournemouth,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:36,2018-19,36,Brighton_and_Hove_Albion,36,3,Brighton_and_Hove_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:90,2018-19,90,Burnley,90,4,Burnley,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:97,2018-19,97,Cardiff_City,97,5,Cardiff_City,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:8,2018-19,8,Chelsea,8,6,Chelsea,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:31,2018-19,31,Crystal_Palace,31,7,Crystal_Palace,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:11,2018-19,11,Everton,11,8,Everton,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:54,2018-19,54,Fulham,54,9,Fulham,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:38,2018-19,38,Huddersfield_Town,38,10,Huddersfield_Town,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:13,2018-19,13,Leicester_City,13,11,Leicester_City,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:14,2018-19,14,Liverpool,14,12,Liverpool,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:43,2018-19,43,Manchester_City,43,13,Manchester_City,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:1,2018-19,1,Manchester_United,1,14,Manchester_United,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:4,2018-19,4,Newcastle_United,4,15,Newcastle_United,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:20,2018-19,20,Southampton,20,16,Southampton,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:6,2018-19,6,Tottenham_Hotspur,6,17,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:57,2018-19,57,Watford,57,18,Watford,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:21,2018-19,21,West_Ham_United,21,19,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
+2018-19:39,2018-19,39,Wolverhampton_Wanderers,39,20,Wolverhampton_Wanderers,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:3,2019-20,3,Arsenal,3,1,Arsenal,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:7,2019-20,7,Aston_Villa,7,2,Aston_Villa,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:91,2019-20,91,Bournemouth,91,3,Bournemouth,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:36,2019-20,36,Brighton_and_Hove_Albion,36,4,Brighton_and_Hove_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:90,2019-20,90,Burnley,90,5,Burnley,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:8,2019-20,8,Chelsea,8,6,Chelsea,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:31,2019-20,31,Crystal_Palace,31,7,Crystal_Palace,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:11,2019-20,11,Everton,11,8,Everton,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:13,2019-20,13,Leicester_City,13,9,Leicester_City,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:14,2019-20,14,Liverpool,14,10,Liverpool,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:43,2019-20,43,Manchester_City,43,11,Manchester_City,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:1,2019-20,1,Manchester_United,1,12,Manchester_United,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:4,2019-20,4,Newcastle_United,4,13,Newcastle_United,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:45,2019-20,45,Norwich_City,45,14,Norwich_City,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:49,2019-20,49,Sheffield_United,49,15,Sheffield_United,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:20,2019-20,20,Southampton,20,16,Southampton,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:6,2019-20,6,Tottenham_Hotspur,6,17,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:57,2019-20,57,Watford,57,18,Watford,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:21,2019-20,21,West_Ham_United,21,19,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
+2019-20:39,2019-20,39,Wolverhampton_Wanderers,39,20,Wolverhampton_Wanderers,VERIFIED,Local PL events_stats + fixtures_master
+2020-21:3,2020-21,3,Arsenal,3,1,Arsenal,VERIFIED,Historical FPL teams.csv
+2020-21:7,2020-21,7,Aston_Villa,7,2,Aston Villa,VERIFIED,Historical FPL teams.csv
+2020-21:36,2020-21,36,Brighton_and_Hove_Albion,36,3,Brighton,VERIFIED,Historical FPL teams.csv
+2020-21:90,2020-21,90,Burnley,90,4,Burnley,VERIFIED,Historical FPL teams.csv
+2020-21:8,2020-21,8,Chelsea,8,5,Chelsea,VERIFIED,Historical FPL teams.csv
+2020-21:31,2020-21,31,Crystal_Palace,31,6,Crystal Palace,VERIFIED,Historical FPL teams.csv
+2020-21:11,2020-21,11,Everton,11,7,Everton,VERIFIED,Historical FPL teams.csv
+2020-21:54,2020-21,54,Fulham,54,8,Fulham,VERIFIED,Historical FPL teams.csv
+2020-21:13,2020-21,13,Leicester_City,13,9,Leicester,VERIFIED,Historical FPL teams.csv
+2020-21:2,2020-21,2,Leeds_United,2,10,Leeds,VERIFIED,Historical FPL teams.csv
+2020-21:14,2020-21,14,Liverpool,14,11,Liverpool,VERIFIED,Historical FPL teams.csv
+2020-21:43,2020-21,43,Manchester_City,43,12,Man City,VERIFIED,Historical FPL teams.csv
+2020-21:1,2020-21,1,Manchester_United,1,13,Man Utd,VERIFIED,Historical FPL teams.csv
+2020-21:4,2020-21,4,Newcastle_United,4,14,Newcastle,VERIFIED,Historical FPL teams.csv
+2020-21:49,2020-21,49,Sheffield_United,49,15,Sheffield Utd,VERIFIED,Historical FPL teams.csv
+2020-21:20,2020-21,20,Southampton,20,16,Southampton,VERIFIED,Historical FPL teams.csv
+2020-21:6,2020-21,6,Tottenham_Hotspur,6,17,Spurs,VERIFIED,Historical FPL teams.csv
+2020-21:35,2020-21,35,West_Bromwich_Albion,35,18,West Brom,VERIFIED,Historical FPL teams.csv
+2020-21:21,2020-21,21,West_Ham_United,21,19,West Ham,VERIFIED,Historical FPL teams.csv
+2020-21:39,2020-21,39,Wolverhampton_Wanderers,39,20,Wolves,VERIFIED,Historical FPL teams.csv
+2021-22:3,2021-22,3,Arsenal,3,1,Arsenal,VERIFIED,Historical FPL teams.csv
+2021-22:7,2021-22,7,Aston_Villa,7,2,Aston Villa,VERIFIED,Historical FPL teams.csv
+2021-22:94,2021-22,94,Brentford,94,3,Brentford,VERIFIED,Historical FPL teams.csv
+2021-22:36,2021-22,36,Brighton_and_Hove_Albion,36,4,Brighton,VERIFIED,Historical FPL teams.csv
+2021-22:90,2021-22,90,Burnley,90,5,Burnley,VERIFIED,Historical FPL teams.csv
+2021-22:8,2021-22,8,Chelsea,8,6,Chelsea,VERIFIED,Historical FPL teams.csv
+2021-22:31,2021-22,31,Crystal_Palace,31,7,Crystal Palace,VERIFIED,Historical FPL teams.csv
+2021-22:11,2021-22,11,Everton,11,8,Everton,VERIFIED,Historical FPL teams.csv
+2021-22:13,2021-22,13,Leicester_City,13,9,Leicester,VERIFIED,Historical FPL teams.csv
+2021-22:2,2021-22,2,Leeds_United,2,10,Leeds,VERIFIED,Historical FPL teams.csv
+2021-22:14,2021-22,14,Liverpool,14,11,Liverpool,VERIFIED,Historical FPL teams.csv
+2021-22:43,2021-22,43,Manchester_City,43,12,Man City,VERIFIED,Historical FPL teams.csv
+2021-22:1,2021-22,1,Manchester_United,1,13,Man Utd,VERIFIED,Historical FPL teams.csv
+2021-22:4,2021-22,4,Newcastle_United,4,14,Newcastle,VERIFIED,Historical FPL teams.csv
+2021-22:45,2021-22,45,Norwich_City,45,15,Norwich,VERIFIED,Historical FPL teams.csv
+2021-22:20,2021-22,20,Southampton,20,16,Southampton,VERIFIED,Historical FPL teams.csv
+2021-22:6,2021-22,6,Tottenham_Hotspur,6,17,Spurs,VERIFIED,Historical FPL teams.csv
+2021-22:57,2021-22,57,Watford,57,18,Watford,VERIFIED,Historical FPL teams.csv
+2021-22:21,2021-22,21,West_Ham_United,21,19,West Ham,VERIFIED,Historical FPL teams.csv
+2021-22:39,2021-22,39,Wolverhampton_Wanderers,39,20,Wolves,VERIFIED,Historical FPL teams.csv
+2022-23:3,2022-23,3,Arsenal,3,1,Arsenal,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:7,2022-23,7,Aston_Villa,7,2,Aston_Villa,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:91,2022-23,91,Bournemouth,91,3,Bournemouth,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:94,2022-23,94,Brentford,94,4,Brentford,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:36,2022-23,36,Brighton_and_Hove_Albion,36,5,Brighton_and_Hove_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:8,2022-23,8,Chelsea,8,6,Chelsea,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:31,2022-23,31,Crystal_Palace,31,7,Crystal_Palace,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:11,2022-23,11,Everton,11,8,Everton,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:54,2022-23,54,Fulham,54,9,Fulham,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:13,2022-23,13,Leicester_City,13,10,Leicester_City,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:2,2022-23,2,Leeds_United,2,11,Leeds_United,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:14,2022-23,14,Liverpool,14,12,Liverpool,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:43,2022-23,43,Manchester_City,43,13,Manchester_City,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:1,2022-23,1,Manchester_United,1,14,Manchester_United,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:4,2022-23,4,Newcastle_United,4,15,Newcastle_United,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:17,2022-23,17,Nottingham_Forest,17,16,Nottingham_Forest,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:20,2022-23,20,Southampton,20,17,Southampton,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:6,2022-23,6,Tottenham_Hotspur,6,18,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:21,2022-23,21,West_Ham_United,21,19,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
+2022-23:39,2022-23,39,Wolverhampton_Wanderers,39,20,Wolverhampton_Wanderers,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:3,2023-24,3,Arsenal,3,1,Arsenal,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:7,2023-24,7,Aston_Villa,7,2,Aston_Villa,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:91,2023-24,91,Bournemouth,91,3,Bournemouth,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:94,2023-24,94,Brentford,94,4,Brentford,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:36,2023-24,36,Brighton_and_Hove_Albion,36,5,Brighton_and_Hove_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:90,2023-24,90,Burnley,90,6,Burnley,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:8,2023-24,8,Chelsea,8,7,Chelsea,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:31,2023-24,31,Crystal_Palace,31,8,Crystal_Palace,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:11,2023-24,11,Everton,11,9,Everton,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:54,2023-24,54,Fulham,54,10,Fulham,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:14,2023-24,14,Liverpool,14,11,Liverpool,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:102,2023-24,102,Luton_Town,102,12,Luton_Town,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:43,2023-24,43,Manchester_City,43,13,Manchester_City,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:1,2023-24,1,Manchester_United,1,14,Manchester_United,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:4,2023-24,4,Newcastle_United,4,15,Newcastle_United,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:17,2023-24,17,Nottingham_Forest,17,16,Nottingham_Forest,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:49,2023-24,49,Sheffield_United,49,17,Sheffield_United,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:6,2023-24,6,Tottenham_Hotspur,6,18,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:21,2023-24,21,West_Ham_United,21,19,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
+2023-24:39,2023-24,39,Wolverhampton_Wanderers,39,20,Wolverhampton_Wanderers,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:3,2024-25,3,Arsenal,3,1,Arsenal,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:7,2024-25,7,Aston_Villa,7,2,Aston_Villa,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:91,2024-25,91,Bournemouth,91,3,Bournemouth,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:94,2024-25,94,Brentford,94,4,Brentford,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:36,2024-25,36,Brighton_and_Hove_Albion,36,5,Brighton_and_Hove_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:8,2024-25,8,Chelsea,8,6,Chelsea,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:31,2024-25,31,Crystal_Palace,31,7,Crystal_Palace,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:11,2024-25,11,Everton,11,8,Everton,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:54,2024-25,54,Fulham,54,9,Fulham,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:40,2024-25,40,Ipswich_Town,40,10,Ipswich_Town,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:13,2024-25,13,Leicester_City,13,11,Leicester_City,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:14,2024-25,14,Liverpool,14,12,Liverpool,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:43,2024-25,43,Manchester_City,43,13,Manchester_City,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:1,2024-25,1,Manchester_United,1,14,Manchester_United,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:4,2024-25,4,Newcastle_United,4,15,Newcastle_United,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:17,2024-25,17,Nottingham_Forest,17,16,Nottingham_Forest,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:20,2024-25,20,Southampton,20,17,Southampton,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:6,2024-25,6,Tottenham_Hotspur,6,18,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:21,2024-25,21,West_Ham_United,21,19,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
+2024-25:39,2024-25,39,Wolverhampton_Wanderers,39,20,Wolverhampton_Wanderers,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:3,2025-26,3,Arsenal,3,1,Arsenal,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:7,2025-26,7,Aston_Villa,7,2,Aston_Villa,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:90,2025-26,90,Burnley,90,3,Burnley,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:91,2025-26,91,Bournemouth,91,4,Bournemouth,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:94,2025-26,94,Brentford,94,5,Brentford,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:36,2025-26,36,Brighton_and_Hove_Albion,36,6,Brighton_and_Hove_Albion,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:8,2025-26,8,Chelsea,8,7,Chelsea,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:31,2025-26,31,Crystal_Palace,31,8,Crystal_Palace,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:11,2025-26,11,Everton,11,9,Everton,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:54,2025-26,54,Fulham,54,10,Fulham,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:2,2025-26,2,Leeds_United,2,11,Leeds_United,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:14,2025-26,14,Liverpool,14,12,Liverpool,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:43,2025-26,43,Manchester_City,43,13,Manchester_City,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:1,2025-26,1,Manchester_United,1,14,Manchester_United,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:4,2025-26,4,Newcastle_United,4,15,Newcastle_United,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:17,2025-26,17,Nottingham_Forest,17,16,Nottingham_Forest,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:56,2025-26,56,Sunderland,56,17,Sunderland,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:6,2025-26,6,Tottenham_Hotspur,6,18,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:21,2025-26,21,West_Ham_United,21,19,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
+2025-26:39,2025-26,39,Wolverhampton_Wanderers,39,20,Wolverhampton_Wanderers,VERIFIED,Local PL events_stats + fixtures_master
