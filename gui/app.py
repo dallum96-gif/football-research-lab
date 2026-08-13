@@ -164,21 +164,64 @@ with tab3:
         seasons=seasons,
     )
 
+    played_rows = {
+        row["season"]: row
+        for row in comparison["seasons"]
+    }
+
+    skipped_rows = {
+        row["season"]: row
+        for row in comparison.get(
+            "skipped_seasons",
+            []
+        )
+    }
+
+    comparison_rows = []
+
+    for requested_season in comparison[
+        "requested_seasons"
+    ]:
+
+        if requested_season in played_rows:
+
+            row = played_rows[
+                requested_season
+            ]
+
+            comparison_rows.append(
+                {
+                    "Season": requested_season,
+                    "Wins": row["wins"],
+                    "Draws": row["draws"],
+                    "Losses": row["losses"],
+                    "GF": row["goals_for"],
+                    "GA": row["goals_against"],
+                    "GD": row["goal_difference"],
+                    "Points": row["points"],
+                    "Status": "Premier League",
+                }
+            )
+
+        elif requested_season in skipped_rows:
+
+            comparison_rows.append(
+                {
+                    "Season": requested_season,
+                    "Wins": None,
+                    "Draws": None,
+                    "Losses": None,
+                    "GF": None,
+                    "GA": None,
+                    "GD": None,
+                    "Points": 0,
+                    "Status": "Not in Premier League",
+                }
+            )
+
     comparison_df = pd.DataFrame(
-        [
-            {
-                "Season": row["season"],
-                "Wins": row["wins"],
-                "Draws": row["draws"],
-                "Losses": row["losses"],
-                "GF": row["goals_for"],
-                "GA": row["goals_against"],
-                "GD": row["goal_difference"],
-                "Points": row["points"],
-            }
-            for row in comparison["seasons"]
-        ]
-    ).sort_values("Season")
+        comparison_rows
+    )
 
     st.line_chart(
         comparison_df.set_index("Season")[["Points"]]
