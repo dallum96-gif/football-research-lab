@@ -505,6 +505,82 @@ def test_head_to_head():
         )
 
 
+def test_team_form():
+    result = query_lab.team_form(
+        season="2024-25",
+        team="Liverpool",
+    )
+
+    completed = result["matches"]
+
+    assert completed
+
+    assert all(
+        row["result"] in {"W", "D", "L"}
+        for row in completed
+    )
+
+    assert all(
+        row["points"] in {0, 1, 3}
+        for row in completed
+    )
+
+    assert all(
+        row["goals_for"] >= 0
+        and row["goals_against"] >= 0
+        for row in completed
+    )
+
+    assert all(
+        row["goal_difference"]
+        == row["goals_for"]
+        - row["goals_against"]
+        for row in completed
+    )
+
+    assert all(
+        completed[i]["kickoff_time"]
+        <= completed[i + 1]["kickoff_time"]
+        for i in range(len(completed) - 1)
+    )
+
+    assert result["windows"]["3"]["matches"] <= 3
+    assert result["windows"]["5"]["matches"] <= 5
+
+    assert (
+        result["streaks"]["current_win_streak"]
+        <= len(completed)
+    )
+
+    assert (
+        result["streaks"]["current_unbeaten_streak"]
+        <= len(completed)
+    )
+
+    assert (
+        result["streaks"]["current_loss_streak"]
+        <= len(completed)
+    )
+
+    assert (
+        result["streaks"]["current_clean_sheet_streak"]
+        <= len(completed)
+    )
+
+    assert (
+        result["streaks"]["current_scoring_streak"]
+        <= len(completed)
+    )
+
+    assert result["excluded_unplayed"] == 0
+
+    assert all(
+        row["home_score"] != ""
+        and row["away_score"] != ""
+        for row in completed
+    )
+
+
 if __name__ == "__main__":
     tests = [
         test_seasons,
@@ -519,7 +595,8 @@ if __name__ == "__main__":
         test_verified_fixture_correction,
     test_fixture_season_partitions,
 test_team_compare_handles_non_pl_seasons,
-test_head_to_head,
+        test_head_to_head,
+        test_team_form,
     ]
 
     failures = []
