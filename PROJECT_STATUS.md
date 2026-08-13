@@ -1,4 +1,4 @@
-# Project Status
+# Project Status — 13 August 2026
 
 ## Stable checkpoint
 
