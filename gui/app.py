@@ -124,11 +124,12 @@ if summary["data_quality"]["status"] != "COMPLETE":
         "This season contains incomplete fixture data."
     )
 
-tab1, tab2, tab3 = st.tabs(
+tab1, tab2, tab3, tab4 = st.tabs(
     [
         "League Table",
         "Fixture Explorer",
         "Season Comparison",
+        "Head-to-Head",
     ]
 )
 
@@ -400,6 +401,95 @@ with tab3:
         use_container_width=True,
         hide_index=True,
     )
+
+with tab4:
+    st.subheader("Head-to-Head Explorer")
+
+    h2h_cols = st.columns(2)
+
+    with h2h_cols[0]:
+        h2h_opponent = st.selectbox(
+            "Opponent",
+            [name for name in teams if name != team],
+            key="h2h_opponent",
+        )
+
+    with h2h_cols[1]:
+        h2h_seasons = st.multiselect(
+            "Seasons",
+            seasons,
+            default=seasons,
+            key="h2h_seasons",
+        )
+
+    if not h2h_seasons:
+        st.info("Select at least one season.")
+    else:
+        h2h = query_api.head_to_head(
+            team=team,
+            opponent=h2h_opponent,
+            seasons=h2h_seasons,
+        )
+
+        hs = h2h["summary"]
+        h2h_metrics = st.columns(4)
+
+        h2h_metrics[0].metric(
+            f"{team} wins",
+            hs["wins"],
+        )
+        h2h_metrics[1].metric(
+            "Draws",
+            hs["draws"],
+        )
+        h2h_metrics[2].metric(
+            f"{h2h_opponent} wins",
+            hs["losses"],
+        )
+        h2h_metrics[3].metric(
+            "Matches",
+            hs["matches"],
+        )
+
+        st.caption(
+            f"Goals: {hs['goals_for']}-"
+            f"{hs['goals_against']} "
+            f"(GD {hs['goal_difference']:+d})"
+        )
+
+        if h2h.get("skipped_seasons"):
+            skipped = ", ".join(
+                row["season"]
+                for row in h2h["skipped_seasons"]
+            )
+            st.info(
+                "No Premier League meetings in: "
+                + skipped
+            )
+
+        h2h_df = pd.DataFrame(
+            [
+                {
+                    "Date": row["kickoff_time"][:10],
+                    "Season": row["season"],
+                    "GW": row["gameweek"],
+                    "Fixture": (
+                        f"{row['home_team_name']} "
+                        f"{row['home_score']}-"
+                        f"{row['away_score']} "
+                        f"{row['away_team_name']}"
+                    ),
+                    "Result": row["team_result"],
+                }
+                for row in h2h["matches"]
+            ]
+        )
+
+        st.dataframe(
+            h2h_df,
+            use_container_width=True,
+            hide_index=True,
+        )
 
 with st.expander("Data provenance"):
     st.write(
