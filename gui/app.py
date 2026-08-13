@@ -76,10 +76,13 @@ with col1:
 
 table = get_league_table(season)
 
-teams = [
-    row["team"]
-    for row in table["teams"]
-]
+teams = sorted(
+    [
+        row["team"]
+        for row in table["teams"]
+    ],
+    key=str.casefold,
+)
 
 with col2:
     team = st.selectbox(
@@ -172,7 +175,8 @@ with tab2:
                 else row["home_team_name"]
             )
             for row in all_team_fixtures["results"]
-        }
+        },
+        key=str.casefold,
     )
 
     filter_cols = st.columns(3)
@@ -410,7 +414,10 @@ with tab4:
     with h2h_cols[0]:
         h2h_opponent = st.selectbox(
             "Opponent",
-            [name for name in teams if name != team],
+            sorted(
+                [name for name in teams if name != team],
+                key=str.casefold,
+            ),
             key="h2h_opponent",
         )
 
