@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 import sys
 
 import streamlit as st
@@ -22,12 +22,21 @@ def get_seasons():
     return query_api.list_seasons()
 
 
+@st.cache_data
+def get_league_table(season):
+    return query_api.league_table(
+        season=season
+    )
+
+
 def season_key(season):
     return int(season.split("-")[0])
 
 
 st.title("Football Research Lab")
-st.caption("Premier League historical data and analysis")
+st.caption(
+    "Premier League historical data and analysis"
+)
 
 seasons = sorted(
     get_seasons(),
@@ -47,9 +56,7 @@ with col1:
         seasons,
     )
 
-table = query_api.league_table(
-    season=season
-)
+table = get_league_table(season)
 
 teams = [
     row["team"]
@@ -73,7 +80,10 @@ st.divider()
 
 metric_cols = st.columns(5)
 
-metric_cols[0].metric("Points", s["points"])
+metric_cols[0].metric(
+    "Points",
+    s["points"],
+)
 metric_cols[1].metric(
     "Record",
     f"{s['wins']}W {s['draws']}D {s['losses']}L",
@@ -182,12 +192,23 @@ with tab3:
     for requested_season in comparison[
         "requested_seasons"
     ]:
-
         if requested_season in played_rows:
-
             row = played_rows[
                 requested_season
             ]
+
+            historical_table = get_league_table(
+                requested_season
+            )
+
+            position = next(
+                (
+                    table_row["position"]
+                    for table_row in historical_table["teams"]
+                    if table_row["team_id"] == row["team_id"]
+                ),
+                None,
+            )
 
             comparison_rows.append(
                 {
@@ -199,12 +220,12 @@ with tab3:
                     "GA": row["goals_against"],
                     "GD": row["goal_difference"],
                     "Points": row["points"],
+                    "Position": position,
                     "Status": "Premier League",
                 }
             )
 
         elif requested_season in skipped_rows:
-
             comparison_rows.append(
                 {
                     "Season": requested_season,
@@ -215,6 +236,7 @@ with tab3:
                     "GA": None,
                     "GD": None,
                     "Points": 0,
+                    "Position": 21,
                     "Status": "Not in Premier League",
                 }
             )
@@ -223,9 +245,31 @@ with tab3:
         comparison_rows
     )
 
-    st.line_chart(
-        comparison_df.set_index("Season")[["Points"]]
+    chart_df = comparison_df.set_index(
+        "Season"
     )
+
+    st.subheader("Points")
+    st.line_chart(
+        chart_df[["Points"]]
+    )
+
+    chart_cols = st.columns(2)
+
+    with chart_cols[0]:
+        st.subheader("Goal difference")
+        st.line_chart(
+            chart_df[["GD"]]
+        )
+
+    with chart_cols[1]:
+        st.subheader("League position")
+        st.caption(
+            "1 = champions; 20 = bottom; 21 = not in the Premier League"
+        )
+        st.line_chart(
+            chart_df[["Position"]]
+        )
 
     st.dataframe(
         comparison_df,
