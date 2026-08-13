@@ -29,6 +29,24 @@ def get_league_table(season):
     )
 
 
+@st.cache_data
+def get_fixtures(
+    season,
+    team,
+    opponent=None,
+    venue=None,
+    result=None,
+):
+    return query_api.fixtures(
+        season=season,
+        team=team,
+        opponent=opponent,
+        venue=venue,
+        result=result,
+        limit=100,
+    )
+
+
 def season_key(season):
     return int(season.split("-")[0])
 
@@ -109,7 +127,7 @@ if summary["data_quality"]["status"] != "COMPLETE":
 tab1, tab2, tab3 = st.tabs(
     [
         "League Table",
-        "Fixtures",
+        "Fixture Explorer",
         "Season Comparison",
     ]
 )
@@ -140,26 +158,132 @@ with tab1:
     )
 
 with tab2:
-    fixtures = query_api.fixtures(
+    all_team_fixtures = get_fixtures(
         season=season,
         team=team,
-        limit=100,
     )
 
-    fixture_df = pd.DataFrame(
-        [
+    opponent_names = sorted(
+        {
+            (
+                row["away_team_name"]
+                if row["home_team_name"] == team
+                else row["home_team_name"]
+            )
+            for row in all_team_fixtures["results"]
+        }
+    )
+
+    filter_cols = st.columns(3)
+
+    with filter_cols[0]:
+        opponent_choice = st.selectbox(
+            "Opponent",
+            ["All opponents"] + opponent_names,
+        )
+
+    with filter_cols[1]:
+        venue_choice = st.selectbox(
+            "Venue",
+            ["All venues", "Home", "Away"],
+        )
+
+    with filter_cols[2]:
+        result_choice = st.selectbox(
+            "Result",
+            ["All results", "W", "D", "L", "Unplayed"],
+        )
+
+    selected_opponent = (
+        None
+        if opponent_choice == "All opponents"
+        else opponent_choice
+    )
+
+    selected_venue = {
+        "All venues": None,
+        "Home": "home",
+        "Away": "away",
+    }[venue_choice]
+
+    selected_result = {
+        "All results": None,
+        "W": "W",
+        "D": "D",
+        "L": "L",
+        "Unplayed": "UNPLAYED",
+    }[result_choice]
+
+    fixtures = get_fixtures(
+        season=season,
+        team=team,
+        opponent=selected_opponent,
+        venue=selected_venue,
+        result=selected_result,
+    )
+
+    results = fixtures["results"]
+
+    st.caption(
+        f"{len(results)} fixture(s) match the selected filters"
+    )
+
+    fixture_rows = []
+
+    for row in results:
+        home = row["home_team_name"]
+        away = row["away_team_name"]
+        home_score = row["home_score"]
+        away_score = row["away_score"]
+
+        if home_score == "" or away_score == "":
+            score = "—"
+            result = "UNPLAYED"
+        else:
+            score = f"{home_score}-{away_score}"
+
+            if home == team:
+                home_score_i = int(home_score)
+                away_score_i = int(away_score)
+
+                result = (
+                    "W"
+                    if home_score_i > away_score_i
+                    else "D"
+                    if home_score_i == away_score_i
+                    else "L"
+                )
+            else:
+                away_score_i = int(away_score)
+                home_score_i = int(home_score)
+
+                result = (
+                    "W"
+                    if away_score_i > home_score_i
+                    else "D"
+                    if away_score_i == home_score_i
+                    else "L"
+                )
+
+        opponent_name = (
+            away
+            if home == team
+            else home
+        )
+
+        fixture_rows.append(
             {
                 "Date": row["kickoff_time"][:10],
-                "Gameweek": row["gameweek"],
-                "Home": row["home_team_name"],
-                "Score": (
-                    f"{row['home_score']}-"
-                    f"{row['away_score']}"
-                ),
-                "Away": row["away_team_name"],
+                "GW": row["gameweek"],
+                "Venue": "Home" if home == team else "Away",
+                "Opponent": opponent_name,
+                "Score": score,
+                "Result": result,
             }
-            for row in fixtures["results"]
-        ]
+        )
+
+    fixture_df = pd.DataFrame(
+        fixture_rows
     )
 
     st.dataframe(
