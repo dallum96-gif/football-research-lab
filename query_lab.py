@@ -1453,6 +1453,7 @@ def league_table(season):
     }
 
 
+
 def team_compare(
     team,
     seasons,
@@ -1462,33 +1463,103 @@ def team_compare(
             "At least one season is required."
         )
 
-    summaries = []
+    requested_seasons = list(
+        dict.fromkeys(seasons)
+    )
 
-    for season in seasons:
+    identity_rows = load_identity_registry()
+
+    requested_candidates = [
+        row
+        for row in identity_rows
+        if (
+            row["season"] in requested_seasons
+            and (
+                normalise_team_name(
+                    row.get("canonical_name")
+                )
+                == normalise_team_name(team)
+                or
+                normalise_team_name(
+                    row.get("source_name")
+                )
+                == normalise_team_name(team)
+            )
+            and row["mapping_status"] == "VERIFIED"
+        )
+    ]
+
+    if not requested_candidates:
+        raise ValueError(
+            f"No team matching '{team}' "
+            f"found in the requested seasons."
+        )
+
+    persistent_codes = {
+        row["persistent_team_code"]
+        for row in requested_candidates
+    }
+
+    if len(persistent_codes) != 1:
+        raise ValueError(
+            "Team comparison could not resolve "
+            "a unique persistent club identity."
+        )
+
+    persistent_code = next(
+        iter(persistent_codes)
+    )
+
+    canonical_name = (
+        requested_candidates[0][
+            "canonical_name"
+        ].replace("_", " ")
+    )
+
+    participating_seasons = {
+        row["season"]
+        for row in identity_rows
+        if (
+            row["persistent_team_code"]
+            == persistent_code
+            and row["mapping_status"]
+            == "VERIFIED"
+        )
+    }
+
+    summaries = []
+    skipped_seasons = []
+
+    for season in requested_seasons:
+
+        if season not in participating_seasons:
+            skipped_seasons.append({
+                "season": season,
+                "status": "NOT_IN_PL",
+            })
+            continue
 
         summary = team_summary(
             season=season,
-            team=team,
+            team=canonical_name,
         )
 
-        summaries.append(
-            summary
-        )
+        summaries.append(summary)
 
     return {
         "query_type": "team_compare",
         "query_version": QUERY_VERSION,
-        "team": summaries[0]["team"],
-        "persistent_team_code":
-            summaries[0]["persistent_team_code"],
-        "identity_source_file":
-            IDENTITY_FILE,
-        "fixture_source_file":
-            FIXTURE_FILE,
-        "corrections_file":
-            CORRECTIONS_FILE,
+        "team": canonical_name,
+        "persistent_team_code": persistent_code,
+        "identity_source_file": IDENTITY_FILE,
+        "fixture_source_file": FIXTURE_FILE,
+        "corrections_file": CORRECTIONS_FILE,
         "generated_at":
             datetime.now().astimezone().isoformat(),
+        "requested_seasons":
+            requested_seasons,
+        "skipped_seasons":
+            skipped_seasons,
         "seasons": [
             {
                 "season":
@@ -1502,9 +1573,7 @@ def team_compare(
                         "matches_in_schedule"
                     ],
                 "unplayed":
-                    summary["summary"][
-                        "unplayed"
-                    ],
+                    summary["summary"]["unplayed"],
                 "complete":
                     summary["data_quality"][
                         "status"
@@ -1534,6 +1603,244 @@ def team_compare(
             }
             for summary in summaries
         ],
+    }
+
+
+
+def head_to_head(
+    team,
+    opponent,
+    seasons,
+):
+    if not seasons:
+        raise ValueError(
+            "At least one season is required."
+        )
+
+    if not team or not opponent:
+        raise ValueError(
+            "Both team and opponent are required."
+        )
+
+    requested_seasons = list(
+        dict.fromkeys(seasons)
+    )
+
+    matches = []
+    skipped_seasons = []
+
+    team_names = {}
+    opponent_names = {}
+
+    for season in requested_seasons:
+
+        try:
+            resolved_team = resolve_team(
+                season,
+                team,
+            )
+            resolved_opponent = resolve_team(
+                season,
+                opponent,
+            )
+        except ValueError:
+            skipped_seasons.append({
+                "season": season,
+                "status": "NOT_BOTH_IN_PL",
+            })
+            continue
+
+        team_names[season] = (
+            resolved_team[
+                "canonical_name"
+            ]
+        )
+
+        opponent_names[season] = (
+            resolved_opponent[
+                "canonical_name"
+            ]
+        )
+
+        fixture_result = query_fixtures(
+            season=season,
+            team=resolved_team[
+                "canonical_name"
+            ],
+            opponent=resolved_opponent[
+                "canonical_name"
+            ],
+            limit=100,
+        )
+
+        for row in fixture_result["results"]:
+
+            home_score = row[
+                "home_score"
+            ]
+            away_score = row[
+                "away_score"
+            ]
+
+            if (
+                home_score == ""
+                or away_score == ""
+            ):
+                result = "UNPLAYED"
+            else:
+                home_score = int(
+                    home_score
+                )
+                away_score = int(
+                    away_score
+                )
+
+                team_is_home = (
+                    row["home_team_name"]
+                    == resolved_team[
+                        "canonical_name"
+                    ]
+                )
+
+                if (
+                    team_is_home
+                    and home_score > away_score
+                ) or (
+                    not team_is_home
+                    and away_score > home_score
+                ):
+                    result = "W"
+                elif (
+                    home_score == away_score
+                ):
+                    result = "D"
+                else:
+                    result = "L"
+
+            matches.append({
+                "season":
+                    season,
+                "fixture_id":
+                    row["fixture_id"],
+                "gameweek":
+                    row["gameweek"],
+                "kickoff_time":
+                    row["kickoff_time"],
+                "home_team_name":
+                    row["home_team_name"],
+                "away_team_name":
+                    row["away_team_name"],
+                "home_score":
+                    row["home_score"],
+                "away_score":
+                    row["away_score"],
+                "team_result":
+                    result,
+            })
+
+    matches.sort(
+        key=lambda row: (
+            row["kickoff_time"],
+            row["season"],
+            int(row["fixture_id"]),
+        )
+    )
+
+    wins = sum(
+        1
+        for row in matches
+        if row["team_result"] == "W"
+    )
+
+    draws = sum(
+        1
+        for row in matches
+        if row["team_result"] == "D"
+    )
+
+    losses = sum(
+        1
+        for row in matches
+        if row["team_result"] == "L"
+    )
+
+    goals_for = 0
+    goals_against = 0
+
+    for row in matches:
+
+        if (
+            row["home_score"] == ""
+            or row["away_score"] == ""
+        ):
+            continue
+
+        home_score = int(
+            row["home_score"]
+        )
+        away_score = int(
+            row["away_score"]
+        )
+
+        if (
+            row["home_team_name"]
+            == team_names[row["season"]]
+        ):
+            goals_for += home_score
+            goals_against += away_score
+        else:
+            goals_for += away_score
+            goals_against += home_score
+
+    return {
+        "query_type":
+            "head_to_head",
+        "query_version":
+            QUERY_VERSION,
+        "team":
+            next(
+                iter(team_names.values()),
+                team,
+            ),
+        "opponent":
+            next(
+                iter(opponent_names.values()),
+                opponent,
+            ),
+        "requested_seasons":
+            requested_seasons,
+        "skipped_seasons":
+            skipped_seasons,
+        "shared_seasons":
+            [
+                season
+                for season
+                in requested_seasons
+                if season
+                not in {
+                    item["season"]
+                    for item
+                    in skipped_seasons
+                }
+            ],
+        "summary": {
+            "matches":
+                len(matches),
+            "wins":
+                wins,
+            "draws":
+                draws,
+            "losses":
+                losses,
+            "goals_for":
+                goals_for,
+            "goals_against":
+                goals_against,
+            "goal_difference":
+                goals_for - goals_against,
+        },
+        "matches":
+            matches,
     }
 
 

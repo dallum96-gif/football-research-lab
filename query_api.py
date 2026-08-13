@@ -54,6 +54,19 @@ def fixtures(
     )
 
 
+
+def head_to_head(
+    team,
+    opponent,
+    seasons,
+):
+    return query_lab.head_to_head(
+        team=team,
+        opponent=opponent,
+        seasons=seasons,
+    )
+
+
 def top_players(
     season,
     metric="goals",
@@ -104,6 +117,7 @@ def dispatch(
         "team-summary": team_summary,
         "team-compare": team_compare,
         "fixtures": fixtures,
+        "head-to-head": head_to_head,
         "top-players": top_players,
         "player-total": player_total,
     }

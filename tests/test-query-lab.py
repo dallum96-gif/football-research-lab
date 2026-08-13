@@ -251,6 +251,260 @@ def test_fixture_season_partitions():
         assert lower <= first <= upper
         assert lower <= last <= upper
 
+
+def test_team_compare_handles_non_pl_seasons():
+
+    result = query_lab.team_compare(
+        "Bournemouth",
+        [
+            "2016-17",
+            "2017-18",
+            "2018-19",
+            "2019-20",
+            "2020-21",
+            "2021-22",
+            "2022-23",
+            "2023-24",
+            "2024-25",
+            "2025-26",
+        ],
+    )
+
+    returned = {
+        row["season"]
+        for row in result["seasons"]
+    }
+
+    skipped = {
+        row["season"]
+        for row in result["skipped_seasons"]
+    }
+
+    assert "2016-17" in returned
+    assert "2018-19" in returned
+    assert "2019-20" in returned
+    assert "2020-21" in skipped
+    assert "2021-22" in skipped
+    assert "2022-23" in returned
+    assert "2023-24" in returned
+    assert "2024-25" in returned
+    assert "2025-26" in returned
+
+    assert all(
+        row["complete"]
+        for row in result["seasons"]
+    )
+
+
+
+def test_head_to_head():
+
+    # --------------------------------------------------------
+    # Case 1: Club with PL gaps versus continuously present club
+    # --------------------------------------------------------
+
+    city_bournemouth = query_lab.head_to_head(
+        "Man City",
+        "Bournemouth",
+        [
+            "2019-20",
+            "2020-21",
+            "2021-22",
+            "2022-23",
+        ],
+    )
+
+    assert (
+        city_bournemouth["summary"]["matches"]
+        == 4
+    )
+
+    assert (
+        city_bournemouth["summary"]["wins"]
+        == 4
+    )
+
+    assert (
+        city_bournemouth["summary"]["draws"]
+        == 0
+    )
+
+    assert (
+        city_bournemouth["summary"]["losses"]
+        == 0
+    )
+
+    skipped = {
+        row["season"]
+        for row
+        in city_bournemouth["skipped_seasons"]
+    }
+
+    assert skipped == {
+        "2020-21",
+        "2021-22",
+    }
+
+    # Every returned fixture must have a valid result.
+    assert all(
+        row["team_result"]
+        in {"W", "D", "L", "UNPLAYED"}
+        for row
+        in city_bournemouth["matches"]
+    )
+
+    # --------------------------------------------------------
+    # Case 2: H2H must be symmetric
+    # --------------------------------------------------------
+
+    bournemouth_city = query_lab.head_to_head(
+        "Bournemouth",
+        "Man City",
+        [
+            "2019-20",
+            "2020-21",
+            "2021-22",
+            "2022-23",
+        ],
+    )
+
+    assert (
+        bournemouth_city["summary"]["matches"]
+        == city_bournemouth["summary"]["matches"]
+    )
+
+    assert (
+        bournemouth_city["summary"]["wins"]
+        == city_bournemouth["summary"]["losses"]
+    )
+
+    assert (
+        bournemouth_city["summary"]["draws"]
+        == city_bournemouth["summary"]["draws"]
+    )
+
+    assert (
+        bournemouth_city["summary"]["losses"]
+        == city_bournemouth["summary"]["wins"]
+    )
+
+    assert (
+        bournemouth_city["summary"]["goals_for"]
+        == city_bournemouth["summary"]["goals_against"]
+    )
+
+    assert (
+        bournemouth_city["summary"]["goals_against"]
+        == city_bournemouth["summary"]["goals_for"]
+    )
+
+    # --------------------------------------------------------
+    # Case 3: Two clubs present in every dataset season
+    # --------------------------------------------------------
+
+    arsenal_city = query_lab.head_to_head(
+        "Arsenal",
+        "Man City",
+        [
+            "2016-17",
+            "2017-18",
+            "2018-19",
+            "2019-20",
+            "2020-21",
+            "2021-22",
+            "2022-23",
+            "2023-24",
+            "2024-25",
+            "2025-26",
+        ],
+    )
+
+    # Two league meetings per shared season.
+    assert (
+        arsenal_city["summary"]["matches"]
+        == 20
+    )
+
+    assert (
+        arsenal_city["skipped_seasons"]
+        == []
+    )
+
+    # --------------------------------------------------------
+    # Case 4: Aggregate W/D/L must reconcile with fixtures
+    # --------------------------------------------------------
+
+    matches = arsenal_city["matches"]
+
+    assert (
+        sum(
+            row["team_result"] == "W"
+            for row in matches
+        )
+        == arsenal_city["summary"]["wins"]
+    )
+
+    assert (
+        sum(
+            row["team_result"] == "D"
+            for row in matches
+        )
+        == arsenal_city["summary"]["draws"]
+    )
+
+    assert (
+        sum(
+            row["team_result"] == "L"
+            for row in matches
+        )
+        == arsenal_city["summary"]["losses"]
+    )
+
+    assert (
+        arsenal_city["summary"]["wins"]
+        + arsenal_city["summary"]["draws"]
+        + arsenal_city["summary"]["losses"]
+        == arsenal_city["summary"]["matches"]
+    )
+
+    # --------------------------------------------------------
+    # Case 5: Every played fixture's result must agree with
+    # the score and the selected team
+    # --------------------------------------------------------
+
+    for row in matches:
+
+        home_score = int(
+            row["home_score"]
+        )
+
+        away_score = int(
+            row["away_score"]
+        )
+
+        if (
+            row["home_team_name"]
+            == arsenal_city["team"]
+        ):
+            team_score = home_score
+            opponent_score = away_score
+        else:
+            team_score = away_score
+            opponent_score = home_score
+
+        if team_score > opponent_score:
+            expected = "W"
+        elif team_score < opponent_score:
+            expected = "L"
+        else:
+            expected = "D"
+
+        assert (
+            row["team_result"]
+            == expected
+        )
+
+
 if __name__ == "__main__":
     tests = [
         test_seasons,
@@ -264,6 +518,8 @@ if __name__ == "__main__":
         test_named_opponent_query,
         test_verified_fixture_correction,
     test_fixture_season_partitions,
+test_team_compare_handles_non_pl_seasons,
+test_head_to_head,
     ]
 
     failures = []
