@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import date, datetime
 import sys
 
 import streamlit as st
@@ -14,6 +15,30 @@ st.set_page_config(
     page_title="Football Research Lab",
     page_icon="⚽",
     layout="wide",
+)
+
+st.markdown(
+    """
+    <style>
+    .form-pill {
+        display: inline-block;
+        min-width: 34px;
+        padding: 6px 10px;
+        margin: 3px 4px 3px 0;
+        border: 1px solid rgba(128,128,128,.25);
+        border-radius: 999px;
+        text-align: center;
+        font-weight: 700;
+        font-size: .9rem;
+    }
+    .form-range {
+        color: rgba(128,128,128,.9);
+        font-size: .9rem;
+        margin-bottom: .35rem;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
 )
 
 
@@ -47,8 +72,41 @@ def get_fixtures(
     )
 
 
+@st.cache_data
+def get_team_form(season, team):
+    return query_api.team_form(
+        season=season,
+        team=team,
+    )
+
+
 def season_key(season):
     return int(season.split("-")[0])
+
+
+def kickoff_date(row):
+    return datetime.fromisoformat(
+        row["kickoff_time"].replace("Z", "+00:00")
+    ).date()
+
+
+def gameweek_number(row):
+    try:
+        return int(row["gameweek"])
+    except (TypeError, ValueError):
+        return None
+
+
+def result_pills(results):
+    if not results:
+        return "<span class='form-range'>No completed matches in this range.</span>"
+
+    pills = []
+    for result in results:
+        pills.append(
+            f"<span class='form-pill'>{result}</span>"
+        )
+    return "".join(pills)
 
 
 st.title("Football Research Lab")
@@ -128,12 +186,13 @@ if summary["data_quality"]["status"] != "COMPLETE":
         "This season contains incomplete fixture data."
     )
 
-tab1, tab2, tab3, tab4 = st.tabs(
+tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
         "League Table",
         "Fixture Explorer",
         "Season Comparison",
         "Head-to-Head",
+        "Form & Streaks",
     ]
 )
 
@@ -428,7 +487,6 @@ with tab4:
             key="h2h_opponent",
         )
 
-
     with h2h_cols[1]:
         h2h_seasons = st.multiselect(
             "Seasons",
@@ -505,6 +563,176 @@ with tab4:
             width='stretch',
             hide_index=True,
         )
+
+with tab5:
+    st.subheader("Form & Streaks")
+    st.caption(
+        "Explore completed league form by matchday or calendar date."
+    )
+
+    form = get_team_form(
+        season=season,
+        team=team,
+    )
+    completed = form["matches"]
+
+    if not completed:
+        st.info("No completed matches are available for this team and season.")
+    else:
+        max_gameweek = max(
+            gameweek_number(row)
+            for row in completed
+            if gameweek_number(row) is not None
+        )
+        min_date = min(kickoff_date(row) for row in completed)
+        max_date = max(kickoff_date(row) for row in completed)
+
+        filter_mode = st.radio(
+            "Filter range",
+            ["Matchdays", "Dates"],
+            horizontal=True,
+            label_visibility="collapsed",
+        )
+
+        if filter_mode == "Matchdays":
+            range_cols = st.columns(2)
+            with range_cols[0]:
+                start_gw = st.number_input(
+                    "From matchday",
+                    min_value=1,
+                    max_value=max_gameweek,
+                    value=1,
+                    step=1,
+                )
+            with range_cols[1]:
+                end_gw = st.number_input(
+                    "To matchday",
+                    min_value=1,
+                    max_value=max_gameweek,
+                    value=max_gameweek,
+                    step=1,
+                )
+
+            if start_gw > end_gw:
+                start_gw, end_gw = end_gw, start_gw
+
+            filtered = [
+                row
+                for row in completed
+                if (
+                    gameweek_number(row) is not None
+                    and start_gw <= gameweek_number(row) <= end_gw
+                )
+            ]
+
+            range_label = (
+                f"GW {start_gw}–{end_gw}"
+            )
+
+        else:
+            range_cols = st.columns(2)
+            with range_cols[0]:
+                start_date = st.date_input(
+                    "From date",
+                    value=min_date,
+                    min_value=min_date,
+                    max_value=max_date,
+                )
+            with range_cols[1]:
+                end_date = st.date_input(
+                    "To date",
+                    value=max_date,
+                    min_value=min_date,
+                    max_value=max_date,
+                )
+
+            if start_date > end_date:
+                start_date, end_date = end_date, start_date
+
+            filtered = [
+                row
+                for row in completed
+                if start_date <= kickoff_date(row) <= end_date
+            ]
+
+            range_label = (
+                f"{start_date.strftime('%d %b %Y')} – "
+                f"{end_date.strftime('%d %b %Y')}"
+            )
+
+        if filtered:
+            filtered = sorted(
+                filtered,
+                key=lambda row: row["kickoff_time"],
+            )
+
+            points = sum(row["points"] for row in filtered)
+            goals_for = sum(row["goals_for"] for row in filtered)
+            goals_against = sum(row["goals_against"] for row in filtered)
+            wins = sum(row["result"] == "W" for row in filtered)
+            draws = sum(row["result"] == "D" for row in filtered)
+            losses = sum(row["result"] == "L" for row in filtered)
+
+            first_date = kickoff_date(filtered[0])
+            last_date = kickoff_date(filtered[-1])
+            first_gw = gameweek_number(filtered[0])
+            last_gw = gameweek_number(filtered[-1])
+
+            st.markdown(
+                f"**{team}** · {range_label}  "
+                f"  \n"
+                f"{len(filtered)} matches · "
+                f"GW {first_gw}–{last_gw} · "
+                f"{first_date.strftime('%d %b')}–{last_date.strftime('%d %b %Y')}"
+            )
+
+            form_metrics = st.columns(5)
+            form_metrics[0].metric("Points", points)
+            form_metrics[1].metric("Record", f"{wins}W {draws}D {losses}L")
+            form_metrics[2].metric("Goals for", goals_for)
+            form_metrics[3].metric("Goals against", goals_against)
+            form_metrics[4].metric("Goal difference", f"{goals_for - goals_against:+d}")
+
+            st.markdown("**Results**")
+            st.markdown(
+                result_pills([row["result"] for row in filtered]),
+                unsafe_allow_html=True,
+            )
+
+            st.markdown("**Matches**")
+            form_rows = []
+            for row in filtered:
+                form_rows.append(
+                    {
+                        "Date": kickoff_date(row).strftime("%d %b %Y"),
+                        "GW": row["gameweek"],
+                        "Fixture": (
+                            f"{row['home_team_name']} "
+                            f"{row['home_score']}-{row['away_score']} "
+                            f"{row['away_team_name']}"
+                        ),
+                        "Result": row["result"],
+                        "Pts": row["points"],
+                    }
+                )
+
+            st.dataframe(
+                pd.DataFrame(form_rows),
+                width="stretch",
+                hide_index=True,
+            )
+        else:
+            st.info("No completed matches fall inside the selected range.")
+
+        st.divider()
+        st.markdown("**Season streaks**")
+        streak_cols = st.columns(5)
+        streaks = form["streaks"]
+        streak_cols[0].metric("Win streak", streaks["current_win_streak"])
+        streak_cols[1].metric("Unbeaten", streaks["current_unbeaten_streak"])
+        streak_cols[2].metric("Loss streak", streaks["current_loss_streak"])
+        streak_cols[3].metric("Clean sheets", streaks["current_clean_sheet_streak"])
+        streak_cols[4].metric("Scoring", streaks["current_scoring_streak"])
 
 with st.expander("Data provenance"):
     st.write(
