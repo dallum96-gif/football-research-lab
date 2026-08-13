@@ -51,6 +51,25 @@ def season_key(season):
     return int(season.split("-")[0])
 
 
+def cycle_selection(state_key, options, direction):
+    if not options:
+        return
+
+    current = st.session_state.get(
+        state_key,
+        options[0],
+    )
+
+    if current not in options:
+        st.session_state[state_key] = options[0]
+        return
+
+    index = options.index(current)
+    st.session_state[state_key] = options[
+        (index + direction) % len(options)
+    ]
+
+
 st.title("Football Research Lab")
 st.caption(
     "Premier League historical data and analysis"
@@ -85,10 +104,67 @@ teams = sorted(
 )
 
 with col2:
-    team = st.selectbox(
-        "Team",
-        teams,
+    team_search = st.text_input(
+        "Find team",
+        key="team_search",
+        placeholder="Type a club name...",
     )
+
+    filtered_teams = [
+        name
+        for name in teams
+        if team_search.casefold()
+        in name.casefold()
+    ]
+
+    if not filtered_teams:
+        st.error(
+            "No teams match that search."
+        )
+        st.stop()
+
+    if (
+        st.session_state.get("team_selector")
+        not in filtered_teams
+    ):
+        st.session_state[
+            "team_selector"
+        ] = filtered_teams[0]
+
+    team_nav = st.columns([1, 8, 1])
+
+    with team_nav[0]:
+        st.button(
+            "▲",
+            key="team_up",
+            help="Previous team",
+            on_click=cycle_selection,
+            args=(
+                "team_selector",
+                filtered_teams,
+                -1,
+            ),
+        )
+
+    with team_nav[1]:
+        team = st.selectbox(
+            "Team",
+            filtered_teams,
+            key="team_selector",
+        )
+
+    with team_nav[2]:
+        st.button(
+            "▼",
+            key="team_down",
+            help="Next team",
+            on_click=cycle_selection,
+            args=(
+                "team_selector",
+                filtered_teams,
+                1,
+            ),
+        )
 
 summary = query_api.team_summary(
     season=season,
@@ -412,14 +488,73 @@ with tab4:
     h2h_cols = st.columns(2)
 
     with h2h_cols[0]:
-        h2h_opponent = st.selectbox(
-            "Opponent",
-            sorted(
-                [name for name in teams if name != team],
-                key=str.casefold,
-            ),
-            key="h2h_opponent",
+        h2h_opponent_names = [
+            name
+            for name in teams
+            if name != team
+        ]
+
+        h2h_opponent_search = st.text_input(
+            "Find opponent",
+            key="h2h_opponent_search",
+            placeholder="Type a club name...",
         )
+
+        filtered_h2h_opponents = [
+            name
+            for name in h2h_opponent_names
+            if h2h_opponent_search.casefold()
+            in name.casefold()
+        ]
+
+        if not filtered_h2h_opponents:
+            st.error(
+                "No opponents match that search."
+            )
+            st.stop()
+
+        if (
+            st.session_state.get("h2h_opponent")
+            not in filtered_h2h_opponents
+        ):
+            st.session_state["h2h_opponent"] = (
+                filtered_h2h_opponents[0]
+            )
+
+        h2h_nav = st.columns([1, 8, 1])
+
+        with h2h_nav[0]:
+            st.button(
+                "▲",
+                key="h2h_up",
+                help="Previous opponent",
+                on_click=cycle_selection,
+                args=(
+                    "h2h_opponent",
+                    filtered_h2h_opponents,
+                    -1,
+                ),
+            )
+
+        with h2h_nav[1]:
+            h2h_opponent = st.selectbox(
+                "Opponent",
+                filtered_h2h_opponents,
+                key="h2h_opponent",
+            )
+
+        with h2h_nav[2]:
+            st.button(
+                "▼",
+                key="h2h_down",
+                help="Next opponent",
+                on_click=cycle_selection,
+                args=(
+                    "h2h_opponent",
+                    filtered_h2h_opponents,
+                    1,
+                ),
+            )
 
     with h2h_cols[1]:
         h2h_seasons = st.multiselect(
