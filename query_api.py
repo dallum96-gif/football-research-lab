@@ -103,6 +103,16 @@ def player_total(
     )
 
 
+
+def fixture_detail(
+    season,
+    fixture_id,
+):
+    return query_lab.fixture_detail(
+        season=season,
+        fixture_id=fixture_id,
+    )
+
 def list_seasons():
     rows = query_lab.load_identity_registry()
 

@@ -80,6 +80,185 @@ def get_team_form(season, team):
     )
 
 
+
+
+def render_fixture_detail(detail):
+    fixture = detail["fixture"]
+    stats = detail["stats"]
+
+    home = fixture["home_team_name"]
+    away = fixture["away_team_name"]
+
+    home_score = fixture["home_score"] or "—"
+    away_score = fixture["away_score"] or "—"
+
+    st.markdown(
+        f"<div style='text-align:center;'>"
+        f"<div style='font-size:.9rem; opacity:.7;'>"
+        f"{fixture['season']} · GW {fixture['gameweek']}"
+        f"</div>"
+        f"<div style='font-size:1rem; opacity:.8; margin-top:.25rem;'>"
+        f"{fixture['kickoff_time'][:10]}"
+        f"</div>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        f"<div style='text-align:center; margin:1rem 0 1.5rem 0;'>"
+        f"<div style='font-size:1.55rem; font-weight:700;'>"
+        f"{home}"
+        f"</div>"
+        f"<div style='font-size:3rem; font-weight:800; line-height:1.1; margin:.35rem 0;'>"
+        f"{home_score}–{away_score}"
+        f"</div>"
+        f"<div style='font-size:1.55rem; font-weight:700;'>"
+        f"{away}"
+        f"</div>"
+        f"</div>",
+        unsafe_allow_html=True,
+    )
+
+    if fixture.get("data_corrected") == "true":
+        st.info(
+            "This fixture contains a verified historical data correction. "
+            "The analytical view uses the corrected kickoff and result."
+        )
+
+    if stats["status"] != "AVAILABLE":
+        st.warning(
+            "Historical match statistics are not available for this fixture."
+        )
+        return
+
+    home_core = stats["home"]["core"]
+    away_core = stats["away"]["core"]
+
+    def stat_value(values, label):
+        value = values.get(label)
+        return 0 if value is None else value
+
+    def render_group(title, labels):
+        st.markdown(
+            f"#### {title}"
+        )
+
+        rows = [
+            {
+                "Statistic": label,
+                home: stat_value(home_core, label),
+                away: stat_value(away_core, label),
+            }
+            for label in labels
+            if label in home_core
+        ]
+
+        st.dataframe(
+            pd.DataFrame(rows),
+            width="stretch",
+            hide_index=True,
+        )
+
+    render_group(
+        "Attacking",
+        [
+            "Shots",
+            "Shots on target",
+            "Shots off target",
+            "Blocked shots",
+            "Corners",
+        ],
+    )
+
+    render_group(
+        "Possession & passing",
+        [
+            "Possession",
+            "Passes",
+            "Accurate passes",
+            "Crosses",
+        ],
+    )
+
+    render_group(
+        "Defending",
+        [
+            "Tackles",
+            "Tackles won",
+            "Interceptions",
+            "Interceptions won",
+            "Clearances",
+            "Effective clearances",
+            "Offsides",
+        ],
+    )
+
+    render_group(
+        "Discipline",
+        [
+            "Fouls won",
+            "Fouls conceded",
+            "Yellow cards",
+            "Red cards",
+        ],
+    )
+
+    home_optional = stats["home"]["optional"]
+    away_optional = stats["away"]["optional"]
+
+    optional_rows = []
+
+    for label in home_optional:
+        optional_rows.append(
+            {
+                "Statistic": label,
+                home: (
+                    0
+                    if home_optional[label] is None
+                    else home_optional[label]
+                ),
+                away: (
+                    0
+                    if away_optional[label] is None
+                    else away_optional[label]
+                ),
+            }
+        )
+
+    with st.expander(
+        "Additional statistics",
+        expanded=False,
+    ):
+        st.dataframe(
+            pd.DataFrame(optional_rows),
+            width="stretch",
+            hide_index=True,
+        )
+
+        st.caption(
+            "Zero is displayed where the source provides no "
+            "value for this fixture statistic."
+        )
+
+    with st.expander(
+        "Data provenance",
+        expanded=False,
+    ):
+        st.write(
+            {
+                "Canonical fixture ID":
+                    fixture["fixture_id"],
+                "PL source match ID":
+                    stats["source_match_id"],
+                "Canonical fixture source":
+                    detail["provenance"]["canonical_source"],
+                "Identity source":
+                    detail["provenance"]["identity_source"],
+                "Correction source":
+                    detail["provenance"]["correction_source"],
+            }
+        )
+
 def season_key(season):
     return int(season.split("-")[0])
 
@@ -113,6 +292,38 @@ st.title("Football Research Lab")
 st.caption(
     "Premier League historical data and analysis"
 )
+
+fixture_token = st.query_params.get("fixture")
+
+if fixture_token:
+    try:
+        fixture_season, fixture_id = fixture_token.split(":", 1)
+
+        detail = query_api.fixture_detail(
+            season=fixture_season,
+            fixture_id=fixture_id,
+        )
+
+        if st.button(
+            "← Back to Fixture Explorer",
+            key="fixture_back",
+        ):
+            del st.query_params["fixture"]
+            st.rerun()
+
+        st.divider()
+
+        render_fixture_detail(detail)
+
+        st.stop()
+
+    except Exception as exc:
+        st.error(
+            f"Unable to open fixture: {exc}"
+        )
+        st.stop()
+
+
 
 seasons = sorted(
     get_seasons(),
@@ -338,6 +549,7 @@ with tab2:
 
         fixture_rows.append(
             {
+                "_fixture_id": row["fixture_id"],
                 "Date": row["kickoff_time"][:10],
                 "GW": row["gameweek"],
                 "Venue": "Home" if home == team else "Away",
@@ -351,11 +563,53 @@ with tab2:
         fixture_rows
     )
 
-    st.dataframe(
-        fixture_df,
-        width='stretch',
-        hide_index=True,
+    header_cols = st.columns(
+        [1.2, 0.7, 0.8, 1.8, 0.9, 0.8]
     )
+
+    headers = [
+        "Date",
+        "GW",
+        "Venue",
+        "Opponent",
+        "Score",
+        "Result",
+    ]
+
+    for col, header in zip(
+        header_cols,
+        headers,
+    ):
+        col.markdown(
+            f"**{header}**"
+        )
+
+    st.divider()
+
+    for row in fixture_rows:
+        cols = st.columns(
+            [1.2, 0.7, 0.8, 1.8, 0.9, 0.8]
+        )
+
+        cols[0].write(row["Date"])
+        cols[1].write(row["GW"])
+        cols[2].write(row["Venue"])
+
+        if cols[3].button(
+            row["Opponent"],
+            key=(
+                "fixture_opponent_"
+                f"{row['_fixture_id']}"
+            ),
+            use_container_width=True,
+        ):
+            st.query_params["fixture"] = (
+                f"{season}:{row['_fixture_id']}"
+            )
+            st.rerun()
+
+        cols[4].write(row["Score"])
+        cols[5].write(row["Result"])
 
 with tab3:
     comparison = query_api.team_compare(

@@ -1101,6 +1101,84 @@ def query_fixtures(
             matches,
     }
 
+
+def fixture_detail(
+    season,
+    fixture_id,
+):
+    if not season:
+        raise ValueError("season is required")
+
+    if fixture_id in (None, ""):
+        raise ValueError("fixture_id is required")
+
+    fixtures = load_fixtures()
+
+    matches = [
+        row
+        for row in fixtures
+        if row["season"] == str(season)
+        and str(row["fixture_id"]) == str(fixture_id)
+    ]
+
+    if len(matches) != 1:
+        raise ValueError(
+            f"Expected exactly one fixture for "
+            f"{season}/{fixture_id}; found {len(matches)}"
+        )
+
+    fixture = dict(matches[0])
+
+    identity_rows = load_identity_registry()
+
+    names = {
+        (
+            row["season"],
+            str(row["local_team_id"]),
+        ): row["canonical_name"].replace("_", " ")
+        for row in identity_rows
+    }
+
+    fixture["home_team_name"] = names.get(
+        (
+            season,
+            str(fixture["home_team_id"]),
+        ),
+        f"ID {fixture['home_team_id']}",
+    )
+
+    fixture["away_team_name"] = names.get(
+        (
+            season,
+            str(fixture["away_team_id"]),
+        ),
+        f"ID {fixture['away_team_id']}",
+    )
+
+    from match_stats import fixture_stats
+
+    stats = fixture_stats(
+        fixture,
+        identity_rows,
+    )
+
+    return {
+        "query_type": "fixture_detail",
+        "query_version": QUERY_VERSION,
+        "fixture": fixture,
+        "stats": stats,
+        "provenance": {
+            "canonical_source": FIXTURE_FILE,
+            "identity_source": IDENTITY_FILE,
+            "correction_source": CORRECTIONS_FILE,
+            "source_match_id": stats.get(
+                "source_match_id"
+            ),
+        },
+        "generated_at":
+            datetime.now().astimezone().isoformat(),
+    }
+
 def team_form(
     season,
     team=None,
