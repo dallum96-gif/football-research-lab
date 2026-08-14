@@ -9,6 +9,8 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 import query_api
+import poisson_model
+import kelly_analysis
 
 
 st.set_page_config(
@@ -259,6 +261,297 @@ def render_fixture_detail(detail):
             }
         )
 
+
+def render_prediction_lab():
+    st.subheader(
+        "Prediction Lab"
+    )
+
+    st.caption(
+        "Poisson V0.1 — exploratory model based exclusively "
+        "on 2025/26 score data. Not yet out-of-sample validated."
+    )
+
+    teams = poisson_model.PREMIER_LEAGUE_2026_27
+
+    st.markdown("#### Match")
+
+    home_col, away_col = st.columns(2)
+
+    with home_col:
+        home_team = st.selectbox(
+            "Home team",
+            teams,
+            index=teams.index("Arsenal"),
+            key="prediction_home_team",
+        )
+
+    away_options = [
+        team
+        for team in teams
+        if team != home_team
+    ]
+
+    default_away = (
+        away_options.index("Manchester United")
+        if "Manchester United" in away_options
+        else 0
+    )
+
+    with away_col:
+        away_team = st.selectbox(
+            "Away team",
+            away_options,
+            index=default_away,
+            key="prediction_away_team",
+        )
+
+    prediction = poisson_model.poisson_prediction(
+        home_team,
+        away_team,
+    )
+
+    expected_home = prediction[
+        "expected_goals"
+    ]["home"]
+
+    expected_away = prediction[
+        "expected_goals"
+    ]["away"]
+
+    metric_cols = st.columns(2)
+
+    metric_cols[0].metric(
+        f"{home_team} expected goals",
+        f"{expected_home:.2f}",
+    )
+
+    metric_cols[1].metric(
+        f"{away_team} expected goals",
+        f"{expected_away:.2f}",
+    )
+
+    probabilities = prediction[
+        "probabilities"
+    ]
+
+    fair = prediction[
+        "fair_odds"
+    ]
+
+    result_rows = [
+        {
+            "Outcome": "Home win",
+            "Model probability":
+                f"{probabilities['home_win'] * 100:.1f}%",
+            "Fair odds":
+                f"{fair['home_win']:.2f}",
+        },
+        {
+            "Outcome": "Draw",
+            "Model probability":
+                f"{probabilities['draw'] * 100:.1f}%",
+            "Fair odds":
+                f"{fair['draw']:.2f}",
+        },
+        {
+            "Outcome": "Away win",
+            "Model probability":
+                f"{probabilities['away_win'] * 100:.1f}%",
+            "Fair odds":
+                f"{fair['away_win']:.2f}",
+        },
+        {
+            "Outcome": "Over 2.5",
+            "Model probability":
+                f"{probabilities['over_2_5'] * 100:.1f}%",
+            "Fair odds":
+                f"{1 / probabilities['over_2_5']:.2f}",
+        },
+        {
+            "Outcome": "BTTS",
+            "Model probability":
+                f"{probabilities['btts'] * 100:.1f}%",
+            "Fair odds":
+                f"{1 / probabilities['btts']:.2f}",
+        },
+    ]
+
+    st.markdown("#### Model output")
+
+    st.dataframe(
+        pd.DataFrame(result_rows),
+        width="stretch",
+        hide_index=True,
+    )
+
+    most_likely = prediction[
+        "most_likely_score"
+    ]
+
+    st.caption(
+        "Most likely score: "
+        f"{most_likely['home']}–"
+        f"{most_likely['away']} "
+        f"({most_likely['probability'] * 100:.1f}%)"
+    )
+
+    if (
+        home_team in poisson_model.PROMOTED_TEAMS
+        or away_team in poisson_model.PROMOTED_TEAMS
+    ):
+        st.info(
+            "Promoted-team treatment: "
+            + prediction["promotion_method"]
+        )
+
+    st.divider()
+
+    st.markdown("#### Bookmaker comparison")
+
+    st.caption(
+        "Enter decimal 1X2 odds to compare the market "
+        "with the model."
+    )
+
+    odds_home, odds_draw, odds_away = st.columns(3)
+
+    with odds_home:
+        home_odds = st.number_input(
+            "Home odds",
+            min_value=1.01,
+            value=2.00,
+            step=0.01,
+            key="prediction_home_odds",
+        )
+
+    with odds_draw:
+        draw_odds = st.number_input(
+            "Draw odds",
+            min_value=1.01,
+            value=3.50,
+            step=0.01,
+            key="prediction_draw_odds",
+        )
+
+    with odds_away:
+        away_odds = st.number_input(
+            "Away odds",
+            min_value=1.01,
+            value=4.00,
+            step=0.01,
+            key="prediction_away_odds",
+        )
+
+    comparison = (
+        poisson_model.compare_bookmaker_odds(
+            prediction,
+            home_odds,
+            draw_odds,
+            away_odds,
+        )
+    )
+
+    labels = {
+        "home_win": "Home win",
+        "draw": "Draw",
+        "away_win": "Away win",
+    }
+
+    comparison_rows = []
+
+    for key in (
+        "home_win",
+        "draw",
+        "away_win",
+    ):
+        comparison_rows.append(
+            {
+                "Outcome": labels[key],
+                "Model":
+                    f"{probabilities[key] * 100:.1f}%",
+                "Market":
+                    f"{comparison['market_probability'][key] * 100:.1f}%",
+                "Edge":
+                    f"{comparison['probability_edge'][key] * 100:+.1f}pp",
+                "Fair odds":
+                    f"{fair[key]:.2f}",
+                "Bookmaker odds":
+                    f"{comparison['bookmaker_odds'][key]:.2f}",
+                "EV":
+                    f"{comparison['expected_value'][key] * 100:+.1f}%",
+            }
+        )
+
+    st.dataframe(
+        pd.DataFrame(comparison_rows),
+        width="stretch",
+        hide_index=True,
+    )
+
+    st.caption(
+        "Market overround: "
+        f"{(comparison['overround'] - 1) * 100:.2f}%"
+    )
+
+    st.divider()
+
+    st.markdown("#### Kelly staking analysis")
+
+    bankroll = st.number_input(
+        "Optional bankroll",
+        min_value=0.0,
+        value=1000.0,
+        step=50.0,
+        key="prediction_bankroll",
+    )
+
+    kelly_rows = []
+
+    for key in (
+        "home_win",
+        "draw",
+        "away_win",
+    ):
+        analysis = (
+            kelly_analysis.kelly_analysis(
+                probabilities[key],
+                comparison["bookmaker_odds"][key],
+                bankroll,
+            )
+        )
+
+        kelly_rows.append(
+            {
+                "Outcome": labels[key],
+                "Full Kelly":
+                    f"{analysis['full_kelly'] * 100:.2f}%",
+                "Half Kelly":
+                    f"{analysis['half_kelly'] * 100:.2f}%",
+                "Quarter Kelly":
+                    f"{analysis['quarter_kelly'] * 100:.2f}%",
+                "Full Kelly £":
+                    f"£{analysis['stakes']['full_kelly']:.2f}",
+                "Half Kelly £":
+                    f"£{analysis['stakes']['half_kelly']:.2f}",
+                "Quarter Kelly £":
+                    f"£{analysis['stakes']['quarter_kelly']:.2f}",
+            }
+        )
+
+    st.dataframe(
+        pd.DataFrame(kelly_rows),
+        width="stretch",
+        hide_index=True,
+    )
+
+    st.warning(
+        "Kelly figures are mathematical outputs based on "
+        "the model probability. Poisson V0.1 is exploratory "
+        "and has not yet been validated out of sample. "
+        "The Laboratory does not make a betting recommendation."
+    )
+
 def season_key(season):
     return int(season.split("-")[0])
 
@@ -397,13 +690,14 @@ if summary["data_quality"]["status"] != "COMPLETE":
         "This season contains incomplete fixture data."
     )
 
-tab1, tab2, tab3, tab4, tab5 = st.tabs(
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
     [
         "League Table",
         "Fixture Explorer",
         "Season Comparison",
         "Head-to-Head",
         "Form & Streaks",
+        "Prediction Lab",
     ]
 )
 
@@ -996,3 +1290,7 @@ with st.expander("Data provenance"):
             "Identity source": summary["identity_source_file"],
         }
     )
+
+
+with tab6:
+    render_prediction_lab()
