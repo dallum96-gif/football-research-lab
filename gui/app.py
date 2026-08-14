@@ -268,6 +268,10 @@ def render_prediction_lab():
     )
 
     st.caption(
+        "Prediction Lab build: Poisson V0.1"
+    )
+
+    st.caption(
         "Poisson V0.1 — exploratory model based exclusively "
         "on 2025/26 score data. Not yet out-of-sample validated."
     )
