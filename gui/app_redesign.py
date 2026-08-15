@@ -62,69 +62,50 @@ render_brand_header()
 workspace = current_workspace()
 
 if workspace == "overview":
-    st.markdown("<div class='frl-title'>Research, evidence, analysis.</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-eyebrow'>Football Research Laboratory</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-home-title'>The football database for asking better questions.</div>", unsafe_allow_html=True)
     st.markdown(
-        "<div class='frl-subtitle'>Premier League data, player research, match analysis and experimental modelling.</div>",
+        "<div class='frl-home-subtitle'>Premier League history, players, fixtures and research tools — built around persistent identity, provenance and tested data.</div>",
         unsafe_allow_html=True,
     )
 
-    cols = st.columns(3)
-    cols[0].metric("Premier League seasons", len(get_seasons()))
-    cols[1].metric("Fixtures in canonical master", "3,800")
-    cols[2].metric("Research assurance", "26 / 26")
+    stats = st.columns(4, gap="small")
+    stats[0].markdown("<div class='frl-home-stat'><span>10</span><small>seasons</small></div>", unsafe_allow_html=True)
+    stats[1].markdown("<div class='frl-home-stat'><span>3,800</span><small>fixtures</small></div>", unsafe_allow_html=True)
+    stats[2].markdown("<div class='frl-home-stat'><span>26 / 26</span><small>assurance tests</small></div>", unsafe_allow_html=True)
+    stats[3].markdown("<div class='frl-home-stat'><span>2016–26</span><small>coverage</small></div>", unsafe_allow_html=True)
 
-    st.divider()
-    st.markdown("### Start exploring")
-    st.caption(
-        "The redesign is being migrated workspace-by-workspace. Fixtures and the League Table are the first live views."
+    st.markdown("<div class='frl-home-rule'></div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-home-section-label'>Explore</div>", unsafe_allow_html=True)
+
+    explore_cols = st.columns(3, gap="medium")
+    cards = [
+        ("Fixtures", "Browse a team's Premier League history.", "fixtures"),
+        ("League Table", "See how the competition finished.", "league-table"),
+        ("Players", "Find players and investigate their history.", "players"),
+    ]
+    for col, (title, description, target) in zip(explore_cols, cards):
+        with col:
+            st.markdown(
+                f"<div class='frl-home-card'><div class='frl-home-card-title'>{title}</div><div class='frl-home-card-copy'>{description}</div></div>",
+                unsafe_allow_html=True,
+            )
+            if st.button("Open", key=f"overview_open_{target}", type="tertiary", width="stretch"):
+                st.query_params["workspace"] = target
+                st.rerun()
+
+    st.markdown("<div class='frl-home-section-label frl-home-section-spaced'>Built for research</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='frl-home-principles'><span>Persistent football identity</span><span>Provenance</span><span>Invariant testing</span><span>Temporal integrity</span></div>",
+        unsafe_allow_html=True,
     )
 
 elif workspace == "fixtures":
     seasons = sorted(get_seasons(), key=season_key, reverse=True)
-    season_default = seasons[0]
-
-    current_season = st.session_state.get("redesign_fixture_season", season_default)
-    if current_season not in seasons:
-        current_season = season_default
-    st.session_state["redesign_fixture_season"] = current_season
-
-    current_table = get_league_table(current_season)
-    current_teams = sorted([row["team"] for row in current_table["teams"]], key=str.casefold)
-    current_team = st.session_state.get("redesign_fixture_team", current_teams[0] if current_teams else "")
-    if current_team not in current_teams:
-        current_team = current_teams[0] if current_teams else ""
-
-    header_cols = st.columns([2.8, 1.25, 1.05], gap="small")
-    with header_cols[0]:
-        st.markdown("<div class='frl-eyebrow'>Fixtures</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='frl-entity-title'>{current_team}</div>", unsafe_allow_html=True)
-        st.markdown(f"<div class='frl-context'>Premier League · {current_season}</div>", unsafe_allow_html=True)
-
-    with header_cols[1]:
-        team = st.selectbox(
-            "Team",
-            current_teams,
-            index=current_teams.index(current_team) if current_team in current_teams else 0,
-            key="redesign_fixture_team",
-            label_visibility="collapsed",
-        )
-
-    with header_cols[2]:
-        season = st.selectbox(
-            "Season",
-            seasons,
-            index=seasons.index(current_season),
-            key="redesign_fixture_season",
-            label_visibility="collapsed",
-        )
-
-    # The selectors are quiet contextual controls; the fixture identity remains the visual focus.
-    st.markdown("<div class='frl-context-controls'>Team &nbsp;&nbsp;&nbsp; Season</div>", unsafe_allow_html=True)
-
-    if team != current_team or season != current_season:
-        st.session_state["redesign_fixture_team"] = team
-        st.session_state["redesign_fixture_season"] = season
-        st.rerun()
+    season = seasons[0]
+    table = get_league_table(season)
+    teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
+    team = teams[0] if teams else ""
 
     render_fixture_explorer(
         season=season,
