@@ -181,6 +181,17 @@ def apply_theme():
             margin-top: 0.28rem;
         }
 
+        .frl-context-controls {
+            color: var(--frl-muted-soft);
+            font-size: 0.56rem;
+            font-weight: 650;
+            letter-spacing: 0.08em;
+            text-align: right;
+            margin-top: -0.32rem;
+            margin-bottom: 0.45rem;
+            text-transform: uppercase;
+        }
+
         .frl-record-line {
             color: var(--frl-muted);
             font-size: 0.8rem;
@@ -214,7 +225,6 @@ def apply_theme():
             margin: 1.35rem 0 0.32rem;
         }
 
-        /* Quiet filter control: available when needed, invisible in the browse-first state. */
         div[data-testid="stExpander"] {
             border: 0 !important;
             border-top: 1px solid var(--frl-border) !important;
@@ -235,19 +245,29 @@ def apply_theme():
         }
 
         div[data-baseweb="select"] > div {
-            background: rgba(21, 28, 34, 0.78) !important;
-            color: var(--frl-text) !important;
-            border: 1px solid rgba(222, 228, 232, 0.07) !important;
-            border-radius: 5px !important;
-            min-height: 2.05rem !important;
+            background: rgba(21, 28, 34, 0.48) !important;
+            color: var(--frl-muted) !important;
+            border: 1px solid rgba(222, 228, 232, 0.045) !important;
+            border-radius: 4px !important;
+            min-height: 1.68rem !important;
+            height: 1.68rem !important;
             box-shadow: none !important;
+            font-size: 0.7rem !important;
         }
 
         div[data-baseweb="select"] > div:hover,
         div[data-baseweb="select"] > div:focus-within {
-            background: rgba(25, 33, 40, 0.92) !important;
-            border-color: rgba(117, 155, 140, 0.42) !important;
+            background: rgba(21, 28, 34, 0.68) !important;
+            border-color: rgba(117, 155, 140, 0.22) !important;
             box-shadow: none !important;
+        }
+
+        div[data-baseweb="select"] [data-baseweb="select-value-container"] {
+            color: var(--frl-muted) !important;
+        }
+
+        div[data-baseweb="select"] input {
+            color: var(--frl-text) !important;
         }
 
         div[data-baseweb="popover"],
