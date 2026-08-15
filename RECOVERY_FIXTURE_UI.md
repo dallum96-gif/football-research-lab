@@ -1,0 +1,1 @@
+The 67c9330e GUI commit truncated gui/app_redesign.py after the fixture team selector. This branch restores that file from the intact 04a021bf parent before any further overview edits.
