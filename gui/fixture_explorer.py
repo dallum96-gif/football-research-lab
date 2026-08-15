@@ -200,6 +200,10 @@ def render_fixture_explorer(season, team, get_fixtures):
             unsafe_allow_html=True,
         )
 
+        cols[1].markdown(
+            "<div class='frl-opponent-marker' aria-hidden='true'></div>",
+            unsafe_allow_html=True,
+        )
         if cols[1].button(
             opponent,
             key=f"fixture_opponent_{row['fixture_id']}",
