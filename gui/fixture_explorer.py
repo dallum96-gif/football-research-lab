@@ -161,18 +161,37 @@ def render_fixture_explorer(season, team, get_fixtures):
                 f"<div class='frl-month-heading'>{month}</div>",
                 unsafe_allow_html=True,
             )
-            st.markdown(
-                """
-                <div class="frl-fixture-header">
-                    <div>Date</div>
-                    <div>Opponent</div>
-                    <div>Venue</div>
-                    <div>Score</div>
-                    <div>Result</div>
-                </div>
-                """,
+
+            header_cols = st.columns(
+                [1.05, 3.1, 1.0, 0.95, 0.85],
+                gap="small",
+                vertical_alignment="center",
+            )
+            header_style = (
+                "font-size:0.58rem; font-weight:680; letter-spacing:0.10em; "
+                "line-height:1.2; text-transform:uppercase; color:var(--frl-muted-soft);"
+            )
+            header_cols[0].markdown(
+                f"<div style='{header_style}; text-align:left;'>Date</div>",
                 unsafe_allow_html=True,
             )
+            header_cols[1].markdown(
+                f"<div style='{header_style}; text-align:center;'>Opponent</div>",
+                unsafe_allow_html=True,
+            )
+            header_cols[2].markdown(
+                f"<div style='{header_style}; text-align:center;'>Venue</div>",
+                unsafe_allow_html=True,
+            )
+            header_cols[3].markdown(
+                f"<div style='{header_style}; text-align:center;'>Score</div>",
+                unsafe_allow_html=True,
+            )
+            header_cols[4].markdown(
+                f"<div style='{header_style}; text-align:center;'>Result</div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown("<div class='frl-fixture-header-rule'></div>", unsafe_allow_html=True)
             previous_month = month
 
         home = row["home_team_name"]
