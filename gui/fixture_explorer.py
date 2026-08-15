@@ -65,14 +65,7 @@ def _record(results, team):
 
 
 def render_fixture_explorer(season, team, get_fixtures):
-    """Render a calm, browse-first chronological fixture view."""
-    st.markdown("<div class='frl-eyebrow'>Fixtures</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
-    st.markdown(
-        f"<div class='frl-context'>Premier League · {season}</div>",
-        unsafe_allow_html=True,
-    )
-
+    """Render the browse-first chronological fixture list for a chosen team."""
     all_results = get_fixtures(season=season, team=team)["results"]
     wins, draws, losses, unplayed = _record(all_results, team)
 
