@@ -6,15 +6,15 @@ def apply_theme():
         """
         <style>
         :root {
-            --frl-bg: #101417;
-            --frl-surface: #161c20;
-            --frl-surface-raised: #1b2328;
-            --frl-border: rgba(220, 226, 230, 0.10);
-            --frl-border-strong: rgba(220, 226, 230, 0.16);
-            --frl-text: #edf0ef;
-            --frl-muted: #9aa3a6;
-            --frl-accent: #a58a63;
-            --frl-accent-soft: rgba(165, 138, 99, 0.13);
+            --frl-bg: #0f151b;
+            --frl-surface: #151d24;
+            --frl-surface-raised: #1a242c;
+            --frl-border: rgba(222, 228, 232, 0.10);
+            --frl-border-strong: rgba(222, 228, 232, 0.17);
+            --frl-text: #edf1f2;
+            --frl-muted: #99a5ab;
+            --frl-accent: #6f9c8c;
+            --frl-accent-soft: rgba(111, 156, 140, 0.13);
         }
 
         .stApp,
@@ -66,7 +66,7 @@ def apply_theme():
             color: var(--frl-text);
             border: 1px solid var(--frl-border);
             border-radius: 7px;
-            min-height: 2.2rem;
+            min-height: 2.15rem;
         }
 
         div[data-baseweb="select"] > div:hover,
@@ -76,69 +76,71 @@ def apply_theme():
             border-color: var(--frl-border-strong);
         }
 
-        /* Sidebar is navigation, so keep it compact and quiet. */
         section[data-testid="stSidebar"] {
-            background: #0d1114;
+            background: #0c1217;
             border-right: 1px solid var(--frl-border);
         }
 
         section[data-testid="stSidebar"] .stButton > button {
-            min-height: 1.95rem;
-            height: 1.95rem;
-            padding: 0.15rem 0.65rem;
-            border-radius: 6px;
-            font-size: 0.82rem;
+            min-height: 1.85rem;
+            height: 1.85rem;
+            padding: 0.08rem 0.55rem;
+            margin: 0;
+            border-radius: 5px;
+            font-size: 0.79rem;
             font-weight: 600;
             text-align: left;
             justify-content: flex-start;
             box-shadow: none;
+            border: 0;
+            background: transparent;
         }
 
-        section[data-testid="stSidebar"] .stButton {
-            margin-bottom: 0.08rem;
+        section[data-testid="stSidebar"] .stButton > button:hover {
+            background: rgba(255,255,255,0.035);
         }
 
         section[data-testid="stSidebar"] hr {
-            margin: 0.7rem 0;
+            margin: 0.65rem 0;
             border-color: var(--frl-border);
         }
 
         .frl-sidebar-title {
             color: var(--frl-text);
-            font-size: 0.95rem;
+            font-size: 0.94rem;
             font-weight: 800;
-            margin-bottom: 0.15rem;
+            margin-bottom: 0.12rem;
         }
 
         .frl-sidebar-copy {
             color: var(--frl-muted);
-            font-size: 0.76rem;
-            line-height: 1.4;
-            margin-bottom: 0.55rem;
+            font-size: 0.75rem;
+            line-height: 1.38;
+            margin-bottom: 0.45rem;
         }
 
         .frl-sidebar-section {
             color: var(--frl-muted);
-            font-size: 0.66rem;
+            font-size: 0.64rem;
             font-weight: 750;
             letter-spacing: 0.13em;
             text-transform: uppercase;
-            margin: 0.9rem 0 0.35rem 0;
+            margin: 0.85rem 0 0.28rem 0;
         }
 
         .frl-status {
             display: inline-block;
-            padding: 0.2rem 0.42rem;
-            border: 1px solid rgba(165, 138, 99, 0.28);
-            border-radius: 5px;
+            padding: 0.18rem 0.38rem;
+            border: 1px solid rgba(111, 156, 140, 0.28);
+            border-radius: 4px;
             background: var(--frl-accent-soft);
-            color: #c6b28f;
-            font-size: 0.68rem;
+            color: #a6c6b8;
+            font-size: 0.66rem;
             font-weight: 700;
         }
 
         div[data-testid="stMetric"] {
-            padding: 0.75rem 0.85rem;
+            padding: 0.72rem 0.82rem;
             background: var(--frl-surface);
             border: 1px solid var(--frl-border);
             border-radius: 8px;
@@ -163,6 +165,15 @@ def apply_theme():
             border: 1px solid var(--frl-border);
             border-radius: 8px;
             background: var(--frl-surface);
+        }
+
+        .frl-fixture-table-head {
+            color: var(--frl-muted);
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            padding: 0.2rem 0.25rem 0.45rem 0.25rem;
+            border-bottom: 1px solid var(--frl-border);
         }
 
         div[data-testid="stDecoration"] {
@@ -196,53 +207,31 @@ def render_sidebar_controls():
         "<div class='frl-sidebar-title'>Lab controls</div>",
         unsafe_allow_html=True,
     )
-
     st.sidebar.markdown(
         "<div class='frl-sidebar-copy'>Useful controls for the research workspace.</div>",
         unsafe_allow_html=True,
     )
 
-    if st.sidebar.button(
-        "Refresh data",
-        use_container_width=True,
-        key="sidebar_refresh_data",
-    ):
+    if st.sidebar.button("Refresh data", use_container_width=True, key="sidebar_refresh_data"):
         st.cache_data.clear()
         st.rerun()
 
-    if st.sidebar.button(
-        "Reset interface",
-        use_container_width=True,
-        key="sidebar_reset_interface",
-    ):
+    if st.sidebar.button("Reset interface", use_container_width=True, key="sidebar_reset_interface"):
         keys_to_remove = [
-            key
-            for key in list(st.session_state.keys())
-            if key.startswith(("player_", "prediction_", "h2h_", "form_"))
+            key for key in list(st.session_state.keys())
+            if key.startswith(("player_", "prediction_", "h2h_", "form_", "fixture_explorer_"))
         ]
         for key in keys_to_remove:
             del st.session_state[key]
         st.rerun()
 
-    st.sidebar.markdown(
-        "<div class='frl-sidebar-section'>Assurance</div>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.markdown(
-        "<span class='frl-status'>26/26 research tests passing</span>",
-        unsafe_allow_html=True,
-    )
+    st.sidebar.markdown("<div class='frl-sidebar-section'>Assurance</div>", unsafe_allow_html=True)
+    st.sidebar.markdown("<span class='frl-status'>26/26 research tests passing</span>", unsafe_allow_html=True)
     st.sidebar.caption("Core Query Lab: 14/14 · Player Research: 12/12")
 
-    st.sidebar.markdown(
-        "<div class='frl-sidebar-section'>Data coverage</div>",
-        unsafe_allow_html=True,
-    )
+    st.sidebar.markdown("<div class='frl-sidebar-section'>Data coverage</div>", unsafe_allow_html=True)
     st.sidebar.caption("Premier League: 2016–17 to 2025–26")
     st.sidebar.caption("Player gameweek records available")
 
-    st.sidebar.markdown(
-        "<div class='frl-sidebar-section'>Laboratory principle</div>",
-        unsafe_allow_html=True,
-    )
+    st.sidebar.markdown("<div class='frl-sidebar-section'>Laboratory principle</div>", unsafe_allow_html=True)
     st.sidebar.caption("Answers should be inspectable, not merely asserted.")
