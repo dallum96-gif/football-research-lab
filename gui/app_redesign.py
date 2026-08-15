@@ -78,11 +78,27 @@ if workspace == "overview":
 
 elif workspace == "fixtures":
     seasons = sorted(get_seasons(), key=season_key, reverse=True)
-    season = st.selectbox("Season", seasons, key="redesign_fixture_season")
+
+    context_cols = st.columns([1, 1], gap="small")
+    with context_cols[0]:
+        season = st.selectbox(
+            "Season",
+            seasons,
+            key="redesign_fixture_season",
+        )
 
     table = get_league_table(season)
-    teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
-    team = st.selectbox("Team", teams, key="redesign_fixture_team")
+    teams = sorted(
+        [row["team"] for row in table["teams"]],
+        key=str.casefold,
+    )
+
+    with context_cols[1]:
+        team = st.selectbox(
+            "Team",
+            teams,
+            key="redesign_fixture_team",
+        )
 
     st.divider()
     render_fixture_explorer(
