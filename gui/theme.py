@@ -78,7 +78,7 @@ def apply_theme():
         .frl-score { color:var(--frl-text); font-weight:800; font-size:0.92rem; }
         .frl-result { font-size:0.71rem; font-weight:800; letter-spacing:0.05em; }
         .frl-result-win { color:var(--frl-secondary); } .frl-result-draw { color:var(--frl-muted); } .frl-result-loss { color:var(--frl-negative); } .frl-result-unplayed { color:var(--frl-warning); }
-        .frl-home-title { color:var(--frl-text); max-width:840px; font-size:clamp(2.25rem,4vw,3.65rem); font-weight:800; line-height:0.98; letter-spacing:-0.05em; margin:0; }
+        .frl-home-title { color:var(--frl-text); max-width:840px; font-size:clamp(2.25rem,3.65vw,3.3rem); font-weight:800; line-height:0.98; letter-spacing:-0.05em; margin:0; }
         .frl-home-subtitle { max-width:660px; color:var(--frl-muted); font-size:0.92rem; line-height:1.55; margin-top:0.9rem; }
         .frl-home-stat { border-top:2px solid var(--frl-text); padding-top:0.7rem; }
         .frl-home-stat span { display:block; color:var(--frl-text); font-size:1.45rem; font-weight:800; letter-spacing:-0.025em; line-height:1; }
