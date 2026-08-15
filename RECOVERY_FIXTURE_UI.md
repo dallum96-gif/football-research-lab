@@ -1,0 +1,1 @@
+Recovery branch for restoring gui/app_redesign.py from the intact parent of 67c9330e. The 67c9330e Most Saves commit accidentally truncated the fixtures, league-table, and fallback workspace branches.
