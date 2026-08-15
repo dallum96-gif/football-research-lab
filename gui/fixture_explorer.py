@@ -195,7 +195,8 @@ def render_fixture_explorer(season, team, get_fixtures):
 
         cols = st.columns([1.05, 3.1, 1.0, 0.95, 0.85], gap="small", vertical_alignment="center")
         cols[0].markdown(
-            f"<div class='frl-date-cell'><span class='frl-meta-date'>{_display_date(row['kickoff_time'])}</span>"
+            f"<div class='frl-date-cell' style='min-height:2.05rem; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; text-align:left;'>"
+            f"<span class='frl-meta-date'>{_display_date(row['kickoff_time'])}</span>"
             f"<span class='frl-meta-sub'>GW {row['gameweek']}</span></div>",
             unsafe_allow_html=True,
         )
