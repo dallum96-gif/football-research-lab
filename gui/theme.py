@@ -24,7 +24,7 @@ def apply_theme():
 
         .block-container {
             max-width: 1500px;
-            padding-top: 1.25rem;
+            padding-top: 0.45rem;
             padding-bottom: 3rem;
             padding-left: 1.5rem;
             padding-right: 1.5rem;
@@ -39,7 +39,7 @@ def apply_theme():
         }
 
         section[data-testid="stSidebar"] > div:first-child {
-            padding: 0.9rem 0.45rem 1.1rem 0.45rem;
+            padding: 0.85rem 0.45rem 1.1rem 0.45rem;
         }
 
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
@@ -86,14 +86,14 @@ def apply_theme():
             background: rgba(255,255,255,0.025) !important;
         }
 
-        /* Preserve Streamlit's native collapse/expand affordance. */
-        section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
-        section[data-testid="stSidebar"] button[aria-label*="sidebar" i],
+        /* The navigation rail is intentionally fixed and always visible. */
         [data-testid="stSidebarCollapseButton"],
-        button[aria-label*="sidebar" i] {
-            visibility: visible !important;
-            display: flex !important;
-            opacity: 1 !important;
+        button[data-testid="stSidebarCollapseButton"],
+        button[aria-label="Collapse sidebar"],
+        button[aria-label="Expand sidebar"],
+        [data-testid="collapsedControl"] {
+            display: none !important;
+            visibility: hidden !important;
         }
 
         section[data-testid="stSidebar"] hr {
@@ -118,6 +118,16 @@ def apply_theme():
             letter-spacing: 0.13em;
             text-transform: uppercase;
             margin: 0.72rem 0 0.15rem 0.1rem;
+        }
+
+        .frl-masthead {
+            color: var(--frl-text);
+            font-size: 0.72rem;
+            font-weight: 760;
+            letter-spacing: 0.12em;
+            line-height: 1;
+            text-transform: uppercase;
+            margin: 0 0 0.75rem 0;
         }
 
         .frl-eyebrow {
@@ -241,7 +251,6 @@ def apply_theme():
             background: rgba(255,255,255,0.018);
         }
 
-        /* Entity buttons read as text links rather than large controls. */
         .frl-fixture-header + div .stButton > button {
             min-height: 1.95rem;
             height: 1.95rem;
@@ -273,7 +282,6 @@ def apply_theme():
             background: var(--frl-surface);
         }
 
-        div[data-testid="stToolbar"] { visibility: visible; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -283,9 +291,7 @@ def apply_theme():
 def render_brand_header():
     st.markdown(
         """
-        <div class="frl-eyebrow">Football Research Laboratory</div>
-        <div class="frl-title">Research, evidence, analysis.</div>
-        <div class="frl-subtitle">Premier League data, player research, match analysis and experimental modelling.</div>
+        <div class="frl-masthead">Football Research Laboratory</div>
         """,
         unsafe_allow_html=True,
     )
