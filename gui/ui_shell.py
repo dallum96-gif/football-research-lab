@@ -19,7 +19,7 @@ ICONS = {
 
 
 def render_workspace_sidebar(active_key):
-    """Render compact, consistently left-aligned application navigation."""
+    """Render compact, flush-left application navigation."""
     grouped = navigation_by_section()
     selected = active_key
 
@@ -40,8 +40,7 @@ def render_workspace_sidebar(active_key):
 
         for item in items:
             icon = ICONS.get(item.key, "·")
-            marker = "▌" if item.key == active_key else " "
-            label = f"{marker}  {icon}  {item.label}"
+            label = f"{icon}  {item.label}"
 
             if st.sidebar.button(
                 label,
