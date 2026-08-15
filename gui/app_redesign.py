@@ -102,10 +102,42 @@ if workspace == "overview":
 
 elif workspace == "fixtures":
     seasons = sorted(get_seasons(), key=season_key, reverse=True)
-    season = seasons[0]
+    season = st.selectbox(
+        "Season",
+        seasons,
+        key="redesign_fixture_season",
+        label_visibility="collapsed",
+    )
     table = get_league_table(season)
     teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
-    team = teams[0] if teams else ""
+    team = st.selectbox(
+        "Team",
+        teams,
+        key="redesign_fixture_team",
+        label_visibility="collapsed",
+    ) if teams else ""
+
+    header_left, header_team, header_season = st.columns([5.4, 1.7, 1.25], gap="small", vertical_alignment="bottom")
+    with header_left:
+        st.markdown("<div class='frl-eyebrow'>Fixtures</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
+        st.markdown("<div class='frl-context'>Premier League</div>", unsafe_allow_html=True)
+    with header_team:
+        st.selectbox(
+            "Team",
+            teams,
+            index=teams.index(team) if team in teams else 0,
+            key="redesign_fixture_team_header",
+            label_visibility="collapsed",
+        )
+    with header_season:
+        st.selectbox(
+            "Season",
+            seasons,
+            index=seasons.index(season) if season in seasons else 0,
+            key="redesign_fixture_season_header",
+            label_visibility="collapsed",
+        )
 
     render_fixture_explorer(
         season=season,
