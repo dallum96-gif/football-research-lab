@@ -120,6 +120,7 @@ elif workspace == "fixtures":
         st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
         st.markdown("<div class='frl-context'>Premier League</div>", unsafe_allow_html=True)
     with header_team:
+        st.markdown("<div class='frl-team-selector-marker' aria-hidden='true'></div>", unsafe_allow_html=True)
         team = st.selectbox(
             "Team",
             teams,
@@ -180,12 +181,11 @@ else:
         "players": "Players",
         "head-to-head": "Head-to-Head",
         "form": "Form & Streaks",
-        "prediction": "Prediction Lab",
+        "prediction": "Prediction",
         "data-quality": "Data Quality",
         "provenance": "Provenance",
     }
     label = item_labels.get(workspace, workspace.replace("-", " ").title())
-    st.markdown(f"<div class='frl-eyebrow'>{label}</div>", unsafe_allow_html=True)
-    st.info(
-        "This workspace is intentionally held outside the preview until its existing behaviour has been migrated without changing the trusted contracts."
-    )
+    st.markdown("<div class='frl-eyebrow'>Explore</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='frl-entity-title'>{label}</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-context'>Research workspace</div>", unsafe_allow_html=True)
