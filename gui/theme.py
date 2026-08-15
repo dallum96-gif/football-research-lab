@@ -24,10 +24,16 @@ def apply_theme():
 
         .block-container {
             max-width: 1500px;
-            padding-top: 0.45rem;
+            padding-top: 0.12rem;
             padding-bottom: 3rem;
             padding-left: 1.5rem;
             padding-right: 1.5rem;
+        }
+
+        header[data-testid="stHeader"] {
+            height: 0 !important;
+            min-height: 0 !important;
+            background: transparent !important;
         }
 
         section[data-testid="stSidebar"] {
@@ -39,7 +45,7 @@ def apply_theme():
         }
 
         section[data-testid="stSidebar"] > div:first-child {
-            padding: 0.85rem 0.45rem 1.1rem 0.45rem;
+            padding: 0.35rem 0.45rem 1.1rem 0.45rem;
         }
 
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
@@ -86,7 +92,7 @@ def apply_theme():
             background: rgba(255,255,255,0.025) !important;
         }
 
-        /* The navigation rail is intentionally fixed and always visible. */
+        /* Fixed navigation rail: no collapse/expand affordance. */
         [data-testid="stSidebarCollapseButton"],
         button[data-testid="stSidebarCollapseButton"],
         button[aria-label="Collapse sidebar"],
@@ -127,7 +133,7 @@ def apply_theme():
             letter-spacing: 0.12em;
             line-height: 1;
             text-transform: uppercase;
-            margin: 0 0 0.75rem 0;
+            margin: 0 0 0.7rem 0;
         }
 
         .frl-eyebrow {
