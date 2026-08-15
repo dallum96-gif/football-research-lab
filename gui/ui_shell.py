@@ -1,21 +1,30 @@
-"""Compact navigation shell for the Football Research Laboratory UI."""
+"""Quiet, text-led navigation shell for the Football Research Laboratory."""
 
 import streamlit as st
 
 from gui.navigation import SECTION_ORDER, navigation_by_section
 
 
+ICONS = {
+    "overview": "▦",
+    "fixtures": "▣",
+    "league-table": "☷",
+    "players": "◯",
+    "head-to-head": "⇄",
+    "form": "⌁",
+    "prediction": "∿",
+    "data-quality": "✓",
+    "provenance": "◇",
+}
+
+
 def render_workspace_sidebar(active_key):
-    """Render compact, left-aligned workspace navigation."""
+    """Render compact, consistently left-aligned application navigation."""
     grouped = navigation_by_section()
     selected = active_key
 
     st.sidebar.markdown(
-        "<div class='frl-sidebar-brand'>Football Research Lab</div>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.markdown(
-        "<div class='frl-sidebar-rule'></div>",
+        "<div class='frl-sidebar-brand'>FOOTBALL RESEARCH LABORATORY</div>",
         unsafe_allow_html=True,
     )
 
@@ -30,21 +39,25 @@ def render_workspace_sidebar(active_key):
         )
 
         for item in items:
+            icon = ICONS.get(item.key, "·")
+            active_class = " frl-nav-active" if item.key == active_key else ""
+
             if st.sidebar.button(
-                item.label,
+                f"{icon}  {item.label}",
                 key=f"nav_{item.key}",
                 use_container_width=True,
-                type="primary" if item.key == active_key else "secondary",
+                type="secondary",
             ):
                 selected = item.key
                 st.session_state["frl_workspace"] = item.key
                 st.rerun()
 
-    st.sidebar.markdown(
-        "<div class='frl-sidebar-rule'></div>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.caption("Answers should be inspectable, not merely asserted.")
+            # Keep the button itself deliberately quiet; active indication is
+            # applied through the stable key-based selector in the theme.
+            st.markdown(
+                f"<div class='frl-nav-state{active_class}'></div>",
+                unsafe_allow_html=True,
+            )
 
     return selected
 
