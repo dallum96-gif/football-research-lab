@@ -145,6 +145,23 @@ The future profile must not:
 
 Do not source additional historical player data yet.
 
+## Data construction / identity documentation
+
+`DATA_CONSTRUCTION.md` is now the canonical re-entry document for the football data foundation.
+
+It records:
+
+- season-local versus persistent club identity;
+- the `team_seasons.csv` identity registry;
+- the `fixtures_master_corrected.csv` fixture schema and season-scoped fixture identity;
+- fixture correction/provenance handling;
+- fixture/player/statistics relationships;
+- historical match-state construction;
+- the current project-health invariants;
+- and the important limitation that the original one-off canonical-build script is not currently committed as a clean end-to-end rebuild pipeline.
+
+Do not invent the missing historical build steps. Recover and inspect them from the local workspace if they are ever needed.
+
 ## Current UI implementation state
 
 The redesign is intentionally being developed as a preview rather than replacing the production entry point immediately.
