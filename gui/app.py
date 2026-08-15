@@ -11,6 +11,9 @@ sys.path.insert(0, str(ROOT))
 import query_api
 import poisson_model
 import kelly_analysis
+import player_research
+from gui.player_research_ui import render_player_research_ui
+from gui.theme import apply_theme, render_brand_header, render_sidebar_controls
 
 
 st.set_page_config(
@@ -18,6 +21,8 @@ st.set_page_config(
     page_icon="⚽",
     layout="wide",
 )
+apply_theme()
+render_sidebar_controls()
 
 st.markdown(
     """
@@ -91,13 +96,13 @@ def render_fixture_detail(detail):
     home = fixture["home_team_name"]
     away = fixture["away_team_name"]
 
-    home_score = fixture["home_score"] or "—"
-    away_score = fixture["away_score"] or "—"
+    home_score = fixture["home_score"] or "â€”"
+    away_score = fixture["away_score"] or "â€”"
 
     st.markdown(
         f"<div style='text-align:center;'>"
         f"<div style='font-size:.9rem; opacity:.7;'>"
-        f"{fixture['season']} · GW {fixture['gameweek']}"
+        f"{fixture['season']} Â· GW {fixture['gameweek']}"
         f"</div>"
         f"<div style='font-size:1rem; opacity:.8; margin-top:.25rem;'>"
         f"{fixture['kickoff_time'][:10]}"
@@ -112,7 +117,7 @@ def render_fixture_detail(detail):
         f"{home}"
         f"</div>"
         f"<div style='font-size:3rem; font-weight:800; line-height:1.1; margin:.35rem 0;'>"
-        f"{home_score}–{away_score}"
+        f"{home_score}â€“{away_score}"
         f"</div>"
         f"<div style='font-size:1.55rem; font-weight:700;'>"
         f"{away}"
@@ -272,7 +277,7 @@ def render_prediction_lab():
     )
 
     st.caption(
-        "Poisson V0.1 — exploratory model based exclusively "
+        "Poisson V0.1 â€” exploratory model based exclusively "
         "on 2025/26 score data. Not yet out-of-sample validated."
     )
 
@@ -395,7 +400,7 @@ def render_prediction_lab():
 
     st.caption(
         "Most likely score: "
-        f"{most_likely['home']}–"
+        f"{most_likely['home']}â€“"
         f"{most_likely['away']} "
         f"({most_likely['probability'] * 100:.1f}%)"
     )
@@ -534,12 +539,12 @@ def render_prediction_lab():
                     f"{analysis['half_kelly'] * 100:.2f}%",
                 "Quarter Kelly":
                     f"{analysis['quarter_kelly'] * 100:.2f}%",
-                "Full Kelly £":
-                    f"£{analysis['stakes']['full_kelly']:.2f}",
-                "Half Kelly £":
-                    f"£{analysis['stakes']['half_kelly']:.2f}",
-                "Quarter Kelly £":
-                    f"£{analysis['stakes']['quarter_kelly']:.2f}",
+                "Full Kelly Â£":
+                    f"Â£{analysis['stakes']['full_kelly']:.2f}",
+                "Half Kelly Â£":
+                    f"Â£{analysis['stakes']['half_kelly']:.2f}",
+                "Quarter Kelly Â£":
+                    f"Â£{analysis['stakes']['quarter_kelly']:.2f}",
             }
         )
 
@@ -555,6 +560,11 @@ def render_prediction_lab():
         "and has not yet been validated out of sample. "
         "The Laboratory does not make a betting recommendation."
     )
+
+
+def render_player_research():
+    render_player_research_ui()
+
 
 def season_key(season):
     return int(season.split("-")[0])
@@ -585,10 +595,7 @@ def result_pills(results):
     return "".join(pills)
 
 
-st.title("Football Research Lab")
-st.caption(
-    "Premier League historical data and analysis"
-)
+render_brand_header()
 
 fixture_token = st.query_params.get("fixture")
 
@@ -602,7 +609,7 @@ if fixture_token:
         )
 
         if st.button(
-            "← Back to Fixture Explorer",
+            "â† Back to Fixture Explorer",
             key="fixture_back",
         ):
             del st.query_params["fixture"]
@@ -694,18 +701,9 @@ if summary["data_quality"]["status"] != "COMPLETE":
         "This season contains incomplete fixture data."
     )
 
-tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
-    [
-        "League Table",
-        "Fixture Explorer",
-        "Season Comparison",
-        "Head-to-Head",
-        "Form & Streaks",
-        "Prediction Lab",
-    ]
-)
 
-with tab1:
+
+def render_league_table():
     df = pd.DataFrame(
         [
             {
@@ -729,6 +727,21 @@ with tab1:
         width='stretch',
         hide_index=True,
     )
+
+
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(
+    [
+        "League Table",
+        "Fixture Explorer",
+        "Season Comparison",
+        "Head-to-Head",
+        "Form & Streaks",
+        "Prediction Lab",
+        "Player Research",
+    ]
+)
+
+render_league_table()
 
 with tab2:
     all_team_fixtures = get_fixtures(
@@ -811,7 +824,7 @@ with tab2:
         away_score = row["away_score"]
 
         if home_score == "" or away_score == "":
-            score = "—"
+            score = "â€”"
             result = "UNPLAYED"
         else:
             score = f"{home_score}-{away_score}"
@@ -1178,7 +1191,7 @@ with tab5:
             ]
 
             range_label = (
-                f"GW {start_gw}–{end_gw}"
+                f"GW {start_gw}â€“{end_gw}"
             )
 
         else:
@@ -1208,7 +1221,7 @@ with tab5:
             ]
 
             range_label = (
-                f"{start_date.strftime('%d %b %Y')} – "
+                f"{start_date.strftime('%d %b %Y')} â€“ "
                 f"{end_date.strftime('%d %b %Y')}"
             )
 
@@ -1231,11 +1244,11 @@ with tab5:
             last_gw = gameweek_number(filtered[-1])
 
             st.markdown(
-                f"**{team}** · {range_label}  "
+                f"**{team}** Â· {range_label}  "
                 f"  \n"
-                f"{len(filtered)} matches · "
-                f"GW {first_gw}–{last_gw} · "
-                f"{first_date.strftime('%d %b')}–{last_date.strftime('%d %b %Y')}"
+                f"{len(filtered)} matches Â· "
+                f"GW {first_gw}â€“{last_gw} Â· "
+                f"{first_date.strftime('%d %b')}â€“{last_date.strftime('%d %b %Y')}"
             )
 
             form_metrics = st.columns(5)
@@ -1298,3 +1311,7 @@ with st.expander("Data provenance"):
 
 with tab6:
     render_prediction_lab()
+
+
+with tab7:
+    render_player_research_ui()
