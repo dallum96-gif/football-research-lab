@@ -81,18 +81,49 @@ if workspace == "overview":
 
 elif workspace == "fixtures":
     seasons = sorted(get_seasons(), key=season_key, reverse=True)
+    season_default = seasons[0]
 
-    context_cols = st.columns([1, 1], gap="small")
-    with context_cols[0]:
-        season = st.selectbox("Season", seasons, key="redesign_fixture_season")
-
-    table = get_league_table(season)
+    # The fixture page owns its context. Team and season are adjustable here,
+    # directly alongside the visual page identity rather than in a separate form.
+    table = get_league_table(season_default)
     teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
 
-    with context_cols[1]:
-        team = st.selectbox("Team", teams, key="redesign_fixture_team")
+    current_season = st.session_state.get("redesign_fixture_season", season_default)
+    if current_season not in seasons:
+        current_season = season_default
+    st.session_state["redesign_fixture_season"] = current_season
 
-    st.divider()
+    current_table = get_league_table(current_season)
+    current_teams = sorted([row["team"] for row in current_table["teams"]], key=str.casefold)
+    current_team = st.session_state.get("redesign_fixture_team", current_teams[0] if current_teams else "")
+    if current_team not in current_teams:
+        current_team = current_teams[0] if current_teams else ""
+    st.session_state["redesign_fixture_team"] = current_team
+
+    identity_cols = st.columns([3.4, 1.2], gap="large")
+
+    with identity_cols[0]:
+        st.markdown("<div class='frl-eyebrow'>Fixtures</div>", unsafe_allow_html=True)
+        team = st.selectbox(
+            "Team",
+            current_teams,
+            index=current_teams.index(current_team) if current_team in current_teams else 0,
+            key="redesign_fixture_team",
+            label_visibility="collapsed",
+        )
+
+    with identity_cols[1]:
+        season = st.selectbox(
+            "Season",
+            seasons,
+            index=seasons.index(current_season),
+            key="redesign_fixture_season",
+            label_visibility="collapsed",
+        )
+
+    st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='frl-context'>Premier League · {season}</div>", unsafe_allow_html=True)
+
     render_fixture_explorer(
         season=season,
         team=team,
