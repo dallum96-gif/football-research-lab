@@ -61,7 +61,6 @@ def apply_theme():
         .frl-empty-state { color:var(--frl-muted); padding:1rem 0; border-top:1px solid var(--frl-border); border-bottom:1px solid var(--frl-border); font-size:0.82rem; }
         .frl-month-heading { color:var(--frl-text); font-size:0.68rem; font-weight:800; letter-spacing:0.13em; text-transform:uppercase; margin:1.35rem 0 0.32rem; }
 
-        /* Shared selector surface: muted raised neutral, not stark white-on-cream. */
         div[data-baseweb="select"] > div { background:var(--frl-surface-raised) !important; color:var(--frl-text) !important; border:1px solid var(--frl-border) !important; border-radius:7px !important; min-height:2.05rem !important; box-shadow:0 2px 8px rgba(24,23,20,0.025) !important; }
         div[data-baseweb="select"] > div:hover, div[data-baseweb="select"] > div:focus-within { background:var(--frl-surface-raised) !important; border-color:var(--frl-accent) !important; box-shadow:0 0 0 2px rgba(232,93,63,0.10) !important; }
         div[data-baseweb="popover"], div[data-baseweb="menu"] { background:var(--frl-surface) !important; }
@@ -74,11 +73,8 @@ def apply_theme():
         .stButton > button { color:var(--frl-text); border-color:var(--frl-border); background:var(--frl-surface); border-radius:7px; box-shadow:0 2px 8px rgba(24,23,20,0.035); }
         .stButton > button:hover { color:var(--frl-accent); border-color:rgba(232,93,63,0.45); background:#ffffff; }
 
-        /* Surgical fixture-opponent control. This hook scopes the selector to the opponent button only. */
-        .frl-opponent-marker ~ div[data-testid="stButton"] > button,
-        .frl-opponent-marker ~ div[data-testid="stButton"] > button:hover,
-        .frl-opponent-marker ~ div[data-testid="stButton"] > button:focus,
-        .frl-opponent-marker ~ div[data-testid="stButton"] > button:active { 
+        /* Surgical fixture-opponent control: style the button in the same column as its marker. */
+        div:has(> .frl-opponent-marker) div[data-testid="stButton"] > button {
             min-height:2.05rem !important;
             height:2.05rem !important;
             padding:0 0.55rem !important;
@@ -92,10 +88,14 @@ def apply_theme():
             font-size:0.91rem !important;
             font-weight:700 !important;
         }
-        .frl-opponent-marker ~ div[data-testid="stButton"] > button:hover,
-        .frl-opponent-marker ~ div[data-testid="stButton"] > button:focus { border-color:rgba(232,93,63,0.45) !important; }
-        .frl-opponent-marker ~ div[data-testid="stButton"] > button > div { width:100% !important; margin:0 !important; padding:0 !important; justify-content:flex-start !important; }
-        .frl-opponent-marker ~ div[data-testid="stButton"] > button p { color:var(--frl-text) !important; margin:0 !important; padding:0 !important; }
+        div:has(> .frl-opponent-marker) div[data-testid="stButton"] > button:hover,
+        div:has(> .frl-opponent-marker) div[data-testid="stButton"] > button:focus {
+            border-color:rgba(232,93,63,0.45) !important;
+            background:var(--frl-surface-raised) !important;
+            color:var(--frl-text) !important;
+        }
+        div:has(> .frl-opponent-marker) div[data-testid="stButton"] > button > div { width:100% !important; margin:0 !important; padding:0 !important; justify-content:flex-start !important; }
+        div:has(> .frl-opponent-marker) div[data-testid="stButton"] > button p { color:var(--frl-text) !important; margin:0 !important; padding:0 !important; }
 
         .frl-fixture-header { display:grid; grid-template-columns:1.1fr 3.25fr 0.95fr 0.9fr 0.72fr; column-gap:1rem; color:var(--frl-muted-soft); font-size:0.61rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 0.18rem 0.48rem; border-bottom:1px solid var(--frl-border-strong); }
         .frl-fixture-row-rule { height:1px; background:var(--frl-border); margin:0.05rem 0; }
