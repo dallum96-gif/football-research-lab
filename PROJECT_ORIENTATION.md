@@ -441,5 +441,10 @@ Instead:
 6. Keep UI work isolated from the data/query layer wherever possible.
 7. Preserve local/untracked experiments unless the user explicitly asks for cleanup.
 8. State uncertainty when the repository does not contain enough evidence rather than inventing historical context.
+9. When a requested capability is not clearly documented or implemented in GitHub, inspect the current working application and relevant archived/backup implementations before designing a replacement.
+10. If the working/archived implementation depends on upstream/local source data, inspect that local source tree and trace the mechanism from raw source → retrieval/transformation → aggregation/classification → existing consumer.
+11. Search by structure, neighbouring metrics, source identifiers and known consumers, not only by the expected metric name.
+12. Treat failure to find a mechanism in GitHub as **not found**, not **absent**, until relevant working, archived or upstream sources have been inspected.
+13. Before changing an established retrieval or classification mechanism, identify its source fields, identity keys, transformations, existing consumer and safest reuse point.
 
 This document is intended to make a new session familiar with the architecture and project culture quickly, while still requiring code inspection before substantive changes.
