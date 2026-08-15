@@ -6,15 +6,15 @@ from gui.navigation import SECTION_ORDER, navigation_by_section
 
 
 ICONS = {
-    "overview": "▦",
-    "fixtures": "▣",
-    "league-table": "☷",
-    "players": "◯",
-    "head-to-head": "⇄",
-    "form": "⌁",
-    "prediction": "∿",
-    "data-quality": "✓",
-    "provenance": "◇",
+    "overview": ":material/home:",
+    "fixtures": ":material/calendar_month:",
+    "league-table": ":material/table_rows:",
+    "players": ":material/person:",
+    "head-to-head": ":material/swap_horiz:",
+    "form": ":material/trending_up:",
+    "prediction": ":material/query_stats:",
+    "data-quality": ":material/verified:",
+    "provenance": ":material/link:",
 }
 
 
@@ -39,12 +39,10 @@ def render_workspace_sidebar(active_key):
         )
 
         for item in items:
-            icon = ICONS.get(item.key, "·")
-            label = f"{icon}  {item.label}"
-
             if st.sidebar.button(
-                label,
+                item.label,
                 key=f"nav_{item.key}",
+                icon=ICONS.get(item.key),
                 use_container_width=True,
                 type="secondary",
             ):
