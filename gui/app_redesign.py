@@ -102,20 +102,17 @@ if workspace == "overview":
 
 elif workspace == "fixtures":
     seasons = sorted(get_seasons(), key=season_key, reverse=True)
-    season = st.selectbox(
-        "Season",
-        seasons,
-        key="redesign_fixture_season",
-        label_visibility="collapsed",
-    )
+    default_season = seasons[0] if seasons else ""
+    season = st.session_state.get("redesign_fixture_season_header", default_season)
+    if season not in seasons:
+        season = default_season
+
     table = get_league_table(season)
     teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
-    team = st.selectbox(
-        "Team",
-        teams,
-        key="redesign_fixture_team",
-        label_visibility="collapsed",
-    ) if teams else ""
+    default_team = teams[0] if teams else ""
+    team = st.session_state.get("redesign_fixture_team_header", default_team)
+    if team not in teams:
+        team = default_team
 
     header_left, header_team, header_season = st.columns([5.4, 1.7, 1.25], gap="small", vertical_alignment="bottom")
     with header_left:
@@ -123,21 +120,27 @@ elif workspace == "fixtures":
         st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
         st.markdown("<div class='frl-context'>Premier League</div>", unsafe_allow_html=True)
     with header_team:
-        st.selectbox(
+        team = st.selectbox(
             "Team",
             teams,
             index=teams.index(team) if team in teams else 0,
             key="redesign_fixture_team_header",
             label_visibility="collapsed",
-        )
+        ) if teams else ""
     with header_season:
-        st.selectbox(
+        season = st.selectbox(
             "Season",
             seasons,
             index=seasons.index(season) if season in seasons else 0,
             key="redesign_fixture_season_header",
             label_visibility="collapsed",
-        )
+        ) if seasons else ""
+
+    if season != default_season:
+        table = get_league_table(season)
+        teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
+        if team not in teams:
+            team = teams[0] if teams else ""
 
     render_fixture_explorer(
         season=season,
