@@ -95,7 +95,55 @@ A user should eventually be able to ask:
 
 and receive an inspectable answer.
 
-## 6. Three kinds of time
+## 6. Existing-mechanism discovery
+
+When a requested metric, classification, identity mapping or retrieval capability is not clearly established in the Laboratory repository, the default response is **discovery before implementation**.
+
+The preferred discovery order is:
+
+```text
+CURRENT WORKING APPLICATION
+        ↓
+ARCHIVED / BACKUP IMPLEMENTATIONS
+        ↓
+LOCAL UPSTREAM SOURCE TREE
+        ↓
+GITHUB LABORATORY CONTRACTS
+        ↓
+NEW IMPLEMENTATION (only if genuinely necessary)
+```
+
+Existing working behaviour is evidence of intended behaviour. Archived implementations may reveal established retrieval paths, classifications, calculations and interface contracts.
+
+The search must not depend only on the expected metric name. Inspect the relevant directory structure, neighbouring metrics, source identifiers, representative schemas, known consumers and existing transformations. Trace the lineage:
+
+```text
+RAW SOURCE
+  ↓
+STORED SOURCE DATA
+  ↓
+RETRIEVAL / TRANSFORMATION
+  ↓
+AGGREGATION / CLASSIFICATION
+  ↓
+EXISTING CONSUMER
+```
+
+Failure to find a mechanism in the Laboratory repository is **not evidence that the mechanism does not exist**. Where an upstream/local source or working implementation is known, those sources should be inspected before inventing a substitute.
+
+Before modifying code, establish and record, where applicable:
+
+- source of the information;
+- source field(s);
+- identity keys and classification rules;
+- existing retrieval function/path;
+- aggregation or transformation rules;
+- existing consumer demonstrating the capability;
+- proposed reuse point.
+
+This is especially important when a capability is believed to already exist. Reuse the established mechanism rather than recreating an apparently equivalent one.
+
+## 7. Three kinds of time
 
 The system distinguishes:
 
@@ -110,7 +158,7 @@ When our tooling happened to retrieve the information.
 
 For historical simulation and leakage control, availability time is the critical constraint.
 
-## 7. Temporal integrity / leakage
+## 8. Temporal integrity / leakage
 
 A derived research feature must not use information unavailable at the prediction/evaluation timestamp.
 
@@ -126,7 +174,7 @@ Historical state is intended eventually to answer:
 
 > What did the laboratory know immediately before this fixture?
 
-## 8. Research versus market
+## 9. Research versus market
 
 The research engine should answer:
 
@@ -154,7 +202,7 @@ STRATEGY / STAKING
 
 Kelly staking is a strategy configuration, not part of the football model itself.
 
-## 9. Model evaluation
+## 10. Model evaluation
 
 Time-respecting evaluation is the default.
 
@@ -165,22 +213,6 @@ Preferred structures include:
 - walk-forward evaluation;
 - season-based holdouts;
 - discovery versus unseen test periods.
-
-## 10. What good means
-
-Evaluation should be defined before optimisation.
-
-Probability models should be assessed using measures such as:
-
-- log loss
-- Brier score
-- calibration
-- discrimination/resolution
-- domain-appropriate distributional/scoring measures
-
-Goal models may also use Poisson/deviance, MAE, RMSE and distributional scoring measures as appropriate.
-
-Results should be compared with simple baselines.
 
 ## 11. Baseline discipline
 
