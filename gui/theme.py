@@ -181,17 +181,6 @@ def apply_theme():
             margin-top: 0.28rem;
         }
 
-        .frl-context-controls {
-            color: var(--frl-muted-soft);
-            font-size: 0.56rem;
-            font-weight: 650;
-            letter-spacing: 0.08em;
-            text-align: right;
-            margin-top: -0.32rem;
-            margin-bottom: 0.45rem;
-            text-transform: uppercase;
-        }
-
         .frl-record-line {
             color: var(--frl-muted);
             font-size: 0.8rem;
@@ -245,29 +234,19 @@ def apply_theme():
         }
 
         div[data-baseweb="select"] > div {
-            background: rgba(21, 28, 34, 0.48) !important;
-            color: var(--frl-muted) !important;
-            border: 1px solid rgba(222, 228, 232, 0.045) !important;
-            border-radius: 4px !important;
-            min-height: 1.68rem !important;
-            height: 1.68rem !important;
+            background: rgba(21, 28, 34, 0.78) !important;
+            color: var(--frl-text) !important;
+            border: 1px solid rgba(222, 228, 232, 0.07) !important;
+            border-radius: 5px !important;
+            min-height: 2.05rem !important;
             box-shadow: none !important;
-            font-size: 0.7rem !important;
         }
 
         div[data-baseweb="select"] > div:hover,
         div[data-baseweb="select"] > div:focus-within {
-            background: rgba(21, 28, 34, 0.68) !important;
-            border-color: rgba(117, 155, 140, 0.22) !important;
+            background: rgba(25, 33, 40, 0.92) !important;
+            border-color: rgba(117, 155, 140, 0.42) !important;
             box-shadow: none !important;
-        }
-
-        div[data-baseweb="select"] [data-baseweb="select-value-container"] {
-            color: var(--frl-muted) !important;
-        }
-
-        div[data-baseweb="select"] input {
-            color: var(--frl-text) !important;
         }
 
         div[data-baseweb="popover"],
@@ -354,6 +333,104 @@ def apply_theme():
         .frl-fixture-header + div .stButton > button:hover {
             color: var(--frl-accent-bright);
             background: transparent !important;
+        }
+
+        /* Overview / landing page */
+        .frl-home-title {
+            color: var(--frl-text);
+            max-width: 840px;
+            font-size: clamp(2.25rem, 4vw, 3.65rem);
+            font-weight: 760;
+            line-height: 0.98;
+            letter-spacing: -0.045em;
+            margin: 0;
+        }
+
+        .frl-home-subtitle {
+            max-width: 660px;
+            color: var(--frl-muted);
+            font-size: 0.92rem;
+            line-height: 1.55;
+            margin-top: 0.9rem;
+        }
+
+        .frl-home-stat {
+            border-top: 1px solid var(--frl-border);
+            padding-top: 0.7rem;
+        }
+
+        .frl-home-stat span {
+            display: block;
+            color: var(--frl-text);
+            font-size: 1.45rem;
+            font-weight: 720;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+
+        .frl-home-stat small {
+            display: block;
+            margin-top: 0.28rem;
+            color: var(--frl-muted-soft);
+            font-size: 0.66rem;
+            text-transform: uppercase;
+            letter-spacing: 0.11em;
+        }
+
+        .frl-home-rule {
+            height: 1px;
+            background: var(--frl-border);
+            margin: 2.1rem 0 1rem;
+        }
+
+        .frl-home-section-label {
+            color: var(--frl-muted-soft);
+            font-size: 0.62rem;
+            font-weight: 750;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-bottom: 0.65rem;
+        }
+
+        .frl-home-card {
+            min-height: 7.5rem;
+            padding: 1rem 0.1rem 0.75rem;
+            border-top: 1px solid var(--frl-border);
+            border-bottom: 1px solid var(--frl-border);
+        }
+
+        .frl-home-card-title {
+            color: var(--frl-text);
+            font-size: 1.02rem;
+            font-weight: 700;
+        }
+
+        .frl-home-card-copy {
+            max-width: 250px;
+            margin-top: 0.42rem;
+            color: var(--frl-muted);
+            font-size: 0.78rem;
+            line-height: 1.45;
+        }
+
+        .frl-home-section-spaced { margin-top: 2.1rem; }
+
+        .frl-home-principles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.55rem 1.3rem;
+            color: var(--frl-muted);
+            font-size: 0.74rem;
+        }
+
+        .frl-home-principles span::before {
+            content: "";
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            margin: 0 0.45rem 0.15rem 0;
+            border-radius: 50%;
+            background: var(--frl-accent);
         }
         </style>
         """,
