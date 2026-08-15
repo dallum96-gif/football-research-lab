@@ -12,7 +12,7 @@ import query_api
 
 from gui.fixture_explorer import render_fixture_explorer
 from gui.ui_shell import current_workspace, render_workspace_sidebar
-from gui.theme import apply_theme
+from gui.theme import apply_theme, render_brand_header
 
 
 st.set_page_config(
@@ -57,10 +57,11 @@ def get_fixtures(
     )
 
 
-workspace = render_workspace_sidebar(current_workspace())
+render_workspace_sidebar(current_workspace())
+render_brand_header()
+workspace = current_workspace()
 
 if workspace == "overview":
-    st.markdown("<div class='frl-eyebrow'>Football Research Laboratory</div>", unsafe_allow_html=True)
     st.markdown("<div class='frl-title'>Research, evidence, analysis.</div>", unsafe_allow_html=True)
     st.markdown(
         "<div class='frl-subtitle'>Premier League data, player research, match analysis and experimental modelling.</div>",
@@ -135,8 +136,7 @@ else:
         "provenance": "Provenance",
     }
     label = item_labels.get(workspace, workspace.replace("-", " ").title())
-    st.markdown("<div class='frl-eyebrow'>Football Research Laboratory</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='frl-entity-title'>{label}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='frl-eyebrow'>{label}</div>", unsafe_allow_html=True)
     st.info(
         "This workspace is intentionally held outside the preview until its existing behaviour has been migrated without changing the trusted contracts."
     )
