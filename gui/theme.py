@@ -14,6 +14,12 @@ def apply_theme():
             --frl-muted: #8f9aa1;
             --frl-accent: #759b8c;
             --frl-accent-bright: #9fc2b3;
+
+            /* Shared layout rhythm */
+            --frl-top-inset: 1.35rem;
+            --frl-side-inset: 0.9rem;
+            --frl-content-inset: 1.55rem;
+            --frl-section-gap: 1.25rem;
         }
 
         .stApp,
@@ -24,10 +30,10 @@ def apply_theme():
 
         .block-container {
             max-width: 1500px;
-            padding-top: 0.12rem;
+            padding-top: var(--frl-top-inset);
             padding-bottom: 3rem;
-            padding-left: 1.5rem;
-            padding-right: 1.5rem;
+            padding-left: var(--frl-content-inset);
+            padding-right: var(--frl-content-inset);
         }
 
         header[data-testid="stHeader"] {
@@ -36,7 +42,7 @@ def apply_theme():
             background: transparent !important;
         }
 
-        /* Fixed navigation rail: compact and flush to the top of the viewport. */
+        /* Fixed navigation rail: it shares the main canvas' top rhythm. */
         section[data-testid="stSidebar"] {
             width: 190px !important;
             min-width: 190px !important;
@@ -61,9 +67,9 @@ def apply_theme():
         }
 
         section[data-testid="stSidebar"] > div:first-child {
-            padding-right: 0.45rem;
+            padding-right: var(--frl-side-inset);
             padding-bottom: 1.1rem;
-            padding-left: 0.45rem;
+            padding-left: var(--frl-side-inset);
         }
 
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
@@ -122,7 +128,7 @@ def apply_theme():
             letter-spacing: 0.1em;
             line-height: 1.25;
             text-transform: uppercase;
-            margin: 0 0 0.6rem 0.1rem;
+            margin: 0 0 0.8rem var(--frl-side-inset);
         }
 
         .frl-sidebar-section {
@@ -131,7 +137,7 @@ def apply_theme():
             font-weight: 760;
             letter-spacing: 0.13em;
             text-transform: uppercase;
-            margin: 0.62rem 0 0.15rem 0.1rem;
+            margin: 0.82rem 0 0.15rem var(--frl-side-inset);
         }
 
         .frl-masthead {
@@ -141,7 +147,7 @@ def apply_theme():
             letter-spacing: 0.12em;
             line-height: 1;
             text-transform: uppercase;
-            margin: 0 0 0.7rem 0;
+            margin: 0 0 var(--frl-section-gap) 0;
         }
 
         .frl-eyebrow {
