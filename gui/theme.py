@@ -42,7 +42,7 @@ def apply_theme():
             background: transparent !important;
         }
 
-        /* Fixed navigation rail: it shares the main canvas' top rhythm. */
+        /* Fixed navigation rail: its top rhythm intentionally matches the main canvas. */
         section[data-testid="stSidebar"] {
             width: 190px !important;
             min-width: 190px !important;
@@ -59,20 +59,18 @@ def apply_theme():
             margin: 0 !important;
         }
 
-        section[data-testid="stSidebar"] > div:first-child,
+        section[data-testid="stSidebar"] > div:first-child {
+            padding-top: var(--frl-top-inset) !important;
+            padding-right: var(--frl-side-inset);
+            padding-bottom: 1.1rem;
+            padding-left: var(--frl-side-inset);
+            margin-top: 0 !important;
+        }
+
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"],
         section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
             padding-top: 0 !important;
             margin-top: 0 !important;
-        }
-
-        section[data-testid="stSidebar"] > div:first-child {
-            padding-right: var(--frl-side-inset);
-            padding-bottom: 1.1rem;
-            padding-left: var(--frl-side-inset);
-        }
-
-        section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
             padding-left: 0 !important;
             padding-right: 0 !important;
         }
