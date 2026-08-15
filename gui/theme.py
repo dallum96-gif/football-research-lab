@@ -35,7 +35,7 @@ def apply_theme():
         section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] { display: none !important; height: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; }
         section[data-testid="stSidebar"] > div:first-child { padding: var(--frl-top-inset) var(--frl-side-inset) 1.1rem var(--frl-side-inset) !important; margin: 0 !important; }
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"], section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding: 0 !important; margin: 0 !important; }
-        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.14rem !important; }
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0 !important; }
         section[data-testid="stSidebar"] .stMarkdown { width: 100% !important; margin: 0 !important; padding: 0 !important; }
         section[data-testid="stSidebar"] .stMarkdown > div { width: 100% !important; margin: 0 !important; padding: 0 !important; }
         section[data-testid="stSidebar"] .stButton { width: 100% !important; margin: 0 !important; padding: 0 !important; }
@@ -47,9 +47,9 @@ def apply_theme():
         section[data-testid="stSidebar"] hr { margin: 0.5rem 0 !important; border-color: rgba(255,255,255,0.10) !important; }
 
         .frl-sidebar-brand { display:block !important; width:100% !important; margin:0 0 0.85rem 0 !important; padding:0 !important; color:#fffaf0; font-size:0.68rem; font-weight:800; letter-spacing:0.1em; line-height:1.25; text-transform:uppercase; }
-        .frl-sidebar-section { display:block !important; width:100% !important; margin:0.78rem 0 0.26rem 0 !important; padding:0 !important; color:#8f8a7f; font-size:0.56rem; font-weight:800; letter-spacing:0.13em; line-height:1.2 !important; text-transform:uppercase; }
-        .frl-sidebar-brand + div[data-testid="stMarkdown"] .frl-sidebar-section { margin-top:0.35rem !important; }
-        .frl-sidebar-section + div { margin-top:0 !important; }
+        .frl-sidebar-section { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; color:#8f8a7f; font-size:0.56rem; font-weight:800; letter-spacing:0.13em; line-height:1.2 !important; text-transform:uppercase; }
+        .frl-sidebar-heading-gap { height:0.62rem !important; width:100% !important; display:block !important; margin:0 !important; padding:0 !important; }
+        .frl-sidebar-section-gap { height:0.82rem !important; width:100% !important; display:block !important; border-bottom:1px solid rgba(255,255,255,0.06); margin:0 0 0.32rem 0 !important; padding:0 !important; }
 
         /* ---------- TYPOGRAPHY ---------- */
         .frl-masthead { color:var(--frl-text); font-size:0.72rem; font-weight:800; letter-spacing:0.12em; line-height:1; text-transform:uppercase; margin:0 0 var(--frl-section-gap) 0; }
