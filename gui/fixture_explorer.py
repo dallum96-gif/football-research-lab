@@ -1,43 +1,26 @@
 """Fixture Explorer presentation layer.
 
-The trusted fixture query contract remains in query_api/query_lab.  This module
-owns only the Streamlit presentation and navigation behaviour for the fixture
-explorer so the UI can evolve without changing fixture semantics.
+The trusted fixture query contract remains in query_api/query_lab. This module
+owns only presentation and navigation behaviour for the explorer.
 """
 
-import pandas as pd
 import streamlit as st
 
 
-def render_fixture_explorer(
-    season,
-    team,
-    get_fixtures,
-):
-    """Render the fixture explorer for a selected season and team."""
+def render_fixture_explorer(season, team, get_fixtures):
     st.markdown("## Fixture Explorer")
-    st.caption(
-        "Explore the canonical fixture record and open any match for its detailed evidence."
-    )
+    st.caption("Browse the selected team's canonical fixture record and open any match for detailed evidence.")
 
-    all_team_fixtures = get_fixtures(
-        season=season,
-        team=team,
-    )
+    filter_cols = st.columns([1.8, 1.0, 1.0, 0.9])
 
+    all_team_fixtures = get_fixtures(season=season, team=team)
     opponent_names = sorted(
         {
-            (
-                row["away_team_name"]
-                if row["home_team_name"] == team
-                else row["home_team_name"]
-            )
+            row["away_team_name"] if row["home_team_name"] == team else row["home_team_name"]
             for row in all_team_fixtures["results"]
         },
         key=str.casefold,
     )
-
-    filter_cols = st.columns(3)
 
     with filter_cols[0]:
         opponent_choice = st.selectbox(
@@ -60,25 +43,22 @@ def render_fixture_explorer(
             key="fixture_explorer_result",
         )
 
-    selected_opponent = (
-        None
-        if opponent_choice == "All opponents"
-        else opponent_choice
-    )
+    with filter_cols[3]:
+        st.markdown("&nbsp;", unsafe_allow_html=True)
+        clear_filters = st.button("Clear", key="fixture_explorer_clear")
 
-    selected_venue = {
-        "All venues": None,
-        "Home": "home",
-        "Away": "away",
-    }[venue_choice]
+    if clear_filters:
+        for key in (
+            "fixture_explorer_opponent",
+            "fixture_explorer_venue",
+            "fixture_explorer_result",
+        ):
+            st.session_state.pop(key, None)
+        st.rerun()
 
-    selected_result = {
-        "All results": None,
-        "W": "W",
-        "D": "D",
-        "L": "L",
-        "Unplayed": "UNPLAYED",
-    }[result_choice]
+    selected_opponent = None if opponent_choice == "All opponents" else opponent_choice
+    selected_venue = {"All venues": None, "Home": "home", "Away": "away"}[venue_choice]
+    selected_result = {"All results": None, "W": "W", "D": "D", "L": "L", "Unplayed": "UNPLAYED"}[result_choice]
 
     fixtures = get_fixtures(
         season=season,
@@ -87,18 +67,17 @@ def render_fixture_explorer(
         venue=selected_venue,
         result=selected_result,
     )
-
     results = fixtures["results"]
 
-    st.caption(
-        f"{len(results)} fixture(s) match the selected filters"
+    st.markdown(
+        f"**{len(results)}** fixtures · {team} · {season}",
     )
 
     if not results:
         st.info("No fixtures match the selected filters.")
         return
 
-    fixture_rows = []
+    st.markdown("<div class='frl-fixture-table-head'>Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW&nbsp;&nbsp;&nbsp;&nbsp;Venue&nbsp;&nbsp;&nbsp;&nbsp;Opponent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Score&nbsp;&nbsp;&nbsp;&nbsp;Result</div>", unsafe_allow_html=True)
 
     for row in results:
         home = row["home_team_name"]
@@ -109,72 +88,27 @@ def render_fixture_explorer(
         if home_score == "" or away_score == "":
             score = "—"
             result = "UNPLAYED"
+        elif home == team:
+            score = f"{home_score}-{away_score}"
+            h, a = int(home_score), int(away_score)
+            result = "W" if h > a else "D" if h == a else "L"
         else:
             score = f"{home_score}-{away_score}"
+            h, a = int(home_score), int(away_score)
+            result = "W" if a > h else "D" if a == h else "L"
 
-            if home == team:
-                home_score_i = int(home_score)
-                away_score_i = int(away_score)
-                result = (
-                    "W"
-                    if home_score_i > away_score_i
-                    else "D"
-                    if home_score_i == away_score_i
-                    else "L"
-                )
-            else:
-                away_score_i = int(away_score)
-                home_score_i = int(home_score)
-                result = (
-                    "W"
-                    if away_score_i > home_score_i
-                    else "D"
-                    if away_score_i == home_score_i
-                    else "L"
-                )
-
-        fixture_rows.append(
-            {
-                "_fixture_id": row["fixture_id"],
-                "Date": row["kickoff_time"][:10],
-                "GW": row["gameweek"],
-                "Venue": "Home" if home == team else "Away",
-                "Opponent": away if home == team else home,
-                "Score": score,
-                "Result": result,
-            }
-        )
-
-    header_cols = st.columns(
-        [1.25, 0.65, 0.8, 2.0, 0.9, 0.8]
-    )
-
-    for col, header in zip(
-        header_cols,
-        ("Date", "GW", "Venue", "Opponent", "Score", "Result"),
-    ):
-        col.markdown(f"**{header}**")
-
-    st.divider()
-
-    for row in fixture_rows:
-        cols = st.columns(
-            [1.25, 0.65, 0.8, 2.0, 0.9, 0.8]
-        )
-
-        cols[0].write(row["Date"])
-        cols[1].write(row["GW"])
-        cols[2].write(row["Venue"])
+        cols = st.columns([1.15, 0.5, 0.65, 2.2, 0.75, 0.7])
+        cols[0].caption(row["kickoff_time"][:10])
+        cols[1].caption(row["gameweek"])
+        cols[2].caption("Home" if home == team else "Away")
 
         if cols[3].button(
-            row["Opponent"],
-            key=f"fixture_opponent_{row['_fixture_id']}",
+            away if home == team else home,
+            key=f"fixture_opponent_{row['fixture_id']}",
             use_container_width=True,
         ):
-            st.query_params["fixture"] = (
-                f"{season}:{row['_fixture_id']}"
-            )
+            st.query_params["fixture"] = f"{season}:{row['fixture_id']}"
             st.rerun()
 
-        cols[4].write(row["Score"])
-        cols[5].write(row["Result"])
+        cols[4].caption(score)
+        cols[5].caption(result)
