@@ -17,7 +17,7 @@ def apply_theme():
             --frl-accent: #e85d3f;
             --frl-accent-bright: #f06d4e;
             --frl-secondary: #9aaa42;
-            --frl-negative: #c94b4b;
+            --frl-negative: #e85d3f;
             --frl-warning: #c68a35;
             --frl-sidebar: #1b1b18;
             --frl-top-inset: 1.35rem;
