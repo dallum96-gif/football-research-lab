@@ -191,15 +191,22 @@ def apply_theme():
             margin-bottom: 0.9rem;
         }
 
-        .frl-count-line {
+        .frl-record-line {
             color: var(--frl-muted);
             font-size: 0.8rem;
-            margin: 0.55rem 0 0.48rem 0;
+            margin: 0.25rem 0 1rem 0;
+            padding-bottom: 0.7rem;
+            border-bottom: 1px solid var(--frl-border);
+        }
+
+        .frl-record-line strong {
+            color: var(--frl-text);
+            font-weight: 700;
         }
 
         .frl-fixture-header {
             display: grid;
-            grid-template-columns: 1fr 3.2fr 1fr 1fr 0.9fr;
+            grid-template-columns: 1.05fr 3.1fr 1fr 0.95fr 0.85fr;
             column-gap: 1rem;
             color: var(--frl-muted);
             font-size: 0.64rem;
@@ -207,19 +214,24 @@ def apply_theme():
             letter-spacing: 0.08em;
             text-transform: uppercase;
             padding: 0.32rem 0.18rem 0.42rem 0.18rem;
-            border-bottom: 1px solid var(--frl-border);
+            border-bottom: 1px solid var(--frl-border-strong);
         }
 
         .frl-fixture-row-rule {
             height: 1px;
             background: var(--frl-border);
-            margin: 0.18rem 0 0.18rem 0;
+            margin: 0.08rem 0;
         }
 
         .frl-meta {
             color: var(--frl-muted);
             font-size: 0.76rem;
-            line-height: 1.4;
+            line-height: 1.35;
+        }
+
+        .frl-meta-sub {
+            color: #707b82;
+            font-size: 0.69rem;
         }
 
         .frl-score {
