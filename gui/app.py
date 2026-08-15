@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 from datetime import date, datetime
 import sys
 
@@ -18,7 +18,7 @@ from gui.theme import apply_theme, render_brand_header, render_sidebar_controls
 
 st.set_page_config(
     page_title="Football Research Lab",
-    page_icon="⚽",
+    page_icon="âš½",
     layout="wide",
 )
 apply_theme()
@@ -96,13 +96,13 @@ def render_fixture_detail(detail):
     home = fixture["home_team_name"]
     away = fixture["away_team_name"]
 
-    home_score = fixture["home_score"] or "â€”"
-    away_score = fixture["away_score"] or "â€”"
+    home_score = fixture["home_score"] or "Ã¢â‚¬â€"
+    away_score = fixture["away_score"] or "Ã¢â‚¬â€"
 
     st.markdown(
         f"<div style='text-align:center;'>"
         f"<div style='font-size:.9rem; opacity:.7;'>"
-        f"{fixture['season']} Â· GW {fixture['gameweek']}"
+        f"{fixture['season']} Ã‚Â· GW {fixture['gameweek']}"
         f"</div>"
         f"<div style='font-size:1rem; opacity:.8; margin-top:.25rem;'>"
         f"{fixture['kickoff_time'][:10]}"
@@ -117,7 +117,7 @@ def render_fixture_detail(detail):
         f"{home}"
         f"</div>"
         f"<div style='font-size:3rem; font-weight:800; line-height:1.1; margin:.35rem 0;'>"
-        f"{home_score}â€“{away_score}"
+        f"{home_score}Ã¢â‚¬â€œ{away_score}"
         f"</div>"
         f"<div style='font-size:1.55rem; font-weight:700;'>"
         f"{away}"
@@ -277,7 +277,7 @@ def render_prediction_lab():
     )
 
     st.caption(
-        "Poisson V0.1 â€” exploratory model based exclusively "
+        "Poisson V0.1 Ã¢â‚¬â€ exploratory model based exclusively "
         "on 2025/26 score data. Not yet out-of-sample validated."
     )
 
@@ -400,7 +400,7 @@ def render_prediction_lab():
 
     st.caption(
         "Most likely score: "
-        f"{most_likely['home']}â€“"
+        f"{most_likely['home']}Ã¢â‚¬â€œ"
         f"{most_likely['away']} "
         f"({most_likely['probability'] * 100:.1f}%)"
     )
@@ -539,12 +539,12 @@ def render_prediction_lab():
                     f"{analysis['half_kelly'] * 100:.2f}%",
                 "Quarter Kelly":
                     f"{analysis['quarter_kelly'] * 100:.2f}%",
-                "Full Kelly Â£":
-                    f"Â£{analysis['stakes']['full_kelly']:.2f}",
-                "Half Kelly Â£":
-                    f"Â£{analysis['stakes']['half_kelly']:.2f}",
-                "Quarter Kelly Â£":
-                    f"Â£{analysis['stakes']['quarter_kelly']:.2f}",
+                "Full Kelly Ã‚Â£":
+                    f"Ã‚Â£{analysis['stakes']['full_kelly']:.2f}",
+                "Half Kelly Ã‚Â£":
+                    f"Ã‚Â£{analysis['stakes']['half_kelly']:.2f}",
+                "Quarter Kelly Ã‚Â£":
+                    f"Ã‚Â£{analysis['stakes']['quarter_kelly']:.2f}",
             }
         )
 
@@ -609,7 +609,7 @@ if fixture_token:
         )
 
         if st.button(
-            "â† Back to Fixture Explorer",
+            "Ã¢â€ Â Back to Fixture Explorer",
             key="fixture_back",
         ):
             del st.query_params["fixture"]
@@ -824,7 +824,7 @@ with tab2:
         away_score = row["away_score"]
 
         if home_score == "" or away_score == "":
-            score = "â€”"
+            score = "Ã¢â‚¬â€"
             result = "UNPLAYED"
         else:
             score = f"{home_score}-{away_score}"
@@ -1191,7 +1191,7 @@ with tab5:
             ]
 
             range_label = (
-                f"GW {start_gw}â€“{end_gw}"
+                f"GW {start_gw}Ã¢â‚¬â€œ{end_gw}"
             )
 
         else:
@@ -1221,7 +1221,7 @@ with tab5:
             ]
 
             range_label = (
-                f"{start_date.strftime('%d %b %Y')} â€“ "
+                f"{start_date.strftime('%d %b %Y')} Ã¢â‚¬â€œ "
                 f"{end_date.strftime('%d %b %Y')}"
             )
 
@@ -1244,11 +1244,11 @@ with tab5:
             last_gw = gameweek_number(filtered[-1])
 
             st.markdown(
-                f"**{team}** Â· {range_label}  "
+                f"**{team}** Ã‚Â· {range_label}  "
                 f"  \n"
-                f"{len(filtered)} matches Â· "
-                f"GW {first_gw}â€“{last_gw} Â· "
-                f"{first_date.strftime('%d %b')}â€“{last_date.strftime('%d %b %Y')}"
+                f"{len(filtered)} matches Ã‚Â· "
+                f"GW {first_gw}Ã¢â‚¬â€œ{last_gw} Ã‚Â· "
+                f"{first_date.strftime('%d %b')}Ã¢â‚¬â€œ{last_date.strftime('%d %b %Y')}"
             )
 
             form_metrics = st.columns(5)
@@ -1315,3 +1315,4 @@ with tab6:
 
 with tab7:
     render_player_research_ui()
+
