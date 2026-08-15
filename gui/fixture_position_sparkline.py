@@ -74,7 +74,7 @@ def render_last_five_position_sparkline(season, team, get_fixtures):
     history = last_five_positions(season, team, get_fixtures)
     if not history:
         st.markdown(
-            "<div class='frl-position-spark-empty'>No completed fixtures yet</div>",
+            "<div style='color:var(--frl-muted-soft);font-size:0.58rem;font-weight:800;letter-spacing:0.10em;text-transform:uppercase;padding-top:0.25rem;'>No completed fixtures yet</div>",
             unsafe_allow_html=True,
         )
         return
@@ -85,7 +85,6 @@ def render_last_five_position_sparkline(season, team, get_fixtures):
     pad_y = 10
     positions = [position for _, position in history]
     max_position = max(positions)
-    min_position = 1
     plot_height = height - (pad_y * 2)
     plot_width = width - (pad_x * 2)
 
@@ -95,8 +94,8 @@ def render_last_five_position_sparkline(season, team, get_fixtures):
         return pad_x + (plot_width * index / (len(history) - 1))
 
     def y_for(position):
-        span = max(1, max_position - min_position)
-        return pad_y + ((position - min_position) / span) * plot_height
+        span = max(1, max_position - 1)
+        return pad_y + ((position - 1) / span) * plot_height
 
     points = [(x_for(i), y_for(position)) for i, (_, position) in enumerate(history)]
     polyline = " ".join(f"{x:.1f},{y:.1f}" for x, y in points)
@@ -110,14 +109,16 @@ def render_last_five_position_sparkline(season, team, get_fixtures):
 
     st.markdown(
         f"""
-        <div class='frl-position-spark'>
-          <div class='frl-position-spark-label'>LAST 5 POSITIONS</div>
-          <svg viewBox='0 0 {width} {height}' role='img' aria-label='Last five league positions for {html.escape(team)}'>
+        <div style='padding:0.05rem 0.35rem 0;'>
+          <div style='display:flex;justify-content:space-between;align-items:center;color:var(--frl-muted-soft);font-size:0.55rem;font-weight:800;letter-spacing:0.10em;text-transform:uppercase;'>
+            <span>Last 5 positions</span>
+            <span>GW {last_gw} · {last_position}th</span>
+          </div>
+          <svg viewBox='0 0 {width} {height}' style='display:block;width:100%;height:3.8rem;margin-top:0.15rem;' role='img' aria-label='Last five league positions for {html.escape(team)}'>
             <line x1='{pad_x}' y1='{pad_y}' x2='{width-pad_x}' y2='{pad_y}' stroke='rgba(24,23,20,0.08)' stroke-width='1'/>
             <polyline points='{polyline}' fill='none' stroke='var(--frl-accent)' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/>
             {circles}
           </svg>
-          <div class='frl-position-spark-meta'><span>GW {last_gw}</span><strong>{last_position}th</strong></div>
         </div>
         """,
         unsafe_allow_html=True,
