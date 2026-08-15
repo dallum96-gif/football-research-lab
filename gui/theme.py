@@ -36,6 +36,7 @@ def apply_theme():
             background: transparent !important;
         }
 
+        /* Fixed navigation rail: compact and flush to the top of the viewport. */
         section[data-testid="stSidebar"] {
             width: 190px !important;
             min-width: 190px !important;
@@ -44,8 +45,25 @@ def apply_theme():
             border-right: 1px solid var(--frl-border);
         }
 
+        section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] {
+            display: none !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+        section[data-testid="stSidebar"] > div:first-child,
+        section[data-testid="stSidebar"] [data-testid="stSidebarContent"],
+        section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
+            padding-top: 0 !important;
+            margin-top: 0 !important;
+        }
+
         section[data-testid="stSidebar"] > div:first-child {
-            padding: 0.08rem 0.45rem 1.1rem 0.45rem;
+            padding-right: 0.45rem;
+            padding-bottom: 1.1rem;
+            padding-left: 0.45rem;
         }
 
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
@@ -90,16 +108,6 @@ def apply_theme():
         section[data-testid="stSidebar"] .stButton > button:hover {
             color: var(--frl-text) !important;
             background: rgba(255,255,255,0.025) !important;
-        }
-
-        /* Fixed navigation rail: no collapse/expand affordance. */
-        [data-testid="stSidebarCollapseButton"],
-        button[data-testid="stSidebarCollapseButton"],
-        button[aria-label="Collapse sidebar"],
-        button[aria-label="Expand sidebar"],
-        [data-testid="collapsedControl"] {
-            display: none !important;
-            visibility: hidden !important;
         }
 
         section[data-testid="stSidebar"] hr {
@@ -287,7 +295,6 @@ def apply_theme():
             border-radius: 7px;
             background: var(--frl-surface);
         }
-
         </style>
         """,
         unsafe_allow_html=True,
