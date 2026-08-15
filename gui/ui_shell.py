@@ -19,7 +19,7 @@ ICONS = {
 
 
 def render_workspace_sidebar(active_key):
-    """Render compact, flush-left application navigation."""
+    """Render compact, clearly separated application navigation."""
     grouped = navigation_by_section()
     selected = active_key
 
@@ -28,13 +28,20 @@ def render_workspace_sidebar(active_key):
         unsafe_allow_html=True,
     )
 
-    for section in SECTION_ORDER:
+    visible_sections = [section for section in SECTION_ORDER if grouped[section]]
+
+    for section_index, section in enumerate(visible_sections):
         items = grouped[section]
-        if not items:
-            continue
 
         st.sidebar.markdown(
             f"<div class='frl-sidebar-section'>{section}</div>",
+            unsafe_allow_html=True,
+        )
+
+        # A real DOM spacer between the category heading and the first
+        # Streamlit button prevents the two from visually colliding.
+        st.sidebar.markdown(
+            "<div class='frl-sidebar-heading-gap' aria-hidden='true'></div>",
             unsafe_allow_html=True,
         )
 
@@ -49,6 +56,12 @@ def render_workspace_sidebar(active_key):
                 selected = item.key
                 st.session_state["frl_workspace"] = item.key
                 st.rerun()
+
+        if section_index < len(visible_sections) - 1:
+            st.sidebar.markdown(
+                "<div class='frl-sidebar-section-gap' aria-hidden='true'></div>",
+                unsafe_allow_html=True,
+            )
 
     return selected
 
