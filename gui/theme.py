@@ -45,7 +45,7 @@ def apply_theme():
         }
 
         section[data-testid="stSidebar"] > div:first-child {
-            padding: 0.35rem 0.45rem 1.1rem 0.45rem;
+            padding: 0.08rem 0.45rem 1.1rem 0.45rem;
         }
 
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
@@ -114,7 +114,7 @@ def apply_theme():
             letter-spacing: 0.1em;
             line-height: 1.25;
             text-transform: uppercase;
-            margin: 0 0 0.7rem 0.1rem;
+            margin: 0 0 0.6rem 0.1rem;
         }
 
         .frl-sidebar-section {
@@ -123,7 +123,7 @@ def apply_theme():
             font-weight: 760;
             letter-spacing: 0.13em;
             text-transform: uppercase;
-            margin: 0.72rem 0 0.15rem 0.1rem;
+            margin: 0.62rem 0 0.15rem 0.1rem;
         }
 
         .frl-masthead {
