@@ -1,0 +1,1 @@
+Recovery note: gui/app_redesign.py on 67c9330e accidentally truncated the fixtures, league-table, and fallback workspace branches. This recovery branch preserves the affected commit while restoring the file from the intact parent before reapplying the overview-only change.
