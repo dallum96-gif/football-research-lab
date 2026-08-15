@@ -8,13 +8,12 @@ def apply_theme():
         :root {
             --frl-bg: #0e141a;
             --frl-surface: #151c22;
-            --frl-surface-raised: #192129;
             --frl-border: rgba(222, 228, 232, 0.08);
             --frl-border-strong: rgba(222, 228, 232, 0.15);
             --frl-text: #eef1f1;
             --frl-muted: #8f9aa1;
             --frl-accent: #759b8c;
-            --frl-accent-soft: rgba(117, 155, 140, 0.11);
+            --frl-accent-bright: #9fc2b3;
         }
 
         .stApp,
@@ -31,7 +30,6 @@ def apply_theme():
             padding-right: 1.5rem;
         }
 
-        /* Narrow, quiet navigation rail. */
         section[data-testid="stSidebar"] {
             width: 190px !important;
             min-width: 190px !important;
@@ -86,11 +84,6 @@ def apply_theme():
         section[data-testid="stSidebar"] .stButton > button:hover {
             color: var(--frl-text) !important;
             background: rgba(255,255,255,0.025) !important;
-        }
-
-        section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
-            color: #dce9e3 !important;
-            background: var(--frl-accent-soft) !important;
         }
 
         section[data-testid="stSidebar"] hr {
@@ -160,6 +153,54 @@ def apply_theme():
             margin-bottom: 0.9rem;
         }
 
+        .frl-count-line {
+            color: var(--frl-muted);
+            font-size: 0.8rem;
+            margin: 0.55rem 0 0.48rem 0;
+        }
+
+        .frl-fixture-header {
+            display: grid;
+            grid-template-columns: 1fr 3.2fr 1fr 1fr 0.9fr;
+            column-gap: 1rem;
+            color: var(--frl-muted);
+            font-size: 0.64rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.32rem 0.18rem 0.42rem 0.18rem;
+            border-bottom: 1px solid var(--frl-border);
+        }
+
+        .frl-fixture-row-rule {
+            height: 1px;
+            background: var(--frl-border);
+            margin: 0.18rem 0 0.18rem 0;
+        }
+
+        .frl-meta {
+            color: var(--frl-muted);
+            font-size: 0.76rem;
+            line-height: 1.4;
+        }
+
+        .frl-score {
+            color: var(--frl-text);
+            font-weight: 760;
+            font-size: 0.93rem;
+        }
+
+        .frl-result {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+        }
+
+        .frl-result-win { color: var(--frl-accent-bright); }
+        .frl-result-draw { color: var(--frl-muted); }
+        .frl-result-loss { color: #c58f8f; }
+        .frl-result-unplayed { color: #b7a47c; }
+
         div[data-baseweb="select"] > div,
         div[data-testid="stTextInput"] input,
         div[data-testid="stNumberInput"] input,
@@ -190,20 +231,38 @@ def apply_theme():
             background: rgba(255,255,255,0.018);
         }
 
-        div[data-testid="stMetric"] {
-            padding: 0.58rem 0.7rem;
-            background: transparent;
-            border-top: 1px solid var(--frl-border);
-            border-bottom: 1px solid var(--frl-border);
-            border-left: 0;
-            border-right: 0;
-            border-radius: 0;
+        /* Entity buttons read as text links rather than large controls. */
+        .frl-fixture-header + div .stButton > button {
+            min-height: 1.95rem;
+            height: 1.95rem;
+            padding: 0 !important;
+            border: 0 !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            font-size: 0.91rem;
+            font-weight: 680;
+            color: var(--frl-text);
+            background: transparent !important;
         }
 
-        div[data-testid="stMetricLabel"] { color: var(--frl-muted); }
-        div[data-testid="stMetricValue"] { color: var(--frl-text); }
-        div[data-testid="stDataFrame"] { border: 1px solid var(--frl-border); border-radius: 7px; overflow: hidden; background: var(--frl-surface); }
-        div[data-testid="stExpander"] { border: 1px solid var(--frl-border); border-radius: 7px; background: var(--frl-surface); }
+        .frl-fixture-header + div .stButton > button:hover {
+            color: var(--frl-accent-bright);
+            background: transparent !important;
+        }
+
+        div[data-testid="stDataFrame"] {
+            border: 1px solid var(--frl-border);
+            border-radius: 7px;
+            overflow: hidden;
+            background: var(--frl-surface);
+        }
+
+        div[data-testid="stExpander"] {
+            border: 1px solid var(--frl-border);
+            border-radius: 7px;
+            background: var(--frl-surface);
+        }
+
         div[data-testid="stToolbar"] { visibility: hidden; }
         </style>
         """,
