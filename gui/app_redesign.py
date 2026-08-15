@@ -120,37 +120,6 @@ elif workspace == "fixtures":
         st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
         st.markdown("<div class='frl-context'>Premier League</div>", unsafe_allow_html=True)
     with header_team:
-        st.markdown(
-            """
-            <style>
-            .frl-team-selector-marker + div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {
-                background: #171714 !important;
-                border-color: #171714 !important;
-                color: #fffaf0 !important;
-                -webkit-text-fill-color: #fffaf0 !important;
-                box-shadow: none !important;
-            }
-            .frl-team-selector-marker + div[data-testid="stSelectbox"] div[data-baseweb="select"] > div:hover,
-            .frl-team-selector-marker + div[data-testid="stSelectbox"] div[data-baseweb="select"] > div:focus-within {
-                background: #171714 !important;
-                border-color: #e85d3f !important;
-                color: #fffaf0 !important;
-                -webkit-text-fill-color: #fffaf0 !important;
-                box-shadow: 0 0 0 2px rgba(232,93,63,0.12) !important;
-            }
-            .frl-team-selector-marker + div[data-testid="stSelectbox"] div[data-baseweb="select"] svg {
-                color: #fffaf0 !important;
-                fill: #fffaf0 !important;
-            }
-            .frl-team-selector-marker + div[data-testid="stSelectbox"] div[data-baseweb="select"] input {
-                color: #fffaf0 !important;
-                -webkit-text-fill-color: #fffaf0 !important;
-            }
-            </style>
-            <div class='frl-team-selector-marker' aria-hidden='true'></div>
-            """,
-            unsafe_allow_html=True,
-        )
         team = st.selectbox(
             "Team",
             teams,
