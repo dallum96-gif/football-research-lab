@@ -6,18 +6,18 @@ def apply_theme():
         """
         <style>
         :root {
-            --frl-bg: #0b1730;
-            --frl-surface: #142440;
-            --frl-surface-raised: #1a2d4d;
-            --frl-border: rgba(246, 240, 228, 0.12);
-            --frl-border-strong: rgba(246, 240, 228, 0.20);
-            --frl-text: #f6f0e4;
-            --frl-muted: #aeb6bf;
-            --frl-muted-soft: #7f8993;
-            --frl-accent: #7ea993;
-            --frl-accent-bright: #b4d0c0;
-            --frl-negative: #cb9797;
-            --frl-warning: #d0b77d;
+            --frl-bg: #0e141a;
+            --frl-surface: #151c22;
+            --frl-surface-raised: #192128;
+            --frl-border: rgba(222, 228, 232, 0.08);
+            --frl-border-strong: rgba(222, 228, 232, 0.15);
+            --frl-text: #eef1f1;
+            --frl-muted: #8f9aa1;
+            --frl-muted-soft: #737f86;
+            --frl-accent: #759b8c;
+            --frl-accent-bright: #9fc2b3;
+            --frl-negative: #c58f8f;
+            --frl-warning: #b7a47c;
 
             --frl-top-inset: 1.35rem;
             --frl-side-inset: 0.9rem;
@@ -49,7 +49,7 @@ def apply_theme():
             width: 190px !important;
             min-width: 190px !important;
             max-width: 190px !important;
-            background: #081329;
+            background: #0a1015;
             border-right: 1px solid var(--frl-border);
         }
 
@@ -71,10 +71,8 @@ def apply_theme():
 
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"],
         section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
-            padding-top: 0 !important;
-            margin-top: 0 !important;
-            padding-left: 0 !important;
-            padding-right: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
         }
 
         section[data-testid="stSidebar"] .stButton,
@@ -93,7 +91,7 @@ def apply_theme():
             border: 0 !important;
             border-radius: 3px;
             background: transparent !important;
-            color: #d1d6dc !important;
+            color: #c4cdd1 !important;
             box-shadow: none !important;
             font-size: 0.75rem;
             font-weight: 560;
@@ -113,7 +111,7 @@ def apply_theme():
 
         section[data-testid="stSidebar"] .stButton > button:hover {
             color: var(--frl-text) !important;
-            background: rgba(246, 240, 228, 0.05) !important;
+            background: rgba(255,255,255,0.025) !important;
         }
 
         section[data-testid="stSidebar"] hr {
@@ -132,7 +130,7 @@ def apply_theme():
         }
 
         .frl-sidebar-section {
-            color: #8290a0;
+            color: #748087;
             font-size: 0.56rem;
             font-weight: 760;
             letter-spacing: 0.13em;
@@ -150,14 +148,17 @@ def apply_theme():
             margin: 0 0 var(--frl-section-gap) 0;
         }
 
-        .frl-eyebrow {
+        .frl-eyebrow,
+        .frl-filter-label {
             color: var(--frl-muted);
-            font-size: 0.66rem;
-            font-weight: 700;
-            letter-spacing: 0.16em;
+            font-size: 0.62rem;
+            font-weight: 750;
+            letter-spacing: 0.15em;
             text-transform: uppercase;
-            margin-bottom: 0.35rem;
         }
+
+        .frl-eyebrow { margin-bottom: 0.35rem; }
+        .frl-filter-label { margin: 1.35rem 0 0.42rem; color: var(--frl-muted-soft); }
 
         .frl-title {
             color: var(--frl-text);
@@ -179,81 +180,75 @@ def apply_theme():
 
         .frl-entity-title {
             color: var(--frl-text);
-            font-size: 2rem;
+            font-size: 2.05rem;
             font-weight: 760;
-            letter-spacing: -0.02em;
-            line-height: 1.08;
+            letter-spacing: -0.025em;
+            line-height: 1.04;
             margin: 0;
         }
 
         .frl-context {
             color: var(--frl-muted);
-            font-size: 0.86rem;
-            margin-top: 0.22rem;
-            margin-bottom: 0.9rem;
+            font-size: 0.84rem;
+            margin-top: 0.28rem;
         }
 
         .frl-record-line {
             color: var(--frl-muted);
             font-size: 0.8rem;
-            margin: 0.25rem 0 1rem 0;
-            padding-bottom: 0.7rem;
+            margin: 0.75rem 0 1rem;
+            padding-bottom: 0.72rem;
             border-bottom: 1px solid var(--frl-border);
         }
 
-        .frl-record-line strong {
-            color: var(--frl-text);
-            font-weight: 700;
-        }
+        .frl-record-line strong { color: var(--frl-text); font-weight: 700; }
+        .frl-record-line span { color: var(--frl-muted-soft); }
 
-        .frl-fixture-header {
-            display: grid;
-            grid-template-columns: 1.05fr 3.1fr 1fr 0.95fr 0.85fr;
-            column-gap: 1rem;
-            color: var(--frl-muted);
-            font-size: 0.64rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 0.32rem 0.18rem 0.42rem 0.18rem;
-            border-bottom: 1px solid var(--frl-border-strong);
-        }
-
-        .frl-fixture-row-rule {
-            height: 1px;
-            background: var(--frl-border);
-            margin: 0.08rem 0;
-        }
-
-        .frl-meta {
-            color: var(--frl-muted);
-            font-size: 0.76rem;
-            line-height: 1.35;
-        }
-
-        .frl-meta-sub {
+        .frl-filter-subline {
             color: var(--frl-muted-soft);
-            font-size: 0.69rem;
+            font-size: 0.6rem;
+            letter-spacing: 0.08em;
+            margin: -0.28rem 0 0.8rem;
         }
 
-        .frl-score {
-            color: var(--frl-text);
-            font-weight: 760;
-            font-size: 0.93rem;
+        /* The selectors are intentionally dark, low-contrast surfaces rather than grey widgets. */
+        div[data-baseweb="select"] > div {
+            background: rgba(21, 28, 34, 0.78) !important;
+            color: var(--frl-text) !important;
+            border: 1px solid rgba(222, 228, 232, 0.07) !important;
+            border-radius: 5px !important;
+            min-height: 2.05rem !important;
+            box-shadow: none !important;
         }
 
-        .frl-result {
-            font-size: 0.72rem;
-            font-weight: 700;
-            letter-spacing: 0.04em;
+        div[data-baseweb="select"] > div:hover,
+        div[data-baseweb="select"] > div:focus-within {
+            background: rgba(25, 33, 40, 0.92) !important;
+            border-color: rgba(117, 155, 140, 0.42) !important;
+            box-shadow: 0 0 0 1px rgba(117, 155, 140, 0.08) !important;
         }
 
-        .frl-result-win { color: var(--frl-accent-bright); }
-        .frl-result-draw { color: var(--frl-muted); }
-        .frl-result-loss { color: var(--frl-negative); }
-        .frl-result-unplayed { color: var(--frl-warning); }
+        div[data-baseweb="select"] [data-baseweb="select-value-container"] {
+            color: var(--frl-text) !important;
+        }
 
-        div[data-baseweb="select"] > div,
+        div[data-baseweb="select"] input {
+            color: var(--frl-text) !important;
+        }
+
+        div[data-baseweb="popover"] {
+            background: var(--frl-surface-raised) !important;
+            border: 1px solid var(--frl-border) !important;
+        }
+
+        div[data-baseweb="menu"] {
+            background: var(--frl-surface-raised) !important;
+        }
+
+        div[data-baseweb="menu"] li:hover {
+            background: rgba(117, 155, 140, 0.08) !important;
+        }
+
         div[data-testid="stTextInput"] input,
         div[data-testid="stNumberInput"] input,
         div[data-testid="stDateInput"] input {
@@ -261,15 +256,51 @@ def apply_theme():
             color: var(--frl-text);
             border: 1px solid var(--frl-border);
             border-radius: 6px;
-            min-height: 1.95rem;
         }
 
-        div[data-baseweb="select"] > div:hover,
-        div[data-testid="stTextInput"] input:hover,
-        div[data-testid="stNumberInput"] input:hover,
-        div[data-testid="stDateInput"] input:hover {
-            border-color: var(--frl-border-strong);
+        .frl-fixture-header {
+            display: grid;
+            grid-template-columns: 1.1fr 3.25fr 0.95fr 0.9fr 0.72fr;
+            column-gap: 1rem;
+            color: var(--frl-muted-soft);
+            font-size: 0.61rem;
+            font-weight: 750;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.18rem 0.48rem;
+            border-bottom: 1px solid var(--frl-border-strong);
         }
+
+        .frl-fixture-row-rule {
+            height: 1px;
+            background: var(--frl-border);
+            margin: 0.05rem 0;
+        }
+
+        .frl-meta {
+            color: var(--frl-muted);
+            font-size: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .frl-meta-sub { color: var(--frl-muted-soft); font-size: 0.67rem; }
+
+        .frl-score {
+            color: var(--frl-text);
+            font-weight: 760;
+            font-size: 0.92rem;
+        }
+
+        .frl-result {
+            font-size: 0.71rem;
+            font-weight: 750;
+            letter-spacing: 0.05em;
+        }
+
+        .frl-result-win { color: var(--frl-accent-bright); }
+        .frl-result-draw { color: var(--frl-muted); }
+        .frl-result-loss { color: var(--frl-negative); }
+        .frl-result-unplayed { color: var(--frl-warning); }
 
         .stButton > button {
             color: var(--frl-text);
@@ -280,7 +311,7 @@ def apply_theme():
 
         .stButton > button:hover {
             border-color: var(--frl-border-strong);
-            background: rgba(246, 240, 228, 0.025);
+            background: rgba(255,255,255,0.018);
         }
 
         .frl-fixture-header + div .stButton > button {
@@ -307,12 +338,6 @@ def apply_theme():
             overflow: hidden;
             background: var(--frl-surface);
         }
-
-        div[data-testid="stExpander"] {
-            border: 1px solid var(--frl-border);
-            border-radius: 7px;
-            background: var(--frl-surface);
-        }
         </style>
         """,
         unsafe_allow_html=True,
@@ -320,12 +345,7 @@ def apply_theme():
 
 
 def render_brand_header():
-    st.markdown(
-        """
-        <div class="frl-masthead">Football Research Laboratory</div>
-        """,
-        unsafe_allow_html=True,
-    )
+    st.markdown("<div class='frl-masthead'>Football Research Laboratory</div>", unsafe_allow_html=True)
 
 
 def render_sidebar_controls():
