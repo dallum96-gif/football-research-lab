@@ -1,0 +1,1 @@
+Fixture header will use the exact Streamlit column proportions used by fixture rows; typography kept deliberately small and muted.
