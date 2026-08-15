@@ -204,7 +204,7 @@ def render_fixture_explorer(season, team, get_fixtures):
             opponent,
             key=f"fixture_opponent_{row['fixture_id']}",
             width="stretch",
-            type="tertiary",
+            type="secondary",
         ):
             st.query_params["fixture"] = f"{season}:{row['fixture_id']}"
             st.rerun()
