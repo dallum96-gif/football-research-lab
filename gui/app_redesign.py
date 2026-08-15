@@ -83,11 +83,6 @@ elif workspace == "fixtures":
     seasons = sorted(get_seasons(), key=season_key, reverse=True)
     season_default = seasons[0]
 
-    # The fixture page owns its context. Team and season are adjustable here,
-    # directly alongside the visual page identity rather than in a separate form.
-    table = get_league_table(season_default)
-    teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
-
     current_season = st.session_state.get("redesign_fixture_season", season_default)
     if current_season not in seasons:
         current_season = season_default
@@ -98,12 +93,14 @@ elif workspace == "fixtures":
     current_team = st.session_state.get("redesign_fixture_team", current_teams[0] if current_teams else "")
     if current_team not in current_teams:
         current_team = current_teams[0] if current_teams else ""
-    st.session_state["redesign_fixture_team"] = current_team
 
-    identity_cols = st.columns([3.4, 1.2], gap="large")
-
-    with identity_cols[0]:
+    header_cols = st.columns([2.8, 1.25, 1.05], gap="small")
+    with header_cols[0]:
         st.markdown("<div class='frl-eyebrow'>Fixtures</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='frl-entity-title'>{current_team}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='frl-context'>Premier League · {current_season}</div>", unsafe_allow_html=True)
+
+    with header_cols[1]:
         team = st.selectbox(
             "Team",
             current_teams,
@@ -112,7 +109,7 @@ elif workspace == "fixtures":
             label_visibility="collapsed",
         )
 
-    with identity_cols[1]:
+    with header_cols[2]:
         season = st.selectbox(
             "Season",
             seasons,
@@ -121,8 +118,13 @@ elif workspace == "fixtures":
             label_visibility="collapsed",
         )
 
-    st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='frl-context'>Premier League · {season}</div>", unsafe_allow_html=True)
+    # The selectors are quiet contextual controls; the fixture identity remains the visual focus.
+    st.markdown("<div class='frl-context-controls'>Team &nbsp;&nbsp;&nbsp; Season</div>", unsafe_allow_html=True)
+
+    if team != current_team or season != current_season:
+        st.session_state["redesign_fixture_team"] = team
+        st.session_state["redesign_fixture_season"] = season
+        st.rerun()
 
     render_fixture_explorer(
         season=season,
