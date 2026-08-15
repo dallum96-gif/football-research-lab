@@ -35,19 +35,20 @@ def apply_theme():
         section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] { display: none !important; height: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; }
         section[data-testid="stSidebar"] > div:first-child { padding: var(--frl-top-inset) var(--frl-side-inset) 1.1rem var(--frl-side-inset) !important; margin: 0 !important; }
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"], section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding: 0 !important; margin: 0 !important; }
-        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0 !important; }
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.14rem !important; }
         section[data-testid="stSidebar"] .stMarkdown { width: 100% !important; margin: 0 !important; padding: 0 !important; }
         section[data-testid="stSidebar"] .stMarkdown > div { width: 100% !important; margin: 0 !important; padding: 0 !important; }
         section[data-testid="stSidebar"] .stButton { width: 100% !important; margin: 0 !important; padding: 0 !important; }
         section[data-testid="stSidebar"] .stButton > div { width: 100% !important; margin: 0 !important; padding: 0 !important; }
-        section[data-testid="stSidebar"] .stButton > button { width: 100% !important; min-height: 1.58rem !important; height: 1.58rem !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 5px !important; background: transparent !important; color: #c9c6bc !important; box-shadow: none !important; font-size: 0.75rem !important; font-weight: 560 !important; line-height: 1 !important; justify-content: flex-start !important; align-items: center !important; text-align: left !important; }
+        section[data-testid="stSidebar"] .stButton > button { width: 100% !important; min-height: 1.52rem !important; height: 1.52rem !important; margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 5px !important; background: transparent !important; color: #c9c6bc !important; box-shadow: none !important; font-size: 0.75rem !important; font-weight: 560 !important; line-height: 1 !important; justify-content: flex-start !important; align-items: center !important; text-align: left !important; }
         section[data-testid="stSidebar"] .stButton > button > div { width: 100% !important; height: 100% !important; margin: 0 !important; padding: 0 !important; justify-content: flex-start !important; align-items: center !important; text-align: left !important; }
         section[data-testid="stSidebar"] .stButton > button p { margin: 0 !important; padding: 0 !important; text-align: left !important; line-height: 1 !important; }
         section[data-testid="stSidebar"] .stButton > button:hover { color: #fffaf0 !important; background: rgba(232,93,63,0.14) !important; }
-        section[data-testid="stSidebar"] hr { margin: 0.55rem 0 !important; border-color: rgba(255,255,255,0.10) !important; }
+        section[data-testid="stSidebar"] hr { margin: 0.5rem 0 !important; border-color: rgba(255,255,255,0.10) !important; }
 
-        .frl-sidebar-brand { display:block !important; width:100% !important; margin:0 0 1.05rem 0 !important; padding:0 !important; color:#fffaf0; font-size:0.68rem; font-weight:800; letter-spacing:0.1em; line-height:1.25; text-transform:uppercase; }
-        .frl-sidebar-section { display:block !important; width:100% !important; margin:1.0rem 0 0.42rem 0 !important; padding:0 !important; color:#8f8a7f; font-size:0.56rem; font-weight:800; letter-spacing:0.13em; line-height:1.2 !important; text-transform:uppercase; }
+        .frl-sidebar-brand { display:block !important; width:100% !important; margin:0 0 0.85rem 0 !important; padding:0 !important; color:#fffaf0; font-size:0.68rem; font-weight:800; letter-spacing:0.1em; line-height:1.25; text-transform:uppercase; }
+        .frl-sidebar-section { display:block !important; width:100% !important; margin:0.78rem 0 0.26rem 0 !important; padding:0 !important; color:#8f8a7f; font-size:0.56rem; font-weight:800; letter-spacing:0.13em; line-height:1.2 !important; text-transform:uppercase; }
+        .frl-sidebar-brand + div[data-testid="stMarkdown"] .frl-sidebar-section { margin-top:0.35rem !important; }
         .frl-sidebar-section + div { margin-top:0 !important; }
 
         /* ---------- TYPOGRAPHY ---------- */
@@ -91,7 +92,7 @@ def apply_theme():
         .frl-result-loss { color:var(--frl-negative); }
         .frl-result-unplayed { color:var(--frl-warning); }
 
-        /* ---------- HOME ---------- */
+        /* ---------- HOME COMPONENTS ---------- */
         .frl-home-title { color:var(--frl-text); max-width:840px; font-size:clamp(2.25rem,4vw,3.65rem); font-weight:800; line-height:0.98; letter-spacing:-0.05em; margin:0; }
         .frl-home-subtitle { max-width:660px; color:var(--frl-muted); font-size:0.92rem; line-height:1.55; margin-top:0.9rem; }
         .frl-home-stat { border-top:2px solid var(--frl-text); padding-top:0.7rem; }
@@ -105,9 +106,6 @@ def apply_theme():
         .frl-home-section-spaced { margin-top:2.1rem; }
         .frl-home-principles { display:flex; flex-wrap:wrap; gap:0.55rem 1.3rem; color:var(--frl-muted); font-size:0.74rem; }
         .frl-home-principles span::before { content:""; display:inline-block; width:5px; height:5px; margin:0 0.45rem 0.15rem 0; border-radius:50%; background:var(--frl-accent); }
-
-        /* ---------- DATAFRAME ---------- */
-        div[data-testid="stDataFrame"] { border-radius:8px; overflow:hidden; border:1px solid var(--frl-border); box-shadow:0 3px 15px rgba(24,23,20,0.035); }
         </style>
         """,
         unsafe_allow_html=True,
@@ -115,10 +113,7 @@ def apply_theme():
 
 
 def render_brand_header():
-    st.markdown(
-        "<div class='frl-masthead'>Football Research Laboratory</div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown("<div class='frl-masthead'>Football Research Laboratory</div>", unsafe_allow_html=True)
 
 
 def render_sidebar_controls():
