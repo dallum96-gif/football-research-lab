@@ -6,20 +6,19 @@ def apply_theme():
         """
         <style>
         :root {
-            --frl-bg: #111a24;
-            --frl-surface: #182331;
-            --frl-surface-raised: #1c2938;
-            --frl-border: rgba(242, 237, 225, 0.10);
-            --frl-border-strong: rgba(242, 237, 225, 0.17);
-            --frl-text: #f1eee6;
-            --frl-muted: #9aa4ad;
-            --frl-muted-soft: #737f89;
-            --frl-accent: #789c8c;
-            --frl-accent-bright: #a8c8ba;
-            --frl-negative: #c28f8f;
-            --frl-warning: #c0aa79;
+            --frl-bg: #0b1730;
+            --frl-surface: #142440;
+            --frl-surface-raised: #1a2d4d;
+            --frl-border: rgba(246, 240, 228, 0.12);
+            --frl-border-strong: rgba(246, 240, 228, 0.20);
+            --frl-text: #f6f0e4;
+            --frl-muted: #aeb6bf;
+            --frl-muted-soft: #7f8993;
+            --frl-accent: #7ea993;
+            --frl-accent-bright: #b4d0c0;
+            --frl-negative: #cb9797;
+            --frl-warning: #d0b77d;
 
-            /* Shared layout rhythm */
             --frl-top-inset: 1.35rem;
             --frl-side-inset: 0.9rem;
             --frl-content-inset: 1.55rem;
@@ -46,12 +45,11 @@ def apply_theme():
             background: transparent !important;
         }
 
-        /* Fixed navigation rail: its top rhythm intentionally matches the main canvas. */
         section[data-testid="stSidebar"] {
             width: 190px !important;
             min-width: 190px !important;
             max-width: 190px !important;
-            background: #0c141d;
+            background: #081329;
             border-right: 1px solid var(--frl-border);
         }
 
@@ -95,7 +93,7 @@ def apply_theme():
             border: 0 !important;
             border-radius: 3px;
             background: transparent !important;
-            color: #cbd3d7 !important;
+            color: #d1d6dc !important;
             box-shadow: none !important;
             font-size: 0.75rem;
             font-weight: 560;
@@ -115,7 +113,7 @@ def apply_theme():
 
         section[data-testid="stSidebar"] .stButton > button:hover {
             color: var(--frl-text) !important;
-            background: rgba(241, 238, 230, 0.035) !important;
+            background: rgba(246, 240, 228, 0.05) !important;
         }
 
         section[data-testid="stSidebar"] hr {
@@ -134,7 +132,7 @@ def apply_theme():
         }
 
         .frl-sidebar-section {
-            color: #7a858f;
+            color: #8290a0;
             font-size: 0.56rem;
             font-weight: 760;
             letter-spacing: 0.13em;
@@ -282,7 +280,7 @@ def apply_theme():
 
         .stButton > button:hover {
             border-color: var(--frl-border-strong);
-            background: rgba(241, 238, 230, 0.02);
+            background: rgba(246, 240, 228, 0.025);
         }
 
         .frl-fixture-header + div .stButton > button {
