@@ -1,17 +1,43 @@
-"""Fixture Explorer presentation layer.
-
-The trusted fixture query contract remains in query_api/query_lab. This module
-owns only presentation and navigation behaviour for the explorer.
-"""
+"""Editorial Fixture Explorer presentation layer."""
 
 import streamlit as st
 
 
-def render_fixture_explorer(season, team, get_fixtures):
-    st.markdown("## Fixture Explorer")
-    st.caption("Browse the selected team's canonical fixture record and open any match for detailed evidence.")
+def _result_for_team(team, home, away, home_score, away_score):
+    if home_score in (None, "") or away_score in (None, ""):
+        return "UNPLAYED"
 
-    filter_cols = st.columns([1.8, 1.0, 1.0, 0.9])
+    home_score = int(home_score)
+    away_score = int(away_score)
+
+    if home == team:
+        return "W" if home_score > away_score else "D" if home_score == away_score else "L"
+
+    return "W" if away_score > home_score else "D" if away_score == home_score else "L"
+
+
+def _result_class(result):
+    return {
+        "W": "frl-result-win",
+        "D": "frl-result-draw",
+        "L": "frl-result-loss",
+        "UNPLAYED": "frl-result-unplayed",
+    }.get(result, "frl-result-draw")
+
+
+def render_fixture_explorer(season, team, get_fixtures):
+    st.markdown(
+        "<div class='frl-eyebrow'>Fixtures</div>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"<div class='frl-entity-title'>{team}</div>",
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        f"<div class='frl-context'>Premier League · {season}</div>",
+        unsafe_allow_html=True,
+    )
 
     all_team_fixtures = get_fixtures(season=season, team=team)
     opponent_names = sorted(
@@ -21,6 +47,8 @@ def render_fixture_explorer(season, team, get_fixtures):
         },
         key=str.casefold,
     )
+
+    filter_cols = st.columns([2.0, 1.0, 1.0], gap="small")
 
     with filter_cols[0]:
         opponent_choice = st.selectbox(
@@ -43,22 +71,15 @@ def render_fixture_explorer(season, team, get_fixtures):
             key="fixture_explorer_result",
         )
 
-    with filter_cols[3]:
-        st.markdown("&nbsp;", unsafe_allow_html=True)
-        clear_filters = st.button("Clear", key="fixture_explorer_clear")
-
-    if clear_filters:
-        for key in (
-            "fixture_explorer_opponent",
-            "fixture_explorer_venue",
-            "fixture_explorer_result",
-        ):
-            st.session_state.pop(key, None)
-        st.rerun()
-
     selected_opponent = None if opponent_choice == "All opponents" else opponent_choice
     selected_venue = {"All venues": None, "Home": "home", "Away": "away"}[venue_choice]
-    selected_result = {"All results": None, "W": "W", "D": "D", "L": "L", "Unplayed": "UNPLAYED"}[result_choice]
+    selected_result = {
+        "All results": None,
+        "W": "W",
+        "D": "D",
+        "L": "L",
+        "Unplayed": "UNPLAYED",
+    }[result_choice]
 
     fixtures = get_fixtures(
         season=season,
@@ -70,45 +91,73 @@ def render_fixture_explorer(season, team, get_fixtures):
     results = fixtures["results"]
 
     st.markdown(
-        f"**{len(results)}** fixtures · {team} · {season}",
+        f"<div class='frl-count-line'>{len(results)} matches</div>",
+        unsafe_allow_html=True,
     )
 
     if not results:
         st.info("No fixtures match the selected filters.")
         return
 
-    st.markdown("<div class='frl-fixture-table-head'>Date&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GW&nbsp;&nbsp;&nbsp;&nbsp;Venue&nbsp;&nbsp;&nbsp;&nbsp;Opponent&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Score&nbsp;&nbsp;&nbsp;&nbsp;Result</div>", unsafe_allow_html=True)
+    st.markdown(
+        """
+        <div class="frl-fixture-header">
+            <div>Date</div>
+            <div>Opponent</div>
+            <div>Venue</div>
+            <div>Score</div>
+            <div>Result</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
     for row in results:
         home = row["home_team_name"]
         away = row["away_team_name"]
-        home_score = row["home_score"]
-        away_score = row["away_score"]
+        opponent = away if home == team else home
+        venue = "Home" if home == team else "Away"
+        result = _result_for_team(
+            team,
+            home,
+            away,
+            row["home_score"],
+            row["away_score"],
+        )
 
-        if home_score == "" or away_score == "":
+        if row["home_score"] in (None, "") or row["away_score"] in (None, ""):
             score = "—"
-            result = "UNPLAYED"
-        elif home == team:
-            score = f"{home_score}-{away_score}"
-            h, a = int(home_score), int(away_score)
-            result = "W" if h > a else "D" if h == a else "L"
         else:
-            score = f"{home_score}-{away_score}"
-            h, a = int(home_score), int(away_score)
-            result = "W" if a > h else "D" if a == h else "L"
+            score = f"{row['home_score']}-{row['away_score']}"
 
-        cols = st.columns([1.15, 0.5, 0.65, 2.2, 0.75, 0.7])
-        cols[0].caption(row["kickoff_time"][:10])
-        cols[1].caption(row["gameweek"])
-        cols[2].caption("Home" if home == team else "Away")
+        date = str(row["kickoff_time"])[:10]
+        result_class = _result_class(result)
 
-        if cols[3].button(
-            away if home == team else home,
+        cols = st.columns([1.0, 3.2, 1.0, 1.0, 0.9], gap="small")
+        cols[0].markdown(
+            f"<div class='frl-meta'>{date}<br>GW {row['gameweek']}</div>",
+            unsafe_allow_html=True,
+        )
+
+        if cols[1].button(
+            opponent,
             key=f"fixture_opponent_{row['fixture_id']}",
             use_container_width=True,
         ):
             st.query_params["fixture"] = f"{season}:{row['fixture_id']}"
             st.rerun()
 
-        cols[4].caption(score)
-        cols[5].caption(result)
+        cols[2].markdown(
+            f"<div class='frl-meta'>{venue}</div>",
+            unsafe_allow_html=True,
+        )
+        cols[3].markdown(
+            f"<div class='frl-score'>{score}</div>",
+            unsafe_allow_html=True,
+        )
+        cols[4].markdown(
+            f"<div class='frl-result {result_class}'>{result}</div>",
+            unsafe_allow_html=True,
+        )
+
+        st.markdown("<div class='frl-fixture-row-rule'></div>", unsafe_allow_html=True)
