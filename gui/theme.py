@@ -61,7 +61,6 @@ def apply_theme():
         .frl-empty-state { color:var(--frl-muted); padding:1rem 0; border-top:1px solid var(--frl-border); border-bottom:1px solid var(--frl-border); font-size:0.82rem; }
         .frl-month-heading { color:var(--frl-text); font-size:0.68rem; font-weight:800; letter-spacing:0.13em; text-transform:uppercase; margin:1.35rem 0 0.32rem; }
 
-        /* Single source of truth for neutral controls. */
         div[data-baseweb="select"] > div { background:var(--frl-surface-raised) !important; color:var(--frl-text) !important; border:1px solid var(--frl-border) !important; border-radius:7px !important; min-height:2.05rem !important; box-shadow:0 2px 8px rgba(24,23,20,0.025) !important; }
         div[data-baseweb="select"] > div:hover, div[data-baseweb="select"] > div:focus-within { background:var(--frl-surface-raised) !important; border-color:var(--frl-accent) !important; box-shadow:0 0 0 2px rgba(232,93,63,0.10) !important; }
         div[data-baseweb="popover"], div[data-baseweb="menu"] { background:var(--frl-surface) !important; }
@@ -71,14 +70,13 @@ def apply_theme():
         div[data-testid="stExpander"] summary { color:var(--frl-muted) !important; font-size:0.72rem !important; font-weight:650 !important; }
         div[data-testid="stExpander"] summary:hover { color:var(--frl-accent) !important; }
 
-        /* All standard buttons use the same neutral control colour as selectors. */
         .stButton > button { color:var(--frl-text) !important; border-color:var(--frl-border) !important; background:var(--frl-surface-raised) !important; border-radius:7px !important; box-shadow:0 2px 8px rgba(24,23,20,0.025) !important; }
         .stButton > button:hover, .stButton > button:focus { color:var(--frl-text) !important; border-color:rgba(232,93,63,0.45) !important; background:var(--frl-surface-raised) !important; }
         .frl-fixture-header + div .stButton > button { min-height:2.05rem !important; height:2.05rem !important; padding:0 0.55rem !important; font-size:0.91rem !important; font-weight:700 !important; justify-content:flex-start !important; text-align:left !important; }
         .frl-fixture-header + div .stButton > button > div { width:100% !important; margin:0 !important; padding:0 !important; justify-content:flex-start !important; }
         .frl-fixture-header + div .stButton > button p { color:var(--frl-text) !important; margin:0 !important; padding:0 !important; }
 
-        .frl-fixture-header { display:grid; grid-template-columns:1.1fr 3.25fr 0.95fr 0.9fr 0.72fr; column-gap:1rem; color:var(--frl-muted-soft); font-size:0.61rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 0.18rem 0.48rem; border-bottom:1px solid var(--frl-border-strong); }
+        .frl-fixture-header { display:grid; grid-template-columns:1.1fr 3.25fr 0.95fr 0.9fr 0.72fr; column-gap:1rem; color:var(--frl-muted-soft); font-size:0.61rem; font-weight:740; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 0.18rem 0.48rem; border-bottom:1px solid var(--frl-border-strong); }
         .frl-fixture-row-rule { height:1px; background:var(--frl-border); margin:0.05rem 0; }
         .frl-meta { color:var(--frl-muted); font-size:0.75rem; line-height:1.3; }
         .frl-meta-sub { color:var(--frl-muted-soft); font-size:0.67rem; }
