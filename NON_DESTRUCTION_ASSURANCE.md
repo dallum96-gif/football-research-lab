@@ -53,7 +53,50 @@ Every task should answer:
 
 For UI work, the default assumption is that the research/query contract should not change.
 
-## 3. Prefer architectural seams
+## 3. Existing working behaviour safeguard
+
+When a requested capability already appears to exist somewhere in the working system, inspect the **current working application first**, followed by relevant **archived, backup or pre-change implementations**.
+
+Do not begin by designing a replacement mechanism merely because the current GitHub repository does not expose the expected function, field or filename.
+
+Archived implementations are evidence for understanding established behaviour. They may be inspected to recover retrieval paths, source classifications, identity handling, aggregation rules and interface contracts. They are not permission to restore unrelated or obsolete code wholesale.
+
+## 4. Local-source discovery safeguard
+
+The Football Research Laboratory repository is the source of truth for its committed architecture, contracts and deployable code. However, upstream source data and retrieval mechanisms may live in a separate local workspace.
+
+When GitHub does not clearly establish how a requested metric, classification, identity mapping or retrieval capability works, inspect the known upstream/local source tree before inferring that the capability is absent.
+
+The discovery process should work from structure and lineage rather than relying only on an intuitive keyword:
+
+```text
+WORKING CONSUMER
+      ↓
+RELEVANT RETRIEVAL / TRANSFORMATION
+      ↓
+LOCAL UPSTREAM SOURCE TREE
+      ↓
+RAW / SOURCE FILE SCHEMA
+```
+
+Search for representative data families, neighbouring metrics, source identifiers, file structures and existing consumers. Trace the mechanism from raw source to the working result.
+
+**Non-Inference from Absence:** failure to locate a function, field, file or mechanism in the Laboratory repository is not evidence that the underlying capability does not exist. Where a working application, archived implementation or known upstream source exists, those must be inspected before inventing a substitute.
+
+Before implementing a new mechanism, establish where possible:
+
+- source of the information;
+- source field(s);
+- identity key(s);
+- classification rules;
+- existing retrieval path;
+- aggregation/transformation rules;
+- existing consumer proving the capability works;
+- safest reuse point.
+
+The preferred outcome is reuse of the established mechanism through an existing architectural seam.
+
+## 5. Prefer architectural seams
 
 Safe refactoring often means extracting a presentation component behind an existing API rather than rewriting the API itself.
 
@@ -69,7 +112,7 @@ new UI shell
 
 This keeps the change surface understandable and reversible.
 
-## 4. Preserve data and provenance
+## 6. Preserve data and provenance
 
 Do not modify canonical data merely to make a UI state look cleaner.
 
@@ -77,13 +120,13 @@ Do not replace missing historical evidence with invented defaults.
 
 Do not hide corrections or source limitations.
 
-## 5. Validate classes of behaviour
+## 7. Validate classes of behaviour
 
 Tests should protect invariants and contracts rather than only the exact example that triggered a bug.
 
 A fix for a specific player, club, fixture or season should be evaluated for the broader class of problem it represents.
 
-## 6. GUI-specific assurance
+## 8. GUI-specific assurance
 
 For GUI changes, validate at least:
 
@@ -97,7 +140,7 @@ For GUI changes, validate at least:
 - incomplete data states do not crash the UI;
 - the 26/26 research gate remains green when the change is expected to be presentation-only.
 
-## 7. Local workspace safety
+## 9. Local workspace safety
 
 The local research workspace may contain untracked or generated material that is not part of the deployable repository.
 
@@ -112,7 +155,7 @@ Avoid:
 
 When a local file conflicts with a branch checkout, preserve it first, then establish the intended branch state.
 
-## 8. Release thinking
+## 10. Release thinking
 
 A commit should have a clear purpose and a bounded change surface.
 
@@ -124,13 +167,13 @@ Good examples:
 
 Avoid commits that mix unrelated UI, data and research changes.
 
-## 9. Reversibility
+## 11. Reversibility
 
 Prefer changes that can be reverted without reconstructing lost information.
 
 Feature branches are the normal place for experiments. `main` should represent trusted, reviewed behaviour rather than a dumping ground for unfinished work.
 
-## 10. Final standard
+## 12. Final standard
 
 The assurance question is:
 
