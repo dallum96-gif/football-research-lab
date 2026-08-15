@@ -78,6 +78,15 @@ def apply_theme():
 
         .frl-fixture-header { display:grid; grid-template-columns:1.1fr 3.25fr 0.95fr 0.9fr 0.72fr; column-gap:1rem; color:var(--frl-muted-soft); font-size:0.61rem; font-weight:740; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 0.18rem 0.48rem; border-bottom:1px solid var(--frl-border-strong); }
         .frl-fixture-row-rule { height:1px; background:var(--frl-border); margin:0.05rem 0; }
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] { align-items:center !important; }
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] > div:nth-child(1) .frl-meta { min-height:2.05rem; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; }
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] > div:nth-child(2) { display:flex; align-items:center; }
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] > div:nth-child(3),
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] > div:nth-child(4),
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] > div:nth-child(5) { display:flex; align-items:center; justify-content:center; text-align:center; }
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] > div:nth-child(3) .frl-meta,
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] > div:nth-child(4) .frl-score,
+        .frl-fixture-header + div[data-testid="stHorizontalBlock"] > div:nth-child(5) .frl-result { width:100%; text-align:center; }
         .frl-meta { color:var(--frl-muted); font-size:0.75rem; line-height:1.3; }
         .frl-meta-sub { color:var(--frl-muted-soft); font-size:0.67rem; }
         .frl-score { color:var(--frl-text); font-weight:800; font-size:0.92rem; }
