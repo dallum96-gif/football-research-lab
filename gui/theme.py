@@ -60,8 +60,8 @@ def apply_theme():
         .frl-filtered-line { color:var(--frl-muted); font-size:0.76rem; margin:0.25rem 0 0.7rem; }
         .frl-empty-state { color:var(--frl-muted); padding:1rem 0; border-top:1px solid var(--frl-border); border-bottom:1px solid var(--frl-border); font-size:0.82rem; }
         .frl-month-heading { color:var(--frl-text); font-size:0.68rem; font-weight:800; letter-spacing:0.13em; text-transform:uppercase; margin:1.35rem 0 0.32rem; }
-        div[data-baseweb="select"] > div { background:var(--frl-surface) !important; color:var(--frl-text) !important; border:1px solid var(--frl-border) !important; border-radius:7px !important; min-height:2.05rem !important; box-shadow:0 2px 10px rgba(24,23,20,0.035) !important; }
-        div[data-baseweb="select"] > div:hover, div[data-baseweb="select"] > div:focus-within { background:#ffffff !important; border-color:var(--frl-accent) !important; box-shadow:0 0 0 2px rgba(232,93,63,0.10) !important; }
+        div[data-baseweb="select"] > div { background:var(--frl-surface-raised) !important; color:var(--frl-text) !important; border:1px solid var(--frl-border) !important; border-radius:7px !important; min-height:2.05rem !important; box-shadow:0 2px 8px rgba(24,23,20,0.025) !important; }
+        div[data-baseweb="select"] > div:hover, div[data-baseweb="select"] > div:focus-within { background:var(--frl-surface-raised) !important; border-color:var(--frl-accent) !important; box-shadow:0 0 0 2px rgba(232,93,63,0.10) !important; }
         div[data-baseweb="popover"], div[data-baseweb="menu"] { background:var(--frl-surface) !important; }
         div[data-baseweb="menu"] li:hover { background:rgba(232,93,63,0.09) !important; }
         div[data-testid="stExpander"] { border:0 !important; border-top:1px solid var(--frl-border) !important; border-bottom:1px solid var(--frl-border) !important; border-radius:0 !important; background:transparent !important; margin:0.1rem 0 0.7rem !important; }
@@ -69,8 +69,8 @@ def apply_theme():
         div[data-testid="stExpander"] summary:hover { color:var(--frl-accent) !important; }
         .stButton > button { color:var(--frl-text); border-color:var(--frl-border); background:var(--frl-surface); border-radius:7px; box-shadow:0 2px 8px rgba(24,23,20,0.035); }
         .stButton > button:hover { color:var(--frl-accent); border-color:rgba(232,93,63,0.45); background:#ffffff; }
-        .frl-fixture-header + div .stButton > button { min-height:1.95rem; height:1.95rem; padding:0 0.55rem !important; border:1px solid var(--frl-border) !important; box-shadow:0 2px 8px rgba(24,23,20,0.035) !important; border-radius:7px !important; justify-content:flex-start !important; text-align:left !important; font-size:0.91rem; font-weight:700; color:var(--frl-text); background:var(--frl-surface) !important; }
-        .frl-fixture-header + div .stButton > button:hover { color:var(--frl-accent); border-color:rgba(232,93,63,0.45) !important; background:#ffffff !important; }
+        .frl-fixture-header + div .stButton > button { min-height:1.95rem; height:1.95rem; padding:0 0.55rem !important; border:1px solid var(--frl-border) !important; box-shadow:0 2px 8px rgba(24,23,20,0.025) !important; border-radius:7px !important; justify-content:flex-start !important; text-align:left !important; font-size:0.91rem; font-weight:700; color:var(--frl-text); background:var(--frl-surface-raised) !important; }
+        .frl-fixture-header + div .stButton > button:hover { color:var(--frl-accent); border-color:rgba(232,93,63,0.45) !important; background:var(--frl-surface-raised) !important; }
         .frl-fixture-header { display:grid; grid-template-columns:1.1fr 3.25fr 0.95fr 0.9fr 0.72fr; column-gap:1rem; color:var(--frl-muted-soft); font-size:0.61rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 0.18rem 0.48rem; border-bottom:1px solid var(--frl-border-strong); }
         .frl-fixture-row-rule { height:1px; background:var(--frl-border); margin:0.05rem 0; }
         .frl-meta { color:var(--frl-muted); font-size:0.75rem; line-height:1.3; }
