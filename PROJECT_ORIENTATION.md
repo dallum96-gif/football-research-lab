@@ -448,3 +448,69 @@ Instead:
 13. Before changing an established retrieval or classification mechanism, identify its source fields, identity keys, transformations, existing consumer and safest reuse point.
 
 This document is intended to make a new session familiar with the architecture and project culture quickly, while still requiring code inspection before substantive changes.
+
+---
+
+## 17. Source and capability discovery map
+
+When a feature or metric is requested, a fresh session should distinguish three separate questions:
+
+```text
+Does the source data exist?
+        ↓
+Is there an existing retrieval/query mechanism?
+        ↓
+Is the capability already exposed in the GUI?
+```
+
+These are not interchangeable. Source data existing does not prove that a research metric exists, and a working GUI result does not prove that the same mechanism is represented in the current GitHub checkout.
+
+The default discovery method is to **trace backwards from a known working consumer**:
+
+```text
+WORKING GUI / ARCHIVED CONSUMER
+        ↓
+QUERY / RETRIEVAL FUNCTION
+        ↓
+AGGREGATION / CLASSIFICATION
+        ↓
+STORED SOURCE DATA
+        ↓
+RAW / UPSTREAM SOURCE
+```
+
+Use neighbouring metrics and known working features as guides when names are unintuitive. Do not rely only on searching for the requested metric name.
+
+The local upstream Premier League source workspace is separate from this repository and may contain evidence not tracked here. Known source families include:
+
+- `pl_stats/<club>/players_match_stats/<season>_players_match_stats.csv` — player-match source statistics
+- `pl_stats/<club>/events_stats/<season>_events_stats.csv` — match/event source statistics
+- `fpl_scraper/fpl_stats/_merged/players/<season>_all_players_gw.csv` — FPL-derived merged player/gameweek dataset used by the current Player Research query layer
+- `fpl_scraper/fpl_stats/data/fixture_match_stats.csv` — packaged fixture statistics
+
+The important identity distinction is that upstream source fields such as `playerId`, `pl_code`, `team_id` and fixture `matchId` are not automatically interchangeable with Laboratory identifiers. Establish the existing crosswalk before joining them.
+
+When a source field exists but the current research/query layer does not expose it, classify the task correctly:
+
+```text
+SOURCE FIELD EXISTS
+    ≠
+RESEARCH METRIC EXISTS
+    ≠
+GUI CAPABILITY EXISTS
+```
+
+Only the last two layers should be changed when the source-backed mechanism already exists. If the retrieval/query mechanism itself is absent, that is a research/data-layer task and must be treated as such rather than disguised as a UI change.
+
+Before introducing a new metric or retrieval path, record where possible:
+
+- source file/data family;
+- source field;
+- identity key and crosswalk;
+- existing retrieval path;
+- aggregation/classification rule;
+- existing working consumer;
+- target architectural seam;
+- validation and regression coverage.
+
+This source map is intended to shorten fresh-session discovery while preserving the project's non-destruction and provenance principles.
