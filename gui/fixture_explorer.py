@@ -1,8 +1,10 @@
-"""Editorial fixture presentation layer.
+"""Browse-first fixture presentation layer.
 
-The trusted fixture query contract remains in query_api/query_lab. This module
-owns only presentation and navigation behaviour for the explorer.
+The trusted fixture query contract remains in query_api. This module owns
+presentation, filtering controls and navigation behaviour only.
 """
+
+from datetime import datetime
 
 import streamlit as st
 
@@ -29,106 +31,157 @@ def _result_class(result):
     }.get(result, "frl-result-draw")
 
 
-def render_fixture_explorer(season, team, get_fixtures):
-    st.markdown("<div class='frl-eyebrow'>Fixtures</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='frl-context'>Premier League · {season}</div>", unsafe_allow_html=True)
+def _display_date(value):
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return parsed.strftime("%d %b %Y")
+    except (TypeError, ValueError):
+        return str(value)[:10]
 
-    all_team_fixtures = get_fixtures(season=season, team=team)
-    all_results = all_team_fixtures["results"]
 
-    opponent_names = sorted(
-        {
-            row["away_team_name"] if row["home_team_name"] == team else row["home_team_name"]
-            for row in all_results
-        },
-        key=str.casefold,
-    )
+def _month_key(value):
+    try:
+        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        return parsed.strftime("%B %Y")
+    except (TypeError, ValueError):
+        return "Fixtures"
 
-    st.markdown("<div class='frl-filter-label'>FILTER FIXTURES</div>", unsafe_allow_html=True)
-    filter_cols = st.columns([2.15, 1.05, 1.05], gap="small")
 
-    with filter_cols[0]:
-        opponent_choice = st.selectbox(
-            "Opponent",
-            ["All opponents"] + opponent_names,
-            key="fixture_explorer_opponent",
-            label_visibility="collapsed",
-        )
-
-    with filter_cols[1]:
-        venue_choice = st.selectbox(
-            "Venue",
-            ["All venues", "Home", "Away"],
-            key="fixture_explorer_venue",
-            label_visibility="collapsed",
-        )
-
-    with filter_cols[2]:
-        result_choice = st.selectbox(
-            "Result",
-            ["All results", "W", "D", "L", "Unplayed"],
-            key="fixture_explorer_result",
-            label_visibility="collapsed",
-        )
-
-    st.markdown("<div class='frl-filter-subline'>Opponent &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Venue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Result</div>", unsafe_allow_html=True)
-
-    selected_opponent = None if opponent_choice == "All opponents" else opponent_choice
-    selected_venue = {"All venues": None, "Home": "home", "Away": "away"}[venue_choice]
-    selected_result = {
-        "All results": None,
-        "W": "W",
-        "D": "D",
-        "L": "L",
-        "Unplayed": "UNPLAYED",
-    }[result_choice]
-
-    fixtures = get_fixtures(
-        season=season,
-        team=team,
-        opponent=selected_opponent,
-        venue=selected_venue,
-        result=selected_result,
-    )
-    results = fixtures["results"]
-
-    wins = draws = losses = 0
+def _record(results, team):
+    wins = draws = losses = unplayed = 0
     for row in results:
-        current_result = _result_for_team(
+        result = _result_for_team(
             team,
             row["home_team_name"],
             row["away_team_name"],
             row["home_score"],
             row["away_score"],
         )
-        wins += current_result == "W"
-        draws += current_result == "D"
-        losses += current_result == "L"
+        wins += result == "W"
+        draws += result == "D"
+        losses += result == "L"
+        unplayed += result == "UNPLAYED"
+    return wins, draws, losses, unplayed
 
+
+def render_fixture_explorer(season, team, get_fixtures):
+    """Render a calm, browse-first chronological fixture view."""
+    st.markdown("<div class='frl-eyebrow'>Fixtures</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
     st.markdown(
-        f"<div class='frl-record-line'><strong>{len(results)}</strong> matches <span>·</span> {wins} W <span>·</span> {draws} D <span>·</span> {losses} L</div>",
+        f"<div class='frl-context'>Premier League · {season}</div>",
         unsafe_allow_html=True,
     )
+
+    all_results = get_fixtures(season=season, team=team)["results"]
+    wins, draws, losses, unplayed = _record(all_results, team)
+
+    record_parts = [
+        f"{len(all_results)} matches",
+        f"{wins} W",
+        f"{draws} D",
+        f"{losses} L",
+    ]
+    if unplayed:
+        record_parts.append(f"{unplayed} unplayed")
+
+    st.markdown(
+        "<div class='frl-record-line'>"
+        + " <span>·</span> ".join(record_parts)
+        + "</div>",
+        unsafe_allow_html=True,
+    )
+
+    opponent_names = sorted(
+        {
+            row["away_team_name"]
+            if row["home_team_name"] == team
+            else row["home_team_name"]
+            for row in all_results
+        },
+        key=str.casefold,
+    )
+
+    selected_opponent = None
+    selected_venue = None
+    selected_result = None
+
+    with st.expander("Filter fixtures", expanded=False):
+        filter_cols = st.columns([2.2, 1.0, 1.0], gap="small")
+        with filter_cols[0]:
+            opponent_choice = st.selectbox(
+                "Opponent",
+                ["All opponents"] + opponent_names,
+                key="fixture_explorer_opponent",
+            )
+        with filter_cols[1]:
+            venue_choice = st.selectbox(
+                "Venue",
+                ["All venues", "Home", "Away"],
+                key="fixture_explorer_venue",
+            )
+        with filter_cols[2]:
+            result_choice = st.selectbox(
+                "Result",
+                ["All results", "W", "D", "L", "Unplayed"],
+                key="fixture_explorer_result",
+            )
+
+        selected_opponent = None if opponent_choice == "All opponents" else opponent_choice
+        selected_venue = {"All venues": None, "Home": "home", "Away": "away"}[venue_choice]
+        selected_result = {
+            "All results": None,
+            "W": "W",
+            "D": "D",
+            "L": "L",
+            "Unplayed": "UNPLAYED",
+        }[result_choice]
+
+    results = get_fixtures(
+        season=season,
+        team=team,
+        opponent=selected_opponent,
+        venue=selected_venue,
+        result=selected_result,
+    )["results"]
 
     if not results:
-        st.info("No fixtures match the selected filters.")
+        st.markdown(
+            "<div class='frl-empty-state'>No fixtures match the selected filters.</div>",
+            unsafe_allow_html=True,
+        )
         return
 
-    st.markdown(
-        """
-        <div class="frl-fixture-header">
-            <div>Date</div>
-            <div>Opponent</div>
-            <div>Venue</div>
-            <div>Score</div>
-            <div>Result</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    if any(value is not None for value in (selected_opponent, selected_venue, selected_result)):
+        filtered_wins, filtered_draws, filtered_losses, _ = _record(results, team)
+        st.markdown(
+            f"<div class='frl-filtered-line'>{len(results)} matches &nbsp;·&nbsp; "
+            f"{filtered_wins} W &nbsp;·&nbsp; {filtered_draws} D &nbsp;·&nbsp; {filtered_losses} L</div>",
+            unsafe_allow_html=True,
+        )
 
+    previous_month = None
     for row in results:
+        month = _month_key(row["kickoff_time"])
+        if month != previous_month:
+            st.markdown(
+                f"<div class='frl-month-heading'>{month}</div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                """
+                <div class="frl-fixture-header">
+                    <div>Date</div>
+                    <div>Opponent</div>
+                    <div>Venue</div>
+                    <div>Score</div>
+                    <div>Result</div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+            previous_month = month
+
         home = row["home_team_name"]
         away = row["away_team_name"]
         opponent = away if home == team else home
@@ -140,14 +193,17 @@ def render_fixture_explorer(season, team, get_fixtures):
             row["home_score"],
             row["away_score"],
         )
-
-        score = "—" if row["home_score"] in (None, "") or row["away_score"] in (None, "") else f"{row['home_score']}–{row['away_score']}"
-        date = str(row["kickoff_time"])[:10]
+        score = (
+            "—"
+            if row["home_score"] in (None, "") or row["away_score"] in (None, "")
+            else f"{row['home_score']}–{row['away_score']}"
+        )
         result_class = _result_class(result)
 
-        cols = st.columns([1.1, 3.35, 0.95, 0.9, 0.75], gap="small")
+        cols = st.columns([1.05, 3.1, 1.0, 0.95, 0.85], gap="small")
         cols[0].markdown(
-            f"<div class='frl-meta'>{date}<br><span class='frl-meta-sub'>GW {row['gameweek']}</span></div>",
+            f"<div class='frl-meta'>{_display_date(row['kickoff_time'])}<br>"
+            f"<span class='frl-meta-sub'>GW {row['gameweek']}</span></div>",
             unsafe_allow_html=True,
         )
 
@@ -166,5 +222,4 @@ def render_fixture_explorer(season, team, get_fixtures):
             f"<div class='frl-result {result_class}'>{result}</div>",
             unsafe_allow_html=True,
         )
-
         st.markdown("<div class='frl-fixture-row-rule'></div>", unsafe_allow_html=True)
