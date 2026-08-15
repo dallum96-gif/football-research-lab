@@ -81,51 +81,76 @@ def apply_theme():
             border-right: 1px solid var(--frl-border);
         }
 
-        section[data-testid="stSidebar"] .stButton > button {
-            min-height: 1.85rem;
-            height: 1.85rem;
-            padding: 0.08rem 0.55rem;
-            margin: 0;
-            border-radius: 5px;
-            font-size: 0.79rem;
-            font-weight: 600;
-            text-align: left;
-            justify-content: flex-start;
-            box-shadow: none;
-            border: 0;
-            background: transparent;
+        section[data-testid="stSidebar"] .stButton {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button,
+        section[data-testid="stSidebar"] .stButton > button[kind="secondary"],
+        section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+            width: 100%;
+            min-height: 1.55rem !important;
+            height: 1.55rem !important;
+            margin: 0 !important;
+            padding: 0.02rem 0.1rem !important;
+            border: 0 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            color: var(--frl-muted) !important;
+            font-size: 0.78rem !important;
+            font-weight: 550 !important;
+            text-align: left !important;
+            justify-content: flex-start !important;
         }
 
         section[data-testid="stSidebar"] .stButton > button:hover {
-            background: rgba(255,255,255,0.035);
+            background: transparent !important;
+            color: var(--frl-text) !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+            color: #acd0bb !important;
+            font-weight: 700 !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button[kind="primary"]::before {
+            content: "";
+            display: inline-block;
+            width: 2px;
+            height: 0.8rem;
+            margin-right: 0.48rem;
+            background: var(--frl-accent);
+            vertical-align: -0.1rem;
         }
 
         section[data-testid="stSidebar"] hr {
-            margin: 0.65rem 0;
+            margin: 0.48rem 0;
             border-color: var(--frl-border);
         }
 
-        .frl-sidebar-title {
+        .frl-sidebar-brand {
             color: var(--frl-text);
-            font-size: 0.94rem;
+            font-size: 0.88rem;
             font-weight: 800;
-            margin-bottom: 0.12rem;
+            line-height: 1.2;
+            margin-bottom: 0.1rem;
         }
 
-        .frl-sidebar-copy {
-            color: var(--frl-muted);
-            font-size: 0.75rem;
-            line-height: 1.38;
-            margin-bottom: 0.45rem;
+        .frl-sidebar-rule {
+            height: 1px;
+            background: var(--frl-border);
+            margin: 0.55rem 0 0.7rem 0;
         }
 
         .frl-sidebar-section {
-            color: var(--frl-muted);
-            font-size: 0.64rem;
+            color: #79858c;
+            font-size: 0.61rem;
             font-weight: 750;
             letter-spacing: 0.13em;
             text-transform: uppercase;
-            margin: 0.85rem 0 0.28rem 0;
+            margin: 0.68rem 0 0.16rem 0;
         }
 
         .frl-status {
@@ -146,13 +171,8 @@ def apply_theme():
             border-radius: 8px;
         }
 
-        div[data-testid="stMetricLabel"] {
-            color: var(--frl-muted);
-        }
-
-        div[data-testid="stMetricValue"] {
-            color: var(--frl-text);
-        }
+        div[data-testid="stMetricLabel"] { color: var(--frl-muted); }
+        div[data-testid="stMetricValue"] { color: var(--frl-text); }
 
         div[data-testid="stDataFrame"] {
             border: 1px solid var(--frl-border);
@@ -176,13 +196,8 @@ def apply_theme():
             border-bottom: 1px solid var(--frl-border);
         }
 
-        div[data-testid="stDecoration"] {
-            background-image: none;
-        }
-
-        div[data-testid="stToolbar"] {
-            visibility: hidden;
-        }
+        div[data-testid="stDecoration"] { background-image: none; }
+        div[data-testid="stToolbar"] { visibility: hidden; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -204,11 +219,7 @@ def render_brand_header():
 
 def render_sidebar_controls():
     st.sidebar.markdown(
-        "<div class='frl-sidebar-title'>Lab controls</div>",
-        unsafe_allow_html=True,
-    )
-    st.sidebar.markdown(
-        "<div class='frl-sidebar-copy'>Useful controls for the research workspace.</div>",
+        "<div class='frl-sidebar-section'>Lab controls</div>",
         unsafe_allow_html=True,
     )
 
