@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 from datetime import date, datetime
 import sys
 
@@ -1314,5 +1314,26 @@ with tab6:
 
 
 with tab7:
-    render_player_research_ui()
+    st.subheader("Player Research")
+    st.caption(
+        "Search player performance across one season "
+        "or a historical range."
+    )
 
+    if st.button(
+        "Load Player Research",
+        type="primary",
+        key="load_player_research",
+    ):
+        st.session_state["player_research_loaded"] = True
+
+    if st.session_state.get(
+        "player_research_loaded",
+        False,
+    ):
+        render_player_research_ui()
+    else:
+        st.info(
+            "Player Research loads on demand so the main "
+            "Football Research Lab opens quickly."
+        )
