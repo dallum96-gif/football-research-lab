@@ -11,8 +11,8 @@ if str(ROOT) not in sys.path:
 import query_api
 
 from gui.fixture_explorer import render_fixture_explorer
-from gui.theme import apply_theme, render_brand_header
 from gui.ui_shell import current_workspace, render_workspace_sidebar
+from gui.theme import apply_theme
 
 
 st.set_page_config(
@@ -56,13 +56,14 @@ def get_fixtures(
     )
 
 
-render_brand_header()
 workspace = render_workspace_sidebar(current_workspace())
 
 if workspace == "overview":
-    st.markdown("## Football Research Laboratory")
-    st.write(
-        "A research environment for exploring Premier League football data, evidence and experimental analysis."
+    st.markdown("<div class='frl-eyebrow'>Football Research Laboratory</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-title'>Research, evidence, analysis.</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='frl-subtitle'>Premier League data, player research, match analysis and experimental modelling.</div>",
+        unsafe_allow_html=True,
     )
 
     cols = st.columns(3)
@@ -81,24 +82,13 @@ elif workspace == "fixtures":
 
     context_cols = st.columns([1, 1], gap="small")
     with context_cols[0]:
-        season = st.selectbox(
-            "Season",
-            seasons,
-            key="redesign_fixture_season",
-        )
+        season = st.selectbox("Season", seasons, key="redesign_fixture_season")
 
     table = get_league_table(season)
-    teams = sorted(
-        [row["team"] for row in table["teams"]],
-        key=str.casefold,
-    )
+    teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
 
     with context_cols[1]:
-        team = st.selectbox(
-            "Team",
-            teams,
-            key="redesign_fixture_team",
-        )
+        team = st.selectbox("Team", teams, key="redesign_fixture_team")
 
     st.divider()
     render_fixture_explorer(
@@ -112,8 +102,9 @@ elif workspace == "league-table":
     season = st.selectbox("Season", seasons, key="redesign_league_table_season")
     table = get_league_table(season)
 
-    st.markdown("## League Table")
-    st.caption("Canonical league table reconstructed from the fixture master.")
+    st.markdown("<div class='frl-eyebrow'>Explore</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-entity-title'>League Table</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='frl-context'>Premier League · {season}</div>", unsafe_allow_html=True)
 
     rows = [
         {
@@ -143,7 +134,8 @@ else:
         "provenance": "Provenance",
     }
     label = item_labels.get(workspace, workspace.replace("-", " ").title())
-    st.markdown(f"## {label}")
+    st.markdown("<div class='frl-eyebrow'>Football Research Laboratory</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='frl-entity-title'>{label}</div>", unsafe_allow_html=True)
     st.info(
         "This workspace is intentionally held outside the preview until its existing behaviour has been migrated without changing the trusted contracts."
     )
