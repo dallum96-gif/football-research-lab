@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 
+import pandas as pd
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -56,16 +57,12 @@ def get_fixtures(
 
 
 render_brand_header()
-workspace = render_workspace_sidebar(
-    current_workspace()
-)
-
+workspace = render_workspace_sidebar(current_workspace())
 
 if workspace == "overview":
     st.markdown("## Football Research Laboratory")
     st.write(
-        "A research environment for exploring Premier League football data, "
-        "evidence and experimental analysis."
+        "A research environment for exploring Premier League football data, evidence and experimental analysis."
     )
 
     cols = st.columns(3)
@@ -76,34 +73,16 @@ if workspace == "overview":
     st.divider()
     st.markdown("### Start exploring")
     st.caption(
-        "The preview currently exposes Fixtures and Teams. Additional workspaces "
-        "will migrate one at a time once their presentation contracts are ready."
+        "The redesign is being migrated workspace-by-workspace. Fixtures and the League Table are the first live views."
     )
 
 elif workspace == "fixtures":
-    seasons = sorted(
-        get_seasons(),
-        key=season_key,
-        reverse=True,
-    )
-
-    season = st.selectbox(
-        "Season",
-        seasons,
-        key="redesign_fixture_season",
-    )
+    seasons = sorted(get_seasons(), key=season_key, reverse=True)
+    season = st.selectbox("Season", seasons, key="redesign_fixture_season")
 
     table = get_league_table(season)
-    teams = sorted(
-        [row["team"] for row in table["teams"]],
-        key=str.casefold,
-    )
-
-    team = st.selectbox(
-        "Team",
-        teams,
-        key="redesign_fixture_team",
-    )
+    teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
+    team = st.selectbox("Team", teams, key="redesign_fixture_team")
 
     st.divider()
     render_fixture_explorer(
@@ -112,21 +91,13 @@ elif workspace == "fixtures":
         get_fixtures=get_fixtures,
     )
 
-elif workspace == "teams":
-    seasons = sorted(
-        get_seasons(),
-        key=season_key,
-        reverse=True,
-    )
-    season = st.selectbox(
-        "Season",
-        seasons,
-        key="redesign_team_season",
-    )
+elif workspace == "league-table":
+    seasons = sorted(get_seasons(), key=season_key, reverse=True)
+    season = st.selectbox("Season", seasons, key="redesign_league_table_season")
     table = get_league_table(season)
 
-    st.markdown("## Teams")
-    st.caption("Current preview: canonical league table presentation.")
+    st.markdown("## League Table")
+    st.caption("Canonical league table reconstructed from the fixture master.")
 
     rows = [
         {
@@ -144,13 +115,7 @@ elif workspace == "teams":
         for row in table["teams"]
     ]
 
-    import pandas as pd
-
-    st.dataframe(
-        pd.DataFrame(rows),
-        width="stretch",
-        hide_index=True,
-    )
+    st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
 
 else:
     item_labels = {
@@ -164,6 +129,5 @@ else:
     label = item_labels.get(workspace, workspace.replace("-", " ").title())
     st.markdown(f"## {label}")
     st.info(
-        "This workspace is intentionally held outside the preview until its "
-        "existing behaviour has been migrated without changing the trusted contracts."
+        "This workspace is intentionally held outside the preview until its existing behaviour has been migrated without changing the trusted contracts."
     )
