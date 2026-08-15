@@ -27,17 +27,23 @@ def apply_theme():
         .stApp, .main { background: var(--frl-bg); color: var(--frl-text); }
         .block-container { max-width: 1500px; padding-top: var(--frl-top-inset); padding-bottom: 3rem; padding-left: var(--frl-content-inset); padding-right: var(--frl-content-inset); }
         header[data-testid="stHeader"] { height: 0 !important; min-height: 0 !important; background: transparent !important; }
+
         section[data-testid="stSidebar"] { width: 190px !important; min-width: 190px !important; max-width: 190px !important; background: #0c1220; border-right: 1px solid var(--frl-border); }
         section[data-testid="stSidebar"] [data-testid="stSidebarHeader"] { display: none !important; height: 0 !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; }
-        section[data-testid="stSidebar"] > div:first-child { padding-top: var(--frl-top-inset) !important; padding-right: var(--frl-side-inset); padding-bottom: 1.1rem; padding-left: var(--frl-side-inset); margin-top: 0 !important; }
+        section[data-testid="stSidebar"] > div:first-child { padding-top: var(--frl-top-inset) !important; padding-right: var(--frl-side-inset) !important; padding-bottom: 1.1rem !important; padding-left: var(--frl-side-inset) !important; margin-top: 0 !important; }
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"], section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { padding: 0 !important; margin: 0 !important; }
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap: 0.12rem !important; }
+        section[data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] { padding: 0 !important; border: 0 !important; }
+        section[data-testid="stSidebar"] .stMarkdown { margin: 0 !important; padding: 0 !important; }
         section[data-testid="stSidebar"] .stButton, section[data-testid="stSidebar"] .stButton > div { width: 100% !important; margin: 0 !important; padding: 0 !important; }
-        section[data-testid="stSidebar"] .stButton > button { width: 100% !important; min-height: 1.52rem; height: 1.52rem; padding: 0.02rem 0.2rem !important; margin: 0 !important; border: 0 !important; border-radius: 3px; background: transparent !important; color: #c8c9c7 !important; box-shadow: none !important; font-size: 0.75rem; font-weight: 560; justify-content: flex-start !important; text-align: left !important; align-items: center !important; }
-        section[data-testid="stSidebar"] .stButton > button > div, section[data-testid="stSidebar"] .stButton > button p { width: 100% !important; margin: 0 !important; padding: 0 !important; justify-content: flex-start !important; text-align: left !important; }
+        section[data-testid="stSidebar"] .stButton > button { width: 100% !important; min-height: 1.56rem !important; height: 1.56rem !important; padding: 0 0.2rem !important; margin: 0 !important; border: 0 !important; border-radius: 5px !important; background: transparent !important; color: #c8c9c7 !important; box-shadow: none !important; font-size: 0.75rem !important; font-weight: 560 !important; justify-content: flex-start !important; text-align: left !important; align-items: center !important; line-height: 1 !important; }
+        section[data-testid="stSidebar"] .stButton > button > div { width: 100% !important; margin: 0 !important; padding: 0 !important; justify-content: flex-start !important; text-align: left !important; align-items: center !important; }
+        section[data-testid="stSidebar"] .stButton > button p { margin: 0 !important; padding: 0 !important; text-align: left !important; line-height: 1 !important; }
         section[data-testid="stSidebar"] .stButton > button:hover { color: var(--frl-text) !important; background: rgba(217,130,112,0.07) !important; }
-        section[data-testid="stSidebar"] hr { margin: 0.48rem 0; border-color: var(--frl-border); }
-        .frl-sidebar-brand { color: var(--frl-text); font-size: 0.68rem; font-weight: 760; letter-spacing: 0.1em; line-height: 1.25; text-transform: uppercase; margin: 0 0 0.8rem var(--frl-side-inset); }
-        .frl-sidebar-section { color: #858b91; font-size: 0.56rem; font-weight: 760; letter-spacing: 0.13em; text-transform: uppercase; margin: 0.82rem 0 0.15rem var(--frl-side-inset); }
+        section[data-testid="stSidebar"] hr { margin: 0.48rem 0 !important; border-color: var(--frl-border); }
+        .frl-sidebar-brand { display: block !important; color: var(--frl-text); font-size: 0.68rem; font-weight: 760; letter-spacing: 0.1em; line-height: 1.25; text-transform: uppercase; margin: 0 0 0.9rem 0 !important; padding: 0 !important; }
+        .frl-sidebar-section { display: block !important; color: #858b91; font-size: 0.56rem; font-weight: 760; letter-spacing: 0.13em; line-height: 1.2 !important; text-transform: uppercase; margin: 0.78rem 0 0.16rem 0 !important; padding: 0 !important; }
+
         .frl-masthead { color: var(--frl-text); font-size: 0.72rem; font-weight: 760; letter-spacing: 0.12em; line-height: 1; text-transform: uppercase; margin: 0 0 var(--frl-section-gap) 0; }
         .frl-eyebrow { color: var(--frl-muted); font-size: 0.62rem; font-weight: 750; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 0.35rem; }
         .frl-title { color: var(--frl-text); font-size: 1.95rem; font-weight: 780; line-height: 1.06; letter-spacing: -0.02em; margin: 0; }
