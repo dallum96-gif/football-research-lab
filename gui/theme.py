@@ -48,8 +48,11 @@ def apply_theme():
 
         .frl-sidebar-brand { display:block !important; width:100% !important; margin:0 0 0.85rem 0 !important; padding:0 !important; color:#fffaf0; font-size:0.68rem; font-weight:800; letter-spacing:0.1em; line-height:1.25; text-transform:uppercase; }
         .frl-sidebar-section { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; color:#8f8a7f; font-size:0.56rem; font-weight:800; letter-spacing:0.13em; line-height:1.2 !important; text-transform:uppercase; }
-        .frl-sidebar-heading-gap { height:0.62rem !important; width:100% !important; display:block !important; margin:0 !important; padding:0 !important; }
-        .frl-sidebar-section-gap { height:0.82rem !important; width:100% !important; display:block !important; border-bottom:1px solid rgba(255,255,255,0.06); margin:0 0 0.32rem 0 !important; padding:0 !important; }
+
+        /* Give the actual Streamlit markdown wrapper containing a section heading room below it. */
+        section[data-testid="stSidebar"] .stMarkdown:has(.frl-sidebar-section) { margin-bottom: 0.55rem !important; }
+        section[data-testid="stSidebar"] .stMarkdown:has(.frl-sidebar-brand) { margin-bottom: 1.05rem !important; }
+        section[data-testid="stSidebar"] .stButton + .stMarkdown:has(.frl-sidebar-section) { margin-top: 0.85rem !important; }
 
         /* ---------- TYPOGRAPHY ---------- */
         .frl-masthead { color:var(--frl-text); font-size:0.72rem; font-weight:800; letter-spacing:0.12em; line-height:1; text-transform:uppercase; margin:0 0 var(--frl-section-gap) 0; }
