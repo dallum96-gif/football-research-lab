@@ -158,7 +158,7 @@ def render_fixture_explorer(season, team, get_fixtures):
         month = _month_key(row["kickoff_time"])
         if month != previous_month:
             st.markdown(
-                f"<div class='frl-month-heading'>{month}</div>",
+                f"<div class='frl-month-heading'><span class='frl-month-heading-marker'></span>{month}</div>",
                 unsafe_allow_html=True,
             )
 
