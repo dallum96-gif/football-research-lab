@@ -74,8 +74,14 @@ if workspace == "overview":
 
     top_scorers = []
     top_red_cards = []
+    top_saves = []
     top_own_goals = []
-    for metric, target in (("goals", "top_scorers"), ("red_cards", "top_red_cards"), ("own_goals", "top_own_goals")):
+    for metric, target in ((
+        "goals", "top_scorers"),
+        ("red_cards", "top_red_cards"),
+        ("saves", "top_saves"),
+        ("own_goals", "top_own_goals"),
+    ):
         try:
             rows = get_top_players(overview_season, metric, 5).get("results", []) if overview_season else []
         except Exception:
@@ -84,12 +90,14 @@ if workspace == "overview":
             top_scorers = rows
         elif target == "top_red_cards":
             top_red_cards = rows
+        elif target == "top_saves":
+            top_saves = rows
         else:
             top_own_goals = rows
 
     best_points = sorted(teams, key=lambda row: row.get("points", 0), reverse=True)[:6]
-    most_points = max(teams, key=lambda row: row.get("points", 0), default={})
     most_red = top_red_cards[0] if top_red_cards else {}
+    most_saves = top_saves[0] if top_saves else {}
     most_own_goal = top_own_goals[0] if top_own_goals else {}
 
     def stat_value(item):
@@ -148,7 +156,7 @@ if workspace == "overview":
 
     fact_cols = st.columns(3, gap="small")
     fact_cards = [
-        ("Most points", stat_value(most_points), most_points.get("team", "—"), True),
+        ("Most saves", stat_value(most_saves), most_saves.get("player", "No recorded data"), True),
         ("Most red cards", stat_value(most_red), most_red.get("player", "No recorded data"), False),
         ("Most own goals", stat_value(most_own_goal), most_own_goal.get("player", "No recorded data"), False),
     ]
@@ -248,64 +256,3 @@ elif workspace == "fixtures":
             key="redesign_fixture_team_header",
             label_visibility="collapsed",
         ) if teams else ""
-    with header_season:
-        season = st.selectbox(
-            "Season",
-            seasons,
-            index=seasons.index(season) if season in seasons else 0,
-            key="redesign_fixture_season_header",
-            label_visibility="collapsed",
-        ) if seasons else ""
-
-    if season != default_season:
-        table = get_league_table(season)
-        teams = sorted([row["team"] for row in table["teams"]], key=str.casefold)
-        if team not in teams:
-            team = teams[0] if teams else ""
-
-    render_fixture_explorer(
-        season=season,
-        team=team,
-        get_fixtures=get_fixtures,
-    )
-
-elif workspace == "league-table":
-    seasons = sorted(get_seasons(), key=season_key, reverse=True)
-    season = st.selectbox("Season", seasons, key="redesign_league_table_season")
-    table = get_league_table(season)
-
-    st.markdown("<div class='frl-eyebrow'>Explore</div>", unsafe_allow_html=True)
-    st.markdown("<div class='frl-entity-title'>League Table</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='frl-context'>Premier League · {season}</div>", unsafe_allow_html=True)
-
-    rows = [
-        {
-            "Pos": row["position"],
-            "Team": row["team"],
-            "P": row["played"],
-            "W": row["wins"],
-            "D": row["draws"],
-            "L": row["losses"],
-            "GF": row["goals_for"],
-            "GA": row["goals_against"],
-            "GD": row["goal_difference"],
-            "Pts": row["points"],
-        }
-        for row in table["teams"]
-    ]
-
-    st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
-
-else:
-    item_labels = {
-        "players": "Players",
-        "head-to-head": "Head-to-Head",
-        "form": "Form & Streaks",
-        "prediction": "Prediction",
-        "data-quality": "Data Quality",
-        "provenance": "Provenance",
-    }
-    label = item_labels.get(workspace, workspace.replace("-", " ").title())
-    st.markdown("<div class='frl-eyebrow'>Explore</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='frl-entity-title'>{label}</div>", unsafe_allow_html=True)
-    st.markdown("<div class='frl-context'>Research workspace</div>", unsafe_allow_html=True)
