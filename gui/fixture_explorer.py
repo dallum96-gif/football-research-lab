@@ -45,7 +45,9 @@ def render_fixture_explorer(season, team, get_fixtures):
         key=str.casefold,
     )
 
-    filter_cols = st.columns([2.0, 1.0, 1.0], gap="small")
+    st.markdown("<div class='frl-filter-label'>FILTER FIXTURES</div>", unsafe_allow_html=True)
+    filter_cols = st.columns([2.15, 1.05, 1.05], gap="small")
+
     with filter_cols[0]:
         opponent_choice = st.selectbox(
             "Opponent",
@@ -53,7 +55,6 @@ def render_fixture_explorer(season, team, get_fixtures):
             key="fixture_explorer_opponent",
             label_visibility="collapsed",
         )
-        st.caption("Opponent")
 
     with filter_cols[1]:
         venue_choice = st.selectbox(
@@ -62,7 +63,6 @@ def render_fixture_explorer(season, team, get_fixtures):
             key="fixture_explorer_venue",
             label_visibility="collapsed",
         )
-        st.caption("Venue")
 
     with filter_cols[2]:
         result_choice = st.selectbox(
@@ -71,7 +71,8 @@ def render_fixture_explorer(season, team, get_fixtures):
             key="fixture_explorer_result",
             label_visibility="collapsed",
         )
-        st.caption("Result")
+
+    st.markdown("<div class='frl-filter-subline'>Opponent &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Venue &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Result</div>", unsafe_allow_html=True)
 
     selected_opponent = None if opponent_choice == "All opponents" else opponent_choice
     selected_venue = {"All venues": None, "Home": "home", "Away": "away"}[venue_choice]
@@ -106,7 +107,7 @@ def render_fixture_explorer(season, team, get_fixtures):
         losses += current_result == "L"
 
     st.markdown(
-        f"<div class='frl-record-line'><strong>{len(results)}</strong> matches &nbsp;·&nbsp; {wins} W &nbsp;·&nbsp; {draws} D &nbsp;·&nbsp; {losses} L</div>",
+        f"<div class='frl-record-line'><strong>{len(results)}</strong> matches <span>·</span> {wins} W <span>·</span> {draws} D <span>·</span> {losses} L</div>",
         unsafe_allow_html=True,
     )
 
@@ -144,7 +145,7 @@ def render_fixture_explorer(season, team, get_fixtures):
         date = str(row["kickoff_time"])[:10]
         result_class = _result_class(result)
 
-        cols = st.columns([1.05, 3.1, 1.0, 0.95, 0.85], gap="small")
+        cols = st.columns([1.1, 3.35, 0.95, 0.9, 0.75], gap="small")
         cols[0].markdown(
             f"<div class='frl-meta'>{date}<br><span class='frl-meta-sub'>GW {row['gameweek']}</span></div>",
             unsafe_allow_html=True,
