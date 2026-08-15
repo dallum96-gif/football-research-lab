@@ -193,9 +193,9 @@ def render_fixture_explorer(season, team, get_fixtures):
         )
         result_class = _result_class(result)
 
-        cols = st.columns([1.05, 3.1, 1.0, 0.95, 0.85], gap="small")
+        cols = st.columns([1.05, 3.1, 1.0, 0.95, 0.85], gap="small", vertical_alignment="center")
         cols[0].markdown(
-            f"<div class='frl-meta'>{_display_date(row['kickoff_time'])}<br>"
+            f"<div class='frl-date-cell'><span class='frl-meta-date'>{_display_date(row['kickoff_time'])}</span>"
             f"<span class='frl-meta-sub'>GW {row['gameweek']}</span></div>",
             unsafe_allow_html=True,
         )
@@ -213,10 +213,16 @@ def render_fixture_explorer(season, team, get_fixtures):
             st.query_params["fixture"] = f"{season}:{row['fixture_id']}"
             st.rerun()
 
-        cols[2].markdown(f"<div class='frl-meta'>{venue}</div>", unsafe_allow_html=True)
-        cols[3].markdown(f"<div class='frl-score'>{score}</div>", unsafe_allow_html=True)
+        cols[2].markdown(
+            f"<div class='frl-venue' style='width:100%; text-align:center;'>{venue}</div>",
+            unsafe_allow_html=True,
+        )
+        cols[3].markdown(
+            f"<div class='frl-score' style='width:100%; text-align:center;'>{score}</div>",
+            unsafe_allow_html=True,
+        )
         cols[4].markdown(
-            f"<div class='frl-result {result_class}'>{result}</div>",
+            f"<div class='frl-result {result_class}' style='width:100%; text-align:center;'>{result}</div>",
             unsafe_allow_html=True,
         )
         st.markdown("<div class='frl-fixture-row-rule'></div>", unsafe_allow_html=True)
