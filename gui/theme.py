@@ -86,6 +86,16 @@ def apply_theme():
             background: rgba(255,255,255,0.025) !important;
         }
 
+        /* Preserve Streamlit's native collapse/expand affordance. */
+        section[data-testid="stSidebar"] [data-testid="stSidebarCollapseButton"],
+        section[data-testid="stSidebar"] button[aria-label*="sidebar" i],
+        [data-testid="stSidebarCollapseButton"],
+        button[aria-label*="sidebar" i] {
+            visibility: visible !important;
+            display: flex !important;
+            opacity: 1 !important;
+        }
+
         section[data-testid="stSidebar"] hr {
             margin: 0.48rem 0;
             border-color: var(--frl-border);
@@ -263,7 +273,7 @@ def apply_theme():
             background: var(--frl-surface);
         }
 
-        div[data-testid="stToolbar"] { visibility: hidden; }
+        div[data-testid="stToolbar"] { visibility: visible; }
         </style>
         """,
         unsafe_allow_html=True,
