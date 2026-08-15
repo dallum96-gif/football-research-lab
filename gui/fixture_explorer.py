@@ -214,12 +214,11 @@ def render_fixture_explorer(season, team, get_fixtures):
 
         cols = st.columns([1.05, 3.1, 1.0, 0.95, 0.85], gap="small", vertical_alignment="center")
         date_style = (
-            "font-size:0.55rem; font-weight:680; letter-spacing:0.10em; "
+            "font-size:0.62rem; font-weight:680; letter-spacing:0.10em; "
             "line-height:1.2; color:var(--frl-muted-soft);"
         )
         cols[0].markdown(
-            f"<div class='frl-date-cell' style='min-height:2.05rem; display:flex; flex-direction:column; "
-            f"justify-content:center; align-items:flex-start; text-align:left;'>"
+            f"<div class='frl-date-cell' style='min-height:2.05rem; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; text-align:left;'>"
             f"<span style='{date_style};'>{_display_date(row['kickoff_time'])}</span>"
             f"<span style='{date_style};'>GW {row['gameweek']}</span></div>",
             unsafe_allow_html=True,
@@ -239,8 +238,7 @@ def render_fixture_explorer(season, team, get_fixtures):
             st.rerun()
 
         cols[2].markdown(
-            f"<div class='frl-venue' style='width:100%; text-align:center; font-size:0.55rem; "
-            f"font-weight:680; letter-spacing:0.10em; line-height:1.2; color:var(--frl-muted-soft); text-transform:uppercase;'>{venue}</div>",
+            f"<div class='frl-venue' style='width:100%; text-align:center; font-size:0.55rem; font-weight:680; letter-spacing:0.10em; line-height:1.2; color:var(--frl-muted-soft); text-transform:uppercase;'>{venue}</div>",
             unsafe_allow_html=True,
         )
         cols[3].markdown(
