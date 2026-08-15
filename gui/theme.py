@@ -49,8 +49,8 @@ def apply_theme():
         .frl-sidebar-brand { display:block !important; width:100% !important; margin:0 0 0.85rem 0 !important; padding:0 !important; color:#fffaf0; font-size:0.68rem; font-weight:800; letter-spacing:0.1em; line-height:1.25; text-transform:uppercase; }
         .frl-sidebar-section { display:block !important; width:100% !important; margin:0 !important; padding:0 !important; color:#8f8a7f; font-size:0.56rem; font-weight:800; letter-spacing:0.13em; line-height:1.2 !important; text-transform:uppercase; }
 
-        /* Give the actual Streamlit markdown wrapper containing a section heading room below it. */
-        section[data-testid="stSidebar"] .stMarkdown:has(.frl-sidebar-section) { margin-bottom: 0.55rem !important; }
+        /* Small breathing room under section headings; navigation rows stay compact. */
+        section[data-testid="stSidebar"] .stMarkdown:has(.frl-sidebar-section) { margin-bottom: 0.78rem !important; }
         section[data-testid="stSidebar"] .stMarkdown:has(.frl-sidebar-brand) { margin-bottom: 1.05rem !important; }
         section[data-testid="stSidebar"] .stButton + .stMarkdown:has(.frl-sidebar-section) { margin-top: 0.85rem !important; }
 
