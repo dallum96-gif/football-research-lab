@@ -6,15 +6,15 @@ def apply_theme():
         """
         <style>
         :root {
-            --frl-bg: #0f151b;
-            --frl-surface: #151d24;
-            --frl-surface-raised: #192229;
-            --frl-border: rgba(222, 228, 232, 0.09);
-            --frl-border-strong: rgba(222, 228, 232, 0.16);
-            --frl-text: #edf1f2;
-            --frl-muted: #98a4aa;
-            --frl-accent: #739b8c;
-            --frl-accent-bright: #9fc2b3;
+            --frl-bg: #0e141a;
+            --frl-surface: #151c22;
+            --frl-surface-raised: #192129;
+            --frl-border: rgba(222, 228, 232, 0.08);
+            --frl-border-strong: rgba(222, 228, 232, 0.15);
+            --frl-text: #eef1f1;
+            --frl-muted: #8f9aa1;
+            --frl-accent: #759b8c;
+            --frl-accent-soft: rgba(117, 155, 140, 0.11);
         }
 
         .stApp,
@@ -25,37 +25,123 @@ def apply_theme():
 
         .block-container {
             max-width: 1500px;
-            padding-top: 1.35rem;
-            padding-bottom: 3.5rem;
-            padding-left: 2.1rem;
-            padding-right: 2.1rem;
+            padding-top: 1.25rem;
+            padding-bottom: 3rem;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        /* Narrow, quiet navigation rail. */
+        section[data-testid="stSidebar"] {
+            width: 190px !important;
+            min-width: 190px !important;
+            max-width: 190px !important;
+            background: #0a1015;
+            border-right: 1px solid var(--frl-border);
+        }
+
+        section[data-testid="stSidebar"] > div:first-child {
+            padding: 0.9rem 0.45rem 1.1rem 0.45rem;
+        }
+
+        section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton,
+        section[data-testid="stSidebar"] .stButton > div {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button {
+            width: 100% !important;
+            min-height: 1.52rem;
+            height: 1.52rem;
+            padding: 0.02rem 0.2rem !important;
+            margin: 0 !important;
+            border: 0 !important;
+            border-radius: 3px;
+            background: transparent !important;
+            color: #c4cdd1 !important;
+            box-shadow: none !important;
+            font-size: 0.75rem;
+            font-weight: 560;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            align-items: center !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button > div,
+        section[data-testid="stSidebar"] .stButton > button p {
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button:hover {
+            color: var(--frl-text) !important;
+            background: rgba(255,255,255,0.025) !important;
+        }
+
+        section[data-testid="stSidebar"] .stButton > button[kind="primary"] {
+            color: #dce9e3 !important;
+            background: var(--frl-accent-soft) !important;
+        }
+
+        section[data-testid="stSidebar"] hr {
+            margin: 0.48rem 0;
+            border-color: var(--frl-border);
+        }
+
+        .frl-sidebar-brand {
+            color: var(--frl-text);
+            font-size: 0.68rem;
+            font-weight: 760;
+            letter-spacing: 0.1em;
+            line-height: 1.25;
+            text-transform: uppercase;
+            margin: 0 0 0.7rem 0.1rem;
+        }
+
+        .frl-sidebar-section {
+            color: #748087;
+            font-size: 0.56rem;
+            font-weight: 760;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            margin: 0.72rem 0 0.15rem 0.1rem;
         }
 
         .frl-eyebrow {
             color: var(--frl-muted);
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 700;
-            letter-spacing: 0.17em;
+            letter-spacing: 0.16em;
             text-transform: uppercase;
-            margin-bottom: 0.3rem;
+            margin-bottom: 0.35rem;
         }
 
         .frl-title {
             color: var(--frl-text);
             font-size: 1.95rem;
             font-weight: 780;
-            line-height: 1.08;
-            letter-spacing: -0.018em;
+            line-height: 1.06;
+            letter-spacing: -0.02em;
             margin: 0;
         }
 
         .frl-subtitle {
             color: var(--frl-muted);
-            margin-top: 0.35rem;
-            margin-bottom: 1.2rem;
-            font-size: 0.92rem;
-            line-height: 1.45;
-            max-width: 760px;
+            margin-top: 0.3rem;
+            margin-bottom: 1.05rem;
+            font-size: 0.9rem;
+            line-height: 1.42;
+            max-width: 730px;
         }
 
         .frl-entity-title {
@@ -69,112 +155,11 @@ def apply_theme():
 
         .frl-context {
             color: var(--frl-muted);
-            font-size: 0.88rem;
-            margin-top: 0.24rem;
-            margin-bottom: 1rem;
+            font-size: 0.86rem;
+            margin-top: 0.22rem;
+            margin-bottom: 0.9rem;
         }
 
-        .frl-count-line {
-            color: var(--frl-muted);
-            font-size: 0.82rem;
-            margin: 0.7rem 0 0.55rem 0;
-        }
-
-        .frl-fixture-header {
-            display: grid;
-            grid-template-columns: 1fr 3.2fr 1fr 1fr 0.9fr;
-            column-gap: 1rem;
-            color: var(--frl-muted);
-            font-size: 0.66rem;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            padding: 0.35rem 0.35rem 0.45rem 0.35rem;
-            border-bottom: 1px solid var(--frl-border);
-        }
-
-        .frl-meta {
-            color: var(--frl-muted);
-            font-size: 0.78rem;
-        }
-
-        .frl-score {
-            color: var(--frl-text);
-            font-weight: 760;
-            font-size: 0.92rem;
-        }
-
-        .frl-result {
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .frl-result-win { color: var(--frl-accent-bright); }
-        .frl-result-draw { color: var(--frl-muted); }
-        .frl-result-loss { color: #c58f8f; }
-        .frl-result-unplayed { color: #b7a47c; }
-
-        /* Quiet, professional navigation rail. */
-        section[data-testid="stSidebar"] {
-            background: #0c1217;
-            border-right: 1px solid var(--frl-border);
-        }
-
-        section[data-testid="stSidebar"] .block-container {
-            padding: 1.1rem 0.8rem 1.5rem 0.8rem;
-        }
-
-        .frl-sidebar-brand {
-            color: var(--frl-text);
-            font-size: 0.7rem;
-            font-weight: 760;
-            letter-spacing: 0.14em;
-            line-height: 1.35;
-            text-transform: uppercase;
-            margin: 0 0 1rem 0;
-        }
-
-        .frl-sidebar-section {
-            color: #718087;
-            font-size: 0.6rem;
-            font-weight: 750;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            margin: 0.95rem 0 0.18rem 0.2rem;
-        }
-
-        section[data-testid="stSidebar"] .stButton {
-            margin: 0;
-        }
-
-        section[data-testid="stSidebar"] .stButton > button {
-            min-height: 1.55rem;
-            height: 1.55rem;
-            padding: 0.02rem 0.35rem;
-            margin: 0;
-            border: 0;
-            border-radius: 4px;
-            background: transparent;
-            color: #aab4b9;
-            box-shadow: none;
-            font-size: 0.78rem;
-            font-weight: 600;
-            justify-content: flex-start;
-            text-align: left;
-            white-space: nowrap;
-        }
-
-        section[data-testid="stSidebar"] .stButton > button:hover {
-            background: rgba(255,255,255,0.025);
-            color: var(--frl-text);
-        }
-
-        section[data-testid="stSidebar"] .stButton > button:focus:not(:active) {
-            border-color: transparent;
-            box-shadow: none;
-        }
-
-        /* Compact selects used by the research workspaces. */
         div[data-baseweb="select"] > div,
         div[data-testid="stTextInput"] input,
         div[data-testid="stNumberInput"] input,
@@ -183,7 +168,7 @@ def apply_theme():
             color: var(--frl-text);
             border: 1px solid var(--frl-border);
             border-radius: 6px;
-            min-height: 2rem;
+            min-height: 1.95rem;
         }
 
         div[data-baseweb="select"] > div:hover,
@@ -206,7 +191,7 @@ def apply_theme():
         }
 
         div[data-testid="stMetric"] {
-            padding: 0.65rem 0.78rem;
+            padding: 0.58rem 0.7rem;
             background: transparent;
             border-top: 1px solid var(--frl-border);
             border-bottom: 1px solid var(--frl-border);
@@ -217,21 +202,8 @@ def apply_theme():
 
         div[data-testid="stMetricLabel"] { color: var(--frl-muted); }
         div[data-testid="stMetricValue"] { color: var(--frl-text); }
-
-        div[data-testid="stDataFrame"] {
-            border: 1px solid var(--frl-border);
-            border-radius: 7px;
-            overflow: hidden;
-            background: var(--frl-surface);
-        }
-
-        div[data-testid="stExpander"] {
-            border: 1px solid var(--frl-border);
-            border-radius: 7px;
-            background: var(--frl-surface);
-        }
-
-        div[data-testid="stDecoration"] { background-image: none; }
+        div[data-testid="stDataFrame"] { border: 1px solid var(--frl-border); border-radius: 7px; overflow: hidden; background: var(--frl-surface); }
+        div[data-testid="stExpander"] { border: 1px solid var(--frl-border); border-radius: 7px; background: var(--frl-surface); }
         div[data-testid="stToolbar"] { visibility: hidden; }
         </style>
         """,
