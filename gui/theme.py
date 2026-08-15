@@ -6,14 +6,18 @@ def apply_theme():
         """
         <style>
         :root {
-            --frl-bg: #0e141a;
-            --frl-surface: #151c22;
-            --frl-border: rgba(222, 228, 232, 0.08);
-            --frl-border-strong: rgba(222, 228, 232, 0.15);
-            --frl-text: #eef1f1;
-            --frl-muted: #8f9aa1;
-            --frl-accent: #759b8c;
-            --frl-accent-bright: #9fc2b3;
+            --frl-bg: #111a24;
+            --frl-surface: #182331;
+            --frl-surface-raised: #1c2938;
+            --frl-border: rgba(242, 237, 225, 0.10);
+            --frl-border-strong: rgba(242, 237, 225, 0.17);
+            --frl-text: #f1eee6;
+            --frl-muted: #9aa4ad;
+            --frl-muted-soft: #737f89;
+            --frl-accent: #789c8c;
+            --frl-accent-bright: #a8c8ba;
+            --frl-negative: #c28f8f;
+            --frl-warning: #c0aa79;
 
             /* Shared layout rhythm */
             --frl-top-inset: 1.35rem;
@@ -47,7 +51,7 @@ def apply_theme():
             width: 190px !important;
             min-width: 190px !important;
             max-width: 190px !important;
-            background: #0a1015;
+            background: #0c141d;
             border-right: 1px solid var(--frl-border);
         }
 
@@ -91,7 +95,7 @@ def apply_theme():
             border: 0 !important;
             border-radius: 3px;
             background: transparent !important;
-            color: #c4cdd1 !important;
+            color: #cbd3d7 !important;
             box-shadow: none !important;
             font-size: 0.75rem;
             font-weight: 560;
@@ -111,7 +115,7 @@ def apply_theme():
 
         section[data-testid="stSidebar"] .stButton > button:hover {
             color: var(--frl-text) !important;
-            background: rgba(255,255,255,0.025) !important;
+            background: rgba(241, 238, 230, 0.035) !important;
         }
 
         section[data-testid="stSidebar"] hr {
@@ -130,7 +134,7 @@ def apply_theme():
         }
 
         .frl-sidebar-section {
-            color: #748087;
+            color: #7a858f;
             font-size: 0.56rem;
             font-weight: 760;
             letter-spacing: 0.13em;
@@ -230,7 +234,7 @@ def apply_theme():
         }
 
         .frl-meta-sub {
-            color: #707b82;
+            color: var(--frl-muted-soft);
             font-size: 0.69rem;
         }
 
@@ -248,8 +252,8 @@ def apply_theme():
 
         .frl-result-win { color: var(--frl-accent-bright); }
         .frl-result-draw { color: var(--frl-muted); }
-        .frl-result-loss { color: #c58f8f; }
-        .frl-result-unplayed { color: #b7a47c; }
+        .frl-result-loss { color: var(--frl-negative); }
+        .frl-result-unplayed { color: var(--frl-warning); }
 
         div[data-baseweb="select"] > div,
         div[data-testid="stTextInput"] input,
@@ -278,7 +282,7 @@ def apply_theme():
 
         .stButton > button:hover {
             border-color: var(--frl-border-strong);
-            background: rgba(255,255,255,0.018);
+            background: rgba(241, 238, 230, 0.02);
         }
 
         .frl-fixture-header + div .stButton > button {
