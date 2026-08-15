@@ -84,12 +84,6 @@ def top_players(
     metric="goals",
     limit=10,
 ):
-    if metric == "own_goals":
-        query_lab.METRICS.setdefault(
-            "own_goals",
-            "own_goals",
-        )
-
     return query_lab.top_players(
         season=season,
         metric=metric,
