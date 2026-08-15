@@ -68,20 +68,37 @@ workspace = current_workspace()
 
 if workspace == "overview":
     seasons = sorted(get_seasons(), key=season_key, reverse=True)
-    latest_season = seasons[-1] if seasons else ""
-    table = get_league_table(latest_season) if latest_season else {"teams": []}
+    overview_season = "2025-26" if "2025-26" in seasons else (seasons[0] if seasons else "")
+    table = get_league_table(overview_season) if overview_season else {"teams": []}
     teams = table.get("teams", [])
 
     top_scorers = []
-    try:
-        top_scorers = get_top_players(latest_season, "goals", 5).get("results", []) if latest_season else []
-    except Exception:
-        top_scorers = []
+    top_red_cards = []
+    top_own_goals = []
+    for metric, target in (("goals", "top_scorers"), ("red_cards", "top_red_cards"), ("own_goals", "top_own_goals")):
+        try:
+            rows = get_top_players(overview_season, metric, 5).get("results", []) if overview_season else []
+        except Exception:
+            rows = []
+        if target == "top_scorers":
+            top_scorers = rows
+        elif target == "top_red_cards":
+            top_red_cards = rows
+        else:
+            top_own_goals = rows
 
     best_points = sorted(teams, key=lambda row: row.get("points", 0), reverse=True)[:6]
-    most_goals = max(teams, key=lambda row: row.get("goals_for", 0), default={})
-    biggest_gd = max(teams, key=lambda row: row.get("goal_difference", 0), default={})
     most_points = max(teams, key=lambda row: row.get("points", 0), default={})
+    most_red = top_red_cards[0] if top_red_cards else {}
+    most_own_goal = top_own_goals[0] if top_own_goals else {}
+
+    def stat_value(item):
+        value = item.get("value", "—")
+        try:
+            number = float(value)
+            return str(int(number)) if number.is_integer() else f"{number:.1f}"
+        except (TypeError, ValueError):
+            return "—"
 
     st.markdown(
         """
@@ -104,9 +121,19 @@ if workspace == "overview":
         .frl-player-rank { flex:0 0 auto; width:1.55rem; height:1.55rem; display:flex; align-items:center; justify-content:center; border-radius:50%; background:var(--frl-surface-raised); color:var(--frl-muted); font-size:0.62rem; font-weight:800; }
         .frl-player-name { flex:1; color:var(--frl-text); font-size:0.78rem; font-weight:720; }
         .frl-player-value { color:var(--frl-accent); font-size:0.85rem; font-weight:800; }
+        .frl-points-card { padding:1rem 1rem 0.85rem; border:1px solid var(--frl-border); border-radius:14px; background:var(--frl-surface); }
+        .frl-points-title { color:var(--frl-text); font-size:1.05rem; font-weight:800; }
+        .frl-points-note { margin-top:0.22rem; color:var(--frl-muted-soft); font-size:0.68rem; }
+        .frl-points-row { display:grid; grid-template-columns:1.65rem minmax(120px, 1fr) 2.3rem; gap:0.55rem; align-items:center; padding:0.58rem 0; border-bottom:1px solid var(--frl-border); }
+        .frl-points-row:last-child { border-bottom:0; }
+        .frl-points-rank { color:var(--frl-muted-soft); font-size:0.60rem; font-weight:800; }
+        .frl-points-team { min-width:0; color:var(--frl-text); font-size:0.72rem; font-weight:720; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .frl-points-track { height:0.42rem; margin-top:0.24rem; overflow:hidden; border-radius:999px; background:var(--frl-surface-raised); }
+        .frl-points-fill { height:100%; border-radius:999px; background:var(--frl-accent); }
+        .frl-points-value { color:var(--frl-text); font-size:0.76rem; font-weight:800; text-align:right; }
         .frl-mini-caption { margin-top:0.55rem; color:var(--frl-muted-soft); font-size:0.65rem; }
         .frl-collage-footer { margin-top:1rem; color:var(--frl-muted-soft); font-size:0.67rem; }
-        @media (max-width: 900px) { .frl-fact-row { grid-template-columns:1fr; } }
+        @media (max-width: 900px) { .frl-fact-row { grid-template-columns:1fr; } .frl-points-row { grid-template-columns:1.4rem minmax(90px, 1fr) 2.1rem; } }
         </style>
         """,
         unsafe_allow_html=True,
@@ -115,35 +142,42 @@ if workspace == "overview":
     st.markdown("<div class='frl-collage-kicker'>A little place to get lost in football</div>", unsafe_allow_html=True)
     st.markdown("<div class='frl-collage-title'>The beautiful game,<br>with receipts.</div>", unsafe_allow_html=True)
     st.markdown(
-        f"<div class='frl-collage-sub'>Live football facts from the lab, pulled from the latest dataset: {latest_season or 'the current collection'}. Some useful, some gloriously unnecessary.</div>",
+        f"<div class='frl-collage-sub'>A playful snapshot of the lab using the 2025/26 Premier League season. Some useful, some gloriously unnecessary.</div>",
         unsafe_allow_html=True,
     )
 
     fact_cols = st.columns(3, gap="small")
     fact_cards = [
-        ("Most goals", str(most_goals.get("goals_for", "—")), most_goals.get("team", "Latest season"), True),
-        ("Biggest goal difference", str(biggest_gd.get("goal_difference", "—")), biggest_gd.get("team", "Latest season"), False),
-        ("Most points", str(most_points.get("points", "—")), most_points.get("team", "Latest season"), False),
+        ("Most points", stat_value(most_points), most_points.get("team", "—"), True),
+        ("Most red cards", stat_value(most_red), most_red.get("player", "No recorded data"), False),
+        ("Most own goals", stat_value(most_own_goal), most_own_goal.get("player", "No recorded data"), False),
     ]
     for col, (label, value, copy, accent) in zip(fact_cols, fact_cards):
         with col:
             cls = "frl-fact frl-fact-accent" if accent else "frl-fact"
             st.markdown(
-                f"<div class='{cls}'><div class='frl-fact-label'>{label}</div><div class='frl-fact-value'>{value}</div><div class='frl-fact-copy'>{copy} · {latest_season}</div></div>",
+                f"<div class='{cls}'><div class='frl-fact-label'>{label}</div><div class='frl-fact-value'>{value}</div><div class='frl-fact-copy'>{copy} · {overview_season}</div></div>",
                 unsafe_allow_html=True,
             )
 
     left, right = st.columns([1.15, 0.85], gap="medium")
     with left:
-        st.markdown("<div class='frl-collage-section'>Points race</div>", unsafe_allow_html=True)
+        st.markdown("<div class='frl-collage-section'>Points at a glance</div>", unsafe_allow_html=True)
         if best_points:
-            points_df = pd.DataFrame({
-                "Team": [row.get("team", "") for row in best_points],
-                "Points": [row.get("points", 0) for row in best_points],
-            }).set_index("Team")
-            st.bar_chart(points_df, y="Points", height=235, use_container_width=True)
+            max_points = max(row.get("points", 0) for row in best_points) or 1
+            rows_html = []
+            for rank, row in enumerate(best_points, start=1):
+                points = row.get("points", 0)
+                width = max(8, round((points / max_points) * 100))
+                rows_html.append(
+                    f"<div class='frl-points-row'><div class='frl-points-rank'>{rank:02d}</div><div><div class='frl-points-team'>{row.get('team', '—')}</div><div class='frl-points-track'><div class='frl-points-fill' style='width:{width}%;'></div></div></div><div class='frl-points-value'>{points}</div></div>"
+                )
             st.markdown(
-                f"<div class='frl-mini-caption'>Top six by points in {latest_season}.</div>",
+                "<div class='frl-points-card'>"
+                "<div class='frl-points-title'>League table, at a glance</div>"
+                f"<div class='frl-points-note'>{overview_season}</div>"
+                + "".join(rows_html)
+                + "</div>",
                 unsafe_allow_html=True,
             )
 
@@ -159,7 +193,7 @@ if workspace == "overview":
         st.markdown(
             "<div class='frl-player-card'>"
             "<div class='frl-player-card-title'>Top scorers</div>"
-            f"<div class='frl-player-card-note'>{latest_season}</div>"
+            f"<div class='frl-player-card-note'>{overview_season}</div>"
             + "".join(rows_html)
             + "</div>",
             unsafe_allow_html=True,
