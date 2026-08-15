@@ -40,10 +40,11 @@ def render_workspace_sidebar(active_key):
 
         for item in items:
             icon = ICONS.get(item.key, "·")
-            active_class = " frl-nav-active" if item.key == active_key else ""
+            marker = "▌" if item.key == active_key else " "
+            label = f"{marker}  {icon}  {item.label}"
 
             if st.sidebar.button(
-                f"{icon}  {item.label}",
+                label,
                 key=f"nav_{item.key}",
                 use_container_width=True,
                 type="secondary",
@@ -51,13 +52,6 @@ def render_workspace_sidebar(active_key):
                 selected = item.key
                 st.session_state["frl_workspace"] = item.key
                 st.rerun()
-
-            # Keep the button itself deliberately quiet; active indication is
-            # applied through the stable key-based selector in the theme.
-            st.markdown(
-                f"<div class='frl-nav-state{active_class}'></div>",
-                unsafe_allow_html=True,
-            )
 
     return selected
 
