@@ -148,17 +148,14 @@ def apply_theme():
             margin: 0 0 var(--frl-section-gap) 0;
         }
 
-        .frl-eyebrow,
-        .frl-filter-label {
+        .frl-eyebrow {
             color: var(--frl-muted);
             font-size: 0.62rem;
             font-weight: 750;
             letter-spacing: 0.15em;
             text-transform: uppercase;
+            margin-bottom: 0.35rem;
         }
-
-        .frl-eyebrow { margin-bottom: 0.35rem; }
-        .frl-filter-label { margin: 1.35rem 0 0.42rem; color: var(--frl-muted-soft); }
 
         .frl-title {
             color: var(--frl-text);
@@ -167,15 +164,6 @@ def apply_theme():
             line-height: 1.06;
             letter-spacing: -0.02em;
             margin: 0;
-        }
-
-        .frl-subtitle {
-            color: var(--frl-muted);
-            margin-top: 0.3rem;
-            margin-bottom: 1.05rem;
-            font-size: 0.9rem;
-            line-height: 1.42;
-            max-width: 730px;
         }
 
         .frl-entity-title {
@@ -201,17 +189,51 @@ def apply_theme():
             border-bottom: 1px solid var(--frl-border);
         }
 
-        .frl-record-line strong { color: var(--frl-text); font-weight: 700; }
         .frl-record-line span { color: var(--frl-muted-soft); }
 
-        .frl-filter-subline {
-            color: var(--frl-muted-soft);
-            font-size: 0.6rem;
-            letter-spacing: 0.08em;
-            margin: -0.28rem 0 0.8rem;
+        .frl-filtered-line {
+            color: var(--frl-muted);
+            font-size: 0.76rem;
+            margin: 0.25rem 0 0.7rem;
         }
 
-        /* The selectors are intentionally dark, low-contrast surfaces rather than grey widgets. */
+        .frl-empty-state {
+            color: var(--frl-muted);
+            padding: 1rem 0;
+            border-top: 1px solid var(--frl-border);
+            border-bottom: 1px solid var(--frl-border);
+            font-size: 0.82rem;
+        }
+
+        .frl-month-heading {
+            color: var(--frl-text);
+            font-size: 0.68rem;
+            font-weight: 760;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+            margin: 1.35rem 0 0.32rem;
+        }
+
+        /* Quiet filter control: available when needed, invisible in the browse-first state. */
+        div[data-testid="stExpander"] {
+            border: 0 !important;
+            border-top: 1px solid var(--frl-border) !important;
+            border-bottom: 1px solid var(--frl-border) !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            margin: 0.1rem 0 0.7rem !important;
+        }
+
+        div[data-testid="stExpander"] summary {
+            color: var(--frl-muted) !important;
+            font-size: 0.72rem !important;
+            font-weight: 650 !important;
+        }
+
+        div[data-testid="stExpander"] summary:hover {
+            color: var(--frl-text) !important;
+        }
+
         div[data-baseweb="select"] > div {
             background: rgba(21, 28, 34, 0.78) !important;
             color: var(--frl-text) !important;
@@ -225,37 +247,16 @@ def apply_theme():
         div[data-baseweb="select"] > div:focus-within {
             background: rgba(25, 33, 40, 0.92) !important;
             border-color: rgba(117, 155, 140, 0.42) !important;
-            box-shadow: 0 0 0 1px rgba(117, 155, 140, 0.08) !important;
+            box-shadow: none !important;
         }
 
-        div[data-baseweb="select"] [data-baseweb="select-value-container"] {
-            color: var(--frl-text) !important;
-        }
-
-        div[data-baseweb="select"] input {
-            color: var(--frl-text) !important;
-        }
-
-        div[data-baseweb="popover"] {
-            background: var(--frl-surface-raised) !important;
-            border: 1px solid var(--frl-border) !important;
-        }
-
+        div[data-baseweb="popover"],
         div[data-baseweb="menu"] {
             background: var(--frl-surface-raised) !important;
         }
 
         div[data-baseweb="menu"] li:hover {
             background: rgba(117, 155, 140, 0.08) !important;
-        }
-
-        div[data-testid="stTextInput"] input,
-        div[data-testid="stNumberInput"] input,
-        div[data-testid="stDateInput"] input {
-            background: var(--frl-surface);
-            color: var(--frl-text);
-            border: 1px solid var(--frl-border);
-            border-radius: 6px;
         }
 
         .frl-fixture-header {
@@ -283,7 +284,10 @@ def apply_theme():
             line-height: 1.3;
         }
 
-        .frl-meta-sub { color: var(--frl-muted-soft); font-size: 0.67rem; }
+        .frl-meta-sub {
+            color: var(--frl-muted-soft);
+            font-size: 0.67rem;
+        }
 
         .frl-score {
             color: var(--frl-text);
@@ -330,13 +334,6 @@ def apply_theme():
         .frl-fixture-header + div .stButton > button:hover {
             color: var(--frl-accent-bright);
             background: transparent !important;
-        }
-
-        div[data-testid="stDataFrame"] {
-            border: 1px solid var(--frl-border);
-            border-radius: 7px;
-            overflow: hidden;
-            background: var(--frl-surface);
         }
         </style>
         """,
