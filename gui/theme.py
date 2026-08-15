@@ -69,8 +69,8 @@ def apply_theme():
         div[data-testid="stExpander"] summary:hover { color:var(--frl-accent) !important; }
         .stButton > button { color:var(--frl-text); border-color:var(--frl-border); background:var(--frl-surface); border-radius:7px; box-shadow:0 2px 8px rgba(24,23,20,0.035); }
         .stButton > button:hover { color:var(--frl-accent); border-color:rgba(232,93,63,0.45); background:#ffffff; }
-        .frl-fixture-header + div .stButton > button { min-height:1.95rem; height:1.95rem; padding:0 !important; border:0 !important; box-shadow:none !important; justify-content:flex-start !important; text-align:left !important; font-size:0.91rem; font-weight:700; color:var(--frl-text); background:transparent !important; }
-        .frl-fixture-header + div .stButton > button:hover { color:var(--frl-accent); background:transparent !important; }
+        .frl-fixture-header + div .stButton > button { min-height:1.95rem; height:1.95rem; padding:0 0.55rem !important; border:1px solid var(--frl-border) !important; box-shadow:0 2px 8px rgba(24,23,20,0.035) !important; border-radius:7px !important; justify-content:flex-start !important; text-align:left !important; font-size:0.91rem; font-weight:700; color:var(--frl-text); background:var(--frl-surface) !important; }
+        .frl-fixture-header + div .stButton > button:hover { color:var(--frl-accent); border-color:rgba(232,93,63,0.45) !important; background:#ffffff !important; }
         .frl-fixture-header { display:grid; grid-template-columns:1.1fr 3.25fr 0.95fr 0.9fr 0.72fr; column-gap:1rem; color:var(--frl-muted-soft); font-size:0.61rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 0.18rem 0.48rem; border-bottom:1px solid var(--frl-border-strong); }
         .frl-fixture-row-rule { height:1px; background:var(--frl-border); margin:0.05rem 0; }
         .frl-meta { color:var(--frl-muted); font-size:0.75rem; line-height:1.3; }
