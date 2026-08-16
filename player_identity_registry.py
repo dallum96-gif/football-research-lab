@@ -1,13 +1,17 @@
 """Generate the verified FRL FPL-element -> source player identity registry.
 
-The registry is deliberately derived from the audited exact-name+verified-team
-matches. It never promotes unresolved or ambiguous records.
+The registry is derived from audited exact-name+verified-team matches. A
+season-local FPL element may appear under more than one team when a player
+moves clubs during a season, so promotion occurs at the (season, element)
+level only when all verified evidence resolves to exactly one source playerId.
+Records with multiple source identities remain unresolved and are rejected.
 """
 
 from __future__ import annotations
 
 import csv
 from pathlib import Path
+from collections import defaultdict
 
 import player_identity_crosswalk
 
@@ -33,25 +37,42 @@ def build_registry() -> list[dict[str, str]]:
             f"Cannot promote crosswalk: {report['review_rows']} review rows remain."
         )
 
-    rows = []
-    seen = set()
+    grouped = defaultdict(list)
     for item in report["confirmed"]:
-        key = (item["season"], item["element"])
-        if key in seen:
-            raise ValueError(f"Duplicate FPL identity: {key}")
-        seen.add(key)
+        grouped[(item["season"], item["element"])].append(item)
+
+    rows = []
+    unresolved = []
+
+    for key, items in grouped.items():
+        source_ids = {item["source_player_id"] for item in items}
+        if len(source_ids) != 1:
+            unresolved.append((key, sorted(source_ids)))
+            continue
+
+        first = items[0]
+        teams = sorted({item["team_code"] for item in items if item["team_code"]})
+        names = sorted({item["name_norm"] for item in items if item["name_norm"]})
+        methods = sorted({item["method"] for item in items if item["method"]})
+
         rows.append(
             {
-                "season": item["season"],
-                "fpl_element": item["element"],
-                "fpl_name_normalized": item["name_norm"],
-                "team_code": item["team_code"],
-                "source_player_id": item["source_player_id"],
-                "match_method": item["method"],
+                "season": key[0],
+                "fpl_element": key[1],
+                "fpl_name_normalized": names[0] if names else "",
+                "team_code": ";".join(teams),
+                "source_player_id": next(iter(source_ids)),
+                "match_method": ";".join(methods),
                 "confidence": "VERIFIED",
                 "identity_status": "VERIFIED",
-                "evidence_basis": "exact normalized name + verified seasonal team identity",
+                "evidence_basis": "exact normalized name + verified seasonal team identity; unique source playerId across all verified team records",
             }
+        )
+
+    if unresolved:
+        raise ValueError(
+            "Cannot promote crosswalk: some seasonal FPL elements resolve to multiple source playerIds. "
+            f"Examples: {unresolved[:5]}"
         )
 
     rows.sort(key=lambda r: (r["season"], int(r["fpl_element"])))
@@ -74,6 +95,6 @@ if __name__ == "__main__":
     print("=" * 88)
     print(f"Rows written: {len(rows):,}")
     print(f"Output: {OUTPUT}")
-    print("Only deterministic EXACT_NAME_TEAM rows are included.")
-    print("All unresolved identities remain outside the registry.")
+    print("Only deterministic rows with one source playerId are included.")
+    print("All unresolved or source-conflicting identities remain outside the registry.")
     print("=" * 88)
