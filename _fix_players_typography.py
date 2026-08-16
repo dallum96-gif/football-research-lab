@@ -5,7 +5,7 @@ TARGET = Path("gui/player_research_ui.py")
 
 
 def replace_once(text: str, pattern: str, replacement: str, label: str) -> str:
-    new_text, count = re.subn(pattern, replacement, text, count=1, flags=re.MULTILINE)
+    new_text, count = re.subn(pattern, replacement, text, count=1, flags=re.MULTILINE | re.DOTALL)
     if count != 1:
         raise SystemExit(
             f"ERROR: expected Players CSS fragment not found for {label}. "
@@ -20,19 +20,21 @@ def main() -> None:
 
     text = TARGET.read_text(encoding="utf-8-sig")
 
-    # Structural baseline checks rather than brittle exact-line matching.
-    required_fragments = [
-        '.frl-player-header {',
-        '.frl-player-header button {',
-        '.frl-player-row {',
-        '.frl-name {',
-        '.frl-pos {',
-        '.frl-num {',
-        'data-sort="Min"',
+    required = [
+        ".frl-player-table",
+        ".frl-player-header",
+        ".frl-player-header button",
+        ".frl-player-row",
+        ".frl-name",
+        ".frl-pos",
+        ".frl-num",
         'data-sort="G"',
-        'components_html(html, height=640, scrolling=False)',
+        'data-sort="xG"',
+        "components_html(html, height=640, scrolling=False)",
+        'background:#fffdf8;',
+        'font-family:"Source Sans", sans-serif;',
     ]
-    missing = [fragment for fragment in required_fragments if fragment not in text]
+    missing = [marker for marker in required if marker not in text]
     if missing:
         raise SystemExit(
             "ERROR: Players UI does not match the expected sortable-table baseline. "
@@ -47,74 +49,61 @@ def main() -> None:
 
     new_text = text
 
-    # Restore the approved, compact FRL table typography without changing heading size.
+    # Restore the approved heading weight while deliberately keeping the exact existing size.
     new_text = replace_once(
         new_text,
-        r'(\.frl-player-header\s*\{.*?\n\s*font-size:)\.55rem(;)'.replace("\\", "\\"),
-        r'\g<1>.55rem\2',
-        "table heading size",
-    )
-    new_text = replace_once(
-        new_text,
-        r'(\.frl-player-header\s*\{.*?\n\s*font-weight:)820(;)'.replace("\\", "\\"),
+        r'(\.frl-player-header\s*\{.*?font-size\s*:\s*\.55rem\s*;\s*font-weight\s*:\s*)820(\s*;)',
         r'\g<1>800\2',
         "table heading weight",
     )
+    new_text = replace_once(
+        new_text,
+        r'(\.frl-player-header button\s*\{.*?font-size\s*:\s*\.55rem\s*;\s*font-weight\s*:\s*)820(\s*;)',
+        r'\g<1>800\2',
+        "sortable heading weight",
+    )
 
-    # Match the smaller/lighter player-name treatment from the approved Players design.
+    # Restore the lighter/smaller player-name emphasis used by the approved FRL player cards.
     new_text = replace_once(
         new_text,
         r'\.frl-name\s*\{[^}]*\}',
-        '.frl-name { font-size:.70rem; font-weight:720; }',
+        '.frl-name { font-size:.71rem; font-weight:720; }',
         "player name typography",
     )
 
-    # Position remains centred, numeric stats right aligned, descriptive columns left aligned.
-    new_text = replace_once(
-        new_text,
-        r'\.frl-pos\s*\{[^}]*\}',
-        '.frl-pos { color:#9aaa42; font-size:.70rem; font-weight:720; text-align:center; }',
-        "position alignment/typography",
-    )
-    new_text = replace_once(
-        new_text,
-        r'\.frl-num\s*\{[^}]*\}',
-        '.frl-num { text-align:right; }',
-        "numeric alignment",
-    )
-
-    # Slightly widen the descriptive columns so the table breathes without changing its structure.
-    old_grid = 'grid-template-columns:minmax(180px,1.8fr) 7.4rem 4rem 5rem 4rem 4rem 4.8rem 4.8rem 5.4rem 5.4rem;'
-    new_grid = 'grid-template-columns:minmax(190px,1.85fr) 8rem 4rem 4.8rem 4rem 4rem 4.8rem 4.8rem 5.4rem 5.4rem;'
-    if old_grid in new_text:
-        new_text = new_text.replace(old_grid, new_grid, 1)
-
-    # Preserve the working sortable-table architecture and FRL white surface.
-    if 'background:#fffdf8;' not in new_text:
-        raise SystemExit("ERROR: Players surface background marker missing. No changes made.")
-    if 'font-family:"Source Sans", sans-serif;' not in new_text:
-        raise SystemExit("ERROR: Players font-family marker missing. No changes made.")
+    # Do not change the table grid or alignment: the current component already has
+    # descriptive columns left aligned, position centred, and statistics right aligned.
 
     TARGET.write_text(new_text, encoding="utf-8")
 
     final = TARGET.read_text(encoding="utf-8-sig")
-    if "use_container_width" in final:
-        raise SystemExit("ERROR: deprecated use_container_width detected after patch.")
-    if '.frl-name { font-size:.70rem; font-weight:720; }' not in final:
-        raise SystemExit("ERROR: player-name typography patch did not land cleanly.")
-    if '.frl-pos { color:#9aaa42; font-size:.70rem; font-weight:720; text-align:center; }' not in final:
-        raise SystemExit("ERROR: position typography patch did not land cleanly.")
-    if '.frl-num { text-align:right; }' not in final:
-        raise SystemExit("ERROR: numeric alignment patch did not land cleanly.")
-    if 'background:#fffdf8;' not in final:
-        raise SystemExit("ERROR: Players white surface background was lost.")
-    if 'font-family:"Source Sans", sans-serif;' not in final:
-        raise SystemExit("ERROR: Players Source Sans font declaration was lost.")
+    checks = {
+        "deprecated API absent": "use_container_width" not in final,
+        "white FRL surface retained": "background:#fffdf8;" in final,
+        "Source Sans retained": 'font-family:"Source Sans", sans-serif;' in final,
+        "heading size retained": re.search(
+            r'\.frl-player-header\s*\{.*?font-size\s*:\s*\.55rem\s*;', final, re.DOTALL
+        ) is not None,
+        "heading weight restored": re.search(
+            r'\.frl-player-header\s*\{.*?font-weight\s*:\s*800\s*;', final, re.DOTALL
+        ) is not None,
+        "sortable heading weight restored": re.search(
+            r'\.frl-player-header button\s*\{.*?font-weight\s*:\s*800\s*;', final, re.DOTALL
+        ) is not None,
+        "player name weight restored": '.frl-name { font-size:.71rem; font-weight:720; }' in final,
+        "browser sorting retained": 'data-sort="G"' in final and 'data-sort="xG"' in final,
+    }
 
-    print("PASS: Players typography/alignment patch applied.")
+    failed = [name for name, passed in checks.items() if not passed]
+    if failed:
+        raise SystemExit(
+            "ERROR: post-write contract check failed: " + ", ".join(failed)
+        )
+
+    print("PASS: Players typography restored without changing table size/layout.")
     print("PASS: Instant browser-side sorting remains untouched.")
-    print("PASS: White FRL surface remains intact.")
-    print("PASS: Deprecated Streamlit API guard passed.")
+    print("PASS: White FRL surface and Source Sans declaration remain intact.")
+    print("PASS: No deprecated use_container_width API is present.")
     print("Review the Players page before committing the result.")
 
 
