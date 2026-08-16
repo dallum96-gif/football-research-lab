@@ -5,6 +5,7 @@ The Overview page is the visual benchmark for the entire application.
 Preserve:
 - FRL colour variables and theme
 - typography hierarchy
+- **the same font family and typography system across every workspace and component**
 - spacing rhythm
 - white/surface backgrounds
 - subtle borders
@@ -53,6 +54,8 @@ The following must remain true:
 - Table heading typography matches approved Players design.
 - Table heading colour matches approved Players design.
 - Table row typography matches approved Players design.
+- The Players table inherits the FRL/global font family; page-specific font families are not permitted.
+- The Players table uses the approved white/surface card background.
 - No separate Sort By control exists.
 - Clicking a sortable statistic changes row ordering only.
 - Clicking the same statistic again reverses ordering.
