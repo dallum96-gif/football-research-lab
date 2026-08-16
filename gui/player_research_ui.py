@@ -450,7 +450,7 @@ def render_player_research_ui():
             ("Goals / 90", fmt(player["goals_per_90"], 3)),
             ("Assists / 90", fmt(player["assists_per_90"], 3)),
             ("xG / 90", fmt(player["xg_per_90"], 3)),
-            ("xA / 90", fmt(player["xA_per_90"], 3)),
+            ("xA / 90", fmt(player["xa_per_90"], 3)),
             ("BPS / 90", fmt(player["bps_per_90"], 3)),
         ]
         for col, (label, value) in zip(rates, rate_values):
