@@ -4,7 +4,6 @@ import json
 
 import pandas as pd
 import streamlit as st
-from streamlit.components.v1 import html as components_html
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 if str(ROOT) not in sys.path:
@@ -169,9 +168,9 @@ def _render_player_table(players):
           border-bottom:1px solid rgba(24,23,20,.20);
           color:#989289;
           font-family:"Source Sans", sans-serif;
-          font-size:.55rem;
-          font-weight:820;
-          letter-spacing:.08em;
+          font-size:.57rem;
+          font-weight:800;
+          letter-spacing:.09em;
           line-height:1;
           text-transform:uppercase;
         }}
@@ -181,9 +180,9 @@ def _render_player_table(players):
           width:100%;
           color:#989289;
           font-family:"Source Sans", sans-serif;
-          font-size:.55rem;
-          font-weight:820;
-          letter-spacing:.08em;
+          font-size:.57rem;
+          font-weight:800;
+          letter-spacing:.09em;
           line-height:1;
           text-transform:uppercase;
           cursor:pointer;
@@ -211,9 +210,9 @@ def _render_player_table(players):
           white-space:nowrap;
           font-variant-numeric:tabular-nums;
         }}
-        .frl-name {{ font-weight:780; }}
+        .frl-name {{ font-size:.68rem; font-weight:760; }}
         .frl-club {{ color:#68645c; }}
-        .frl-pos {{ color:#9aaa42; font-weight:780; text-align:center; }}
+        .frl-pos {{ color:#9aaa42; font-weight:760; text-align:center; }}
         .frl-num {{ text-align:right; }}
         .frl-min {{ color:#171714; font-weight:820; }}
         .frl-goals {{ color:#e85d3f; font-weight:850; }}
@@ -280,7 +279,7 @@ def _render_player_table(players):
     </script>
     """
 
-    components_html(html, height=640, scrolling=False)
+    st.iframe(html, height=640, scrolling=False)
 
 
 def render_player_research_ui():
