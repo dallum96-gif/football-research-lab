@@ -17,7 +17,6 @@ ICONS = {
     "provenance": ":material/link:",
 }
 
-
 VALID_WORKSPACES = {
     "overview",
     "fixtures",
@@ -73,49 +72,20 @@ def render_workspace_sidebar(active_key):
 
     if selected == "head-to-head":
         from gui.head_to_head_ui import render_head_to_head
-
         render_head_to_head()
         st.stop()
 
     if selected == "players":
         from gui.player_research_ui import render_player_research_ui
-
-        st.markdown(
-            "<div class='frl-eyebrow'>Research</div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            "<div class='frl-entity-title'>Players</div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            "<div class='frl-context'>Player performance research across Premier League seasons</div>",
-            unsafe_allow_html=True,
-        )
-
+        st.markdown("<div class='frl-eyebrow'>Research</div>", unsafe_allow_html=True)
+        st.markdown("<div class='frl-entity-title'>Players</div>", unsafe_allow_html=True)
+        st.markdown("<div class='frl-context'>Player performance research across Premier League seasons</div>", unsafe_allow_html=True)
         render_player_research_ui()
         st.stop()
 
     if selected == "prediction":
-        st.markdown(
-            "<div class='frl-eyebrow'>Modelling</div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            "<div class='frl-entity-title'>Projection Lab</div>",
-            unsafe_allow_html=True,
-        )
-        st.markdown(
-            "<div class='frl-context'>Poisson projection workspace</div>",
-            unsafe_allow_html=True,
-        )
-
-        try:
-            from gui.projection_lab import render_projection_lab
-            render_projection_lab()
-        except Exception as exc:
-            st.error("Projection Lab could not be rendered.")
-            st.code(f"{type(exc).__name__}: {exc}")
+        from gui.projection_lab_v2 import render_projection_lab
+        render_projection_lab()
         st.stop()
 
     return selected
