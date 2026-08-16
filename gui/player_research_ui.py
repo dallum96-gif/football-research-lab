@@ -168,7 +168,7 @@ def _render_player_table(players):
 
     categories = {
         "Attacking": ["Goals", "Assists", "xG", "xA", "xGI", "Shots", "Shots on Target", "Dribbles"],
-        "Passing": ["Attempted Passes", "Completed Passes", "Key Passes", "Big Chances Created"],
+        "Passing": ["Attempted Passes", "Completed Passes", "Key Passes", "Creativity", "Big Chances Created"],
         "Defending": ["Tackles", "Interceptions", "Recoveries", "Clearances", "Clean Sheets", "Goals Conceded"],
         "Goalkeeping": ["Saves", "Goals Conceded", "Penalties Saved"],
         "FPL": ["FPL Points", "Bonus", "BPS", "DefCon", "ICT Influence", "ICT Creativity", "ICT Threat", "ICT Index"],
