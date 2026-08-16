@@ -50,6 +50,12 @@ def render_workspace_sidebar(active_key):
                 st.session_state["frl_workspace"] = item.key
                 st.rerun()
 
+    if selected == "head-to-head":
+        from gui.head_to_head_ui import render_head_to_head
+
+        render_head_to_head()
+        st.stop()
+
     return selected
 
 
