@@ -18,7 +18,7 @@ NAVIGATION = (
     NavigationItem("players", "Players", "Research", "Search and filter player research across the available seasons."),
     NavigationItem("head-to-head", "Head-to-Head", "Analysis", "Compare two clubs across their shared Premier League history."),
     NavigationItem("form", "Form & Streaks", "Analysis", "Inspect recent form, match ranges and current streaks."),
-    NavigationItem("prediction", "Projection Lab", "Analysis", "Explore prospective fixtures using the current Poisson projection model."),
+    NavigationItem("prediction", "Projection Lab", "Analysis", "Project a prospective Premier League fixture using the Poisson model."),
     NavigationItem("data-quality", "Data Quality", "Data & Evidence", "Inspect data completeness and quality controls."),
     NavigationItem("provenance", "Provenance", "Data & Evidence", "Inspect the sources and lineage behind research outputs."),
 )
