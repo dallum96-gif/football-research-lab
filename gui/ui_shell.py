@@ -56,6 +56,12 @@ def render_workspace_sidebar(active_key):
         render_head_to_head()
         st.stop()
 
+    if selected == "players":
+        from gui.player_research_ui import render_player_research_ui
+
+        render_player_research_ui()
+        st.stop()
+
     return selected
 
 
