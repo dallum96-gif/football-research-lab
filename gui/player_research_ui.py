@@ -54,50 +54,90 @@ def _player_css():
     st.markdown(
         """
         <style>
-        .frl-player-kicker {
+        .frl-player-hero {
+            margin-top: .9rem;
+            padding: 1.1rem 1.15rem 1rem;
+            border: 1px solid var(--frl-border);
+            border-radius: 14px;
+            background: var(--frl-surface);
+        }
+        .frl-player-hero-kicker {
             color: var(--frl-accent);
-            font-size: .62rem;
+            font-size: .57rem;
             font-weight: 820;
-            letter-spacing: .15em;
+            letter-spacing: .14em;
             text-transform: uppercase;
-            margin-bottom: .35rem;
         }
-        .frl-player-title {
+        .frl-player-hero-title {
+            margin-top: .38rem;
             color: var(--frl-text);
-            font-size: 2.05rem;
-            font-weight: 820;
-            line-height: 1.04;
-            letter-spacing: -.035em;
+            font-size: clamp(1.55rem, 2.7vw, 2.15rem);
+            font-weight: 840;
+            letter-spacing: -.04em;
+            line-height: 1.03;
         }
-        .frl-player-context {
+        .frl-player-hero-note {
+            margin-top: .35rem;
             color: var(--frl-muted);
-            font-size: .84rem;
-            margin-top: .28rem;
+            font-size: .71rem;
+            line-height: 1.35;
+        }
+        .frl-player-card {
+            padding: .88rem .95rem;
+            border: 1px solid var(--frl-border);
+            border-radius: 12px;
+            background: var(--frl-surface);
+        }
+        .frl-player-card-label {
+            color: var(--frl-muted-soft);
+            font-size: .55rem;
+            font-weight: 820;
+            letter-spacing: .11em;
+            text-transform: uppercase;
+        }
+        .frl-player-card-value {
+            margin-top: .23rem;
+            color: var(--frl-text);
+            font-size: 1.45rem;
+            font-weight: 850;
+            letter-spacing: -.03em;
+        }
+        .frl-player-card-note {
+            margin-top: .12rem;
+            color: var(--frl-muted);
+            font-size: .63rem;
         }
         .frl-player-section {
+            margin-top: 1.1rem;
+            margin-bottom: .42rem;
             color: var(--frl-accent);
             font-size: .60rem;
             font-weight: 820;
             letter-spacing: .14em;
             text-transform: uppercase;
-            margin-top: 1.25rem;
-            margin-bottom: .42rem;
         }
         .frl-player-note {
             color: var(--frl-muted-soft);
-            font-size: .68rem;
+            font-size: .67rem;
             line-height: 1.35;
         }
         .frl-player-result-note {
             color: var(--frl-muted);
-            font-size: .73rem;
-            margin-top: .35rem;
+            font-size: .70rem;
+            margin-top: .28rem;
         }
-        div[data-testid="stRadio"] label {
-            color: var(--frl-text) !important;
-            font-size: .72rem !important;
-            font-weight: 720 !important;
+        .frl-player-detail-title {
+            color: var(--frl-text);
+            font-size: 1.35rem;
+            font-weight: 830;
+            letter-spacing: -.03em;
         }
+        .frl-player-detail-note {
+            margin-top: .2rem;
+            color: var(--frl-muted);
+            font-size: .68rem;
+        }
+        div[data-testid="stRadio"] label,
         div[data-testid="stRadio"] [data-testid="stMarkdownContainer"] p {
             color: var(--frl-text) !important;
         }
@@ -110,22 +150,24 @@ def _player_css():
             letter-spacing: .10em !important;
             text-transform: uppercase !important;
         }
-        div[data-baseweb="select"] > div {
+        div[data-baseweb="select"] > div,
+        div[data-testid="stTextInput"] input,
+        div[data-testid="stNumberInput"] input {
             background: var(--frl-surface-raised) !important;
             color: var(--frl-text) !important;
             border: 1px solid var(--frl-border) !important;
-            border-radius: 7px !important;
-            min-height: 2.05rem !important;
-            box-shadow: 0 2px 8px rgba(24,23,20,.025) !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
         }
         div[data-baseweb="select"] * {
             color: var(--frl-text) !important;
         }
         div[data-baseweb="select"] > div:hover,
-        div[data-baseweb="select"] > div:focus-within {
-            background: var(--frl-surface-raised) !important;
+        div[data-baseweb="select"] > div:focus-within,
+        div[data-testid="stTextInput"] input:focus,
+        div[data-testid="stNumberInput"] input:focus {
             border-color: var(--frl-accent) !important;
-            box-shadow: 0 0 0 2px rgba(232,93,63,.10) !important;
+            box-shadow: 0 0 0 2px rgba(232,93,63,.09) !important;
         }
         div[data-baseweb="popover"],
         div[data-baseweb="menu"] {
@@ -136,19 +178,7 @@ def _player_css():
             color: var(--frl-text) !important;
         }
         div[data-baseweb="menu"] li:hover {
-            background: rgba(232,93,63,.09) !important;
-        }
-        div[data-testid="stTextInput"] input,
-        div[data-testid="stNumberInput"] input {
-            background: var(--frl-surface-raised) !important;
-            color: var(--frl-text) !important;
-            border: 1px solid var(--frl-border) !important;
-            border-radius: 7px !important;
-        }
-        div[data-testid="stTextInput"] input:focus,
-        div[data-testid="stNumberInput"] input:focus {
-            border-color: var(--frl-accent) !important;
-            box-shadow: 0 0 0 2px rgba(232,93,63,.10) !important;
+            background: rgba(232,93,63,.08) !important;
         }
         div[data-testid="stDataFrame"] {
             border: 1px solid var(--frl-border) !important;
@@ -166,15 +196,11 @@ def render_player_research_ui():
     _player_css()
 
     st.markdown(
-        "<div class='frl-player-kicker'>Explore</div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        "<div class='frl-player-title'>Players</div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        "<div class='frl-player-context'>Find and compare Premier League player performance.</div>",
+        "<div class='frl-player-hero'>"
+        "<div class='frl-player-hero-kicker'>Research</div>"
+        "<div class='frl-player-hero-title'>Find the players worth investigating.</div>"
+        "<div class='frl-player-hero-note'>Search, filter and compare Premier League player performance across seasons without leaving the lab.</div>"
+        "</div>",
         unsafe_allow_html=True,
     )
 
@@ -184,7 +210,6 @@ def render_player_research_ui():
     )
 
     seasons = list(player_research.available_seasons())
-
     if not seasons:
         st.error("No player data available.")
         return
@@ -235,11 +260,31 @@ def render_player_research_ui():
                 )
             )
 
-        st.markdown(
-            f"<div class='frl-player-note'>{len(selected_seasons)} seasons selected · "
-            f"{selected_seasons[0]} → {selected_seasons[-1]}</div>",
-            unsafe_allow_html=True,
-        )
+    scope_label = (
+        f"{selected_seasons[0]} → {selected_seasons[-1]}"
+        if len(selected_seasons) > 1
+        else selected_seasons[0]
+    )
+
+    st.markdown(
+        "<div class='frl-player-section'>Scope at a glance</div>",
+        unsafe_allow_html=True,
+    )
+
+    scope_cards = st.columns(3, gap="small")
+    scope_items = [
+        ("Seasons", len(selected_seasons), scope_label),
+        ("Players", len(players), "available in this scope"),
+        ("Positions", len({p['position'] for p in players if p['position']}), "represented"),
+    ]
+    for col, (label, value, note) in zip(scope_cards, scope_items):
+        with col:
+            st.markdown(
+                f"<div class='frl-player-card'><div class='frl-player-card-label'>{label}</div>"
+                f"<div class='frl-player-card-value'>{value:,}</div>"
+                f"<div class='frl-player-card-note'>{note}</div></div>",
+                unsafe_allow_html=True,
+            )
 
     st.markdown(
         "<div class='frl-player-section'>Find players</div>",
@@ -382,10 +427,12 @@ def render_player_research_ui():
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        f"<div class='frl-player-result-note'>{len(filtered)} player(s) match the current criteria.</div>",
-        unsafe_allow_html=True,
-    )
+    result_cols = st.columns([2.4, 1.2], gap="small")
+    with result_cols[0]:
+        st.markdown(
+            f"<div class='frl-player-result-note'>{len(filtered):,} player(s) match the current criteria · {scope_label}</div>",
+            unsafe_allow_html=True,
+        )
 
     if not filtered:
         st.info("No players match the current criteria.")
@@ -406,7 +453,7 @@ def render_player_research_ui():
         "BPS": "bps",
     }
 
-    sort_cols = st.columns([2.5, 1], gap="medium")
+    sort_cols = st.columns([1.4, 1], gap="medium")
 
     with sort_cols[0]:
         sort_label = st.selectbox(
@@ -479,38 +526,45 @@ def render_player_research_ui():
     )
 
     st.markdown(
-        f"<div style='color:var(--frl-text);font-size:1.35rem;"
-        f"font-weight:820;letter-spacing:-.025em;'>"
-        f"{player['player_name']}</div>",
-        unsafe_allow_html=True,
-    )
-
-    scope_label = (
-        f"{selected_seasons[0]} → {selected_seasons[-1]}"
-        if mode == "Multiple seasons"
-        else selected_seasons[0]
-    )
-
-    st.markdown(
-        f"<div class='frl-player-note'>{', '.join(player['clubs'])} · "
-        f"{player['position']} · {scope_label}</div>",
+        "<div class='frl-player-card' style='margin-top:.35rem;'>"
+        f"<div class='frl-player-detail-title'>{player['player_name']}</div>"
+        f"<div class='frl-player-detail-note'>{', '.join(player['clubs'])} · {player['position']} · {scope_label}</div>"
+        "</div>",
         unsafe_allow_html=True,
     )
 
     metrics = st.columns(6, gap="small")
-    metrics[0].metric("Minutes", f"{int(player['minutes']):,}")
-    metrics[1].metric("Goals", int(player["goals"]))
-    metrics[2].metric("Assists", int(player["assists"]))
-    metrics[3].metric("xG", fmt(player["xg"]))
-    metrics[4].metric("xA", fmt(player["xa"]))
-    metrics[5].metric("FPL points", int(player["points"]))
+    metric_values = [
+        ("Minutes", f"{int(player['minutes']):,}"),
+        ("Goals", int(player["goals"])),
+        ("Assists", int(player["assists"])),
+        ("xG", fmt(player["xg"])),
+        ("xA", fmt(player["xa"])),
+        ("FPL points", int(player["points"])),
+    ]
+    for col, (label, value) in zip(metrics, metric_values):
+        with col:
+            st.markdown(
+                f"<div class='frl-player-card'><div class='frl-player-card-label'>{label}</div>"
+                f"<div class='frl-player-card-value'>{value}</div></div>",
+                unsafe_allow_html=True,
+            )
 
     rates = st.columns(5, gap="small")
-    rates[0].metric("Goals / 90", fmt(player["goals_per_90"], 3))
-    rates[1].metric("Assists / 90", fmt(player["assists_per_90"], 3))
-    rates[2].metric("xG / 90", fmt(player["xg_per_90"], 3))
-    rates[3].metric("xA / 90", fmt(player["xa_per_90"], 3))
-    rates[4].metric("BPS / 90", fmt(player["bps_per_90"], 3))
+    rate_values = [
+        ("Goals / 90", fmt(player["goals_per_90"], 3)),
+        ("Assists / 90", fmt(player["assists_per_90"], 3)),
+        ("xG / 90", fmt(player["xg_per_90"], 3)),
+        ("xA / 90", fmt(player["xa_per_90"], 3)),
+        ("BPS / 90", fmt(player["bps_per_90"], 3)),
+    ]
+    for col, (label, value) in zip(rates, rate_values):
+        with col:
+            st.markdown(
+                f"<div class='frl-player-card'><div class='frl-player-card-label'>{label}</div>"
+                f"<div class='frl-player-card-value' style='font-size:1.15rem;'>{value}</div></div>",
+                unsafe_allow_html=True,
+            )
 
     with st.expander("Underlying records"):
         records = []
@@ -518,16 +572,16 @@ def render_player_research_ui():
             records.append(
                 {
                     "Season": row.get("_season", ""),
-                    "Minutes": int(float(row.get("minutes", 0) or 0)),
-                    "Goals": int(float(row.get("goals_scored", 0) or 0)),
-                    "Assists": int(float(row.get("assists", 0) or 0)),
-                    "xG": row.get("expected_goals", ""),
-                    "xA": row.get("expected_assists", ""),
-                    "FPL": int(float(row.get("total_points", 0) or 0)),
-                    "BPS": int(float(row.get("bps", 0) or 0)),
+                    "Player ID": row.get("element", row.get("player_code", "")),
+                    "Club": row.get("_club", ""),
+                    "Minutes": row.get("minutes", 0),
+                    "Goals": row.get("goals_scored", 0),
+                    "Assists": row.get("assists", 0),
+                    "xG": row.get("expected_goals", 0),
+                    "xA": row.get("expected_assists", 0),
+                    "FPL points": row.get("total_points", 0),
                 }
             )
-
         st.dataframe(
             pd.DataFrame(records),
             width="stretch",
