@@ -33,6 +33,10 @@ SUM_METRICS = {
     "key_passes": "key_passes",
     "big_chances_created": "big_chances_created",
     "dribbles": "dribbles",
+    "ict_influence": "influence",
+    "ict_creativity": "creativity",
+    "ict_threat": "threat",
+    "ict_index": "ict_index",
 }
 
 DERIVED_METRICS = {
