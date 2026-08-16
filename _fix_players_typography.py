@@ -63,12 +63,21 @@ def main() -> None:
         "sortable heading weight",
     )
 
-    # Restore the lighter/smaller player-name emphasis used by the approved FRL player cards.
+    # Restore the lighter player-name emphasis used by the approved FRL player cards.
+    # The table HTML lives inside an f-string, so the CSS braces must be doubled in the
+    # Python source we write back to disk.
     new_text = replace_once(
         new_text,
         r'\.frl-name\s*\{[^}]*\}',
-        '.frl-name { font-size:.71rem; font-weight:720; }',
+        '.frl-name {{ font-size:.71rem; font-weight:720; }}',
         "player name typography",
+    )
+
+    # Repair the malformed single-brace form from the previous patch if it is present.
+    new_text = new_text.replace(
+        '.frl-name { font-size:.71rem; font-weight:720; }',
+        '.frl-name {{ font-size:.71rem; font-weight:720; }}',
+        1,
     )
 
     # Do not change the table grid or alignment: the current component already has
@@ -90,7 +99,7 @@ def main() -> None:
         "sortable heading weight restored": re.search(
             r'\.frl-player-header button\s*\{.*?font-weight\s*:\s*800\s*;', final, re.DOTALL
         ) is not None,
-        "player name weight restored": '.frl-name { font-size:.71rem; font-weight:720; }' in final,
+        "player name weight restored": '.frl-name {{ font-size:.71rem; font-weight:720; }}' in final,
         "browser sorting retained": 'data-sort="G"' in final and 'data-sort="xG"' in final,
     }
 
