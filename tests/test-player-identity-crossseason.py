@@ -22,16 +22,19 @@ def test_anchor_maps_shape():
             }
         }
     }
-    source_to_names, source_to_teams, fpl_to_source = player_identity_crossseason_audit.build_anchor_maps(report)
-    assert source_to_names["934235"] == {"bukayo saka"}
+    fpl_to_source_ids, source_to_fpl_codes, source_to_teams = (
+        player_identity_crossseason_audit.build_anchor_maps(report)
+    )
+    assert fpl_to_source_ids["123"] == {"934235"}
+    assert source_to_fpl_codes["934235"] == {"123"}
     assert source_to_teams["934235"] == {"3"}
-    assert fpl_to_source[("2025-26", "123")] == {"934235"}
 
 
 def test_crossseason_shape():
     report = {
         "seasons": {
             "2025-26": {
+                "season": "2025-26",
                 "exact": [],
                 "missing": [
                     {
@@ -46,9 +49,9 @@ def test_crossseason_shape():
     result = player_identity_crossseason_audit.audit_crossseason(report)
     assert set(result) == {
         "anchored_source_ids",
-        "alias_candidates",
+        "confirmed",
         "unresolved",
-        "crossseason_name_variants",
+        "crossseason_variants",
     }
 
 
