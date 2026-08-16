@@ -40,27 +40,32 @@ def test_player_detail_starts_collapsed():
     assert 'st.expander("Player detail", expanded=False)' in source
 
 
-def test_data_table_appears_before_player_detail():
+def test_player_data_renders_before_advanced_and_detail_sections():
     source = _render_source()
-    table_pos = source.find("st.dataframe(")
+    table_pos = source.find("_render_player_table(filtered)")
+    advanced_pos = source.find('st.expander("Advanced conditions"')
     detail_pos = source.find('st.expander("Player detail"')
-    assert table_pos != -1 and detail_pos != -1
-    assert table_pos < detail_pos
+    assert table_pos != -1 and advanced_pos != -1 and detail_pos != -1
+    assert advanced_pos > table_pos or advanced_pos == -1
+    assert detail_pos > table_pos
 
 
 def test_no_separate_sort_by_control():
     source = _render_source()
     assert '"Sort by"' not in source
     assert "sort_options" not in source
-    assert "_toggle_sort" not in source
+    assert "st.button(" not in source
+    assert "<a " not in source
 
 
-def test_native_table_sorting_is_used():
-    source = _render_source()
-    assert "st.dataframe(" in source
-    assert 'width="stretch"' in source
-    assert "G/90" in source
-    assert "xG/90" in source
+def test_custom_table_and_client_side_sorting_are_used():
+    source = _source()
+    assert "components_html(" in source
+    assert "data-sort" in source
+    assert "addEventListener('click'" in source
+    assert "state.desc = !state.desc" in source
+    assert "frl-player-grid" in source
+    assert "frl-player-row" in source
 
 
 def test_deprecated_streamlit_width_api_absent():
@@ -70,8 +75,9 @@ def test_deprecated_streamlit_width_api_absent():
 
 def test_table_surface_and_heading_contract_present():
     source = _source()
-    assert "background: var(--frl-surface)" in source
-    assert "frl-player-table" in source
-    assert "font-size: .55rem" in source
-    assert "font-weight: 820" in source
-    assert "var(--frl-muted-soft)" in source
+    assert "background:var(--frl-surface)" in source
+    assert "frl-player-header" in source
+    assert "font-size:.55rem" in source
+    assert "font-weight:820" in source
+    assert "color:#7a8491" in source
+    assert "frl-player-row" in source
