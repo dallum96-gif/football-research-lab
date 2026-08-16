@@ -141,11 +141,21 @@ def _render_player_table(players):
     <div id="frl-player-table" class="frl-player-table">
       <style>
         * {{ box-sizing: border-box; }}
-        html, body {{ margin:0; padding:0; background:transparent; }}
+        html, body {{
+          margin:0;
+          padding:0;
+          background:#fffdf8;
+          font-family:"Source Sans", sans-serif;
+        }}
         .frl-player-table {{
           width:100%;
-          font-family:inherit;
-          color:#1f2937;
+          padding:.78rem .9rem .5rem;
+          border:1px solid rgba(24,23,20,.11);
+          border-radius:14px;
+          background:#fffdf8;
+          font-family:"Source Sans", sans-serif;
+          color:#171714;
+          overflow:hidden;
         }}
         .frl-player-grid {{
           display:grid;
@@ -156,23 +166,30 @@ def _render_player_table(players):
         }}
         .frl-player-header {{
           padding:0 0 .5rem;
-          border-bottom:1px solid #e1e4e8;
-          color:#7a8491;
+          border-bottom:1px solid rgba(24,23,20,.20);
+          color:#989289;
+          font-family:"Source Sans", sans-serif;
           font-size:.55rem;
           font-weight:820;
           letter-spacing:.08em;
+          line-height:1;
           text-transform:uppercase;
         }}
         .frl-player-header button {{
           all:unset;
           display:block;
           width:100%;
-          color:#7a8491;
-          font:inherit;
+          color:#989289;
+          font-family:"Source Sans", sans-serif;
+          font-size:.55rem;
+          font-weight:820;
+          letter-spacing:.08em;
+          line-height:1;
+          text-transform:uppercase;
           cursor:pointer;
           text-align:right;
         }}
-        .frl-player-header button:hover {{ color:#7a8491; }}
+        .frl-player-header button:hover {{ color:#989289; }}
         .frl-player-header .static {{ text-align:left; cursor:default; }}
         .frl-player-rows {{
           max-height:560px;
@@ -181,8 +198,9 @@ def _render_player_table(players):
         }}
         .frl-player-row {{
           min-height:2.45rem;
-          border-bottom:1px solid #eceef1;
-          color:#1f2937;
+          border-bottom:1px solid rgba(24,23,20,.11);
+          color:#171714;
+          font-family:"Source Sans", sans-serif;
           font-size:.71rem;
         }}
         .frl-player-row:last-child {{ border-bottom:0; }}
@@ -194,12 +212,12 @@ def _render_player_table(players):
           font-variant-numeric:tabular-nums;
         }}
         .frl-name {{ font-weight:780; }}
-        .frl-club {{ color:#6f7782; }}
-        .frl-pos {{ color:#c76545; font-weight:780; text-align:center; }}
+        .frl-club {{ color:#68645c; }}
+        .frl-pos {{ color:#9aaa42; font-weight:780; text-align:center; }}
         .frl-num {{ text-align:right; }}
-        .frl-min {{ color:#1f2937; font-weight:820; }}
+        .frl-min {{ color:#171714; font-weight:820; }}
         .frl-goals {{ color:#e85d3f; font-weight:850; }}
-        .frl-foot {{ margin-top:.55rem; color:#8a929c; font-size:.61rem; }}
+        .frl-foot {{ margin-top:.55rem; color:#989289; font-family:"Source Sans", sans-serif; font-size:.61rem; }}
       </style>
       <div class="frl-player-grid frl-player-header">
         <div><button class="static" type="button">Player</button></div>
@@ -219,7 +237,6 @@ def _render_player_table(players):
     <script>
       const data = {payload};
       const state = {{ key: 'G', desc: true }};
-      const numeric = new Set(['Min','G','A','xG','xA','G/90','xG/90']);
       const rows = document.getElementById('frl-player-rows');
 
       function render() {{
