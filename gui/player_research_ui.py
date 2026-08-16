@@ -161,6 +161,19 @@ def _render_player_table(players):
         row['Penalties Missed'] = player.get('penalties_missed')
         rows.append(row)
 
+    categories = {
+        "Attacking": ["Goals", "Assists", "xG", "xA", "xGI", "Shots", "Shots on Target"],
+        "Creativity": ["Creativity", "Crosses"],
+        "Defending": ["Tackles", "Interceptions", "Recoveries", "Clearances", "Clean Sheets", "Goals Conceded", "DefCon"],
+        "Goalkeeping": ["Saves", "Goals Conceded", "Penalties Saved"],
+        "FPL": ["FPL Points", "Bonus", "BPS"],
+        "ICT": ["ICT Influence", "ICT Creativity", "ICT Threat", "ICT Index"],
+        "Playing Time": ["Minutes", "Starts", "Appearances", "Seasons"],
+        "Discipline": ["Yellow Cards", "Red Cards", "Own Goals", "Penalties Missed"],
+    }
+
+    category_json = json.dumps(categories)
+
     payload = json.dumps(rows).replace("</", "<\\/")
 
     html = """
@@ -459,5 +472,6 @@ def render_player_research_ui():
                     "FPL points": row.get("total_points", 0),
                 })
             st.dataframe(pd.DataFrame(records), width="stretch", hide_index=True)
+
 
 
