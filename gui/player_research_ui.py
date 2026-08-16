@@ -1,6 +1,7 @@
 from pathlib import Path
 import sys
 
+import pandas as pd
 import streamlit as st
 
 ROOT = Path(__file__).resolve().parent.parent.parent
@@ -41,23 +42,13 @@ OPERATORS = [
     "Equals",
 ]
 
-SORTABLE_COLUMNS = {
-    "Min": ("minutes", "number"),
-    "G": ("goals", "number"),
-    "A": ("assists", "number"),
-    "xG": ("xg", "number"),
-    "xA": ("xa", "number"),
-    "G/90": ("goals_per_90", "number"),
-    "xG/90": ("xg_per_90", "number"),
-}
-
 
 def fmt(value, decimals=2):
     if value is None:
         return "—"
     if decimals == 0:
         return f"{int(round(value)):,}"
-    return f"{float(value):.{decimals}f}"
+    return f"{value:.{decimals}f}"
 
 
 def _player_css():
@@ -65,164 +56,95 @@ def _player_css():
         """
         <style>
         .frl-player-intro {
-            margin-top:.7rem;
-            color:var(--frl-muted);
-            font-size:.78rem;
-            line-height:1.45;
+            margin-top: .7rem;
+            color: var(--frl-muted);
+            font-size: .78rem;
+            line-height: 1.45;
+        }
+        .frl-player-filter-note {
+            color: var(--frl-muted-soft);
+            font-size: .66rem;
+            line-height: 1.35;
+            margin-top: .3rem;
         }
         .frl-player-result-line {
-            margin:.45rem 0 .55rem;
-            color:var(--frl-muted);
-            font-size:.72rem;
+            margin: .45rem 0 .65rem;
+            color: var(--frl-muted);
+            font-size: .72rem;
         }
         .frl-player-table {
-            margin-top:.25rem;
-            padding:.78rem .9rem .5rem;
-            border:1px solid var(--frl-border);
-            border-radius:14px;
-            background:var(--frl-surface);
-            overflow-x:auto;
+            margin-top: .25rem;
+            padding: .85rem .95rem .55rem;
+            border: 1px solid var(--frl-border);
+            border-radius: 14px;
+            background: var(--frl-surface);
+            overflow-x: auto;
         }
-        .frl-player-table-header,
-        .frl-player-table-row {
-            display:grid;
-            grid-template-columns:minmax(180px,1.8fr) 7.4rem 4rem 5rem 4rem 4rem 4.8rem 4.8rem 5.4rem 5.4rem;
-            gap:.22rem;
-            align-items:center;
-            min-width:760px;
+        .frl-player-table-heading {
+            padding: 0 0 .55rem;
+            border-bottom: 1px solid var(--frl-border-strong);
+            color: var(--frl-muted-soft);
+            font-size: .55rem;
+            font-weight: 820;
+            letter-spacing: .08em;
+            text-transform: uppercase;
         }
-        .frl-player-table-header {
-            padding:0 0 .5rem;
-            border-bottom:1px solid var(--frl-border-strong);
-        }
-        .frl-player-header-spacer,
-        .frl-player-sort-wrap .stButton > button,
-        .frl-player-sort-wrap .stButton > button p {
-            color:var(--frl-muted-soft) !important;
-            font-size:.55rem !important;
-            font-weight:820 !important;
-            letter-spacing:.08em !important;
-            line-height:1 !important;
-            text-transform:uppercase !important;
-            font-family:inherit !important;
-        }
-        .frl-player-header-spacer {
-            padding:.1rem 0;
-        }
-        .frl-player-sort-wrap .stButton {
-            margin:0 !important;
-            padding:0 !important;
-        }
-        .frl-player-sort-wrap .stButton > button {
-            min-height:1.15rem !important;
-            height:1.15rem !important;
-            padding:.1rem 0 !important;
-            border:0 !important;
-            background:transparent !important;
-            box-shadow:none !important;
-            justify-content:flex-end !important;
-            align-items:center !important;
-        }
-        .frl-player-sort-wrap .stButton > button:hover,
-        .frl-player-sort-wrap .stButton > button:focus,
-        .frl-player-sort-wrap .stButton > button:active {
-            color:var(--frl-muted-soft) !important;
-            background:transparent !important;
-            border:0 !important;
-            box-shadow:none !important;
-        }
-        .frl-player-sort-wrap .stButton > button p {
-            margin:0 !important;
-            padding:0 !important;
-        }
-        .frl-player-table-row {
-            min-height:2.45rem;
-            border-bottom:1px solid var(--frl-border);
-            color:var(--frl-text);
-            font-size:.71rem;
-        }
-        .frl-player-table-row:last-child { border-bottom:0; }
-        .frl-player-table-cell {
-            padding:.22rem 0;
-            overflow:hidden;
-            text-overflow:ellipsis;
-            white-space:nowrap;
-            font-variant-numeric:tabular-nums;
-        }
-        .frl-player-name { font-weight:780; }
-        .frl-player-club { color:var(--frl-muted); }
-        .frl-player-pos { color:var(--frl-secondary); font-weight:780; text-align:center; }
-        .frl-player-num { text-align:right; }
-        .frl-player-min { color:var(--frl-text); font-weight:820; }
-        .frl-player-highlight { color:var(--frl-accent); font-weight:850; }
-        .frl-empty-state {
-            color:var(--frl-muted);
-            padding:.9rem 0;
-            border-top:1px solid var(--frl-border);
-            border-bottom:1px solid var(--frl-border);
-            font-size:.8rem;
+        .frl-player-table .stDataFrame {
+            margin-top: 0 !important;
+            background: transparent !important;
         }
         .frl-player-detail-title {
-            color:var(--frl-text);
-            font-size:1.28rem;
-            font-weight:830;
-            letter-spacing:-.03em;
+            color: var(--frl-text);
+            font-size: 1.28rem;
+            font-weight: 830;
+            letter-spacing: -.03em;
         }
         .frl-player-detail-note { margin-top:.18rem; color:var(--frl-muted); font-size:.68rem; }
         .frl-player-card {
-            padding:.78rem .86rem;
-            border-top:2px solid var(--frl-text);
-            border-bottom:1px solid var(--frl-border);
-            background:transparent;
+            padding: .78rem .86rem;
+            border-top: 2px solid var(--frl-text);
+            border-bottom: 1px solid var(--frl-border);
+            background: transparent;
         }
         .frl-player-card-label {
-            color:var(--frl-muted-soft);
-            font-size:.54rem;
-            font-weight:820;
-            letter-spacing:.10em;
-            text-transform:uppercase;
+            color: var(--frl-muted-soft);
+            font-size: .54rem;
+            font-weight: 820;
+            letter-spacing: .10em;
+            text-transform: uppercase;
         }
         .frl-player-card-value {
-            margin-top:.18rem;
-            color:var(--frl-text);
-            font-size:1.25rem;
-            font-weight:850;
-            letter-spacing:-.03em;
+            margin-top: .18rem;
+            color: var(--frl-text);
+            font-size: 1.25rem;
+            font-weight: 850;
+            letter-spacing: -.03em;
         }
         div[data-testid="stTextInput"] input {
-            background:var(--frl-surface-raised) !important;
-            color:var(--frl-text) !important;
-            border:1px solid var(--frl-border) !important;
-            border-radius:8px !important;
+            background: var(--frl-surface-raised) !important;
+            color: var(--frl-text) !important;
+            border: 1px solid var(--frl-border) !important;
+            border-radius: 8px !important;
         }
         div[data-testid="stTextInput"] input:focus {
-            border-color:var(--frl-accent) !important;
-            box-shadow:0 0 0 2px rgba(232,93,63,.09) !important;
+            border-color: var(--frl-accent) !important;
+            box-shadow: 0 0 0 2px rgba(232,93,63,.09) !important;
+        }
+        div[data-testid="stDataFrame"] [role="columnheader"] {
+            color: var(--frl-muted-soft) !important;
+            font-size: .55rem !important;
+            font-weight: 820 !important;
+            letter-spacing: .08em !important;
+            text-transform: uppercase !important;
+        }
+        div[data-testid="stDataFrame"] [role="gridcell"] {
+            color: var(--frl-text) !important;
+            font-size: .71rem !important;
         }
         </style>
         """,
         unsafe_allow_html=True,
     )
-
-
-def _player_sort_key(player, column):
-    field, kind = SORTABLE_COLUMNS[column]
-    value = player.get(field)
-    if value is None:
-        return float("-inf")
-    return float(value)
-
-
-def _toggle_sort(column):
-    current = st.session_state.get("pr_table_sort", "G")
-    descending = st.session_state.get("pr_table_desc", True)
-    if current == column:
-        descending = not descending
-    else:
-        descending = True
-    st.session_state["pr_table_sort"] = column
-    st.session_state["pr_table_desc"] = descending
-    st.rerun()
 
 
 def render_player_research_ui():
@@ -234,7 +156,7 @@ def render_player_research_ui():
         return
 
     st.markdown(
-        "<div class='frl-player-intro'>Browse the player data first. Use the research filters only when you need to narrow the evidence.</div>",
+        "<div class='frl-player-intro'>Browse the player data first. Use the two research filters below when you want to narrow the evidence.</div>",
         unsafe_allow_html=True,
     )
 
@@ -247,56 +169,146 @@ def render_player_research_ui():
         )
 
         if mode == "Single season":
-            season = st.selectbox("Season", seasons, index=len(seasons) - 1, key="pr_single_season")
+            season = st.selectbox(
+                "Season",
+                seasons,
+                index=len(seasons) - 1,
+                key="pr_single_season",
+            )
             selected_seasons = [season]
             with st.spinner("Loading players…"):
                 players = list(player_research.season_players(season))
         else:
             scope_cols = st.columns(2, gap="medium")
             with scope_cols[0]:
-                start_season = st.selectbox("From", seasons, index=max(0, len(seasons) - 5), key="pr_start_season")
+                start_season = st.selectbox(
+                    "From",
+                    seasons,
+                    index=max(0, len(seasons) - 5),
+                    key="pr_start_season",
+                )
             with scope_cols[1]:
-                end_season = st.selectbox("To", seasons, index=len(seasons) - 1, key="pr_end_season")
+                end_season = st.selectbox(
+                    "To",
+                    seasons,
+                    index=len(seasons) - 1,
+                    key="pr_end_season",
+                )
 
             low = min(seasons.index(start_season), seasons.index(end_season))
             high = max(seasons.index(start_season), seasons.index(end_season))
             selected_seasons = seasons[low:high + 1]
-            with st.spinner(f"Loading {len(selected_seasons)} seasons…"):
-                players = list(player_research.multi_season_players(selected_seasons[0], selected_seasons[-1]))
 
-        positions = sorted({p["position"] for p in players if p["position"]})
-        clubs = sorted({club for p in players for club in p["clubs"]}, key=str.casefold)
+            with st.spinner(f"Loading {len(selected_seasons)} seasons…"):
+                players = list(
+                    player_research.multi_season_players(
+                        selected_seasons[0],
+                        selected_seasons[-1],
+                    )
+                )
+
+        positions = sorted(
+            {player["position"] for player in players if player["position"]}
+        )
+        clubs = sorted(
+            {club for player in players for club in player["clubs"]},
+            key=str.casefold,
+        )
+
         compact_cols = st.columns(3, gap="medium")
         with compact_cols[0]:
-            position = st.selectbox("Position", ["All positions"] + positions, key="pr_position")
+            position = st.selectbox(
+                "Position",
+                ["All positions"] + positions,
+                key="pr_position",
+            )
         with compact_cols[1]:
-            club = st.selectbox("Club", ["All clubs"] + clubs, key="pr_club")
+            club = st.selectbox(
+                "Club",
+                ["All clubs"] + clubs,
+                key="pr_club",
+            )
         with compact_cols[2]:
             max_minutes = int(max((p["minutes"] for p in players), default=0))
-            minimum_minutes = st.number_input("Minimum minutes", min_value=0, max_value=max_minutes, value=0, step=90, format="%d", key="pr_min_minutes")
+            minimum_minutes = st.number_input(
+                "Minimum minutes",
+                min_value=0,
+                max_value=max_minutes,
+                value=0,
+                step=90,
+                format="%d",
+                key="pr_min_minutes",
+            )
 
         minimum_seasons = 0
         if mode == "Multiple seasons":
-            minimum_seasons = st.number_input("Minimum seasons played", min_value=1, max_value=len(selected_seasons), value=1, step=1, format="%d", key="pr_min_seasons")
+            minimum_seasons = st.number_input(
+                "Minimum seasons played",
+                min_value=1,
+                max_value=len(selected_seasons),
+                value=1,
+                step=1,
+                format="%d",
+                key="pr_min_seasons",
+            )
 
     with st.expander("Advanced conditions", expanded=False):
-        condition_count = st.selectbox("Number of conditions", [0, 1, 2, 3], key="pr_condition_count")
+        condition_count = st.selectbox(
+            "Number of conditions",
+            [0, 1, 2, 3],
+            key="pr_condition_count",
+        )
+
         filters = []
         for index in range(condition_count):
-            metric_col, operator_col, value_col = st.columns([2.2, 1.4, 1.0], gap="small")
+            metric_col, operator_col, value_col = st.columns(
+                [2.2, 1.4, 1.0],
+                gap="small",
+            )
+
             with metric_col:
-                metric_label = st.selectbox("Statistic", list(FILTER_OPTIONS.keys()), key=f"pr_condition_metric_{index}")
+                metric_label = st.selectbox(
+                    "Statistic",
+                    list(FILTER_OPTIONS.keys()),
+                    key=f"pr_condition_metric_{index}",
+                )
+
             metric, value_type = FILTER_OPTIONS[metric_label]
+
             with operator_col:
-                operator = st.selectbox("Condition", OPERATORS, key=f"pr_condition_operator_{index}")
+                operator = st.selectbox(
+                    "Condition",
+                    OPERATORS,
+                    key=f"pr_condition_operator_{index}",
+                )
+
             with value_col:
                 if value_type == "int":
-                    value = st.number_input("Value", min_value=0, value=0, step=1, format="%d", key=f"pr_condition_value_int_{index}")
+                    value = st.number_input(
+                        "Value",
+                        min_value=0,
+                        value=0,
+                        step=1,
+                        format="%d",
+                        key=f"pr_condition_value_int_{index}",
+                    )
                 else:
-                    value = st.number_input("Value", value=0.0, step=0.01, format="%.2f", key=f"pr_condition_value_float_{index}")
+                    value = st.number_input(
+                        "Value",
+                        value=0.0,
+                        step=0.01,
+                        format="%.2f",
+                        key=f"pr_condition_value_float_{index}",
+                    )
+
             filters.append((metric, operator, value))
 
-    search = st.text_input("Search player", placeholder="Search player name…", key="pr_search", label_visibility="collapsed")
+    search = st.text_input(
+        "Search player",
+        placeholder="Search player name…",
+        key="pr_search",
+        label_visibility="collapsed",
+    )
 
     filtered = player_research.filter_players(
         players,
@@ -309,71 +321,123 @@ def render_player_research_ui():
 
     if search.strip():
         needle = search.strip().casefold()
-        filtered = [p for p in filtered if needle in p["player_name"].casefold()]
+        filtered = [
+            player
+            for player in filtered
+            if needle in player["player_name"].casefold()
+        ]
 
-    scope_label = f"{selected_seasons[0]} → {selected_seasons[-1]}" if len(selected_seasons) > 1 else selected_seasons[0]
-    sort_column = st.session_state.get("pr_table_sort", "G")
-    descending = st.session_state.get("pr_table_desc", True)
-    filtered = sorted(filtered, key=lambda p: _player_sort_key(p, sort_column), reverse=descending)
+    scope_label = (
+        f"{selected_seasons[0]} → {selected_seasons[-1]}"
+        if len(selected_seasons) > 1
+        else selected_seasons[0]
+    )
 
-    st.markdown(f"<div class='frl-player-result-line'>{len(filtered):,} player(s) · {scope_label}</div>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='frl-player-result-line'>{len(filtered):,} player(s) · {scope_label}</div>",
+        unsafe_allow_html=True,
+    )
 
     if not filtered:
-        st.markdown("<div class='frl-empty-state'>No players match the current research scope.</div>", unsafe_allow_html=True)
+        st.markdown(
+            "<div class='frl-empty-state'>No players match the current research scope.</div>",
+            unsafe_allow_html=True,
+        )
         return
 
-    st.markdown("<div class='frl-player-table'>", unsafe_allow_html=True)
-
-    header_cols = st.columns([1.8, .75, .4, .5, .4, .4, .48, .48, .54, .54], gap="small")
-    heading_labels = ["Player", "Club", "Pos"] + list(SORTABLE_COLUMNS.keys())
-    for col, label in zip(header_cols, heading_labels):
-        with col:
-            if label in ("Player", "Club", "Pos"):
-                st.markdown(f"<div class='frl-player-header-spacer'>{label}</div>", unsafe_allow_html=True)
-            else:
-                st.markdown("<div class='frl-player-sort-wrap'>", unsafe_allow_html=True)
-                if st.button(label, key=f"pr_sort_header_{label}", type="tertiary", width="stretch"):
-                    _toggle_sort(label)
-                st.markdown("</div>", unsafe_allow_html=True)
-
+    rows = []
     for player in filtered:
-        clubs_text = ", ".join(player["clubs"])
-        position_value = player.get("position") or "—"
-        values = [
-            player["player_name"],
-            clubs_text,
-            position_value,
-            f"{int(player['minutes']):,}",
-            str(int(player["goals"])),
-            str(int(player["assists"])),
-            fmt(player["xg"]),
-            fmt(player["xa"]),
-            fmt(player["goals_per_90"], 3),
-            fmt(player["xg_per_90"], 3),
-        ]
-        classes = [
-            "frl-player-name",
-            "frl-player-club",
-            "frl-player-pos",
-            "frl-player-num frl-player-min",
-            "frl-player-num frl-player-highlight",
-            "frl-player-num",
-            "frl-player-num",
-            "frl-player-num",
-            "frl-player-num",
-            "frl-player-num",
-        ]
-        row = st.columns([1.8, .75, .4, .5, .4, .4, .48, .48, .54, .54], gap="small")
-        for row_col, value, class_name in zip(row, values, classes):
-            with row_col:
-                st.markdown(f"<div class='frl-player-table-cell {class_name}'>{value}</div>", unsafe_allow_html=True)
-        st.markdown("<div style='height:1px;background:var(--frl-border);'></div>", unsafe_allow_html=True)
+        rows.append(
+            {
+                "Player": player["player_name"],
+                "Club": ", ".join(player["clubs"]),
+                "Pos": player.get("position") or "—",
+                "Min": int(player["minutes"]),
+                "G": int(player["goals"]),
+                "A": int(player["assists"]),
+                "xG": float(player["xg"] or 0),
+                "xA": float(player["xa"] or 0),
+                "G/90": float(player["goals_per_90"] or 0),
+                "xG/90": float(player["xg_per_90"] or 0),
+            }
+        )
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    frame = pd.DataFrame(rows)
+    styled = frame.style.set_properties(
+        subset=["Player", "Club", "Pos"],
+        color="#1f2937",
+        font_size="11px",
+    ).set_properties(
+        subset=["Min", "G", "A", "xG", "xA", "G/90", "xG/90"],
+        color="#1f2937",
+        font_size="11px",
+        text_align="right",
+    ).set_table_styles(
+        [
+            {
+                "selector": "th",
+                "props": [
+                    ("font-size", "10px"),
+                    ("font-weight", "820"),
+                    ("letter-spacing", "0.08em"),
+                    ("text-transform", "uppercase"),
+                    ("color", "#6b7280"),
+                    ("background-color", "#ffffff"),
+                    ("border-bottom", "1px solid #e5e7eb"),
+                ],
+            },
+            {
+                "selector": "td",
+                "props": [
+                    ("background-color", "#ffffff"),
+                    ("border-bottom", "1px solid #f0f1f3"),
+                    ("font-variant-numeric", "tabular-nums"),
+                ],
+            },
+        ]
+    ).format(
+        {
+            "Min": "{:,}",
+            "G": "{:,}",
+            "A": "{:,}",
+            "xG": "{:.2f}",
+            "xA": "{:.2f}",
+            "G/90": "{:.3f}",
+            "xG/90": "{:.3f}",
+        }
+    )
+
+    with st.container():
+        st.markdown("<div class='frl-player-table-heading'>Player performance</div>", unsafe_allow_html=True)
+        st.dataframe(
+            styled,
+            width="stretch",
+            hide_index=True,
+            column_config={
+                "Player": st.column_config.TextColumn("Player", width="large"),
+                "Club": st.column_config.TextColumn("Club", width="medium"),
+                "Pos": st.column_config.TextColumn("Pos", width="small"),
+                "Min": st.column_config.NumberColumn("Min", format="%d", width="small"),
+                "G": st.column_config.NumberColumn("G", format="%d", width="small"),
+                "A": st.column_config.NumberColumn("A", format="%d", width="small"),
+                "xG": st.column_config.NumberColumn("xG", format="%.2f", width="small"),
+                "xA": st.column_config.NumberColumn("xA", format="%.2f", width="small"),
+                "G/90": st.column_config.NumberColumn("G/90", format="%.3f", width="small"),
+                "xG/90": st.column_config.NumberColumn("xG/90", format="%.3f", width="small"),
+            },
+        )
 
     with st.expander("Player detail", expanded=False):
-        selected_name = st.selectbox("Player", [p["player_name"] for p in filtered], key="pr_detail")
-        player = next(item for item in filtered if item["player_name"] == selected_name)
+        selected_name = st.selectbox(
+            "Player",
+            [player["player_name"] for player in filtered],
+            key="pr_detail",
+        )
+
+        player = next(
+            item for item in filtered
+            if item["player_name"] == selected_name
+        )
 
         st.markdown(
             f"<div class='frl-player-detail-title'>{player['player_name']}</div>"
@@ -430,4 +494,8 @@ def render_player_research_ui():
                         "FPL points": row.get("total_points", 0),
                     }
                 )
-            st.dataframe(records, width="stretch", hide_index=True)
+            st.dataframe(
+                pd.DataFrame(records),
+                width="stretch",
+                hide_index=True,
+            )
