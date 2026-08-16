@@ -1,7 +1,7 @@
 """Read-only cross-season FPL <-> player-match identity audit.
 
-Uses only deterministic season-level name+verified-team matches as anchors.
-No new identity is written and no fuzzy match is promoted automatically.
+This layer propagates only identities already proven by the deterministic
+season-level audit. It never promotes fuzzy/name-only matches.
 """
 
 from __future__ import annotations
@@ -10,103 +10,125 @@ from collections import defaultdict
 
 import player_identity_audit
 
-
 SEASONS = player_identity_audit.SEASONS
 
 
 def build_anchor_maps(report: dict):
-    source_to_fpl_names = defaultdict(set)
+    """Build proven FPL-code -> source-player-ID continuity anchors."""
+    fpl_to_source_ids = defaultdict(set)
+    source_to_fpl_codes = defaultdict(set)
     source_to_teams = defaultdict(set)
-    fpl_to_source = defaultdict(set)
 
     for season, result in report["seasons"].items():
         for item in result["exact"]:
-            source_id = item["source_player_id"]
-            source_to_fpl_names[source_id].add(
-                player_identity_audit.normalize_name(item["fpl_name"])
-            )
-            source_to_teams[source_id].add(item["team_code"])
-            fpl_to_source[
-                (season, item["fpl_player_code"])
-            ].add(source_id)
+            fpl_code = str(item["fpl_player_code"]).strip()
+            source_id = str(item["source_player_id"]).strip()
+            team_code = str(item["team_code"]).strip()
 
-    return source_to_fpl_names, source_to_teams, fpl_to_source
+            if not fpl_code or not source_id:
+                continue
+
+            fpl_to_source_ids[fpl_code].add(source_id)
+            source_to_fpl_codes[source_id].add(fpl_code)
+            if team_code:
+                source_to_teams[source_id].add(team_code)
+
+    return fpl_to_source_ids, source_to_fpl_codes, source_to_teams
+
+
+def _current_source_ids_by_team(report_season: dict):
+    """Return source IDs represented in this season keyed by source team."""
+    # The base audit already has the deterministic source index available only
+    # through its audit function, so rebuild the lightweight current-season
+    # source index here using its public audit helpers.
+    season = report_season["season"]
+    index = player_identity_audit.source_player_index(season)
+    by_team = defaultdict(set)
+    for (_name, team_code), identities in index.items():
+        for source_id, _display in identities:
+            by_team[team_code].add(source_id)
+    return by_team
 
 
 def audit_crossseason(report: dict) -> dict:
-    source_to_fpl_names, source_to_teams, _ = build_anchor_maps(report)
+    """Propagate only identities anchored by the same FPL player code."""
+    fpl_to_source_ids, source_to_fpl_codes, source_to_teams = build_anchor_maps(report)
 
-    crossseason = []
-    alias_candidates = []
+    confirmed = []
     unresolved = []
+    crossseason_variants = []
 
-    anchored_source_ids = set(source_to_fpl_names)
+    # Pre-build source IDs present in each current season/team.
+    current_source_by_team = {
+        season: _current_source_ids_by_team(result)
+        for season, result in report["seasons"].items()
+    }
+
+    anchored_source_ids = set(source_to_fpl_codes)
 
     for season, result in report["seasons"].items():
         for item in result["missing"]:
-            name = item["name"]
-            team_code = item["team_code"]
-            same_team_source_ids = []
+            fpl_ids = [str(x).strip() for x in item.get("fpl_ids", []) if str(x).strip()]
+            team_code = str(item["team_code"]).strip()
 
-            # Find source IDs already proven for another season on this team.
-            for source_id in anchored_source_ids:
-                if team_code in source_to_teams[source_id]:
-                    names = source_to_fpl_names[source_id]
-                    # Exact normalized-name evidence is already handled by
-                    # the season audit. Here we are specifically looking for
-                    # different historical name forms on the same anchored ID.
-                    if name not in names:
-                        same_team_source_ids.append(
-                            (source_id, sorted(names))
-                        )
+            candidates = set()
+            anchor_evidence = []
 
-            if len(same_team_source_ids) == 1:
-                source_id, prior_names = same_team_source_ids[0]
-                alias_candidates.append({
+            # A source ID is eligible only if the exact FPL player code has
+            # already been proven against it in another season.
+            for fpl_code in fpl_ids:
+                for source_id in fpl_to_source_ids.get(fpl_code, set()):
+                    if source_id in current_source_by_team[season].get(team_code, set()):
+                        candidates.add(source_id)
+                        anchor_evidence.append((fpl_code, source_id))
+
+            if len(candidates) == 1:
+                source_id = next(iter(candidates))
+                confirmed.append({
                     "season": season,
-                    "fpl_name": name,
+                    "fpl_name": item["name"],
+                    "fpl_player_codes": fpl_ids,
                     "team_code": team_code,
                     "source_player_id": source_id,
-                    "anchored_names": prior_names,
-                    "status": "ALIAS_CANDIDATE",
+                    "evidence": sorted(set(anchor_evidence)),
+                    "status": "CROSS_SEASON_CONFIRMED",
                 })
-            elif len(same_team_source_ids) > 1:
+            elif len(candidates) > 1:
                 unresolved.append({
                     "season": season,
-                    "fpl_name": name,
+                    "fpl_name": item["name"],
+                    "fpl_player_codes": fpl_ids,
                     "team_code": team_code,
-                    "candidate_source_ids": [x[0] for x in same_team_source_ids],
-                    "status": "MULTIPLE_ANCHORED_CANDIDATES",
+                    "candidate_source_ids": sorted(candidates),
+                    "status": "MULTIPLE_FPL_ANCHORED_SOURCE_IDS",
                 })
             else:
                 unresolved.append({
                     "season": season,
-                    "fpl_name": name,
+                    "fpl_name": item["name"],
+                    "fpl_player_codes": fpl_ids,
                     "team_code": team_code,
                     "candidate_source_ids": [],
-                    "status": "NO_ANCHOR",
+                    "status": "NO_FPL_CODE_ANCHOR",
                 })
 
-        for item in result["exact"]:
-            source_id = item["source_player_id"]
-            if len(source_to_fpl_names[source_id]) > 1:
-                crossseason.append({
-                    "source_player_id": source_id,
-                    "fpl_names": sorted(source_to_fpl_names[source_id]),
-                    "team_codes": sorted(source_to_teams[source_id]),
-                    "status": "CROSS_SEASON_NAME_VARIANTS",
-                })
-
-    # Deduplicate repeated cross-season summaries.
-    unique = {}
-    for row in crossseason:
-        unique[row["source_player_id"]] = row
+    # Identify source IDs that have genuinely different proven FPL codes or
+    # names across seasons. Those are review evidence rather than errors.
+    for source_id in sorted(anchored_source_ids):
+        fpl_codes = sorted(source_to_fpl_codes[source_id])
+        if len(fpl_codes) > 1:
+            crossseason_variants.append({
+                "source_player_id": source_id,
+                "fpl_player_codes": fpl_codes,
+                "teams": sorted(source_to_teams[source_id]),
+                "status": "SOURCE_ID_MULTI_FPL_CODE",
+            })
 
     return {
         "anchored_source_ids": len(anchored_source_ids),
-        "alias_candidates": alias_candidates,
+        "confirmed": confirmed,
         "unresolved": unresolved,
-        "crossseason_name_variants": list(unique.values()),
+        "crossseason_variants": crossseason_variants,
     }
 
 
@@ -119,26 +141,26 @@ def print_report(report: dict) -> None:
     print("=" * 96)
     print()
     print(f"Anchored source player IDs: {result['anchored_source_ids']:,}")
-    print(f"Alias candidates:            {len(result['alias_candidates']):,}")
-    print(f"Unresolved:                  {len(result['unresolved']):,}")
-    print(f"Cross-season name variants:  {len(result['crossseason_name_variants']):,}")
+    print(f"Cross-season confirmed:     {len(result['confirmed']):,}")
+    print(f"Unresolved:                 {len(result['unresolved']):,}")
+    print(f"Cross-season variants:      {len(result['crossseason_variants']):,}")
     print()
 
-    if result["alias_candidates"]:
-        print("ALIAS CANDIDATES SAMPLE:")
-        for row in result["alias_candidates"][:25]:
+    if result["confirmed"]:
+        print("CROSS-SEASON CONFIRMED SAMPLE:")
+        for row in result["confirmed"][:25]:
             print(
                 f"  {row['season']} | {row['fpl_name']} | team={row['team_code']} "
-                f"-> source={row['source_player_id']} | prior={row['anchored_names']}"
+                f"-> source={row['source_player_id']} | evidence={row['evidence']}"
             )
         print()
 
-    if result["crossseason_name_variants"]:
-        print("PROVEN SOURCE-ID NAME VARIANTS SAMPLE:")
-        for row in result["crossseason_name_variants"][:25]:
+    if result["crossseason_variants"]:
+        print("SOURCE-ID VARIANTS SAMPLE:")
+        for row in result["crossseason_variants"][:25]:
             print(
                 f"  source={row['source_player_id']} | "
-                f"names={row['fpl_names']} | teams={row['team_codes']}"
+                f"fpl_codes={row['fpl_player_codes']} | teams={row['teams']}"
             )
         print()
 
@@ -156,5 +178,4 @@ def print_report(report: dict) -> None:
 
 
 if __name__ == "__main__":
-    base = player_identity_audit.run_audit()
-    print_report(base)
+    print_report(player_identity_audit.run_audit())
