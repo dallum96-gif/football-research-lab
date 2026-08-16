@@ -1,14 +1,14 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 15 August 2026
+**Last updated:** 16 August 2026
 
 This file is intentionally short and volatile. Update it whenever the active task, branch, checkpoint or next step changes.
 
 ## Active branch
 
-`agent/fixture-landing-page`
+`redesign-github-sync`
 
-This is the active development branch for the current GUI redesign and Fixture Landing Page work.
+This is the current development branch for the GUI redesign work.
 
 Do not assume `main` contains these changes. Establish branch state before changing code.
 
@@ -24,13 +24,41 @@ Breakdown:
 - Player Research V0.1: 6/6
 - Player Research V0.2: 6/6
 
-Project health gate:
+Project health gate remains the required data-quality verification alongside the research gate.
 
-**GREEN LIGHT - PASSED WITH WARNINGS**
+## Approved Players UI checkpoint — 16 August 2026
 
-Known warning:
+The Players Research workspace is now considered an **approved visual/functional checkpoint** for the redesign.
 
-- 2019–20 fixture ID 275, Manchester City v Arsenal, has no score in the current fixture-master source state because of the rescheduled fixture representation. The health script warns rather than fabricates a result. This is known and accepted.
+Preserved requirements:
+
+- Season & scope starts collapsed.
+- Advanced conditions starts collapsed.
+- Useful player data appears before advanced configuration.
+- Player detail starts collapsed.
+- No separate Sort By control exists.
+- Statistic headings are plain text-style controls, not navigation links.
+- Clicking a sortable statistic changes row ordering only.
+- Clicking the same statistic again reverses ordering.
+- Sorting occurs client-side without a Streamlit rerun.
+- Table uses the approved white/surface FRL background.
+- Table typography follows the League Table / Overview visual benchmark.
+- Player-name typography remains compact and restrained.
+- Position is centred; numeric statistics are right-aligned.
+- Deprecated `use_container_width` is absent from the Players UI.
+- Deprecated `st.components.v1.html` has been removed from the Players table renderer; the current renderer uses the supported `st.iframe` signature.
+
+This checkpoint is the visual source of truth for future Players changes. Functional additions must not alter its typography, sizing, spacing, colour, background, alignment or border treatment unless explicitly requested.
+
+## GUI design contract
+
+`GUI_DESIGN_CONTRACT.md` is the governing visual contract.
+
+Additional rule established during Players work:
+
+> The application uses one consistent typography system. A component must not invent its own font family, font hierarchy or sizing scheme when an approved FRL component already establishes the visual language.
+
+Behavioural changes must preserve approved typography and layout unless the user explicitly requests a visual change.
 
 ## Non-destruction rule for current work
 
@@ -46,7 +74,7 @@ UI redesign changes should not modify:
 - test expectations;
 - historical data.
 
-A UI change is successful only when the new presentation works **and** trusted existing behaviour remains intact.
+A UI change is successful only when the new presentation works and trusted existing behaviour remains intact.
 
 ## Current product task
 
@@ -69,16 +97,7 @@ Design reference in spirit:
 
 Do not copy either product literally.
 
-## Current UI decisions
-
-### Navigation
-
-- Use compact, left-aligned text-first navigation.
-- Small monochrome line icons may sit beside navigation labels.
-- Avoid large filled button blocks.
-- Avoid excessive spacing between navigation items.
-- Keep section headings quiet.
-- Active state should be subtle, preferably a muted accent rather than a large coloured button.
+## Current navigation / workspace direction
 
 Current conceptual navigation:
 
@@ -87,97 +106,37 @@ Current conceptual navigation:
 - Analysis: Head-to-Head, Form & Streaks
 - Modelling: Prediction Lab
 - Evidence: Data Quality, Provenance
+- Future utility: Squads
 
-### Global visual system
+Keep navigation compact, text-first and visually consistent.
 
-- near-black charcoal / very dark navy background
-- slightly lighter surfaces
-- off-white primary text
-- muted grey secondary text
-- one desaturated green accent
-- subtle borders
-- minimal cards
-- compact controls
-- restrained use of colour
-- no gradients, glow effects or decorative AI-style widgets
+## Important current files
 
-### Fixture Explorer
-
-Current explicit design requirements:
-
-- Season + Team must be on the same row.
-- Fixture rows should dominate the page.
-- Filters should be compact and secondary.
-- Opponent is the dominant entity in each row.
-- Date/metadata quieter.
-- Score prominent and scannable.
-- Result clear but restrained.
-- Do not present it as an unstyled dataframe.
-- Avoid large rectangular opponent buttons where a navigable text/entity treatment can be used.
-- Clicking a fixture must continue to resolve through the canonical fixture ID and existing fixture-detail query contract.
-
-Current extracted presentation module:
-
-`gui/fixture_explorer.py`
-
-### Player Profile / History
-
-Future feature, not current data-acquisition work.
-
-Plan for:
-
-- Overview
-- Seasons
-- History
-- Matches
-- Advanced
-- Comparisons
-- Career
-
-Player chronology can be incomplete. Incomplete chronology is a valid data state, not an application failure.
-
-The future profile must not:
-
-- invent missing seasons;
-- infer that missing data means the player was inactive;
-- claim that known coverage is a complete career;
-- crash when chronology has gaps.
-
-Do not source additional historical player data yet.
-
-## Data construction / identity documentation
-
-`DATA_CONSTRUCTION.md` is now the canonical re-entry document for the football data foundation.
-
-It records:
-
-- season-local versus persistent club identity;
-- the `team_seasons.csv` identity registry;
-- the `fixtures_master_corrected.csv` fixture schema and season-scoped fixture identity;
-- fixture correction/provenance handling;
-- fixture/player/statistics relationships;
-- historical match-state construction;
-- the current project-health invariants;
-- and the important limitation that the original one-off canonical-build script is not currently committed as a clean end-to-end rebuild pipeline.
-
-Do not invent the missing historical build steps. Recover and inspect them from the local workspace if they are ever needed.
-
-## Current UI implementation state
-
-The redesign is intentionally being developed as a preview rather than replacing the production entry point immediately.
-
-Important files:
-
-- `gui/theme.py` — current visual system
-- `gui/navigation.py` — navigation metadata
-- `gui/ui_shell.py` — navigation shell
-- `gui/fixture_explorer.py` — Fixture Explorer presentation layer
-- `gui/app_redesign.py` — preview entry point
-- `gui/app.py` — production app; leave untouched until the redesigned workspaces are sufficiently mature
+- `gui/theme.py` — visual system
+- `gui/ui_shell.py` — navigation shell and workspace routing
+- `gui/app_redesign.py` — redesign preview entry point
+- `gui/player_research_ui.py` — approved Players workspace
+- `GUI_DESIGN_CONTRACT.md` — governing UI contract
+- `README.md` — current project orientation and validation baseline
 
 The trusted backend boundary remains:
 
 `query_lab.py` → `query_api.py` → GUI
+
+## Verification discipline
+
+Before declaring a GUI change complete:
+
+1. Verify Python syntax/compilation.
+2. Verify the route still exists.
+3. Verify existing data still renders.
+4. Verify requested controls work.
+5. Verify no deprecated Streamlit APIs were introduced.
+6. Verify the approved visual contract has not changed unintentionally.
+7. Run the **26/26** research gate.
+8. Run the project-health gate where relevant.
+
+Do not claim 26/26 or project-health success unless the local checks have actually been executed and passed.
 
 ## What not to do
 
@@ -191,6 +150,6 @@ The trusted backend boundary remains:
 
 ## Immediate next step
 
-Before further implementation, refine the **sidebar and Fixture Explorer visual design** against the agreed design principles. The current preview is structurally useful but is not yet considered visually final.
+Leave the Players workspace at this approved checkpoint.
 
-The next implementation should be a deliberate design pass, not another small CSS patch.
+Next functionality/UI work should move to the next agreed workspace rather than redesigning Players again, unless a regression is found against this checkpoint.
