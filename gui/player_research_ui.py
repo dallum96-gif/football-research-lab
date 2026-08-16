@@ -167,13 +167,12 @@ def _render_player_table(players):
         rows.append(row)
 
     categories = {
-        "Attacking": ["Goals", "Assists", "xG", "xA", "xGI", "Shots", "Shots on Target"],
-        "Passing": ["Attempted Passes", "Completed Passes", "Key Passes", "Creativity", "Crosses", "Big Chances Created"],
-        "Dribbling": ["Dribbles"],
-        "Defending": ["Tackles", "Interceptions", "Recoveries", "Clearances", "Clean Sheets", "Goals Conceded", "DefCon"],
+        "Attacking": ["Goals", "Assists", "xG", "xA", "xGI", "Shots", "Shots on Target", "Dribbles"],
+        "Passing": ["Attempted Passes", "Completed Passes", "Key Passes", "Big Chances Created"],
+        "Defending": ["Tackles", "Interceptions", "Recoveries", "Clearances", "Clean Sheets", "Goals Conceded"],
         "Goalkeeping": ["Saves", "Goals Conceded", "Penalties Saved"],
-        "FPL": ["FPL Points", "Bonus", "BPS", "ICT Influence", "ICT Creativity", "ICT Threat", "ICT Index"],
-        "Misc": ["Minutes", "Yellow Cards", "Red Cards", "Own Goals", "Penalties Missed"],
+        "FPL": ["FPL Points", "Bonus", "BPS", "DefCon", "ICT Influence", "ICT Creativity", "ICT Threat", "ICT Index"],
+        "Misc": ["Minutes", "Starts", "Appearances", "Seasons", "Yellow Cards", "Red Cards", "Own Goals", "Penalties Missed"],
     }
 
     category_json = json.dumps(categories)
