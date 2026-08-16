@@ -18,10 +18,31 @@ ICONS = {
 }
 
 
+VALID_WORKSPACES = {
+    "overview",
+    "fixtures",
+    "league-table",
+    "players",
+    "head-to-head",
+    "form",
+    "prediction",
+    "data-quality",
+    "provenance",
+}
+
+
+def current_workspace(default="overview"):
+    """Return the current workspace, preferring the URL when present."""
+    query_workspace = st.query_params.get("workspace")
+    if query_workspace in VALID_WORKSPACES:
+        return query_workspace
+    return st.session_state.get("frl_workspace", default)
+
+
 def render_workspace_sidebar(active_key):
     """Render compact, text-led application navigation."""
     grouped = navigation_by_section()
-    selected = active_key
+    selected = current_workspace(active_key)
 
     st.sidebar.markdown(
         "<div class='frl-sidebar-brand'>FOOTBALL RESEARCH LABORATORY</div>",
@@ -46,8 +67,8 @@ def render_workspace_sidebar(active_key):
                 use_container_width=True,
                 type="secondary",
             ):
-                selected = item.key
                 st.session_state["frl_workspace"] = item.key
+                st.query_params["workspace"] = item.key
                 st.rerun()
 
     if selected == "head-to-head":
@@ -59,12 +80,20 @@ def render_workspace_sidebar(active_key):
     if selected == "players":
         from gui.player_research_ui import render_player_research_ui
 
+        st.markdown(
+            "<div class='frl-eyebrow'>Research</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "<div class='frl-entity-title'>Players</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "<div class='frl-context'>Player performance research across Premier League seasons</div>",
+            unsafe_allow_html=True,
+        )
+
         render_player_research_ui()
         st.stop()
 
     return selected
-
-
-def current_workspace(default="overview"):
-    """Return the current workspace key."""
-    return st.session_state.get("frl_workspace", default)
