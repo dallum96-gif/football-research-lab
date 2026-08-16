@@ -97,9 +97,25 @@ def render_workspace_sidebar(active_key):
         st.stop()
 
     if selected == "prediction":
-        from gui.projection_lab import render_projection_lab
+        st.markdown(
+            "<div class='frl-eyebrow'>Modelling</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "<div class='frl-entity-title'>Projection Lab</div>",
+            unsafe_allow_html=True,
+        )
+        st.markdown(
+            "<div class='frl-context'>Poisson projection workspace</div>",
+            unsafe_allow_html=True,
+        )
 
-        render_projection_lab()
+        try:
+            from gui.projection_lab import render_projection_lab
+            render_projection_lab()
+        except Exception as exc:
+            st.error("Projection Lab could not be rendered.")
+            st.code(f"{type(exc).__name__}: {exc}")
         st.stop()
 
     return selected
