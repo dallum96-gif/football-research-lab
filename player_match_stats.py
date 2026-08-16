@@ -1,9 +1,8 @@
-"""Player-match source adapter for the Football Research Laboratory.
+"""Additive adapter for the external player-match evidence source.
 
-This module is deliberately additive. It does not replace the canonical FPL
-player dataset or fixture master. It reuses the existing verified fixture/team
-identity mechanism from match_stats.py and exposes the external
-players_match_stats source as a separate evidence layer.
+The canonical FPL player dataset and fixture master remain authoritative.
+This module reuses the existing verified fixture/team identity mechanism and
+adds player-match evidence without rewriting established research contracts.
 """
 
 from __future__ import annotations
@@ -21,96 +20,27 @@ from query_lab import load_identity_registry
 PL_ROOT = Path(r"C:\Users\dlall\football_database\Premier-League-Stats\pl_stats")
 
 
-# Source fields audited on 16 August 2026. Only fields actually present in the
-# source are included here. Coverage varies by season and is exposed explicitly
-# rather than silently converting absent fields to zero.
+# Source fields audited on 16 August 2026. Coverage is seasonal and absent
+# fields remain unavailable rather than being coerced to zero.
 PLAYER_MATCH_METRICS = {
-    "passes": {
-        "source": "totalPass",
-        "kind": "sum",
-        "label": "Passes",
-    },
-    "accurate_passes": {
-        "source": "accuratePass",
-        "kind": "sum",
-        "label": "Accurate passes",
-    },
-    "own_half_accurate_passes": {
-        "source": "accurateOwnHalfPasses",
-        "kind": "sum",
-        "label": "Accurate passes in own half",
-    },
-    "opposition_half_accurate_passes": {
-        "source": "accurateOppositionHalfPasses",
-        "kind": "sum",
-        "label": "Accurate passes in opposition half",
-    },
-    "long_balls": {
-        "source": "totalLongBalls",
-        "kind": "sum",
-        "label": "Long balls",
-    },
-    "accurate_long_balls": {
-        "source": "accurateLongBalls",
-        "kind": "sum",
-        "label": "Accurate long balls",
-    },
-    "key_passes": {
-        "source": "keyPass",
-        "kind": "sum",
-        "label": "Key passes",
-    },
-    "big_chances_created": {
-        "source": "bigChanceCreated",
-        "kind": "sum",
-        "label": "Big chances created",
-    },
-    "assists": {
-        "source": "goalAssist",
-        "kind": "sum",
-        "label": "Assists",
-    },
-    "expected_assists": {
-        "source": "expectedAssists",
-        "kind": "sum",
-        "label": "Expected assists",
-    },
-    "successful_dribbles": {
-        "source": "successfulDribbles",
-        "kind": "sum",
-        "label": "Successful dribbles",
-    },
-    "unsuccessful_dribbles": {
-        "source": "unsuccessfulDribbles",
-        "kind": "sum",
-        "label": "Unsuccessful dribbles",
-    },
-    "ball_carries": {
-        "source": "ballCarriesCount",
-        "kind": "sum",
-        "label": "Ball carries",
-    },
-    "progressive_ball_carries": {
-        "source": "progressiveBallCarriesCount",
-        "kind": "sum",
-        "label": "Progressive ball carries",
-    },
-    "progressive_carry_distance": {
-        "source": "totalProgressiveBallCarriesDistance",
-        "kind": "sum",
-        "label": "Progressive carry distance",
-    },
-    "progression": {
-        "source": "totalProgression",
-        "kind": "sum",
-        "label": "Total progression",
-    },
+    "passes": {"source": "totalPass", "kind": "sum", "label": "Passes"},
+    "accurate_passes": {"source": "accuratePass", "kind": "sum", "label": "Accurate passes"},
+    "own_half_accurate_passes": {"source": "accurateOwnHalfPasses", "kind": "sum", "label": "Accurate passes in own half"},
+    "opposition_half_accurate_passes": {"source": "accurateOppositionHalfPasses", "kind": "sum", "label": "Accurate passes in opposition half"},
+    "long_balls": {"source": "totalLongBalls", "kind": "sum", "label": "Long balls"},
+    "accurate_long_balls": {"source": "accurateLongBalls", "kind": "sum", "label": "Accurate long balls"},
+    "key_passes": {"source": "keyPass", "kind": "sum", "label": "Key passes"},
+    "big_chances_created": {"source": "bigChanceCreated", "kind": "sum", "label": "Big chances created"},
+    "assists": {"source": "goalAssist", "kind": "sum", "label": "Assists"},
+    "expected_assists": {"source": "expectedAssists", "kind": "sum", "label": "Expected assists"},
+    "successful_dribbles": {"source": "successfulDribbles", "kind": "sum", "label": "Successful dribbles"},
+    "unsuccessful_dribbles": {"source": "unsuccessfulDribbles", "kind": "sum", "label": "Unsuccessful dribbles"},
+    "ball_carries": {"source": "ballCarriesCount", "kind": "sum", "label": "Ball carries"},
+    "progressive_ball_carries": {"source": "progressiveBallCarriesCount", "kind": "sum", "label": "Progressive ball carries"},
+    "progressive_carry_distance": {"source": "totalProgressiveBallCarriesDistance", "kind": "sum", "label": "Progressive carry distance"},
+    "progression": {"source": "totalProgression", "kind": "sum", "label": "Total progression"},
 }
 
-
-# These are the first fields suitable for a stable Player Research passing
-# contract. Crosses are intentionally not promoted yet, per current product
-# direction. Creativity/ICT remain in the existing FPL layer.
 PASSING_METRICS = (
     "passes",
     "accurate_passes",
@@ -150,27 +80,24 @@ def _open_csv(path: Path):
 def _season_player_match_files(season: str) -> tuple[Path, ...]:
     if not PL_ROOT.is_dir():
         raise FileNotFoundError(f"Player-match source root not found: {PL_ROOT}")
-
     expected = f"{season}_players_match_stats.csv"
     return tuple(sorted(PL_ROOT.rglob(expected)))
 
 
 def available_seasons() -> tuple[str, ...]:
-    seasons = []
-    for path in PL_ROOT.rglob("*_players_match_stats.csv"):
-        if path.name.endswith("_players_match_stats.csv"):
-            seasons.append(path.name.replace("_players_match_stats.csv", ""))
+    if not PL_ROOT.is_dir():
+        return tuple()
+    seasons = [
+        path.name.replace("_players_match_stats.csv", "")
+        for path in PL_ROOT.rglob("*_players_match_stats.csv")
+    ]
     return tuple(sorted(set(seasons)))
 
 
 @lru_cache(maxsize=20)
 def source_fields(season: str) -> tuple[str, ...]:
-    files = _season_player_match_files(season)
-    if not files:
-        return tuple()
-
     fields = set()
-    for path in files:
+    for path in _season_player_match_files(season):
         handle, reader = _open_csv(path)
         fields.update(reader.fieldnames or [])
         handle.close()
@@ -178,31 +105,20 @@ def source_fields(season: str) -> tuple[str, ...]:
 
 
 def available_metrics(season: str | None = None) -> tuple[str, ...]:
-    if season is None:
-        return tuple(PLAYER_MATCH_METRICS)
-
-    fields = set(source_fields(season))
+    fields = None if season is None else set(source_fields(season))
     return tuple(
         key
         for key, spec in PLAYER_MATCH_METRICS.items()
-        if spec["source"] in fields
+        if fields is None or spec["source"] in fields
     )
 
 
 def metric_coverage() -> dict[str, tuple[str, ...]]:
-    return {
-        season: available_metrics(season)
-        for season in available_seasons()
-    }
+    return {season: available_metrics(season) for season in available_seasons()}
 
 
 @lru_cache(maxsize=20)
 def _source_match_records(season: str) -> tuple[dict, ...]:
-    """Load raw player-match records for one season.
-
-    This is a cached source layer only; no aggregation or identity rewriting
-    happens here.
-    """
     records: list[dict] = []
     for path in _season_player_match_files(season):
         handle, reader = _open_csv(path)
@@ -214,10 +130,40 @@ def _source_match_records(season: str) -> tuple[dict, ...]:
     return tuple(records)
 
 
-def _number(value):
-    if value in (None, ""):
-        return 0.0
-    return float(value)
+@lru_cache(maxsize=20)
+def _player_match_pair_index(season: str) -> dict[tuple[str, str], tuple[str, ...]]:
+    """Index one season by source home/away team IDs.
+
+    Gameweek is deliberately excluded because postponed/rescheduled fixtures
+    can be assigned a different gameweek in the source player-match files.
+    """
+    home_by_match: dict[str, set[str]] = defaultdict(set)
+    away_by_match: dict[str, set[str]] = defaultdict(set)
+
+    for row in _source_match_records(season):
+        match_id = str(row.get("matchId", "")).strip()
+        team_id = str(row.get("team_id", "")).strip()
+        venue = str(row.get("venue", "")).strip().lower()
+
+        if not match_id or not team_id:
+            continue
+
+        if venue == "home":
+            home_by_match[match_id].add(team_id)
+        elif venue == "away":
+            away_by_match[match_id].add(team_id)
+
+    index: dict[tuple[str, str], list[str]] = defaultdict(list)
+
+    for match_id in set(home_by_match) & set(away_by_match):
+        for home_id in home_by_match[match_id]:
+            for away_id in away_by_match[match_id]:
+                index[(home_id, away_id)].append(match_id)
+
+    return {
+        key: tuple(sorted(values))
+        for key, values in index.items()
+    }
 
 
 def _source_team_ids_for_fixture(fixture: dict) -> tuple[str, str]:
@@ -236,115 +182,82 @@ def _source_team_ids_for_fixture(fixture: dict) -> tuple[str, str]:
 
 
 def player_match_id_for_fixture(fixture: dict) -> str | None:
-    """Resolve a canonical fixture to its player-match source matchId.
-
-    Gameweek is intentionally not part of the identity key because postponed
-    and rescheduled fixtures can carry a different source gameweek. The trusted
-    fixture resolver supplies the verified source home/away team IDs.
-    """
+    """Resolve canonical fixture to external player-match ``matchId``."""
     season = fixture["season"]
     home_team, away_team = _source_team_ids_for_fixture(fixture)
-
-    candidates: set[str] = set()
-
-    for row in _source_match_records(season):
-        venue = str(row.get("venue", "")).strip().lower()
-        team_id = str(row.get("team_id", "")).strip()
-        match_id = str(row.get("matchId", "")).strip()
-
-        if not match_id:
-            continue
-
-        if venue == "home" and team_id == home_team:
-            candidates.add(f"home:{match_id}")
-        elif venue == "away" and team_id == away_team:
-            candidates.add(f"away:{match_id}")
-
-    home_matches = {
-        value.split(":", 1)[1]
-        for value in candidates
-        if value.startswith("home:")
-    }
-    away_matches = {
-        value.split(":", 1)[1]
-        for value in candidates
-        if value.startswith("away:")
-    }
-
-    matches = home_matches & away_matches
+    matches = _player_match_pair_index(season).get((home_team, away_team), ())
 
     if len(matches) > 1:
         raise ValueError(
             f"Ambiguous player-match source for "
-            f"{season}/{fixture['fixture_id']}: {sorted(matches)}"
+            f"{season}/{fixture['fixture_id']}: {list(matches)}"
         )
 
-    return next(iter(matches)) if matches else None
+    return matches[0] if matches else None
 
 
 def fixture_player_match_rows(fixture: dict) -> tuple[dict, ...]:
-    """Return the raw player-match rows attached to a canonical fixture."""
+    """Return raw player-match rows attached to a canonical fixture."""
     match_id = player_match_id_for_fixture(fixture)
     if match_id is None:
         return tuple()
 
-    season = fixture["season"]
     return tuple(
         row
-        for row in _source_match_records(season)
+        for row in _source_match_records(fixture["season"])
         if str(row.get("matchId", "")).strip() == match_id
     )
 
 
-def aggregate_player(
-    fixture_rows: Iterable[dict],
-) -> dict[str, float | None]:
-    """Aggregate audited source metrics across player-match rows.
-
-    Missing source fields remain None. Present additive statistics are summed.
-    """
-    rows = tuple(fixture_rows)
+def aggregate_rows(rows: Iterable[dict]) -> dict[str, float | None]:
+    """Aggregate additive source metrics and derive pass accuracy."""
+    records = tuple(rows)
     result: dict[str, float | None] = {}
 
     for metric, spec in PLAYER_MATCH_METRICS.items():
         source = spec["source"]
-        if not any(row.get(source) not in (None, "") for row in rows):
+        if not any(row.get(source) not in (None, "") for row in records):
             result[metric] = None
             continue
-
-        result[metric] = sum(
-            _number(row.get(source))
-            for row in rows
-        )
+        result[metric] = sum(_number(row.get(source)) for row in records)
 
     passes = result["passes"]
     accurate = result["accurate_passes"]
     result["pass_accuracy"] = (
         accurate / passes * 100.0
-        if passes not in (None, 0)
-        and accurate is not None
+        if passes not in (None, 0) and accurate is not None
         else None
     )
-
     return result
 
 
-def player_season_totals(
-    season: str,
-) -> dict[str, dict[str, float | None]]:
-    """Aggregate player-match evidence for all players in one season."""
+def player_season_totals(season: str) -> dict[str, dict[str, float | None]]:
+    """Aggregate player-match evidence for every player in one season."""
     grouped: dict[str, list[dict]] = defaultdict(list)
-
     for row in _source_match_records(season):
-        player_id = str(
-            row.get("playerId")
-            or row.get("pl_code")
-            or ""
-        ).strip()
+        player_id = str(row.get("playerId") or row.get("pl_code") or "").strip()
         if player_id:
             grouped[player_id].append(row)
+    return {player_id: aggregate_rows(rows) for player_id, rows in grouped.items()}
 
-    return {
-        player_id: aggregate_player(rows)
-        for player_id, rows in grouped.items()
-    }
+
+
+def player_match_records_for_player(player_id: str, season: str) -> tuple[dict, ...]:
+    """Return source rows for one player in one season."""
+    key = str(player_id).strip()
+    return tuple(
+        row
+        for row in _source_match_records(season)
+        if str(row.get("playerId") or row.get("pl_code") or "").strip() == key
+    )
+
+
+def player_season_total(player_id: str, season: str) -> dict[str, float | None]:
+    """Return audited source totals for one player/season."""
+    return aggregate_rows(player_match_records_for_player(player_id, season))
+
+
+def _number(value):
+    if value in (None, ""):
+        return 0.0
+    return float(value)
