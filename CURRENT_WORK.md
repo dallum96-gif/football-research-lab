@@ -76,6 +76,29 @@ UI redesign changes should not modify:
 
 A UI change is successful only when the new presentation works and trusted existing behaviour remains intact.
 
+## Player-match source bridge — verified 16 August 2026
+
+For any work involving player-match source data, passing, chance creation, progressive actions, per-match player enrichment or source replacement, read:
+
+`PLAYER_MATCH_SOURCE_BRIDGE.md`
+
+The bridge has been audited against the full 3,800-fixture canonical universe. The established result is:
+
+- 3,799 canonical fixtures map uniquely to player-match source fixtures;
+- 0 missing player-match pairs among fixtures resolvable through the existing source mechanism;
+- 0 ambiguous player-match pairs;
+- the sole canonical exception is the already-documented 2019-20 Manchester City v Arsenal fixture 275, whose scheduled and actual kickoff are represented through the project's explicit correction/provenance mechanism.
+
+Important identity rules established by the audit:
+
+- canonical fixture IDs remain `season + fixture_id`;
+- canonical season-local team IDs must be translated through `identity/team_seasons.csv`;
+- `events_stats.matchId` and `players_match_stats.matchId` are different upstream namespaces and must not be compared directly;
+- historical gameweek is metadata, not the final identity key for postponed/rescheduled fixtures;
+- the existing `match_stats.fixture_source_match()` resolver is the trusted canonical-fixture → upstream-event mechanism and should be reused.
+
+No canonical data or application code was modified during the audit.
+
 ## Current product task
 
 Redesign the user interface so the Football Research Laboratory feels like a professional football research product rather than a conventional Streamlit dashboard.
@@ -118,6 +141,7 @@ Keep navigation compact, text-first and visually consistent.
 - `gui/player_research_ui.py` — approved Players workspace
 - `GUI_DESIGN_CONTRACT.md` — governing UI contract
 - `README.md` — current project orientation and validation baseline
+- `PLAYER_MATCH_SOURCE_BRIDGE.md` — verified player-match source identity/fixture bridge
 
 The trusted backend boundary remains:
 
@@ -152,4 +176,6 @@ Do not claim 26/26 or project-health success unless the local checks have actual
 
 Leave the Players workspace at this approved checkpoint.
 
-Next functionality/UI work should move to the next agreed workspace rather than redesigning Players again, unless a regression is found against this checkpoint.
+For player-match/passing enrichment work, first read `PLAYER_MATCH_SOURCE_BRIDGE.md`, inspect the existing source/query mechanisms, then establish the local baseline and validation state before making changes.
+
+Otherwise, next functionality/UI work should move to the next agreed workspace rather than redesigning Players again, unless a regression is found against this checkpoint.
