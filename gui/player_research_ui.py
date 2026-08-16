@@ -110,22 +110,38 @@ def _player_css():
         .frl-player-sort-wrap .stButton > button {
             min-height:1.35rem !important;
             height:1.35rem !important;
-            padding:0 !important;
+            padding:.1rem 0 !important;
             border:0 !important;
             background:transparent !important;
             box-shadow:none !important;
             color:var(--frl-muted-soft) !important;
+            font-family:inherit !important;
             font-size:.55rem !important;
             font-weight:820 !important;
             letter-spacing:.08em !important;
+            line-height:1 !important;
             text-transform:uppercase !important;
             justify-content:flex-end !important;
+            align-items:center !important;
         }
         .frl-player-sort-wrap .stButton > button:hover,
-        .frl-player-sort-wrap .stButton > button:focus {
-            color:var(--frl-accent) !important;
+        .frl-player-sort-wrap .stButton > button:focus,
+        .frl-player-sort-wrap .stButton > button:active {
+            color:var(--frl-muted-soft) !important;
             background:transparent !important;
             border:0 !important;
+            box-shadow:none !important;
+        }
+        .frl-player-sort-wrap .stButton > button p {
+            color:var(--frl-muted-soft) !important;
+            font-family:inherit !important;
+            font-size:.55rem !important;
+            font-weight:820 !important;
+            letter-spacing:.08em !important;
+            line-height:1 !important;
+            text-transform:uppercase !important;
+            margin:0 !important;
+            padding:0 !important;
         }
         .frl-player-table-row {
             min-height:2.45rem;
@@ -325,7 +341,7 @@ def render_player_research_ui():
     filtered = sorted(filtered, key=lambda p: _player_sort_key(p, sort_column), reverse=descending)
 
     st.markdown(
-        f"<div class='frl-player-result-line'>{len(filtered):,} player(s) · {scope_label} · click a column heading to sort</div>",
+        f"<div class='frl-player-result-line'>{len(filtered):,} player(s) · {scope_label}</div>",
         unsafe_allow_html=True,
     )
 
@@ -342,13 +358,10 @@ def render_player_research_ui():
                 if label in ("Player", "Club", "Pos"):
                     st.markdown("<div class='frl-player-header-spacer'>" + label + "</div>", unsafe_allow_html=True)
                 else:
-                    arrow = " ↓" if sort_column == label and descending else " ↑" if sort_column == label else ""
                     st.markdown("<div class='frl-player-sort-wrap'>", unsafe_allow_html=True)
-                    if st.button(f"{label}{arrow}", key=f"pr_sort_header_{label}", type="tertiary", width="stretch"):
+                    if st.button(label, key=f"pr_sort_header_{label}", type="tertiary", width="stretch"):
                         _toggle_sort(label)
                     st.markdown("</div>", unsafe_allow_html=True)
-
-        st.markdown("<div class='frl-player-table-header' style='display:none'></div>", unsafe_allow_html=True)
 
         for player in filtered:
             clubs_text = ", ".join(player["clubs"])
