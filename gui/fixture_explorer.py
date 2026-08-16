@@ -158,7 +158,7 @@ def render_fixture_explorer(season, team, get_fixtures):
         month = _month_key(row["kickoff_time"])
         if month != previous_month:
             st.markdown(
-                f"<div class='frl-month-heading'><span class='frl-month-heading-marker'></span>{month}</div>",
+                f"<div class='frl-month-heading' style='color:var(--frl-negative);'><span class='frl-month-heading-marker'></span>{month}</div>",
                 unsafe_allow_html=True,
             )
 
@@ -169,7 +169,7 @@ def render_fixture_explorer(season, team, get_fixtures):
             )
             header_style = (
                 "font-size:0.58rem; font-weight:680; letter-spacing:0.10em; "
-                "line-height:1.2; text-transform:uppercase; color:var(--frl-muted-soft);"
+                "line-height:1.2; text-transform:uppercase; color:var(--frl-text);"
             )
             header_cols[0].markdown(
                 f"<div style='{header_style}; text-align:left;'>Date</div>",
@@ -225,17 +225,26 @@ def render_fixture_explorer(season, team, get_fixtures):
         )
 
         cols[1].markdown(
-            "<div class='frl-opponent-marker' aria-hidden='true'></div>",
+            f"""
+            <a href="?fixture={season}:{row['fixture_id']}"
+               style="
+                   display:flex;
+                   align-items:center;
+                   justify-content:center;
+                   gap:.42rem;
+                   width:100%;
+                   color:var(--frl-text);
+                   font-size:.72rem;
+                   font-weight:720;
+                   text-decoration:none;
+                   line-height:1.2;
+               ">
+                <span class="frl-opponent-marker" aria-hidden="true"></span>
+                <span>{opponent}</span>
+            </a>
+            """,
             unsafe_allow_html=True,
         )
-        if cols[1].button(
-            opponent,
-            key=f"fixture_opponent_{row['fixture_id']}",
-            width="stretch",
-            type="secondary",
-        ):
-            st.query_params["fixture"] = f"{season}:{row['fixture_id']}"
-            st.rerun()
 
         cols[2].markdown(
             f"<div class='frl-venue' style='width:100%; text-align:center; font-size:0.55rem; font-weight:680; letter-spacing:0.10em; line-height:1.2; color:var(--frl-muted-soft); text-transform:uppercase;'>{venue}</div>",
