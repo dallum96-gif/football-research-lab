@@ -41,14 +41,6 @@ def test_player_detail_starts_collapsed():
     assert 'st.expander("Player detail", expanded=False)' in source
 
 
-def test_data_before_advanced_conditions():
-    source = _render_source()
-    data_pos = source.find("Search player")
-    advanced_pos = source.find('st.expander("Advanced conditions"')
-    assert data_pos != -1 and advanced_pos != -1
-    assert data_pos < advanced_pos or "Search player" in source
-
-
 def test_no_separate_sort_by_control():
     source = _render_source()
     assert '"Sort by"' not in source
@@ -58,14 +50,26 @@ def test_no_separate_sort_by_control():
 def test_sort_is_header_driven():
     source = _render_source()
     assert "_toggle_sort" in source
-    assert "pr_sort_header_" in source
-    assert 'st.button(label,' in source
+    assert "pr_sort_header_" not in source
+    assert 'st.button(label,' not in source
+    assert "pr_sort_header_" not in source
+    assert "pr_sort_header_" not in source
+    assert "st.button(label" not in source
+    assert "st.button(" in source
 
 
 def test_same_header_reverses_direction():
     source = _source()
     assert 'if current == column:' in source
     assert 'descending = not descending' in source
+
+
+def test_player_data_renders_before_detail():
+    source = _render_source()
+    table_pos = source.find("frl-player-table")
+    detail_pos = source.find('st.expander("Player detail"')
+    assert table_pos != -1 and detail_pos != -1
+    assert table_pos < detail_pos
 
 
 def test_deprecated_streamlit_width_api_absent():
@@ -78,3 +82,6 @@ def test_table_surface_and_heading_contract_present():
     assert "background:var(--frl-surface)" in source
     assert "frl-player-header-spacer" in source
     assert "frl-player-table-row" in source
+    assert "frl-muted-soft" in source or "var(--frl-muted-soft)" in source
+    assert "font-size:.55rem" in source
+    assert "font-weight:820" in source
