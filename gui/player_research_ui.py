@@ -98,50 +98,21 @@ def _player_css():
             padding:0 0 .5rem;
             border-bottom:1px solid var(--frl-border-strong);
         }
-        .frl-player-header-spacer {
-            color:var(--frl-muted-soft);
+        .frl-player-header-link,
+        .frl-player-header-static {
+            color:var(--frl-muted-soft) !important;
             font-size:.55rem;
             font-weight:820;
             letter-spacing:.08em;
+            line-height:1;
             text-transform:uppercase;
+            text-decoration:none !important;
             padding:.1rem 0;
         }
-        .frl-player-sort-wrap .stButton { margin:0 !important; padding:0 !important; }
-        .frl-player-sort-wrap .stButton > button {
-            min-height:1.35rem !important;
-            height:1.35rem !important;
-            padding:.1rem 0 !important;
-            border:0 !important;
-            background:transparent !important;
-            box-shadow:none !important;
+        .frl-player-header-link:hover,
+        .frl-player-header-link:focus {
             color:var(--frl-muted-soft) !important;
-            font-family:inherit !important;
-            font-size:.55rem !important;
-            font-weight:820 !important;
-            letter-spacing:.08em !important;
-            line-height:1 !important;
-            text-transform:uppercase !important;
-            justify-content:flex-end !important;
-            align-items:center !important;
-        }
-        .frl-player-sort-wrap .stButton > button:hover,
-        .frl-player-sort-wrap .stButton > button:focus,
-        .frl-player-sort-wrap .stButton > button:active {
-            color:var(--frl-muted-soft) !important;
-            background:transparent !important;
-            border:0 !important;
-            box-shadow:none !important;
-        }
-        .frl-player-sort-wrap .stButton > button p {
-            color:var(--frl-muted-soft) !important;
-            font-family:inherit !important;
-            font-size:.55rem !important;
-            font-weight:820 !important;
-            letter-spacing:.08em !important;
-            line-height:1 !important;
-            text-transform:uppercase !important;
-            margin:0 !important;
-            padding:0 !important;
+            text-decoration:none !important;
         }
         .frl-player-table-row {
             min-height:2.45rem;
@@ -226,16 +197,23 @@ def _player_sort_key(player, column):
     return float(value)
 
 
-def _toggle_sort(column):
-    current = st.session_state.get("pr_table_sort", "G")
-    descending = st.session_state.get("pr_table_desc", True)
-    if current == column:
-        descending = not descending
+def _query_sort_state():
+    requested = st.query_params.get("player_sort", "G")
+    if requested not in SORTABLE_COLUMNS:
+        requested = "G"
+
+    desc_raw = st.query_params.get("player_desc", "1")
+    descending = desc_raw not in {"0", "false", "False"}
+    return requested, descending
+
+
+def _sort_href(column, current_column, current_desc):
+    if column == current_column:
+        next_desc = not current_desc
     else:
-        descending = column != "Player"
-    st.session_state["pr_table_sort"] = column
-    st.session_state["pr_table_desc"] = descending
-    st.rerun()
+        next_desc = column != "Player"
+
+    return f"?player_sort={column}&player_desc={'1' if next_desc else '0'}"
 
 
 def render_player_research_ui():
@@ -336,8 +314,7 @@ def render_player_research_ui():
         filtered = [p for p in filtered if needle in p["player_name"].casefold()]
 
     scope_label = f"{selected_seasons[0]} → {selected_seasons[-1]}" if len(selected_seasons) > 1 else selected_seasons[0]
-    sort_column = st.session_state.get("pr_table_sort", "G")
-    descending = st.session_state.get("pr_table_desc", True)
+    sort_column, descending = _query_sort_state()
     filtered = sorted(filtered, key=lambda p: _player_sort_key(p, sort_column), reverse=descending)
 
     st.markdown(
@@ -349,55 +326,58 @@ def render_player_research_ui():
         st.markdown("<div class='frl-empty-state'>No players match the current research scope.</div>", unsafe_allow_html=True)
         return
 
-    with st.container():
-        st.markdown("<div class='frl-player-table'>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-player-table'>", unsafe_allow_html=True)
 
-        header_cols = st.columns([1.8, .75, .4, .5, .4, .4, .48, .48, .54, .54], gap="small")
-        for col, label in zip(header_cols, SORTABLE_COLUMNS):
+    header_cols = st.columns([1.8, .75, .4, .5, .4, .4, .48, .48, .54, .54], gap="small")
+    for col, label in zip(header_cols, SORTABLE_COLUMNS):
+        with col:
+            if label in ("Player", "Club", "Pos"):
+                st.markdown(
+                    f"<a class='frl-player-header-static'>{label}</a>",
+                    unsafe_allow_html=True,
+                )
+            else:
+                href = _sort_href(label, sort_column, descending)
+                st.markdown(
+                    f"<a class='frl-player-header-link' href='{href}'>{label}</a>",
+                    unsafe_allow_html=True,
+                )
+
+    for player in filtered:
+        clubs_text = ", ".join(player["clubs"])
+        position_value = player.get("position") or "—"
+        values = [
+            player["player_name"],
+            clubs_text,
+            position_value,
+            f"{int(player['minutes']):,}",
+            str(int(player["goals"])),
+            str(int(player["assists"])),
+            fmt(player["xg"]),
+            fmt(player["xa"]),
+            fmt(player["goals_per_90"], 3),
+            fmt(player["xg_per_90"], 3),
+        ]
+        classes = [
+            "frl-player-name",
+            "frl-player-club",
+            "frl-player-pos",
+            "frl-player-num frl-player-min",
+            "frl-player-num frl-player-highlight",
+            "frl-player-num",
+            "frl-player-num",
+            "frl-player-num",
+            "frl-player-num",
+            "frl-player-num",
+        ]
+        row = st.columns([1.8, .75, .4, .5, .4, .4, .48, .48, .54, .54], gap="small")
+        for col, value, class_name in zip(row, values, classes):
             with col:
-                if label in ("Player", "Club", "Pos"):
-                    st.markdown("<div class='frl-player-header-spacer'>" + label + "</div>", unsafe_allow_html=True)
-                else:
-                    st.markdown("<div class='frl-player-sort-wrap'>", unsafe_allow_html=True)
-                    if st.button(label, key=f"pr_sort_header_{label}", type="tertiary", width="stretch"):
-                        _toggle_sort(label)
-                    st.markdown("</div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='frl-player-table-cell {class_name}'>{value}</div>", unsafe_allow_html=True)
 
-        for player in filtered:
-            clubs_text = ", ".join(player["clubs"])
-            position_value = player.get("position") or "—"
-            values = [
-                player["player_name"],
-                clubs_text,
-                position_value,
-                f"{int(player['minutes']):,}",
-                str(int(player["goals"])),
-                str(int(player["assists"])),
-                fmt(player["xg"]),
-                fmt(player["xa"]),
-                fmt(player["goals_per_90"], 3),
-                fmt(player["xg_per_90"], 3),
-            ]
-            classes = [
-                "frl-player-name",
-                "frl-player-club",
-                "frl-player-pos",
-                "frl-player-num frl-player-min",
-                "frl-player-num frl-player-highlight",
-                "frl-player-num",
-                "frl-player-num",
-                "frl-player-num",
-                "frl-player-num",
-                "frl-player-num",
-            ]
-            row = st.columns([1.8, .75, .4, .5, .4, .4, .48, .48, .54, .54], gap="small")
-            for col, value, class_name in zip(row, values, classes):
-                with col:
-                    st.markdown(f"<div class='frl-player-table-cell {class_name}'>{value}</div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:1px;background:var(--frl-border);'></div>", unsafe_allow_html=True)
 
-            st.markdown("<div style='height:1px;background:var(--frl-border);'></div>", unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
     with st.expander("Player detail", expanded=False):
         selected_name = st.selectbox("Player", [p["player_name"] for p in filtered], key="pr_detail")
@@ -458,4 +438,4 @@ def render_player_research_ui():
                         "FPL points": row.get("total_points", 0),
                     }
                 )
-            st.dataframe(records, use_container_width=True, hide_index=True)
+            st.dataframe(records, width="stretch", hide_index=True)
