@@ -73,10 +73,17 @@ def apply_theme():
         div[data-testid="stSelectbox"] label, div[data-testid="stRadio"] label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label { color:var(--frl-muted-soft) !important; font-size:.62rem !important; font-weight:800 !important; letter-spacing:.08em !important; text-transform:uppercase !important; }
         div[data-testid="stSelectbox"] label p, div[data-testid="stRadio"] label p, div[data-testid="stTextInput"] label p, div[data-testid="stNumberInput"] label p { color:var(--frl-muted-soft) !important; }
 
-        /* Metrics inherit the Lab palette rather than Streamlit's default theme. */
-        div[data-testid="stMetricLabel"] p { color:var(--frl-muted-soft) !important; font-size:.60rem !important; font-weight:800 !important; letter-spacing:.09em !important; text-transform:uppercase !important; }
-        div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] div { color:var(--frl-text) !important; }
-        div[data-testid="stMetricDelta"] { color:var(--frl-muted) !important; }
+        /* Metrics: force both labels and values onto the FRL palette across Streamlit DOM variants. */
+        [data-testid="stMetricLabel"],
+        [data-testid="stMetricLabel"] *,
+        [data-testid="stMetricLabel"] p,
+        [data-testid="stMetricLabel"] div { color:var(--frl-muted-soft) !important; }
+        [data-testid="stMetricLabel"] { font-size:.60rem !important; font-weight:800 !important; letter-spacing:.09em !important; text-transform:uppercase !important; }
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricValue"] *,
+        [data-testid="stMetricValue"] div { color:var(--frl-text) !important; }
+        [data-testid="stMetricDelta"],
+        [data-testid="stMetricDelta"] * { color:var(--frl-muted) !important; }
 
         div[data-testid="stExpander"] { border:0 !important; border-top:1px solid var(--frl-border) !important; border-bottom:1px solid var(--frl-border) !important; border-radius:0 !important; background:transparent !important; margin:0.1rem 0 0.7rem !important; }
         div[data-testid="stExpander"] summary { color:var(--frl-muted) !important; font-size:0.72rem !important; font-weight:650 !important; }
