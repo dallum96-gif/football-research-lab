@@ -26,7 +26,7 @@ SEASONS = tuple(player_research.available_seasons())
 
 
 def normalize_name(value: str | None) -> str:
-    """Return a conservative comparison form for footballer names."""
+    """Return a conservative comparison form for footballer names and clubs."""
     if not value:
         return ""
 
@@ -82,12 +82,19 @@ def source_files(season: str) -> tuple[Path, ...]:
 
 
 def verified_team_codes(season: str) -> dict[str, str]:
-    """Return verified persistent source team IDs for the season.
+    """Return verified persistent team IDs keyed by normalized canonical name."""
+    return {
+        normalize_name(row["canonical_name"]): str(row["persistent_team_code"])
+        for row in query_lab.load_identity_registry()
+        if (
+            row["season"] == season
+            and row["mapping_status"] == "VERIFIED"
+        )
+    }
 
-    The existing identity registry is authoritative.  Source player-match
-    team_id values are persistent source IDs, so they can be compared to the
-    FPL row's existing team_code without relying on display-name aliases.
-    """
+
+def verified_team_names_by_code(season: str) -> dict[str, str]:
+    """Return verified persistent team IDs keyed by persistent code."""
     return {
         str(row["persistent_team_code"]): str(row["canonical_name"])
         for row in query_lab.load_identity_registry()
@@ -103,17 +110,25 @@ def fpl_player_index(
 ) -> dict[tuple[str, str], set[tuple[str, str]]]:
     """Index FPL players by normalized name + verified persistent team code.
 
-    Values are unique (seasonal FPL player code, display name) pairs.  The
-    set deliberately deduplicates any repeated underlying rows before the
-    identity match is classified.
+    Newer FPL source files expose a persistent ``team_code`` directly. Older
+    seasons predate that column, so they fall back to the existing canonical
+    club name and the verified seasonal team identity registry.
     """
     index: dict[tuple[str, str], set[tuple[str, str]]] = defaultdict(set)
+    code_by_name = verified_team_codes(season)
 
     for row in player_research._load_season_rows(season):
         name = normalize_name(
             player_research.display_player_name(row)
         )
         team_code = str(row.get("team_code") or "").strip()
+
+        if not team_code:
+            team_code = code_by_name.get(
+                normalize_name(player_research._row_club(row)),
+                "",
+            )
+
         player_code = player_research.seasonal_player_id(row)
         display = player_research.display_player_name(row)
 
@@ -138,9 +153,6 @@ def source_player_index(
             display = source_player_name(row)
 
             if name and team_id and pid:
-                # One player can appear in hundreds of match rows.  The
-                # source identity is the unique player ID + display name,
-                # not the number of source rows.
                 index[(name, team_id)].add((pid, display))
         handle.close()
 
@@ -150,7 +162,7 @@ def source_player_index(
 def audit_season(season: str) -> dict:
     fpl = fpl_player_index(season)
     source = source_player_index(season)
-    verified = verified_team_codes(season)
+    verified = verified_team_names_by_code(season)
 
     exact = []
     missing = []
@@ -160,8 +172,6 @@ def audit_season(season: str) -> dict:
         name, team_code = key
         source_players = source.get(key, set())
 
-        # Ignore any FPL row carrying a team code that is not verified for
-        # this season; it cannot be safely bridged yet.
         if team_code not in verified:
             missing.append({
                 "name": name,
@@ -203,9 +213,6 @@ def audit_season(season: str) -> dict:
                 "source_names": source_names,
             })
 
-    # Source identity collisions are independently useful evidence: the same
-    # source player ID appearing with materially different normalized names is
-    # a case for review rather than a silent merge.
     source_id_to_names: dict[str, set[str]] = defaultdict(set)
     for (name, _team_code), values in source.items():
         for pid, _display in values:
