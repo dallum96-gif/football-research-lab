@@ -1,7 +1,6 @@
 from pathlib import Path
 import ast
 
-
 ROOT = Path(__file__).resolve().parents[1]
 PLAYER_UI = ROOT / "gui" / "player_research_ui.py"
 APP = ROOT / "gui" / "app_redesign.py"
@@ -41,32 +40,27 @@ def test_player_detail_starts_collapsed():
     assert 'st.expander("Player detail", expanded=False)' in source
 
 
+def test_data_table_appears_before_player_detail():
+    source = _render_source()
+    table_pos = source.find("st.dataframe(")
+    detail_pos = source.find('st.expander("Player detail"')
+    assert table_pos != -1 and detail_pos != -1
+    assert table_pos < detail_pos
+
+
 def test_no_separate_sort_by_control():
     source = _render_source()
     assert '"Sort by"' not in source
     assert "sort_options" not in source
+    assert "_toggle_sort" not in source
 
 
-def test_sort_is_header_driven():
+def test_native_table_sorting_is_used():
     source = _render_source()
-    assert "_toggle_sort" in source
-    assert "pr_sort_header_" in source
-    assert 'st.button(label,' in source
-    assert 'href=' not in source
-
-
-def test_same_header_reverses_direction():
-    source = _source()
-    assert 'if current == column:' in source
-    assert 'descending = not descending' in source
-
-
-def test_player_data_renders_before_detail():
-    source = _render_source()
-    table_pos = source.find("frl-player-table")
-    detail_pos = source.find('st.expander("Player detail"')
-    assert table_pos != -1 and detail_pos != -1
-    assert table_pos < detail_pos
+    assert "st.dataframe(" in source
+    assert 'width="stretch"' in source
+    assert "G/90" in source
+    assert "xG/90" in source
 
 
 def test_deprecated_streamlit_width_api_absent():
@@ -76,9 +70,8 @@ def test_deprecated_streamlit_width_api_absent():
 
 def test_table_surface_and_heading_contract_present():
     source = _source()
-    assert "background:var(--frl-surface)" in source
-    assert "frl-player-header-spacer" in source
-    assert "frl-player-table-row" in source
+    assert "background: var(--frl-surface)" in source
+    assert "frl-player-table" in source
+    assert "font-size: .55rem" in source
+    assert "font-weight: 820" in source
     assert "var(--frl-muted-soft)" in source
-    assert "font-size:.55rem" in source
-    assert "font-weight:820" in source
