@@ -76,6 +76,11 @@ def apply_theme():
         .frl-fixture-header + div .stButton > button > div { width:100% !important; margin:0 !important; padding:0 !important; justify-content:flex-start !important; }
         .frl-fixture-header + div .stButton > button p { color:var(--frl-text) !important; margin:0 !important; padding:0 !important; }
 
+        [data-testid="stMetricLabel"] p, [data-testid="stMetricLabel"] div, [data-testid="stMetricValue"], [data-testid="stMetricDelta"] { color:var(--frl-text) !important; }
+        [data-testid="stMetricLabel"] p { color:var(--frl-muted) !important; font-size:0.68rem !important; font-weight:720 !important; }
+        [data-testid="stMetricValue"] { font-weight:850 !important; }
+        [data-testid="stMetricDelta"] { color:var(--frl-muted) !important; }
+
         .frl-fixture-header { display:grid; grid-template-columns:1.1fr 3.25fr 0.95fr 0.9fr 0.72fr; column-gap:1rem; color:var(--frl-muted-soft); font-size:0.61rem; font-weight:740; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 0.18rem 0.48rem; border-bottom:1px solid var(--frl-border-strong); }
         .frl-fixture-row-rule { height:1px; background:var(--frl-border); margin:0.05rem 0; }
         .frl-fixture-header + div[data-testid="stHorizontalBlock"] { align-items:center !important; }
