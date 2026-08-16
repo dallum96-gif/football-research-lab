@@ -314,7 +314,35 @@ Do not imply ten-season coverage for any individual metric merely because the pl
 
 ---
 
-## 11. Safe integration principle
+## 11. Implemented source adapter
+
+The first additive implementation now lives in:
+
+`player_match_stats.py`
+
+Its responsibilities are deliberately narrow:
+
+- discover the audited per-season player-match source files;
+- expose source-field/metric availability by season;
+- reuse `match_stats.fixture_source_match()` for canonical fixture → upstream team identity;
+- resolve the player-match `matchId` by verified upstream home/away team pair;
+- deliberately omit gameweek from the final fixture join;
+- retrieve raw player-match rows for a canonical fixture;
+- aggregate additive player-match fields without changing the existing FPL player-research contract;
+- derive pass accuracy as `accuratePass / totalPass * 100` when both components exist;
+- preserve `None` for source fields that are genuinely unavailable.
+
+The adapter uses a cached season-level source match-pair index rather than rescanning every source row for every fixture.
+
+The corresponding contract tests live in:
+
+`tests/test-player-match-stats.py`
+
+These test season discovery, metric coverage, fixture-pair resolution, the known exception state, and additive aggregation/pass-accuracy behaviour.
+
+---
+
+## 12. Safe integration principle
 
 The player-match source should be treated as an **additive evidence layer**.
 
@@ -348,7 +376,7 @@ The correct reuse point is the existing research/data seam, with provenance reta
 
 ---
 
-## 12. Validation status
+## 13. Validation status
 
 The research baseline immediately before this investigation was:
 
@@ -359,13 +387,13 @@ Player Research V0.2:     6/6
 Total:                   26/26
 ```
 
-The project-health gate remained a separate control and retained the known 2019-20 fixture warning.
+The adapter has been committed but the new local test suite still needs to be run in the user's canonical Windows checkout against the real `pl_stats` source tree before it should be treated as production validated.
 
-The fixture/player-match audit itself was read-only. No canonical data, identity registry, fixture corrections or application code were modified during the discovery work.
+The project-health gate remains a separate control and retains the known 2019-20 fixture warning.
 
 ---
 
-## 13. Required future-session behaviour
+## 14. Required future-session behaviour
 
 When a future task involves player-match source data, passing, chance creation, progressive actions, per-match player enrichment, or a proposed replacement source:
 
