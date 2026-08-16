@@ -50,12 +50,9 @@ def test_no_separate_sort_by_control():
 def test_sort_is_header_driven():
     source = _render_source()
     assert "_toggle_sort" in source
-    assert "pr_sort_header_" not in source
-    assert 'st.button(label,' not in source
-    assert "pr_sort_header_" not in source
-    assert "pr_sort_header_" not in source
-    assert "st.button(label" not in source
-    assert "st.button(" in source
+    assert "pr_sort_header_" in source
+    assert 'st.button(label,' in source
+    assert 'href=' not in source
 
 
 def test_same_header_reverses_direction():
@@ -82,6 +79,6 @@ def test_table_surface_and_heading_contract_present():
     assert "background:var(--frl-surface)" in source
     assert "frl-player-header-spacer" in source
     assert "frl-player-table-row" in source
-    assert "frl-muted-soft" in source or "var(--frl-muted-soft)" in source
+    assert "var(--frl-muted-soft)" in source
     assert "font-size:.55rem" in source
     assert "font-weight:820" in source
