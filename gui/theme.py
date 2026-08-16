@@ -61,10 +61,22 @@ def apply_theme():
         .frl-empty-state { color:var(--frl-muted); padding:1rem 0; border-top:1px solid var(--frl-border); border-bottom:1px solid var(--frl-border); font-size:0.82rem; }
         .frl-month-heading { color:var(--frl-text); font-size:0.68rem; font-weight:800; letter-spacing:0.13em; text-transform:uppercase; margin:1.35rem 0 0.32rem; }
 
+        /* Shared selector styling: every research page uses the same Lab controls. */
         div[data-baseweb="select"] > div { background:var(--frl-surface-raised) !important; color:var(--frl-text) !important; border:1px solid var(--frl-border) !important; border-radius:7px !important; min-height:2.05rem !important; box-shadow:0 2px 8px rgba(24,23,20,0.025) !important; }
         div[data-baseweb="select"] > div:hover, div[data-baseweb="select"] > div:focus-within { background:var(--frl-surface-raised) !important; border-color:var(--frl-accent) !important; box-shadow:0 0 0 2px rgba(232,93,63,0.10) !important; }
+        div[data-baseweb="select"] input { color:var(--frl-text) !important; }
+        div[data-baseweb="select"] span { color:var(--frl-text) !important; }
+        div[data-baseweb="select"] svg { fill:var(--frl-muted) !important; }
         div[data-baseweb="popover"], div[data-baseweb="menu"] { background:var(--frl-surface) !important; }
+        div[data-baseweb="menu"] li { color:var(--frl-text) !important; }
         div[data-baseweb="menu"] li:hover { background:rgba(232,93,63,0.09) !important; }
+        div[data-testid="stSelectbox"] label, div[data-testid="stRadio"] label, div[data-testid="stTextInput"] label, div[data-testid="stNumberInput"] label { color:var(--frl-muted-soft) !important; font-size:.62rem !important; font-weight:800 !important; letter-spacing:.08em !important; text-transform:uppercase !important; }
+        div[data-testid="stSelectbox"] label p, div[data-testid="stRadio"] label p, div[data-testid="stTextInput"] label p, div[data-testid="stNumberInput"] label p { color:var(--frl-muted-soft) !important; }
+
+        /* Metrics inherit the Lab palette rather than Streamlit's default theme. */
+        div[data-testid="stMetricLabel"] p { color:var(--frl-muted-soft) !important; font-size:.60rem !important; font-weight:800 !important; letter-spacing:.09em !important; text-transform:uppercase !important; }
+        div[data-testid="stMetricValue"], div[data-testid="stMetricValue"] div { color:var(--frl-text) !important; }
+        div[data-testid="stMetricDelta"] { color:var(--frl-muted) !important; }
 
         div[data-testid="stExpander"] { border:0 !important; border-top:1px solid var(--frl-border) !important; border-bottom:1px solid var(--frl-border) !important; border-radius:0 !important; background:transparent !important; margin:0.1rem 0 0.7rem !important; }
         div[data-testid="stExpander"] summary { color:var(--frl-muted) !important; font-size:0.72rem !important; font-weight:650 !important; }
@@ -75,11 +87,6 @@ def apply_theme():
         .frl-fixture-header + div .stButton > button { min-height:2.05rem !important; height:2.05rem !important; padding:0 0.55rem !important; font-size:0.91rem !important; font-weight:700 !important; justify-content:flex-start !important; text-align:left !important; }
         .frl-fixture-header + div .stButton > button > div { width:100% !important; margin:0 !important; padding:0 !important; justify-content:flex-start !important; }
         .frl-fixture-header + div .stButton > button p { color:var(--frl-text) !important; margin:0 !important; padding:0 !important; }
-
-        [data-testid="stMetricLabel"] p, [data-testid="stMetricLabel"] div, [data-testid="stMetricValue"], [data-testid="stMetricDelta"] { color:var(--frl-text) !important; }
-        [data-testid="stMetricLabel"] p { color:var(--frl-muted) !important; font-size:0.68rem !important; font-weight:720 !important; }
-        [data-testid="stMetricValue"] { font-weight:850 !important; }
-        [data-testid="stMetricDelta"] { color:var(--frl-muted) !important; }
 
         .frl-fixture-header { display:grid; grid-template-columns:1.1fr 3.25fr 0.95fr 0.9fr 0.72fr; column-gap:1rem; color:var(--frl-muted-soft); font-size:0.61rem; font-weight:740; letter-spacing:0.1em; text-transform:uppercase; padding:0.35rem 0.18rem 0.48rem; border-bottom:1px solid var(--frl-border-strong); }
         .frl-fixture-row-rule { height:1px; background:var(--frl-border); margin:0.05rem 0; }
