@@ -1,9 +1,9 @@
 """Read-only audit for the FRL FPL ↔ player-match player identity bridge.
 
 This module does not write files and does not create canonical identities.
-It tests whether the existing FPL player records can be deterministically
-matched to the external players_match_stats player records by season, club,
-and normalized name, while surfacing ambiguity rather than guessing.
+It tests whether existing FPL player records can be deterministically matched
+with external players_match_stats player identities using the repository's
+verified seasonal team identity registry plus conservative normalized names.
 """
 
 from __future__ import annotations
@@ -15,6 +15,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import player_research
+import query_lab
 
 
 PL_ROOT = Path(
@@ -62,11 +63,7 @@ def open_csv(path: Path):
     last_error = None
     for encoding in ("utf-8-sig", "cp1252", "latin-1"):
         try:
-            handle = path.open(
-                "r",
-                encoding=encoding,
-                newline="",
-            )
+            handle = path.open("r", encoding=encoding, newline="")
             reader = csv.DictReader(handle)
             _ = reader.fieldnames
             return handle, reader
@@ -84,40 +81,67 @@ def source_files(season: str) -> tuple[Path, ...]:
     return tuple(sorted(PL_ROOT.rglob(expected)))
 
 
-def fpl_player_index(season: str) -> dict[tuple[str, str], list[dict]]:
-    """Index existing FRL/FPL players by normalized name and club."""
-    index: dict[tuple[str, str], list[dict]] = defaultdict(list)
+def verified_team_codes(season: str) -> dict[str, str]:
+    """Return verified persistent source team IDs for the season.
+
+    The existing identity registry is authoritative.  Source player-match
+    team_id values are persistent source IDs, so they can be compared to the
+    FPL row's existing team_code without relying on display-name aliases.
+    """
+    return {
+        str(row["persistent_team_code"]): str(row["canonical_name"])
+        for row in query_lab.load_identity_registry()
+        if (
+            row["season"] == season
+            and row["mapping_status"] == "VERIFIED"
+        )
+    }
+
+
+def fpl_player_index(
+    season: str,
+) -> dict[tuple[str, str], set[tuple[str, str]]]:
+    """Index FPL players by normalized name + verified persistent team code.
+
+    Values are unique (seasonal FPL player code, display name) pairs.  The
+    set deliberately deduplicates any repeated underlying rows before the
+    identity match is classified.
+    """
+    index: dict[tuple[str, str], set[tuple[str, str]]] = defaultdict(set)
 
     for row in player_research._load_season_rows(season):
         name = normalize_name(
             player_research.display_player_name(row)
         )
-        club = normalize_name(
-            player_research._row_club(row)
-        )
-        if name and club:
-            index[(name, club)].append(row)
+        team_code = str(row.get("team_code") or "").strip()
+        player_code = player_research.seasonal_player_id(row)
+        display = player_research.display_player_name(row)
+
+        if name and team_code and player_code:
+            index[(name, team_code)].add((player_code, display))
 
     return index
 
 
-def source_player_index(season: str) -> dict[tuple[str, str], set[tuple[str, str]]]:
-    """Index source players by normalized name and club.
-
-    Values are (source_player_id, source_name) pairs so ID continuity and
-    name variants can both be inspected.
-    """
+def source_player_index(
+    season: str,
+) -> dict[tuple[str, str], set[tuple[str, str]]]:
+    """Index source players by normalized name + persistent source team ID."""
     index: dict[tuple[str, str], set[tuple[str, str]]] = defaultdict(set)
 
     for path in source_files(season):
         handle, reader = open_csv(path)
         for row in reader:
             name = normalize_name(source_player_name(row))
-            club = normalize_name(str(row.get("team") or ""))
+            team_id = str(row.get("team_id") or "").strip()
             pid = source_player_id(row)
             display = source_player_name(row)
-            if name and club and pid:
-                index[(name, club)].add((pid, display))
+
+            if name and team_id and pid:
+                # One player can appear in hundreds of match rows.  The
+                # source identity is the unique player ID + display name,
+                # not the number of source rows.
+                index[(name, team_id)].add((pid, display))
         handle.close()
 
     return index
@@ -126,61 +150,72 @@ def source_player_index(season: str) -> dict[tuple[str, str], set[tuple[str, str
 def audit_season(season: str) -> dict:
     fpl = fpl_player_index(season)
     source = source_player_index(season)
+    verified = verified_team_codes(season)
 
     exact = []
     missing = []
     ambiguous = []
-    duplicate_source_ids = defaultdict(set)
 
-    for key, fpl_rows in fpl.items():
-        source_rows = source.get(key, set())
+    for key, fpl_players in fpl.items():
+        name, team_code = key
+        source_players = source.get(key, set())
 
-        fpl_ids = {
-            player_research.seasonal_player_id(row)
-            for row in fpl_rows
-            if player_research.seasonal_player_id(row)
-        }
-
-        source_ids = {
-            pid
-            for pid, _ in source_rows
-            if pid
-        }
-
-        if len(source_rows) == 1 and len(fpl_rows) == 1:
-            pid, display = next(iter(source_rows))
-            exact.append({
-                "fpl_name": player_research.display_player_name(fpl_rows[0]),
-                "source_name": display,
-                "fpl_player_code": next(iter(fpl_ids), ""),
-                "source_player_id": pid,
-                "club": key[1],
-            })
-        elif not source_rows:
+        # Ignore any FPL row carrying a team code that is not verified for
+        # this season; it cannot be safely bridged yet.
+        if team_code not in verified:
             missing.append({
-                "name": key[0],
-                "club": key[1],
-                "fpl_rows": len(fpl_rows),
-                "fpl_ids": sorted(fpl_ids),
+                "name": name,
+                "team_code": team_code,
+                "club": "UNVERIFIED TEAM CODE",
+                "fpl_ids": sorted(pid for pid, _ in fpl_players),
+            })
+            continue
+
+        fpl_ids = sorted(pid for pid, _ in fpl_players)
+        source_ids = sorted(pid for pid, _ in source_players)
+        source_names = sorted({display for _, display in source_players})
+
+        if len(fpl_players) == 1 and len(source_players) == 1:
+            fpl_id, fpl_display = next(iter(fpl_players))
+            source_id, source_display = next(iter(source_players))
+            exact.append({
+                "fpl_name": fpl_display,
+                "source_name": source_display,
+                "fpl_player_code": fpl_id,
+                "source_player_id": source_id,
+                "team_code": team_code,
+                "club": verified[team_code].replace("_", " "),
+            })
+        elif not source_players:
+            missing.append({
+                "name": name,
+                "team_code": team_code,
+                "club": verified[team_code].replace("_", " "),
+                "fpl_ids": fpl_ids,
             })
         else:
             ambiguous.append({
-                "name": key[0],
-                "club": key[1],
-                "fpl_rows": len(fpl_rows),
-                "source_rows": len(source_rows),
-                "fpl_ids": sorted(fpl_ids),
-                "source_ids": sorted(source_ids),
-                "source_names": sorted({name for _, name in source_rows}),
+                "name": name,
+                "team_code": team_code,
+                "club": verified[team_code].replace("_", " "),
+                "fpl_ids": fpl_ids,
+                "source_ids": source_ids,
+                "source_names": source_names,
             })
 
+    # Source identity collisions are independently useful evidence: the same
+    # source player ID appearing with materially different normalized names is
+    # a case for review rather than a silent merge.
     source_id_to_names: dict[str, set[str]] = defaultdict(set)
-    for (name, club), values in source.items():
-        for pid, display in values:
+    for (name, _team_code), values in source.items():
+        for pid, _display in values:
             source_id_to_names[pid].add(name)
-    for pid, names in source_id_to_names.items():
-        if len(names) > 1:
-            duplicate_source_ids[pid].update(names)
+
+    source_ids_with_multiple_names = {
+        pid: sorted(names)
+        for pid, names in source_id_to_names.items()
+        if len(names) > 1
+    }
 
     return {
         "season": season,
@@ -189,7 +224,7 @@ def audit_season(season: str) -> dict:
         "exact": exact,
         "missing": missing,
         "ambiguous": ambiguous,
-        "source_ids_with_multiple_names": duplicate_source_ids,
+        "source_ids_with_multiple_names": source_ids_with_multiple_names,
     }
 
 
@@ -221,8 +256,8 @@ def print_report(report: dict) -> None:
 
     for season, result in report["seasons"].items():
         print(f"  {season}")
-        print(f"    FPL player name+club candidates: {result['fpl_candidates']}")
-        print(f"    Source player name+club candidates: {result['source_candidates']}")
+        print(f"    FPL player name+team candidates: {result['fpl_candidates']}")
+        print(f"    Source player name+team candidates: {result['source_candidates']}")
         print(f"    exact 1:1 matches: {len(result['exact'])}")
         print(f"    missing source match: {len(result['missing'])}")
         print(f"    ambiguous match: {len(result['ambiguous'])}")
