@@ -96,4 +96,10 @@ def render_workspace_sidebar(active_key):
         render_player_research_ui()
         st.stop()
 
+    if selected == "prediction":
+        from gui.projection_lab import render_projection_lab
+
+        render_projection_lab()
+        st.stop()
+
     return selected
