@@ -213,6 +213,7 @@ HTML_TEMPLATE = r'''    <div id="frl-player-table" class="frl-player-table">
 
 def build_table_function() -> str:
     rows_source = _build_rows_source()
+    category_literal = json.dumps(CATEGORIES)
     return "\n".join(
         [
             "def _render_player_table(players):",
@@ -221,7 +222,7 @@ def build_table_function() -> str:
             HTML_TEMPLATE,
             "    '''",
             "    html = html.replace('__PAYLOAD__', payload)",
-            f"    html = html.replace('__CATEGORIES__', {json.dumps(json.dumps(CATEGORIES))!r})",
+            f"    html = html.replace('__CATEGORIES__', {category_literal!r})",
             "    html = html.replace('__PLAYER_COUNT__', str(len(players)))",
             "    st.iframe(html, height=640)",
         ]
