@@ -1,5 +1,6 @@
 from pathlib import Path
 import py_compile
+import re
 
 TARGET = Path("gui/player_research_ui.py")
 
@@ -16,7 +17,6 @@ def find_block(text: str, selector: str) -> tuple[int, int, str]:
     if open_pos == -1:
         raise SystemExit(f"ERROR: opening brace not found for {selector!r}. No changes made.")
 
-    # In an f-string CSS rule blocks use doubled braces: {{ ... }}.
     end = text.find("}}", open_pos + 2)
     if end == -1:
         end = text.find("}", open_pos + 1)
@@ -30,18 +30,19 @@ def find_block(text: str, selector: str) -> tuple[int, int, str]:
 
 def set_weight_in_block(text: str, selector: str, weight: int) -> str:
     start, end, block = find_block(text, selector)
-    marker = "font-weight:820;"
-    if marker not in block:
+    if re.search(r"font-weight\s*:\s*800\s*;", block):
+        return text
+    match = re.search(r"font-weight\s*:\s*\d+(?:\.\d+)?\s*;", block)
+    if not match:
         raise SystemExit(
-            f"ERROR: expected current font-weight:820; not found in {selector}. No changes made."
+            f"ERROR: no font-weight declaration found in {selector}. No changes made."
         )
-    updated = block.replace(marker, f"font-weight:{weight};", 1)
+    updated = block[:match.start()] + f"font-weight:{weight};" + block[match.end():]
     return text[:start] + updated + text[end:]
 
 
 def repair_player_name_rule(text: str) -> str:
     """Restore the player-name rule in valid Python f-string CSS syntax."""
-    # Known malformed forms from the previous patch.
     text = text.replace(
         ".frl-name { font-size:.71rem; font-weight:720; }}",
         ".frl-name {{ font-weight:720; }}",
@@ -57,10 +58,11 @@ def repair_player_name_rule(text: str) -> str:
     elif "font-weight:720;" in block:
         pass
     else:
-        # Keep existing size and add the approved lighter weight only.
-        raise SystemExit("ERROR: .frl-name rule has no recognised font-weight. No changes made.")
+        match = re.search(r"font-weight\s*:\s*\d+(?:\.\d+)?\s*;", block)
+        if not match:
+            raise SystemExit("ERROR: .frl-name rule has no recognised font-weight. No changes made.")
+        block = block[:match.start()] + "font-weight:720;" + block[match.end():]
 
-    # Preserve valid doubled braces if the rule is within the f-string.
     block = block.replace(".frl-name {", ".frl-name {{", 1)
     if block.endswith("}") and not block.endswith("}}"):
         block = block[:-1] + "}}"
@@ -101,7 +103,6 @@ def main() -> None:
     new_text = set_weight_in_block(new_text, ".frl-player-header", 800)
     new_text = set_weight_in_block(new_text, ".frl-player-header button", 800)
 
-    # Validate the proposed source before writing over the target.
     temp = TARGET.with_suffix(".players_tmp.py")
     try:
         temp.write_text(new_text, encoding="utf-8")
