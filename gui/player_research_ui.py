@@ -279,7 +279,7 @@ def _render_player_table(players):
     </script>
     """
 
-    st.iframe(html, height=640, scrolling=False)
+    st.iframe(html, height=640)
 
 
 def render_player_research_ui():
