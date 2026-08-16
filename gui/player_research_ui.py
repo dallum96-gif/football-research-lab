@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 import sys
 import json
 
@@ -46,7 +46,7 @@ OPERATORS = [
 
 def fmt(value, decimals=2):
     if value is None:
-        return "—"
+        return "â€”"
     if decimals == 0:
         return f"{int(round(value)):,}"
     return f"{float(value):.{decimals}f}"
@@ -121,163 +121,197 @@ def _player_css():
 def _render_player_table(players):
     rows = []
     for player in players:
-        rows.append({
+        row = {
             "Player": player["player_name"],
             "Club": ", ".join(player["clubs"]),
-            "Pos": player.get("position") or "—",
-            "Min": int(player["minutes"]),
-            "G": int(player["goals"]),
-            "A": int(player["assists"]),
-            "xG": float(player["xg"] or 0),
-            "xA": float(player["xa"] or 0),
-            "G/90": float(player["goals_per_90"] or 0),
-            "xG/90": float(player["xg_per_90"] or 0),
-        })
+            "Pos": player.get("position") or "â€”",
+        }
+        row['Goals'] = player.get('goals')
+        row['Assists'] = player.get('assists')
+        row['xG'] = player.get('xg')
+        row['xA'] = player.get('xa')
+        row['xGI'] = player.get('xgi')
+        row['Shots'] = player.get('shots')
+        row['Shots on Target'] = player.get('shots_on_target')
+        row['Creativity'] = player.get('creativity')
+        row['Crosses'] = player.get('crosses')
+        row['Tackles'] = player.get('tackles')
+        row['Interceptions'] = player.get('interceptions')
+        row['Recoveries'] = player.get('recoveries')
+        row['Clearances'] = player.get('clearances')
+        row['Clean Sheets'] = player.get('clean_sheets')
+        row['Saves'] = player.get('saves')
+        row['Goals Conceded'] = player.get('goals_conceded')
+        row['Penalties Saved'] = player.get('penalties_saved')
+        row['FPL Points'] = player.get('points')
+        row['Bonus'] = player.get('bonus')
+        row['BPS'] = player.get('bps')
+        row['ICT Influence'] = player.get('ict_influence')
+        row['ICT Creativity'] = player.get('ict_creativity')
+        row['ICT Threat'] = player.get('ict_threat')
+        row['ICT Index'] = player.get('ict_index')
+        row['DefCon'] = player.get('defensive_contribution')
+        row['Minutes'] = player.get('minutes')
+        row['Starts'] = player.get('starts')
+        row['Appearances'] = player.get('appearances')
+        row['Seasons'] = player.get('season_count')
+        row['Yellow Cards'] = player.get('yellow_cards')
+        row['Red Cards'] = player.get('red_cards')
+        row['Own Goals'] = player.get('own_goals')
+        row['Penalties Missed'] = player.get('penalties_missed')
+        rows.append(row)
 
     payload = json.dumps(rows).replace("</", "<\\/")
 
-    html = f"""
+    html = """
     <div id="frl-player-table" class="frl-player-table">
       <style>
-        * {{ box-sizing: border-box; }}
-        html, body {{
-          margin:0;
-          padding:0;
-          background:#fffdf8;
-          font-family:"Source Sans", sans-serif;
-        }}
-        .frl-player-table {{
-          width:100%;
-          padding:.78rem .9rem .5rem;
-          border:1px solid rgba(24,23,20,.11);
-          border-radius:14px;
-          background:#fffdf8;
-          font-family:"Source Sans", sans-serif;
-          color:#171714;
-          overflow:hidden;
-        }}
-        .frl-player-grid {{
-          display:grid;
-          grid-template-columns:minmax(180px,1.8fr) 7.4rem 4rem 5rem 4rem 4rem 4.8rem 4.8rem 5.4rem 5.4rem;
-          gap:.22rem;
-          align-items:center;
-          min-width:760px;
-        }}
-        .frl-player-header {{
-          padding:0 0 .5rem;
-          border-bottom:1px solid rgba(24,23,20,.20);
-          color:#989289;
-          font-family:"Source Sans", sans-serif;
-          font-size:.57rem;
-          font-weight:800;
-          letter-spacing:.09em;
-          line-height:1;
-          text-transform:uppercase;
-        }}
-        .frl-player-header button {{
-          all:unset;
-          display:block;
-          width:100%;
-          color:#989289;
-          font-family:"Source Sans", sans-serif;
-          font-size:.57rem;
-          font-weight:800;
-          letter-spacing:.09em;
-          line-height:1;
-          text-transform:uppercase;
-          cursor:pointer;
-          text-align:right;
-        }}
-        .frl-player-header button:hover {{ color:#989289; }}
-        .frl-player-header .static {{ text-align:left; cursor:default; }}
-        .frl-player-rows {{
-          max-height:560px;
-          overflow:auto;
-          scrollbar-width:thin;
-        }}
-        .frl-player-row {{
-          min-height:2.45rem;
-          border-bottom:1px solid rgba(24,23,20,.11);
-          color:#171714;
-          font-family:"Source Sans", sans-serif;
-          font-size:.71rem;
-        }}
-        .frl-player-row:last-child {{ border-bottom:0; }}
-        .frl-cell {{
-          padding:.22rem 0;
-          overflow:hidden;
-          text-overflow:ellipsis;
-          white-space:nowrap;
-          font-variant-numeric:tabular-nums;
-        }}
-        .frl-name {{ font-size:.68rem; font-weight:760; }}
-        .frl-club {{ color:#68645c; }}
-        .frl-pos {{ color:#9aaa42; font-weight:760; text-align:center; }}
-        .frl-num {{ text-align:right; }}
-        .frl-min {{ color:#171714; font-weight:820; }}
-        .frl-goals {{ color:#e85d3f; font-weight:850; }}
-        .frl-foot {{ margin-top:.55rem; color:#989289; font-family:"Source Sans", sans-serif; font-size:.61rem; }}
+        * { box-sizing: border-box; }
+        html, body { margin:0; padding:0; background:#fffdf8; font-family:"Source Sans", sans-serif; }
+        .frl-player-table { width:100%; padding:.78rem .9rem .5rem; border:1px solid rgba(24,23,20,.11); border-radius:14px; background:#fffdf8; font-family:"Source Sans", sans-serif; color:#171714; overflow:hidden; }
+        .frl-player-grid { display:grid; gap:.22rem; align-items:center; min-width:760px; }
+        .frl-player-header { padding:0 0 .5rem; border-bottom:1px solid rgba(24,23,20,.20); color:#989289; font-family:"Source Sans", sans-serif; font-size:.57rem; font-weight:800; letter-spacing:.09em; line-height:1; text-transform:uppercase; }
+        .frl-player-header button { all:unset; display:block; width:100%; color:#989289; font-family:"Source Sans", sans-serif; font-size:.57rem; font-weight:800; letter-spacing:.09em; line-height:1; text-transform:uppercase; cursor:pointer; text-align:right; }
+        .frl-player-header button:hover { color:#989289; }
+        .frl-player-header .static { text-align:left; cursor:default; }
+        .frl-player-rows { max-height:560px; overflow:auto; scrollbar-width:thin; }
+        .frl-player-row { min-height:2.45rem; border-bottom:1px solid rgba(24,23,20,.11); color:#171714; font-family:"Source Sans", sans-serif; font-size:.71rem; }
+        .frl-player-row:last-child { border-bottom:0; }
+        .frl-cell { padding:.22rem 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-variant-numeric:tabular-nums; }
+        .frl-name { font-size:.68rem; font-weight:760; }
+        .frl-club { color:#68645c; }
+        .frl-pos { color:#9aaa42; font-weight:760; text-align:center; }
+        .frl-num { text-align:right; }
+        .frl-goals { color:#e85d3f; font-weight:850; }
+        .frl-foot { margin-top:.55rem; color:#989289; font-family:"Source Sans", sans-serif; font-size:.61rem; }
+        .frl-player-toolbar { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; min-height:2rem; margin:0 0 .7rem; }
+        .frl-player-count { justify-self:start; color:#989289; font-family:"Source Sans", sans-serif; font-size:.62rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+        .frl-stat-nav { display:flex; align-items:center; justify-content:center; gap:.62rem; }
+        .frl-stat-nav button { all:unset; cursor:pointer; color:#989289; font-family:"Source Sans", sans-serif; font-size:.78rem; font-weight:650; line-height:1; padding:.18rem .1rem; }
+        .frl-stat-nav button:hover { color:#e85d3f; }
+        .frl-stat-nav-label { min-width:9.5rem; color:#171714; font-family:"Source Sans", sans-serif; font-size:.68rem; font-weight:800; letter-spacing:.10em; line-height:1; text-align:center; text-transform:uppercase; }
       </style>
-      <div class="frl-player-grid frl-player-header">
-        <div><button class="static" type="button">Player</button></div>
-        <div><button class="static" type="button">Club</button></div>
-        <div><button class="static" type="button">Pos</button></div>
-        <div><button type="button" data-sort="Min">Min</button></div>
-        <div><button type="button" data-sort="G">G</button></div>
-        <div><button type="button" data-sort="A">A</button></div>
-        <div><button type="button" data-sort="xG">xG</button></div>
-        <div><button type="button" data-sort="xA">xA</button></div>
-        <div><button type="button" data-sort="G/90">G/90</button></div>
-        <div><button type="button" data-sort="xG/90">xG/90</button></div>
+
+      <div class="frl-player-toolbar">
+        <div class="frl-player-count">__PLAYER_COUNT__ players</div>
+        <div class="frl-stat-nav">
+          <button id="frl-stat-prev" type="button" aria-label="Previous statistic category">â†</button>
+          <div id="frl-stat-label" class="frl-stat-nav-label"></div>
+          <button id="frl-stat-next" type="button" aria-label="Next statistic category">â†’</button>
+        </div>
+        <div></div>
       </div>
+
+      <div id="frl-player-header" class="frl-player-grid frl-player-header"></div>
       <div id="frl-player-rows" class="frl-player-rows"></div>
-      <div class="frl-foot">Goals are highlighted for quick scanning · click a statistic heading to sort.</div>
+      <div class="frl-foot">Source statistics only Â· click a statistic heading to sort.</div>
     </div>
+
     <script>
-      const data = {payload};
-      const state = {{ key: 'G', desc: true }};
+      const data = __PAYLOAD__;
+      const categories = __CATEGORIES__;
+      const categoryNames = Object.keys(categories);
+      let categoryIndex = 0;
+      let sortKey = categories[categoryNames[0]][0];
+      let descending = true;
+
+      const header = document.getElementById('frl-player-header');
       const rows = document.getElementById('frl-player-rows');
+      const label = document.getElementById('frl-stat-label');
 
-      function render() {{
-        const sorted = [...data].sort((a,b) => {{
-          let av = a[state.key], bv = b[state.key];
-          if (typeof av === 'string') {{ av = av.toLowerCase(); bv = bv.toLowerCase(); }}
-          if (av < bv) return state.desc ? 1 : -1;
-          if (av > bv) return state.desc ? -1 : 1;
-          return a.Player.localeCompare(b.Player);
-        }});
+      function availableStats(category) {
+        return categories[category].filter(stat => data.some(row => row[stat] !== null && row[stat] !== undefined));
+      }
 
-        rows.innerHTML = sorted.map(r => `
-          <div class="frl-player-grid frl-player-row">
-            <div class="frl-cell frl-name">${{escapeHtml(r.Player)}}</div>
-            <div class="frl-cell frl-club">${{escapeHtml(r.Club)}}</div>
-            <div class="frl-cell frl-pos">${{escapeHtml(r.Pos)}}</div>
-            <div class="frl-cell frl-num frl-min">${{r.Min.toLocaleString()}}</div>
-            <div class="frl-cell frl-num frl-goals">${{r.G.toLocaleString()}}</div>
-            <div class="frl-cell frl-num">${{r.A.toLocaleString()}}</div>
-            <div class="frl-cell frl-num">${{r.xG.toFixed(2)}}</div>
-            <div class="frl-cell frl-num">${{r.xA.toFixed(2)}}</div>
-            <div class="frl-cell frl-num">${{r['G/90'].toFixed(3)}}</div>
-            <div class="frl-cell frl-num">${{r['xG/90'].toFixed(3)}}</div>
-          </div>`).join('');
-      }}
+      function formatValue(value) {
+        if (value === null || value === undefined || value === '') return 'â€”';
+        if (typeof value === 'number') return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);
+        return String(value);
+      }
 
-      function escapeHtml(value) {{
-        return String(value).replace(/[&<>'"]/g, ch => ({{'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}}[ch]));
-      }}
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>'"]/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[ch]));
+      }
 
-      document.querySelectorAll('[data-sort]').forEach(button => {{
-        button.addEventListener('click', () => {{
-          const key = button.dataset.sort;
-          if (state.key === key) state.desc = !state.desc;
-          else {{ state.key = key; state.desc = true; }}
-          render();
-        }});
-      }});
+      function render() {
+        const category = categoryNames[categoryIndex];
+        const stats = availableStats(category);
+        label.textContent = category;
+
+        if (!stats.length) {
+          header.innerHTML = '<div class="static">No source statistics available</div>';
+          rows.innerHTML = '';
+          return;
+        }
+
+        if (!stats.includes(sortKey)) {
+          sortKey = stats[0];
+          descending = true;
+        }
+
+        const templateColumns = `minmax(180px,1.8fr) 7.4rem 4rem repeat(${stats.length}, 5rem)`;
+        header.style.gridTemplateColumns = templateColumns;
+        header.innerHTML = '<div><button class="static" type="button">Player</button></div>' +
+          '<div><button class="static" type="button">Club</button></div>' +
+          '<div><button class="static" type="button">Pos</button></div>' +
+          stats.map(stat => `<div><button type="button" data-sort="${escapeHtml(stat)}">${escapeHtml(stat)}</button></div>`).join('');
+
+        const sorted = [...data].sort((a, b) => {
+          const av = a[sortKey];
+          const bv = b[sortKey];
+          if (av === bv) return a.Player.localeCompare(b.Player);
+          if (av === null || av === undefined) return 1;
+          if (bv === null || bv === undefined) return -1;
+          if (typeof av === 'string' || typeof bv === 'string') {
+            const as = String(av).toLowerCase();
+            const bs = String(bv).toLowerCase();
+            return as.localeCompare(bs) * (descending ? -1 : 1);
+          }
+          return (av < bv ? 1 : -1) * (descending ? 1 : -1);
+        });
+
+        rows.innerHTML = sorted.map(r =>
+          `<div class="frl-player-grid frl-player-row" style="grid-template-columns:${templateColumns}">` +
+          `<div class="frl-cell frl-name">${escapeHtml(r.Player)}</div>` +
+          `<div class="frl-cell frl-club">${escapeHtml(r.Club)}</div>` +
+          `<div class="frl-cell frl-pos">${escapeHtml(r.Pos)}</div>` +
+          stats.map(stat => `<div class="frl-cell frl-num ${stat === 'Goals' ? 'frl-goals' : ''}">${formatValue(r[stat])}</div>`).join('') +
+          '</div>'
+        ).join('');
+
+        header.querySelectorAll('[data-sort]').forEach(button => {
+          button.addEventListener('click', () => {
+            const key = button.dataset.sort;
+            if (sortKey === key) descending = !descending;
+            else { sortKey = key; descending = true; }
+            render();
+          });
+        });
+      }
+
+      document.getElementById('frl-stat-prev').addEventListener('click', () => {
+        categoryIndex = (categoryIndex - 1 + categoryNames.length) % categoryNames.length;
+        sortKey = categories[categoryNames[categoryIndex]][0];
+        descending = true;
+        render();
+      });
+
+      document.getElementById('frl-stat-next').addEventListener('click', () => {
+        categoryIndex = (categoryIndex + 1) % categoryNames.length;
+        sortKey = categories[categoryNames[categoryIndex]][0];
+        descending = true;
+        render();
+      });
 
       render();
     </script>
     """
+
+    html = (
+        html.replace("__PAYLOAD__", payload)
+        .replace("__CATEGORIES__", category_json)
+        .replace("__PLAYER_COUNT__", str(len(players)))
+    )
 
     st.iframe(html, height=640)
 
@@ -301,7 +335,7 @@ def render_player_research_ui():
         if mode == "Single season":
             season = st.selectbox("Season", seasons, index=len(seasons) - 1, key="pr_single_season")
             selected_seasons = [season]
-            with st.spinner("Loading players…"):
+            with st.spinner("Loading playersâ€¦"):
                 players = list(player_research.season_players(season))
         else:
             scope_cols = st.columns(2, gap="medium")
@@ -312,7 +346,7 @@ def render_player_research_ui():
             low = min(seasons.index(start_season), seasons.index(end_season))
             high = max(seasons.index(start_season), seasons.index(end_season))
             selected_seasons = seasons[low:high + 1]
-            with st.spinner(f"Loading {len(selected_seasons)} seasons…"):
+            with st.spinner(f"Loading {len(selected_seasons)} seasonsâ€¦"):
                 players = list(player_research.multi_season_players(selected_seasons[0], selected_seasons[-1]))
 
         positions = sorted({player["position"] for player in players if player["position"]})
@@ -346,7 +380,7 @@ def render_player_research_ui():
                     value = st.number_input("Value", value=0.0, step=0.01, format="%.2f", key=f"pr_condition_value_float_{index}")
             filters.append((metric, operator, value))
 
-    search = st.text_input("Search player", placeholder="Search player name…", key="pr_search", label_visibility="collapsed")
+    search = st.text_input("Search player", placeholder="Search player nameâ€¦", key="pr_search", label_visibility="collapsed")
 
     filtered = player_research.filter_players(
         players,
@@ -360,8 +394,8 @@ def render_player_research_ui():
         needle = search.strip().casefold()
         filtered = [player for player in filtered if needle in player["player_name"].casefold()]
 
-    scope_label = f"{selected_seasons[0]} → {selected_seasons[-1]}" if len(selected_seasons) > 1 else selected_seasons[0]
-    st.markdown(f"<div class='frl-player-result-line'>{len(filtered):,} player(s) · {scope_label}</div>", unsafe_allow_html=True)
+    scope_label = f"{selected_seasons[0]} â†’ {selected_seasons[-1]}" if len(selected_seasons) > 1 else selected_seasons[0]
+    st.markdown(f"<div class='frl-player-result-line'>{len(filtered):,} player(s) Â· {scope_label}</div>", unsafe_allow_html=True)
 
     if not filtered:
         st.markdown("<div style='color:var(--frl-muted);padding:.9rem 0;border-top:1px solid var(--frl-border);border-bottom:1px solid var(--frl-border);font-size:.8rem;'>No players match the current research scope.</div>", unsafe_allow_html=True)
@@ -374,7 +408,7 @@ def render_player_research_ui():
         player = next(item for item in filtered if item["player_name"] == selected_name)
         st.markdown(
             f"<div class='frl-player-detail-title'>{player['player_name']}</div>"
-            f"<div class='frl-player-detail-note'>{', '.join(player['clubs'])} · {player['position'] or 'Unknown'} · {scope_label}</div>",
+            f"<div class='frl-player-detail-note'>{', '.join(player['clubs'])} Â· {player['position'] or 'Unknown'} Â· {scope_label}</div>",
             unsafe_allow_html=True,
         )
         metrics = st.columns(6, gap="small")
@@ -425,3 +459,5 @@ def render_player_research_ui():
                     "FPL points": row.get("total_points", 0),
                 })
             st.dataframe(pd.DataFrame(records), width="stretch", hide_index=True)
+
+
