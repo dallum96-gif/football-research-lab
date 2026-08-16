@@ -26,6 +26,13 @@ SUM_METRICS = {
     "xg": "expected_goals",
     "xa": "expected_assists",
     "xgi": "expected_goal_involvements",
+    "creativity": "creativity",
+    "crosses": "open_play_crosses",
+    "attempted_passes": "attempted_passes",
+    "completed_passes": "completed_passes",
+    "key_passes": "key_passes",
+    "big_chances_created": "big_chances_created",
+    "dribbles": "dribbles",
 }
 
 DERIVED_METRICS = {
@@ -295,11 +302,21 @@ def _aggregate(
     }
 
     for metric, source_column in SUM_METRICS.items():
-        player[metric] = sum(
-            _number(
-                row.get(source_column)
-            )
+        present = any(
+            source_column in row
+            and row.get(source_column) not in (None, "")
             for row in rows
+        )
+
+        player[metric] = (
+            sum(
+                _number(
+                    row.get(source_column)
+                )
+                for row in rows
+            )
+            if present
+            else None
         )
 
     minutes = player["minutes"]
