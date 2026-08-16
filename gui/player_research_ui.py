@@ -30,7 +30,7 @@ FILTER_OPTIONS = {
     "Goals / 90": ("goals_per_90", "float"),
     "Assists / 90": ("assists_per_90", "float"),
     "xG / 90": ("xg_per_90", "float"),
-    "xA / 90": ("xa_per_90", "float"),
+    "xA / 90": ("xg_per_90", "float"),
     "xGI / 90": ("xgi_per_90", "float"),
     "BPS / 90": ("bps_per_90", "float"),
 }
@@ -46,7 +46,7 @@ OPERATORS = [
 
 def fmt(value, decimals=2):
     if value is None:
-        return "â€”"
+        return "—"
     if decimals == 0:
         return f"{int(round(value)):,}"
     return f"{float(value):.{decimals}f}"
@@ -124,52 +124,56 @@ def _render_player_table(players):
         row = {
             "Player": player["player_name"],
             "Club": ", ".join(player["clubs"]),
-            "Pos": player.get("position") or "â€”",
+            "Pos": player.get("position") or "—",
         }
-        row['Goals'] = player.get('goals')
-        row['Assists'] = player.get('assists')
-        row['xG'] = player.get('xg')
-        row['xA'] = player.get('xa')
-        row['xGI'] = player.get('xgi')
-        row['Shots'] = player.get('shots')
-        row['Shots on Target'] = player.get('shots_on_target')
-        row['Creativity'] = player.get('creativity')
-        row['Crosses'] = player.get('crosses')
-        row['Tackles'] = player.get('tackles')
-        row['Interceptions'] = player.get('interceptions')
-        row['Recoveries'] = player.get('recoveries')
-        row['Clearances'] = player.get('clearances')
-        row['Clean Sheets'] = player.get('clean_sheets')
-        row['Saves'] = player.get('saves')
-        row['Goals Conceded'] = player.get('goals_conceded')
-        row['Penalties Saved'] = player.get('penalties_saved')
-        row['FPL Points'] = player.get('points')
-        row['Bonus'] = player.get('bonus')
-        row['BPS'] = player.get('bps')
-        row['ICT Influence'] = player.get('ict_influence')
-        row['ICT Creativity'] = player.get('ict_creativity')
-        row['ICT Threat'] = player.get('ict_threat')
-        row['ICT Index'] = player.get('ict_index')
-        row['DefCon'] = player.get('defensive_contribution')
-        row['Minutes'] = player.get('minutes')
-        row['Starts'] = player.get('starts')
-        row['Appearances'] = player.get('appearances')
-        row['Seasons'] = player.get('season_count')
-        row['Yellow Cards'] = player.get('yellow_cards')
-        row['Red Cards'] = player.get('red_cards')
-        row['Own Goals'] = player.get('own_goals')
-        row['Penalties Missed'] = player.get('penalties_missed')
+        row["Goals"] = player.get("goals")
+        row["Assists"] = player.get("assists")
+        row["xG"] = player.get("xg")
+        row["xA"] = player.get("xa")
+        row["xGI"] = player.get("xgi")
+        row["Shots"] = player.get("shots")
+        row["Shots on Target"] = player.get("shots_on_target")
+        row["Creativity"] = player.get("creativity")
+        row["Crosses"] = player.get("crosses")
+        row["Attempted Passes"] = player.get("attempted_passes")
+        row["Completed Passes"] = player.get("completed_passes")
+        row["Key Passes"] = player.get("key_passes")
+        row["Big Chances Created"] = player.get("big_chances_created")
+        row["Dribbles"] = player.get("dribbles")
+        row["Tackles"] = player.get("tackles")
+        row["Interceptions"] = player.get("interceptions")
+        row["Recoveries"] = player.get("recoveries")
+        row["Clearances"] = player.get("clearances")
+        row["Clean Sheets"] = player.get("clean_sheets")
+        row["Saves"] = player.get("saves")
+        row["Goals Conceded"] = player.get("goals_conceded")
+        row["Penalties Saved"] = player.get("penalties_saved")
+        row["FPL Points"] = player.get("points")
+        row["Bonus"] = player.get("bonus")
+        row["BPS"] = player.get("bps")
+        row["ICT Influence"] = player.get("ict_influence")
+        row["ICT Creativity"] = player.get("ict_creativity")
+        row["ICT Threat"] = player.get("ict_threat")
+        row["ICT Index"] = player.get("ict_index")
+        row["DefCon"] = player.get("defensive_contribution")
+        row["Minutes"] = player.get("minutes")
+        row["Starts"] = player.get("starts")
+        row["Appearances"] = player.get("appearances")
+        row["Seasons"] = player.get("season_count")
+        row["Yellow Cards"] = player.get("yellow_cards")
+        row["Red Cards"] = player.get("red_cards")
+        row["Own Goals"] = player.get("own_goals")
+        row["Penalties Missed"] = player.get("penalties_missed")
         rows.append(row)
 
     categories = {
         "Attacking": ["Goals", "Assists", "xG", "xA", "xGI", "Shots", "Shots on Target"],
-        "Creativity": ["Creativity", "Crosses"],
+        "Passing": ["Attempted Passes", "Completed Passes", "Key Passes", "Creativity", "Crosses", "Big Chances Created"],
+        "Dribbling": ["Dribbles"],
         "Defending": ["Tackles", "Interceptions", "Recoveries", "Clearances", "Clean Sheets", "Goals Conceded", "DefCon"],
         "Goalkeeping": ["Saves", "Goals Conceded", "Penalties Saved"],
-        "FPL": ["FPL Points", "Bonus", "BPS"],
-        "ICT": ["ICT Influence", "ICT Creativity", "ICT Threat", "ICT Index"],
-        "Playing Time": ["Minutes", "Starts", "Appearances", "Seasons"],
-        "Discipline": ["Yellow Cards", "Red Cards", "Own Goals", "Penalties Missed"],
+        "FPL": ["FPL Points", "Bonus", "BPS", "ICT Influence", "ICT Creativity", "ICT Threat", "ICT Index"],
+        "Misc": ["Minutes", "Yellow Cards", "Red Cards", "Own Goals", "Penalties Missed"],
     }
 
     category_json = json.dumps(categories)
@@ -208,16 +212,16 @@ def _render_player_table(players):
       <div class="frl-player-toolbar">
         <div class="frl-player-count">__PLAYER_COUNT__ players</div>
         <div class="frl-stat-nav">
-          <button id="frl-stat-prev" type="button" aria-label="Previous statistic category">â†</button>
+          <button id="frl-stat-prev" type="button" aria-label="Previous statistic category">&#8592;</button>
           <div id="frl-stat-label" class="frl-stat-nav-label"></div>
-          <button id="frl-stat-next" type="button" aria-label="Next statistic category">â†’</button>
+          <button id="frl-stat-next" type="button" aria-label="Next statistic category">&#8594;</button>
         </div>
         <div></div>
       </div>
 
       <div id="frl-player-header" class="frl-player-grid frl-player-header"></div>
       <div id="frl-player-rows" class="frl-player-rows"></div>
-      <div class="frl-foot">Source statistics only Â· click a statistic heading to sort.</div>
+      <div class="frl-foot">Source statistics only - click a statistic heading to sort.</div>
     </div>
 
     <script>
@@ -237,7 +241,7 @@ def _render_player_table(players):
       }
 
       function formatValue(value) {
-        if (value === null || value === undefined || value === '') return 'â€”';
+        if (value === null || value === undefined || value === '') return '—';
         if (typeof value === 'number') return Number.isInteger(value) ? value.toLocaleString() : value.toFixed(2);
         return String(value);
       }
@@ -348,7 +352,7 @@ def render_player_research_ui():
         if mode == "Single season":
             season = st.selectbox("Season", seasons, index=len(seasons) - 1, key="pr_single_season")
             selected_seasons = [season]
-            with st.spinner("Loading playersâ€¦"):
+            with st.spinner("Loading players…"):
                 players = list(player_research.season_players(season))
         else:
             scope_cols = st.columns(2, gap="medium")
@@ -359,7 +363,7 @@ def render_player_research_ui():
             low = min(seasons.index(start_season), seasons.index(end_season))
             high = max(seasons.index(start_season), seasons.index(end_season))
             selected_seasons = seasons[low:high + 1]
-            with st.spinner(f"Loading {len(selected_seasons)} seasonsâ€¦"):
+            with st.spinner(f"Loading {len(selected_seasons)} seasons…"):
                 players = list(player_research.multi_season_players(selected_seasons[0], selected_seasons[-1]))
 
         positions = sorted({player["position"] for player in players if player["position"]})
@@ -393,7 +397,7 @@ def render_player_research_ui():
                     value = st.number_input("Value", value=0.0, step=0.01, format="%.2f", key=f"pr_condition_value_float_{index}")
             filters.append((metric, operator, value))
 
-    search = st.text_input("Search player", placeholder="Search player nameâ€¦", key="pr_search", label_visibility="collapsed")
+    search = st.text_input("Search player", placeholder="Search player name…", key="pr_search", label_visibility="collapsed")
 
     filtered = player_research.filter_players(
         players,
@@ -407,8 +411,8 @@ def render_player_research_ui():
         needle = search.strip().casefold()
         filtered = [player for player in filtered if needle in player["player_name"].casefold()]
 
-    scope_label = f"{selected_seasons[0]} â†’ {selected_seasons[-1]}" if len(selected_seasons) > 1 else selected_seasons[0]
-    st.markdown(f"<div class='frl-player-result-line'>{len(filtered):,} player(s) Â· {scope_label}</div>", unsafe_allow_html=True)
+    scope_label = f"{selected_seasons[0]} → {selected_seasons[-1]}" if len(selected_seasons) > 1 else selected_seasons[0]
+    st.markdown(f"<div class='frl-player-result-line'>{len(filtered):,} player(s) · {scope_label}</div>", unsafe_allow_html=True)
 
     if not filtered:
         st.markdown("<div style='color:var(--frl-muted);padding:.9rem 0;border-top:1px solid var(--frl-border);border-bottom:1px solid var(--frl-border);font-size:.8rem;'>No players match the current research scope.</div>", unsafe_allow_html=True)
@@ -421,7 +425,7 @@ def render_player_research_ui():
         player = next(item for item in filtered if item["player_name"] == selected_name)
         st.markdown(
             f"<div class='frl-player-detail-title'>{player['player_name']}</div>"
-            f"<div class='frl-player-detail-note'>{', '.join(player['clubs'])} Â· {player['position'] or 'Unknown'} Â· {scope_label}</div>",
+            f"<div class='frl-player-detail-note'>{', '.join(player['clubs'])} · {player['position'] or 'Unknown'} · {scope_label}</div>",
             unsafe_allow_html=True,
         )
         metrics = st.columns(6, gap="small")
@@ -472,6 +476,3 @@ def render_player_research_ui():
                     "FPL points": row.get("total_points", 0),
                 })
             st.dataframe(pd.DataFrame(records), width="stretch", hide_index=True)
-
-
-
