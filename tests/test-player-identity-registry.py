@@ -7,18 +7,21 @@ def test_module_shape():
     assert player_identity_registry.FIELDS[0] == "season"
 
 
-def test_reject_review_rows(monkeypatch):
-    monkeypatch.setattr(
-        player_identity_registry.player_identity_crosswalk,
-        "summarize",
-        lambda: {"review_rows": 1, "confirmed": []},
-    )
+def test_reject_review_rows():
+    original = player_identity_registry.player_identity_crosswalk.summarize
+    player_identity_registry.player_identity_crosswalk.summarize = lambda: {
+        "review_rows": 1,
+        "confirmed": [],
+    }
     try:
-        player_identity_registry.build_registry()
-    except ValueError as exc:
-        assert "review rows remain" in str(exc)
-    else:
-        raise AssertionError("review rows must block registry promotion")
+        try:
+            player_identity_registry.build_registry()
+        except ValueError as exc:
+            assert "review rows remain" in str(exc)
+        else:
+            raise AssertionError("review rows must block registry promotion")
+    finally:
+        player_identity_registry.player_identity_crosswalk.summarize = original
 
 
 if __name__ == "__main__":
