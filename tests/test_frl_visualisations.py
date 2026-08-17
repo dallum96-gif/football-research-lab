@@ -49,7 +49,7 @@ def test_team_goals_trend_returns_altair_chart() -> None:
     assert isinstance(chart, alt.Chart)
     mark = chart.to_dict()["mark"]
     assert mark["type"] == "line"
-    assert mark["point"] is True
+    assert mark["point"] == {"filled": True, "size": 44, "strokeWidth": 1.2}
 
 
 def test_team_goals_trend_normalises_dst_timezone_for_altair() -> None:
