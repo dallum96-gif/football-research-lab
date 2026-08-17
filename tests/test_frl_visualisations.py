@@ -46,7 +46,9 @@ def _result() -> ResearchResult:
 def test_team_goals_trend_returns_altair_chart() -> None:
     chart = team_goals_trend(_result())
     assert isinstance(chart, alt.Chart)
-    assert chart.to_dict()["mark"] == {"point": True, "type": "line"}
+    mark = chart.to_dict()["mark"]
+    assert mark["type"] == "line"
+    assert mark["point"] is True
 
 
 def test_team_goals_trend_does_not_accept_wrong_result_type() -> None:
