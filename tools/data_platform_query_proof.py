@@ -148,14 +148,16 @@ def run_query_proof(season: str = "2025-26", team: str = "Arsenal") -> dict[str,
             normalised = [{name: row[i] for i, name in enumerate(cols)} for row in fixture_rows]
             duck_table = _canonical_league_table(normalised)
 
-            if csv_table["teams"] != duck_table:
-                if len(csv_table["teams"]) != len(duck_table):
+            fields = ["team", "played", "wins", "draws", "losses", "goals_for", "goals_against", "goal_difference", "points", "position"]
+            csv_projected = [{field: row.get(field, "") for field in fields} for row in csv_table["teams"]]
+            duck_projected = [{field: row.get(field, "") for field in fields} for row in duck_table]
+            if csv_projected != duck_projected:
+                if len(csv_projected) != len(duck_projected):
                     raise AssertionError(
                         "league table row-count mismatch: "
-                        f"csv={len(csv_table['teams'])} duckdb={len(duck_table)}"
+                        f"csv={len(csv_projected)} duckdb={len(duck_projected)}"
                     )
-                fields = ["team", "played", "wins", "draws", "losses", "goals_for", "goals_against", "goal_difference", "points", "position"]
-                for idx, (csv_row, duck_row) in enumerate(zip(csv_table["teams"], duck_table), start=1):
+                for idx, (csv_row, duck_row) in enumerate(zip(csv_projected, duck_projected), start=1):
                     for field in fields:
                         if str(csv_row.get(field, "")) != str(duck_row.get(field, "")):
                             raise AssertionError(
