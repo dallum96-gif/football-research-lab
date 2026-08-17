@@ -103,6 +103,10 @@ The platform should accommodate quick exploratory questions as well as rigorous,
 
 Exploration may be iterative and provisional; formal research should be identifiable as such and supported by appropriate validation, provenance and reproducibility.
 
+The guiding idea is:
+
+> **We are not building one football model. We are building the research environment in which we can discover which models, metrics and explanations are worth building.**
+
 ### 15. Foundational decisions become durable project memory.
 
 When an architectural, data, ingestion, UI, modelling, provenance, safety or repository decision becomes fundamentally important to the long-term Laboratory, the authoritative detail must be written into the appropriate repository document and committed to the active development branch.
@@ -128,6 +132,7 @@ Before doing substantive work, read:
 * `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`
 * `FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md`
 * `FRL_ANALYTICAL_DATA_LAYOUT_V1.md`
+* `FRL_VISUALISATION_DATA_CONTRACT.md`
 * `SESSION_START_PROTOCOL.md`
 
 Then inspect the relevant code and establish the current branch/state before doing anything.
@@ -136,7 +141,7 @@ Do not ask me to re-explain the project when the information can be recovered fr
 
 The fresh-session sequence is therefore:
 
-**read orientation → read current work → read the governing data/architecture/relationship/residency/layout contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+**read orientation → read current work → read the governing data/architecture/relationship/residency/layout/visualisation contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
 
 ### Branch safety
 
@@ -199,7 +204,7 @@ A format or storage migration is only equivalent when these canonical relationsh
 
 The FRL should be treated as a connected football evidence system with a data platform underneath the UI.
 
-Read `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` for the entity/relationship model, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` for verified join semantics, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md` for the storage/ingestion architecture, and `FRL_ANALYTICAL_DATA_LAYOUT_V1.md` for the analytical representation and canonical grains.
+Read `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` for the entity/relationship model, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` for verified join semantics, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md` for the storage/ingestion architecture, `FRL_ANALYTICAL_DATA_LAYOUT_V1.md` for the analytical representation and canonical grains, and `FRL_VISUALISATION_DATA_CONTRACT.md` for the visual research boundary.
 
 The guiding principle is:
 
@@ -227,6 +232,8 @@ ANALYTICAL LAYER
 RESEARCH / MODELS
       ↓
 QUERY API
+      ↓
+VISUALISATION
       ↓
 GUI
 ```
@@ -265,7 +272,7 @@ The platform should make it straightforward to build beautiful, useful and inter
 
 Visualisations are downstream research views over trusted analytical outputs. They must preserve the same population, filters, provenance, time semantics and uncertainty as the result they display. A chart, table or comparison must never become a parallel source of truth.
 
-The FRL may make these views **sleek, playful, funny and visually appealing** while retaining serious analytical standards. The visualisation layer should remain replaceable and should not make the data architecture dependent on one charting library.
+The FRL may make these views sleek, playful, funny and visually appealing while retaining serious analytical standards. The visualisation layer should remain replaceable and should not make the data architecture dependent on one charting library.
 
 ## Current architectural priorities
 
