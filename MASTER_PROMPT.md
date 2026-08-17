@@ -103,10 +103,6 @@ The platform should accommodate quick exploratory questions as well as rigorous,
 
 Exploration may be iterative and provisional; formal research should be identifiable as such and supported by appropriate validation, provenance and reproducibility.
 
-The guiding idea is:
-
-> **We are not building one football model. We are building the research environment in which we can discover which models, metrics and explanations are worth building.**
-
 ### 15. Foundational decisions become durable project memory.
 
 When an architectural, data, ingestion, UI, modelling, provenance, safety or repository decision becomes fundamentally important to the long-term Laboratory, the authoritative detail must be written into the appropriate repository document and committed to the active development branch.
@@ -249,6 +245,28 @@ Player–Fixture = (season, fixture_id, canonical player identity)
 
 Identity bridge datasets and source-local identifiers remain explicit. Derived datasets and materialisations must retain a traceable route to their canonical inputs.
 
+### Visualisation is a first-class research capability
+
+Data visualisation is a major part of the FRL, not decoration added after the analysis is finished.
+
+The platform should make it straightforward to build beautiful, useful and interactive:
+
+- charts and trends;
+- analytical and sortable tables;
+- team/player/fixture comparison tools;
+- distributions and uncertainty views;
+- historical/rolling-state visualisations;
+- head-to-head and matchup views;
+- scatter/relationship/feature-exploration plots;
+- model calibration and performance visualisations;
+- research-population summaries;
+- timelines and event visualisations;
+- bespoke visual research tools where a question benefits from them.
+
+Visualisations are downstream research views over trusted analytical outputs. They must preserve the same population, filters, provenance, time semantics and uncertainty as the result they display. A chart, table or comparison must never become a parallel source of truth.
+
+The FRL may make these views **sleek, playful, funny and visually appealing** while retaining serious analytical standards. The visualisation layer should remain replaceable and should not make the data architecture dependent on one charting library.
+
 ## Current architectural priorities
 
 Distinguish between:
@@ -264,9 +282,10 @@ The current architecture prioritises:
 3. temporal/historical reconstruction;
 4. player, team and fixture interconnected research views;
 5. reusable analytical/query services;
-6. future combined metrics and research querying;
-7. future replaceable mathematical/statistical models;
-8. only then explicit market/betting applications.
+6. rich data visualisation and comparison capabilities;
+7. future combined metrics and research querying;
+8. future replaceable mathematical/statistical models;
+9. only then explicit market/betting applications.
 
 Do not add infrastructure merely because it is technically interesting. Add it when it materially improves scalability, reproducibility, provenance, reliability or future research capability.
 
