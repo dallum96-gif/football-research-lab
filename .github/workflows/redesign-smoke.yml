@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - redesign-github-sync
+      - design/player-filter-tiles
   pull_request:
     branches:
       - redesign-github-sync
+      - design/player-filter-tiles
 
 jobs:
   smoke:
