@@ -37,8 +37,8 @@ def _duckdb_fixture_rows(con: duckdb.DuckDBPyConnection, fixture_pq: Path, team_
             f.away_team_id,
             f.home_score,
             f.away_score,
-            th.canonical_name AS home_team_name,
-            away_team.canonical_name AS away_team_name
+            REPLACE(th.canonical_name, '_', ' ') AS home_team_name,
+            REPLACE(away_team.canonical_name, '_', ' ') AS away_team_name
         FROM {fixtures} f
         LEFT JOIN {teams} th
           ON f.season = th.season
