@@ -33,13 +33,14 @@ Additional player-match evidence-layer tests currently validated locally:
 
 The project-health gate remains a separate required control for relevant data-layer changes.
 
-The latest repository-side redesign smoke run is green.
+The latest repository-side relationship/platform smoke run is green.
 
 ## Governing architecture contracts
 
 The following are required architectural-memory documents for fresh sessions:
 
 - `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`
+- `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`
 - `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
 - `FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md`
 
@@ -91,7 +92,7 @@ No bulk-data migration is being performed merely for architectural neatness. Exi
 
 ## Data residency & lineage status
 
-`FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md` now records the initial residency and lineage map for the major FRL datasets and source families.
+`FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md` records the initial residency and lineage map for the major FRL datasets and source families.
 
 Known tracked canonical/derived datasets include:
 
@@ -106,6 +107,17 @@ Known tracked canonical/derived datasets include:
 The richer upstream `pl_stats` player-match and event source families remain a distinct local/source-workspace concern and are not to be confused with canonical FRL data merely because they were used to construct it.
 
 The inventory confirms the key current architecture gap: the original canonical fixture/team build is trusted but not yet represented by one clean end-to-end reproducible rebuild pipeline.
+
+## Relationship-integrity proof status
+
+The first Parquet/DuckDB relationship proof exposed two important schema assumptions and has now been corrected:
+
+1. The season-specific Player Research source CSV does not physically contain `_season`; `player_research._load_season_rows()` derives that context from the loaded season/source file.
+2. Fixture `home_team_id` and `away_team_id` are season-local team identifiers and must resolve through `identity/team_seasons.csv` using `local_team_id`, not `club_id` / persistent identity directly.
+
+These semantics are now formalised in `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` and enforced by `tools/data_platform_proof.py` plus `tests/test-data-platform-proof.py`.
+
+The green repository-side run confirms that the corrected relationship semantics survive temporary Parquet promotion and DuckDB querying without changing production CSV-backed consumers.
 
 ## Product navigation contract
 
@@ -267,6 +279,7 @@ read orientation
 → read non-destruction assurance
 → read UI design system
 → read FRL data hierarchy & organisation contract
+→ read FRL relationship integrity contract
 → read FRL data platform architecture v1
 → read FRL data residency & lineage inventory v1
 → establish branch/repository state
@@ -276,12 +289,12 @@ read orientation
 → only then start substantive work
 ```
 
-The hierarchy, data-platform and residency/lineage contracts are project memory and must not be treated as optional background.
+The hierarchy, relationship, data-platform and residency/lineage contracts are project memory and must not be treated as optional background.
 
 ## Immediate next step
 
-**Local Parquet/DuckDB equivalence proof**
+**Design the local analytical layout — without changing production consumers.**
 
-Select one or two large, trusted existing datasets from the residency inventory and build a local, additive Parquet representation. Use DuckDB to reproduce a small set of existing trusted query outputs and compare them against the current CSV-backed path.
+The relationship-integrity proof is now green. The next bounded task is to define how the validated canonical and derived datasets should be partitioned into Parquet datasets and queried through DuckDB, using the existing canonical keys and relationship contracts.
 
-The first proof should be chosen by measurable size/analytical value rather than convenience. No current CSV-backed consumer should be switched over until the equivalence results, lineage and rollback path are documented.
+Start by choosing one representative player dataset and one representative fixture/team dataset, defining their target analytical schemas and join keys, then proving equivalence against the current CSV-backed query outputs. Only after that should any existing consumer be considered for migration.
