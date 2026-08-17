@@ -54,6 +54,26 @@ def _duckdb_fixture_rows(con: duckdb.DuckDBPyConnection, fixture_pq: Path, team_
     return con.execute(query, [season]).fetchall(), [x[0] for x in con.description]
 
 
+def _assert_unique_team_registry(con: duckdb.DuckDBPyConnection, team_pq: Path, season: str) -> None:
+    teams = f"read_parquet('{_escape(team_pq)}')"
+    duplicates = con.execute(
+        f"""
+        SELECT CAST(local_team_id AS VARCHAR) AS local_team_id, COUNT(*) AS row_count
+        FROM {teams}
+        WHERE season = ? AND mapping_status = 'VERIFIED'
+        GROUP BY 1
+        HAVING COUNT(*) <> 1
+        ORDER BY 1
+        """,
+        [season],
+    ).fetchall()
+    if duplicates:
+        raise AssertionError(
+            "team identity registry must contain exactly one VERIFIED row per "
+            f"(season, local_team_id); duplicates={duplicates}"
+        )
+
+
 def _canonical_league_table(rows):
     stats = {}
     for row in rows:
@@ -112,6 +132,7 @@ def run_query_proof(season: str = "2025-26", team: str = "Arsenal") -> dict[str,
         try:
             _promote(con, FIXTURE_FILE, fixture_pq)
             _promote(con, TEAM_REGISTRY, team_pq)
+            _assert_unique_team_registry(con, team_pq, season)
 
             csv_table = query_api.league_table(season)
             csv_fixtures = query_api.fixtures(season=season, team=team, limit=100)
