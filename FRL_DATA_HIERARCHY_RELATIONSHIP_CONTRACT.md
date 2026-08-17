@@ -1,10 +1,10 @@
-# Football Research Laboratory — Data Hierarchy & Relationship Contract
+# Football Research Laboratory — Data Hierarchy & Organisation Contract
 
 ## Status
 
-**Architectural contract — draft for review**
+**Architectural contract — v1.0**
 
-This document defines how the Football Research Laboratory organises canonical entities, relationships, source evidence, derived analytical state and GUI views.
+This document defines how the Football Research Laboratory (FRL) organises evidence, canonical entities, relationships, shared analytical services, research tools, modelling and presentation.
 
 It is governed by:
 
@@ -12,17 +12,28 @@ It is governed by:
 - `NON_DESTRUCTION_ASSURANCE.md`
 - `DATA_CONSTRUCTION.md`
 
-The purpose is to prevent the application from becoming a collection of page-specific data joins and duplicated calculations.
+It incorporates the current FRL product vision: the application is one connected football research system, not a set of isolated pages.
+
+This is an architectural contract. It fixes boundaries, identity rules, navigation responsibilities and safety invariants while leaving future metric formulas, composite metrics and model methodologies open until they are properly designed and validated.
 
 ---
 
 ## 1. Governing principle
 
-> **Every GUI result must be a view of a canonical entity, canonical relationship or documented derived analytical service, with its source hierarchy and provenance understood before presentation.**
+> **Every FRL result must be a view of a canonical entity, a canonical relationship, or a documented derived analytical service whose source hierarchy, identity basis, temporal semantics and provenance are understood before presentation.**
 
-The GUI is the final presentation layer. It must not become the place where source precedence, identity resolution, historical-state semantics or metric definitions are invented.
+The GUI is the least authoritative layer.
 
-The architectural flow is:
+It must not become the place where the project invents:
+
+- source precedence;
+- identity mappings;
+- historical-state definitions;
+- metric formulas;
+- leakage rules;
+- fallback semantics.
+
+The preferred architecture is:
 
 ```text
 RAW / SOURCE EVIDENCE
@@ -33,40 +44,84 @@ IDENTITY RECONCILIATION
         ↓
 CANONICAL ENTITIES + RELATIONSHIPS
         ↓
-SPECIALIST SOURCE EVIDENCE / ENRICHMENT
+SPECIALIST EVIDENCE / ENRICHMENT
         ↓
-DERIVED HISTORICAL STATE
+SHARED HISTORICAL / ANALYTICAL STATE
         ↓
-ANALYTICAL METRICS / RESEARCH SERVICES
+RESEARCH SERVICES / MODELS
         ↓
 PRESENTATION VIEWS
         ↓
-GUI
+GUI / NAVIGATION
 ```
 
-This is consistent with the Risk Strategy's layered architecture and the Non-Destruction Assurance requirement to preserve established mechanisms and make the minimum safe change.
+This directly implements the layered approach in the Risk Strategy Framework and the minimal-change, regression-first discipline in the Non-Destruction Assurance Agreement.
 
 ---
 
-## 2. Canonical entity model
+## 2. The FRL is a graph, not a collection of pages
 
-The Laboratory's core entities are:
+The long-term product vision is a connected evidence graph.
 
-### 2.1 Fixture
+```text
+PLAYER ←→ PLAYER–FIXTURE ←→ FIXTURE ←→ TEAM–FIXTURE ←→ TEAM
+   │                                             │
+   └────────────── shared research ─────────────┘
+                         │
+               historical analytical state
+                         │
+          ┌──────────────┼──────────────┐
+          │              │              │
+       MATCHDAY       QUERY          MODELS
+        CENTRE          │              │
+          │       comparable       Projection /
+          │       matches          Elo / Poisson /
+          │                        Monte Carlo /
+          │                        Player model
+          └──────────────┬──────────────┘
+                         │
+                      GUI views
+```
+
+A page is a **lens** over that graph. It is not a separate data system.
+
+A new page must therefore reuse existing canonical entities, relationships and analytical services wherever possible.
+
+---
+
+## 3. Canonical entities
+
+### 3.1 Fixture
+
+Fixture is the central match-level research object.
 
 Canonical identity:
 
 ```text
-season + fixture_id
+(season, fixture_id)
 ```
 
-A fixture is the central match entity around which match detail and player-fixture relationships are organised.
+The canonical fixture master remains the trusted fixture identity.
 
-Canonical fixture identity comes from `fixtures_master_corrected.csv`. Source-specific match identifiers are mapped to it through verified source identity mechanisms.
+A source-specific match ID is evidence attached to a canonical fixture through a verified source mapping. It must never create a competing fixture identity.
 
-### 2.2 Team
+A fixture can expose, through the relevant services:
 
-Canonical longitudinal team identity is distinct from a season-local source team identity.
+- teams;
+- kickoff and completion state;
+- result;
+- match statistics;
+- historical context entering the match;
+- league positions entering the match;
+- player participation and performance;
+- corrections;
+- provenance;
+- historical precedents;
+- model outputs.
+
+### 3.2 Team
+
+Team is a longitudinal club entity.
 
 The project must preserve the distinction:
 
@@ -75,121 +130,159 @@ season-local source team identity
         ↓
 verified identity mapping
         ↓
-persistent club identity
+persistent team identity
 ```
 
-The application should use persistent team identity for longitudinal research and the appropriate season-local/source identity only when querying a source that requires it.
+Persistent team identity is used for longitudinal research. Source-local IDs are used only when a source query specifically requires them.
 
-The existing `identity/team_seasons.csv` registry remains authoritative for this relationship unless a controlled architecture change explicitly replaces it.
+The established team identity registry remains authoritative unless deliberately replaced through a controlled architecture change.
 
-### 2.3 Player
+### 3.3 Player
 
-A player is a longitudinal research entity.
+Player is a longitudinal research entity.
 
-Canonical player identity must not be inferred from a display name alone.
+Display name alone is never sufficient canonical identity.
 
-Source-specific identifiers such as FPL `element` and external `source_player_id` are evidence-layer identities that map onto the canonical player identity through a verified season-aware identity registry.
+Source identities such as FPL `element` and external `source_player_id` must map to the canonical player through verified, season-aware identity mappings.
 
-The player identity model must support:
+The player model must support:
 
-- longitudinal player research;
+- longitudinal identity;
 - season membership;
-- source-specific identities;
 - club history;
-- player-fixture participation.
+- source identities;
+- player-fixture participation;
+- profile statistics;
+- research statistics;
+- role and trajectory analysis;
+- future player-influence modelling.
 
-### 2.4 Player–Fixture relationship
+Unknown or ambiguous identity produces **no verified join**, not a best guess.
 
-This is a first-class relationship, not merely a convenience join.
+### 3.4 Season / competition context
 
-Canonical grain:
+Season and competition are contextual dimensions used to scope entities, relationships, statistics and historical state.
 
-```text
-season + fixture_id + player_id
-```
-
-It represents:
-
-> **Player X participated in Fixture Y**
-
-and provides the foundation for player-fixture detail, fixture player tables and player match research.
-
-Source-specific player-match statistics attach to this relationship through verified fixture and player identity mappings.
-
-### 2.5 Team–Fixture relationship
-
-A team participates in a fixture through its canonical home/away relationship.
-
-Canonical grain:
-
-```text
-season + fixture_id + team_id
-```
-
-This relationship is the foundation for:
-
-- team fixture history;
-- home/away historical state;
-- form;
-- streaks;
-- rest days;
-- season-to-date features;
-- future modelling features.
+They must not be confused with source IDs.
 
 ---
 
-## 3. Canonical versus specialist source hierarchy
+## 4. Canonical relationships
 
-The Laboratory must distinguish between **canonical entity data** and **preferred specialist metric sources**.
+### 4.1 Player–Fixture
 
-### Canonical means
+This is a first-class relationship, not a convenience join.
 
-> The Laboratory's authoritative representation of the entity or relationship.
+Canonical grain:
+
+```text
+(season, fixture_id, player_id)
+```
+
+It answers:
+
+> **What did Player X do in Fixture Y?**
+
+It is the foundation for:
+
+- fixture player tables;
+- player-fixture detail;
+- player match histories;
+- player role analysis;
+- player influence research;
+- specialist player-match evidence.
+
+Player-fixture detail is a **contextual detail view**, not a primary sidebar workspace.
+
+### 4.2 Team–Fixture
+
+Canonical grain:
+
+```text
+(season, fixture_id, team_id)
+```
+
+It represents a team's participation in a fixture and supports:
+
+- fixture history;
+- home/away context;
+- historical state;
+- rest;
+- form;
+- streaks;
+- season-to-date features;
+- future modelling features.
+
+### 4.3 Source identity relationships
+
+Every external source is joined into the canonical model through an explicit identity mapping.
+
+The preferred pattern is:
+
+```text
+SOURCE A
+   ↓
+verified canonical identity
+   ↓
+CANONICAL ENTITY / RELATIONSHIP
+   ↓
+verified canonical identity
+   ↓
+SOURCE B
+```
+
+Direct provider-to-provider guessing is prohibited where a canonical identity seam exists.
+
+---
+
+## 5. Canonical data versus specialist evidence
+
+The FRL must distinguish between **canonical representation** and **preferred specialist evidence**.
+
+### Canonical
+
+The authoritative representation of the entity or relationship within the FRL.
 
 Examples:
 
 - canonical fixture master;
 - persistent team identity;
-- canonical player research identity.
+- canonical player identity;
+- canonical player-fixture relationship.
 
-### Specialist source means
+### Specialist evidence
 
-> A source that provides richer or more specific evidence for a particular metric or analytical purpose.
+A source that provides richer or more specific measurements for a particular metric or analytical purpose.
 
-A specialist source may override a displayed metric when its identity bridge is verified and its evidence is valid. It does **not** become the canonical entity model merely because it provides a richer statistic.
+A specialist source may override a displayed metric when:
 
-Example:
+1. the source field is understood;
+2. the source record is structurally valid;
+3. the identity bridge is verified;
+4. the evidence is available under the relevant temporal rules;
+5. the transformation is documented.
 
-```text
-Canonical Player
-      ↓
-FPL player statistics
-      ↓
-Verified player-match evidence
-      ↓
-Specialist Passing metrics
-```
-
-The specialist layer enriches the canonical model; it does not replace the identity architecture.
+A specialist source does **not** become the canonical entity model merely because it provides a richer statistic.
 
 ---
 
-## 4. Metric source hierarchy
+## 6. Metric hierarchy and fallback policy
 
-Every important metric should eventually have a documented source policy:
+Every important metric should eventually have a documented policy containing:
 
 ```text
 metric
-  ├── primary source
-  ├── permitted fallback
-  ├── identity requirement
-  ├── availability semantics
-  └── provenance status
+ ├─ preferred source
+ ├─ permitted fallback
+ ├─ identity requirement
+ ├─ availability semantics
+ ├─ transformation / aggregation
+ └─ provenance status
 ```
 
-Illustrative policy for current Player Research:
+Current Player Research example:
 
-| Metric family | Preferred source | Fallback | Requirement |
+| Metric | Preferred source | Permitted fallback | Requirement |
 |---|---|---|---|
 | Goals | canonical FPL player data | — | canonical record |
 | Assists | canonical FPL player data | — | canonical record |
@@ -200,7 +293,7 @@ Illustrative policy for current Player Research:
 | Key passes | verified player-match source | canonical FPL value | verified player identity |
 | Big chances created | verified player-match source | canonical FPL value | verified player identity |
 
-The distinction is critical:
+The rule is:
 
 ```text
 verified specialist value exists
@@ -216,17 +309,13 @@ never
 invent, coerce or silently guess
 ```
 
-The evidence layer remains fail-closed even where a canonical fallback is available.
+A canonical fallback does not weaken the fail-closed evidence layer. The system must still record that specialist verification was unavailable.
 
 ---
 
-## 5. Provenance follows the metric
+## 7. Provenance follows the value
 
-Research layers should preserve enough metadata that a user or developer can answer:
-
-> **Where did this number come from?**
-
-Conceptually, important metrics should be traceable through:
+Important analytical values must be traceable to:
 
 ```text
 value
@@ -235,7 +324,7 @@ status
 reason
 ```
 
-For example:
+Conceptually:
 
 ```text
 attempted_passes = 1842
@@ -253,37 +342,49 @@ status = CANONICAL_FALLBACK
 reason = NO_VERIFIED_SOURCE_ID
 ```
 
-The GUI does not have to expose all provenance metadata everywhere, but the underlying analytical layer must retain it where practical.
+The GUI does not need to expose all provenance at all times, but the analytical layer must preserve it where practical.
+
+For fixture corrections, source history and verified correction records must remain inspectable rather than being silently overwritten.
 
 ---
 
-## 6. Historical analytical services
+## 8. Shared analytical state
 
-Derived capabilities such as **form, streaks, trends, rest and historical likelihood features are shared analytical services, not page-specific calculations**.
+Derived context must be calculated once and reused.
 
-The same historical-state service should feed multiple consumers.
+Shared analytical services may include:
+
+- rolling form;
+- streaks;
+- trends;
+- rest days;
+- season-to-date state;
+- home/away state;
+- opponent-strength context;
+- historical precedents;
+- descriptive likelihood features.
+
+These are **services**, not page-specific calculations.
 
 ```text
-canonical fixtures + completed history
-                ↓
-        historical state service
-                ↓
-      ┌─────────┼───────────┐
-      │         │           │
-    form      streaks     trends
-      │         │           │
-      └─────────┼───────────┘
-                ↓
-        analytical consumers
+canonical fixtures + validated history
+                  ↓
+        shared analytical state
+                  ↓
+      ┌───────────┼───────────┐
+      │           │           │
+     form       streaks     trends
+      │           │           │
+      └───────────┼───────────┘
+                  ↓
+     team / fixture / matchday / model
 ```
-
-This prevents several pages from calculating competing definitions of “last five”, “unbeaten streak” or similar concepts.
 
 ### Temporal rule
 
-For a historical fixture, derived state must use only information available before that fixture under the project's availability-time and leakage rules.
+For a historical fixture, derived state must use only information that was available before that fixture under the project's availability-time and leakage rules.
 
-The historical-state construction must therefore preserve the invariant:
+The invariant is:
 
 ```text
 prior completed fixtures
@@ -293,223 +394,286 @@ construct current fixture state
 only then add current fixture
 ```
 
----
+### Navigation rule
 
-## 7. Form and streaks policy
+Form and streaks are **not top-level sidebar workspaces**.
 
-Form and streaks are **not currently a required standalone top-level page**.
+They are contextual analytical capabilities presented through Team Profile, Team Stats, Matchday Centre and future research tools as appropriate.
 
-They are shared analytical services that can be presented in context.
-
-A future standalone Form / Streaks Explorer may be created only if a distinct league-wide discovery use case is established, such as scanning the entire Premier League for current streaks.
-
-Until then:
-
-- Team Profile presents a concise current-form snapshot;
-- Team Stats presents deeper historical form/streak analysis;
-- Matchday Centre presents fixture-relevant form, trends and likelihood context;
-- modelling services consume the same derived features;
-- no page may maintain its own independent form calculation.
+No page may maintain an independent definition of "last five", "unbeaten streak" or equivalent shared state.
 
 ---
 
-## 8. Player information architecture
+## 9. Product navigation contract
 
-The Laboratory intentionally represents the player from three complementary perspectives.
-
-### 8.1 Player Profile
-
-Answers:
-
-> **Who is this player?**
-
-Responsibilities include:
-
-- identity;
-- club history;
-- seasons;
-- career context;
-- concise current/summary statistics;
-- navigation into player research and match appearances.
-
-### 8.2 Player Stats / Research
-
-Answers:
-
-> **What has this player done, and how does it compare across seasons or players?**
-
-This is the existing analytical-style player workspace.
-
-It should support:
-
-- season and multi-season analysis;
-- filters;
-- cross-season comparison;
-- per-90 metrics;
-- source-enriched statistics;
-- player comparison and search.
-
-### 8.3 Player–Fixture Detail
-
-Answers:
-
-> **What did this player do in this specific match?**
-
-This view is tied directly to the canonical relationship:
+The primary sidebar contains exactly six headings:
 
 ```text
-season + fixture_id + player_id
+Home
+Fixtures & Results
+League Table
+Teams
+Players
+Analysis
 ```
 
-It must be reachable both:
+These are **primary workspaces**, not a list of every entity view in the system.
 
-- from a Fixture Landing Page / match player table;
-- from a Player Profile / Player Stats match-history context.
+### 9.1 Home
 
-These views must resolve the same underlying player and fixture entities rather than maintaining parallel data copies.
+Home is the front door to the Laboratory.
 
----
+Its job is to answer:
 
-## 9. Team information architecture
+> **What can I investigate here?**
 
-Teams receive the same three-layer thinking, with the user-facing product currently requiring two dedicated team views and fixture-context views.
+It should provide a research dashboard and entry points into:
 
-### 9.1 Team Profile
+- clubs;
+- players;
+- fixtures;
+- seasons;
+- comparisons;
+- research questions;
+- notable analytical findings where methodology and provenance are visible.
 
-Answers:
+Home should not become the canonical owner of statistics that belong elsewhere.
 
-> **Who are this club and what is their current context?**
+### 9.2 Fixtures & Results
 
-Responsibilities include:
+This is the match explorer and result history.
 
-- canonical club identity;
+```text
+Fixtures & Results
+      ↓
+Fixture Explorer
+      ↓
+Fixture Landing Page
+      ├─ Match detail
+      ├─ Player performance
+      ├─ Player-fixture detail
+      ├─ Team context
+      ├─ Historical precedents
+      └─ Projection / research entry points
+```
+
+### 9.3 League Table
+
+The League Table is an analytical competition view.
+
+It should eventually support:
+
+- current standings;
+- historical point-in-season standings;
+- range / multi-season views;
+- overall / home / away splits;
+- position / points / GD / xG / xGA / xGD / relevant shared features;
+- direct navigation into Team Profile and Team Stats.
+
+It must derive from canonical fixture/result and team identity layers rather than maintain a separate results system.
+
+### 9.4 Teams
+
+Teams have two primary user-facing views.
+
+**Team Profile** answers:
+
+> **Who are this club, and what is their current context?**
+
+It may include:
+
+- identity;
 - historical Premier League presence;
-- season/competition context;
+- club history;
+- current snapshot;
 - concise current form;
 - recent fixtures;
-- current snapshot metrics;
+- current team context;
 - navigation into Team Stats and Fixtures.
 
-### 9.2 Team Stats / Research
-
-Answers:
+**Team Stats** answers:
 
 > **What has this team done historically and analytically?**
 
-This should be the team analogue of the Player Stats workspace.
+It should be the team analogue of the current Player Stats / Research workspace and support:
 
-Responsibilities include:
-
-- season and multi-season statistics;
+- season / multi-season statistics;
+- filtering;
+- comparisons;
 - home/away splits;
-- goals and expected-goals style metrics where available;
-- form and streak analysis;
-- trend analysis;
-- filtering and comparison;
-- club history.
+- deeper form/streak/trend analysis;
+- club history;
+- future research extensions.
 
-### 9.3 Team–Fixture context
+Team Profile and Team Stats are separate presentation responsibilities over the same canonical Team entity and shared analytical services.
 
-Team form, streaks, rest and historical context for a fixture should come from the shared Team–Fixture / historical-state services and be presented where the fixture context requires them.
+### 9.5 Players
 
----
+Players have three complementary perspectives.
 
-## 10. Fixture information architecture
+**Player Profile** answers:
 
-The fixture is the central hub for match-level navigation.
+> **Who is this player?**
 
-### 10.1 Fixture Explorer
+**Player Stats / Research** answers:
 
-Answers:
+> **What has this player done, and how does it compare?**
 
-> **Which fixture am I interested in?**
+**Player-fixture detail** answers:
 
-It should provide the canonical fixture list and safe navigation into fixture detail.
+> **What did this player do in this specific fixture?**
 
-### 10.2 Fixture Landing Page
+Player-fixture detail is reached contextually from Fixtures and Players; it is not a sidebar workspace.
 
-Answers:
+### 9.6 Analysis
 
-> **What happened in this match?**
+Analysis is the home for research and modelling tools.
 
-Responsibilities include:
+It currently includes or is intended to include:
 
-- canonical teams and kickoff;
-- final result/completion state;
-- core match statistics;
-- advanced match statistics;
-- player performance table;
-- navigation to player-fixture detail;
-- navigation to team pages;
-- provenance where relevant.
+- Matchday Centre;
+- Prediction Lab;
+- future modelling tabs;
+- future Research / Query tools;
+- future comparable-match analysis;
+- future combined metrics / metric laboratory;
+- future Records where a meaningful analytical use case is established.
 
-### 10.3 Match Detail / advanced match evidence
-
-Match statistics must attach to the canonical fixture through verified fixture/source identity. They should never become a second competing fixture identity system.
+Analysis tools must consume shared analytical services and canonical relationships rather than recreate their own definitions.
 
 ---
 
-## 11. Matchday Centre
+## 10. Matchday Centre architecture
 
-The Matchday Centre is the contextual analytical surface for an upcoming fixture.
+Matchday Centre is a contextual analytical surface for a fixture.
 
 It combines:
 
 ```text
 fixture context
-        ↓
+       ↓
 shared historical state
-        ↓
-stat pack
-        ↓
+       ↓
+Stat Pack
+       ↓
 model outputs
 ```
 
-The Matchday Centre should contain or link to:
+The **Stat Pack** may present:
 
-### Prediction Lab
-
-- model probabilities;
-- fair probabilities/prices;
-- model-specific research outputs;
-- explicit market separation where applicable.
-
-### Stat Pack
-
-- recent form;
+- relevant recent form;
 - relevant streaks;
 - trends;
-- historical matchup/context;
 - rest/context variables;
+- league positions;
+- H2H context;
 - descriptive likelihoods where methodology is documented;
 - relevant player/team context.
 
-The Stat Pack is a **presentation of shared analytical services**, not an independent source of truth.
+The **Prediction Lab** presents model outputs separately from raw descriptive statistics.
+
+Market information remains quarantined from research by default and enters only an explicit decision layer when required.
 
 ---
 
-## 12. League Table
+## 11. Research and Query architecture
 
-The League Table is a canonical competition view.
+The long-term destination is not a collection of isolated analytical pages. It is a research environment where users can formulate questions across the graph.
 
-It should be derived from the canonical fixture/result layer and the established team identity registry.
+Examples include:
 
-It must not maintain a separate team identity or results history merely for presentation.
+```text
+team conditions
++ player conditions
++ historical state
++ fixture context
+        ↓
+comparable fixtures
+        ↓
+outcomes / rates / distributions
+        ↓
+underlying fixture list
+```
 
-It can link naturally to:
+A Query tool must:
 
-- Team Profile;
-- Team Stats;
-- Fixtures;
-- Matchday Centre where appropriate.
+- consume canonical entities;
+- consume documented metric definitions;
+- consume shared analytical services;
+- retain the exact filters and assumptions;
+- expose the fixtures that produced the result;
+- report sample size;
+- distinguish exploratory findings from validated research.
+
+Failure to find a metric or retrieval path in the repository is not evidence that the mechanism is absent. Existing working consumers, archived implementations and known upstream/local sources must be inspected first, as required by the Risk Strategy and RDAA.
 
 ---
 
-## 13. Modelling and future analysis tabs
+## 12. Combined metrics
 
-Future modelling tabs should consume established analytical services rather than rebuilding their own feature definitions.
+Combined Metrics are a research capability, not a new canonical data layer.
 
-The intended pattern is:
+Every combined metric must eventually define:
+
+```text
+component metrics
+source policy for each component
+normalisation
+formula
+interpretation
+validation status
+```
+
+A composite statistic is not automatically trustworthy merely because its components are individually valid.
+
+The project must distinguish:
+
+```text
+exploratory composite
+        ≠
+validated research metric
+```
+
+No composite metric should quietly enter trusted research or model features without documentation and appropriate evaluation.
+
+---
+
+## 13. Records
+
+Records may become a future analytical surface.
+
+They should be derived from canonical data and shared analytical services rather than stored as a second record database wherever practical.
+
+Potential uses include:
+
+- all-time player records;
+- season records;
+- team streak records;
+- fixture records;
+- club records.
+
+A record result should remain traceable to the rows and calculation that produced it.
+
+Records are intentionally a future surface until the exact scope and methodology are defined.
+
+---
+
+## 14. Modelling environment
+
+Projection Lab is one model in a broader modelling environment.
+
+The architecture must support independent approaches such as:
+
+```text
+Historical precedent
+Elo
+Poisson
+Monte Carlo
+Player model
+Market / decision layer
+```
+
+A model consumes established analytical services and selects features explicitly.
 
 ```text
 canonical entities
@@ -527,71 +691,13 @@ evaluation
 GUI
 ```
 
-Examples may include:
+Models must preserve temporal and availability semantics and remain separately evaluable.
 
-- Projection Lab;
-- future prediction modules;
-- similarity/comparable-match analysis;
-- other research experiments.
-
-Model-specific transformations belong in the modelling layer and must retain temporal/availability semantics.
-
-Market information remains separated from football research by default and only enters an explicitly defined decision layer when required by the research question.
+No complex model receives privileged status merely because it is newer. Appropriate simple baselines remain mandatory under the Risk Strategy.
 
 ---
 
-## 14. Navigation and relationship graph
-
-The target application should behave as a graph of canonical entities and relationships:
-
-```text
-                         LEAGUE TABLE
-                              │
-                              │
-                         TEAM PROFILE
-                              │
-                    ┌─────────┴─────────┐
-                    │                   │
-               TEAM STATS          FIXTURES
-                    │                   │
-                    │           FIXTURE LANDING
-                    │                   │
-                    │          ┌────────┼────────┐
-                    │          │        │        │
-                    │       MATCH     PLAYERS   TEAMS
-                    │       DETAIL
-                    │          │
-                    │    PLAYER–FIXTURE
-                    │          │
-                    │     PLAYER PROFILE
-                    │          │
-                    │     PLAYER STATS
-                    │
-                    └──── shared historical state ────┐
-                                                       │
-                                                 MATCHDAY CENTRE
-                                                       │
-                                                 PREDICTION LAB
-                                                       │
-                                                 FUTURE MODELS
-```
-
-The same entity should be reachable from multiple contexts through the same canonical identity.
-
-For example:
-
-```text
-Fixture → Player-fixture detail → Player Profile
-Player Profile → Match appearance → Fixture Landing Page
-Fixture → Team → Team Profile → Team Stats
-Team Stats → relevant fixture → Fixture Landing Page
-```
-
-No route should need to manufacture a second identity merely to make this navigation possible.
-
----
-
-## 15. Relationship rules
+## 15. Relationship and integrity rules
 
 ### Fixture
 
@@ -603,7 +709,7 @@ must be unique.
 
 ### Player
 
-Canonical player identity must be persistent and distinct from season-local source IDs.
+Canonical player identity is persistent and distinct from season-local source IDs.
 
 ### Team
 
@@ -625,151 +731,134 @@ must be unique.
 
 must be unique.
 
-### Source identity mappings
+### Source identity mapping
 
-A verified mapping must never be ambiguous.
+A verified source mapping must be unique and unambiguous.
 
-If the system cannot establish a unique verified source identity:
+Ambiguity produces:
 
 ```text
 NO VERIFIED JOIN
 ```
 
-rather than a best guess.
+not a heuristic best match.
+
+### Navigation identity
+
+Every GUI route to an entity or relationship must carry its canonical identity, not a display-name-only identity.
 
 ---
 
 ## 16. Non-destruction requirements
 
-A change to one page must not silently change another page's data semantics.
+Consistent with `NON_DESTRUCTION_ASSURANCE.md`:
 
-In particular:
+- UI changes must not rewrite canonical data;
+- presentation components should sit behind established seams;
+- specialist metric bridges must not replace canonical identity models;
+- source fallbacks must be explicit;
+- historical-state definitions remain shared;
+- fixture IDs remain stable;
+- player IDs remain stable;
+- team identity mappings remain stable;
+- provenance and corrections remain inspectable;
+- incomplete evidence must not be invented into complete-looking values;
+- context views must resolve the same underlying entities rather than maintaining duplicate data copies;
+- broad destructive Git operations are prohibited as convenience measures;
+- unrelated UI, data and research changes should not be mixed in one release unit without explicit justification.
 
-- UI presentation changes must not rewrite canonical data;
-- specialist metric bridges must not alter canonical identity models;
-- source fallback rules must be explicit;
-- historical-state definitions must remain shared;
-- fixture IDs must remain stable;
-- player IDs must remain stable;
-- team identity mappings must remain stable;
-- provenance and corrections must not be hidden;
-- incomplete source evidence must not be invented into complete-looking research values;
-- feature work must preserve the trusted baseline and be tested at the appropriate layer.
+The assurance question remains:
 
-This implements the Non-Destruction Assurance principle:
-
-> **A feature is safe only when it works and trusted existing behaviour remains demonstrably intact.**
+> **What evidence do we have that this change did not destroy something we already trusted?**
 
 ---
 
-## 17. Test and validation obligations
+## 17. Validation obligations
 
-Architectural changes should be validated at the layer they affect.
+Architectural changes must be validated at the layer they affect.
 
 ### Entity / identity changes
 
-Require identity and cross-season audits.
+Require identity, conflict and cross-season audits.
 
-### Fixture relationship changes
+### Fixture changes
 
-Require fixture/master/project-health validation.
+Require fixture-master and project-health validation.
 
-### Player-fixture source changes
+### Player-fixture evidence changes
 
 Require source schema, identity bridge and metric coverage tests.
 
-### Historical-state changes
+### Historical analytical state changes
 
 Require temporal/leakage safeguards and state-construction tests.
+
+### Research / Query changes
+
+Require deterministic fixture traceability, sample-size reporting and appropriate evaluation where claims are promoted beyond exploration.
+
+### Model changes
+
+Require time-respecting evaluation, baselines, calibration and robustness where applicable.
 
 ### GUI changes
 
 Require:
 
 - route/render validation;
-- canonical data still resolves;
-- fixture IDs remain unchanged;
-- player/team identities remain unchanged;
-- query contracts remain unchanged;
+- canonical data resolution;
+- unchanged fixture identity;
+- unchanged player/team identity;
+- unchanged trusted query behaviour;
 - provenance remains accessible;
-- incomplete states do not crash the UI;
-- the trusted 26/26 research baseline remains green when the change is presentation-only.
+- incomplete states do not crash the interface;
+- the established research baseline remains green when the change is intended to be presentation-only.
 
 ---
 
-## 18. Data source / consumer contract
+## 18. Future expansion points
 
-Before a new table, card, chart or page is implemented, establish:
+The contract intentionally reserves space for:
 
-```text
-1. What is the canonical grain?
-2. What is the primary key?
-3. Which source fills each metric?
-4. What is the permitted fallback?
-5. What identity bridge is required?
-6. What is the temporal / availability rule?
-7. What provenance should be retained?
-8. Which existing analytical service should supply it?
-9. Which GUI views consume it?
-10. What invariant protects it?
-```
+- Query / Research;
+- Combined Metrics;
+- Records;
+- broader player influence modelling;
+- additional team research;
+- additional fixture research;
+- similarity / comparable-match systems;
+- additional prediction models;
+- explicit market / decision tooling.
 
-The preferred architecture is reuse through an established seam, not page-specific retrieval.
+Their detailed methodology must be defined when implemented. The contract does not allow them to bypass the canonical model, identity layer, shared analytical state, provenance rules or validation framework.
 
 ---
 
-## 19. Design decision: no premature Form page
+## 19. Re-entry rule for future sessions
 
-The Laboratory explicitly does **not** commit to a standalone Form / Streaks page at this stage.
+A future session working on the FRL architecture should treat this document as the starting point for organisation questions, together with:
 
-The current intended product model is:
+1. `RISK_STRATEGY_FRAMEWORK.md`
+2. `NON_DESTRUCTION_ASSURANCE.md`
+3. `DATA_CONSTRUCTION.md`
+4. current working application behaviour;
+5. relevant archived / backup implementations;
+6. known upstream/local source mechanisms.
 
-```text
-Team Profile
-    → concise current form snapshot
+The user should not have to re-teach the application hierarchy when the repository already contains the contract.
 
-Team Stats
-    → deeper historical form/streak analysis
-
-Matchday Centre
-    → fixture-relevant recent form, trends and likelihood context
-
-Future modelling
-    → consumes shared form/streak features
-```
-
-A dedicated Form / Streaks discovery workspace can be introduced later only where a distinct league-wide user task is demonstrated.
-
----
-
-## 20. Long-term architecture target
-
-The long-term target is a stable, documented path from evidence to presentation:
+The default assumption is:
 
 ```text
-SOURCE DATA
-    ↓
-SCHEMA VALIDATION
-    ↓
-IDENTITY REGISTRIES
-    ↓
-CANONICAL ENTITIES
-    ↓
-CANONICAL RELATIONSHIPS
-    ↓
-SOURCE EVIDENCE ENRICHMENT
-    ↓
-HISTORICAL STATE
-    ↓
-SHARED ANALYTICAL SERVICES
-    ↓
-PLAYER / TEAM / FIXTURE RESEARCH VIEWS
-    ↓
-MATCHDAY + MODELLING
-    ↓
-GUI
+DISCOVER EXISTING MECHANISM
+        ↓
+UNDERSTAND ITS LINEAGE
+        ↓
+REUSE THE SAFEST ARCHITECTURAL SEAM
+        ↓
+MAKE THE MINIMUM CHANGE
+        ↓
+VALIDATE
 ```
 
-The GUI should remain the least authoritative layer in this chain.
-
-The goal is not simply to make the application work. The goal is to make it difficult for a future change to produce a plausible-looking but incorrectly sourced or historically unsafe result.
+The goal is not simply to make the application work. The goal is to make it difficult for a future change to produce a plausible-looking but incorrectly sourced, historically unsafe or disconnected result.
