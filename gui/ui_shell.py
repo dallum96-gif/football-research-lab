@@ -29,8 +29,6 @@ PRIMARY_WORKSPACES = {
     "analysis",
 }
 
-# Hidden/deep-link workspaces remain valid so existing internal links and future
-# contextual relationships are not destroyed when the sidebar becomes smaller.
 VALID_WORKSPACES = PRIMARY_WORKSPACES | set(HIDDEN_WORKSPACES)
 
 
@@ -43,46 +41,8 @@ def current_workspace(default="overview"):
 
 
 def _render_teams_hub():
-    seasons = sorted(
-        query_api.available_seasons(),
-        key=lambda value: (int(value[:4]), int(value[5:])),
-        reverse=True,
-    )
-    season = seasons[0] if seasons else None
-
-    st.markdown("<div class='frl-eyebrow'>Research</div>", unsafe_allow_html=True)
-    st.markdown("<div class='frl-entity-title'>Teams</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='frl-context'>Club profiles, team statistics and connected fixture research.</div>",
-        unsafe_allow_html=True,
-    )
-
-    if not season:
-        st.info("Team research is not available yet.")
-        return
-
-    season = st.selectbox("Season", seasons, index=0, key="frl_team_hub_season")
-    rows = query_api.league_table(season).get("teams", [])
-
-    st.markdown("<div class='frl-collage-section'>Choose a club</div>", unsafe_allow_html=True)
-    cols = st.columns(3, gap="small")
-    for index, row in enumerate(rows):
-        team = row.get("team", "Unknown team")
-        with cols[index % 3]:
-            st.markdown(
-                f"<div class='frl-home-card'><div class='frl-home-card-title'>{team}</div>"
-                f"<div class='frl-home-card-copy'>{row.get('points', 0)} pts · {row.get('played', 0)} played · "
-                f"{row.get('wins', 0)}W {row.get('draws', 0)}D {row.get('losses', 0)}L</div></div>",
-                unsafe_allow_html=True,
-            )
-            if st.button("Open fixtures", key=f"team_hub_{season}_{team}", type="tertiary", width="stretch"):
-                st.session_state["redesign_fixture_season_header"] = season
-                st.session_state["redesign_fixture_team_header"] = team
-                st.session_state["frl_workspace"] = "fixtures"
-                st.query_params["workspace"] = "fixtures"
-                st.rerun()
-
-    st.caption("Team Profile and Team Stats will sit behind these canonical team identities as those views are built.")
+    from gui.team_research_ui import render_team_research_ui
+    render_team_research_ui()
 
 
 def _render_analysis_hub():
