@@ -43,6 +43,7 @@ The following are required architectural-memory documents for fresh sessions:
 - `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`
 - `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
 - `FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md`
+- `FRL_ANALYTICAL_DATA_LAYOUT_V1.md`
 
 They are governed by:
 
@@ -115,9 +116,33 @@ The first Parquet/DuckDB relationship proof exposed two important schema assumpt
 1. The season-specific Player Research source CSV does not physically contain `_season`; `player_research._load_season_rows()` derives that context from the loaded season/source file.
 2. Fixture `home_team_id` and `away_team_id` are season-local team identifiers and must resolve through `identity/team_seasons.csv` using `local_team_id`, not `club_id` / persistent identity directly.
 
-These semantics are now formalised in `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` and enforced by `tools/data_platform_proof.py` plus `tests/test-data-platform-proof.py`.
+These semantics are formalised in `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` and enforced by `tools/data_platform_proof.py` plus `tests/test-data-platform-proof.py`.
 
 The green repository-side run confirms that the corrected relationship semantics survive temporary Parquet promotion and DuckDB querying without changing production CSV-backed consumers.
+
+## Analytical layout status
+
+`FRL_ANALYTICAL_DATA_LAYOUT_V1.md` now defines the scalable analytical representation beneath the query layer.
+
+The layout is deliberately **not** a universal mega-table. It preserves stable canonical grains:
+
+```text
+Fixture        = (season, fixture_id)
+Team–Fixture   = (season, fixture_id, persistent_team_code)
+Player–Fixture = (season, fixture_id, canonical player identity)
+```
+
+with explicit identity bridge datasets and separate derived/materialised analytical layers.
+
+The first materialisation target is deliberately small:
+
+1. `fixtures`
+2. `team_fixtures`
+3. `player_fixtures` where trusted source coverage permits
+4. identity bridges
+5. selected historical/season state datasets
+
+No current consumer is to be switched to the analytical layer until equivalence, relationship integrity, provenance, temporal semantics and rollback have been demonstrated.
 
 ## Product navigation contract
 
@@ -282,6 +307,7 @@ read orientation
 → read FRL relationship integrity contract
 → read FRL data platform architecture v1
 → read FRL data residency & lineage inventory v1
+→ read FRL analytical data layout v1
 → establish branch/repository state
 → inspect relevant working/archived/local mechanisms
 → run 26/26
@@ -289,12 +315,22 @@ read orientation
 → only then start substantive work
 ```
 
-The hierarchy, relationship, data-platform and residency/lineage contracts are project memory and must not be treated as optional background.
+The hierarchy, relationship, data-platform, analytical-layout and residency/lineage contracts are project memory and must not be treated as optional background.
 
 ## Immediate next step
 
-**Design the local analytical layout — without changing production consumers.**
+**Build the first local analytical materialisation proof.**
 
-The relationship-integrity proof is now green. The next bounded task is to define how the validated canonical and derived datasets should be partitioned into Parquet datasets and queried through DuckDB, using the existing canonical keys and relationship contracts.
+Using `FRL_ANALYTICAL_DATA_LAYOUT_V1.md`, select one representative player dataset and one representative fixture/team dataset. Build temporary Parquet representations at the defined grains, query them through DuckDB, and reproduce a small set of existing trusted CSV-backed outputs.
 
-Start by choosing one representative player dataset and one representative fixture/team dataset, defining their target analytical schemas and join keys, then proving equivalence against the current CSV-backed query outputs. Only after that should any existing consumer be considered for migration.
+The proof must demonstrate:
+
+- canonical grain preservation;
+- identity-bridge preservation;
+- relationship integrity;
+- temporal semantics where applicable;
+- provenance metadata;
+- result equivalence;
+- non-destruction and clean rollback.
+
+Do not switch any live FRL consumer yet.
