@@ -8,9 +8,9 @@ This file is intentionally short and volatile. Update it whenever the active tas
 
 `design/player-filter-tiles`
 
-This is the active GUI/application-architecture branch for the current redesign work.
+This is the active GUI/application-architecture and data-platform design branch.
 
-The branch is based on the current redesign PR and must be compared with `main` before substantive changes.
+The branch is the development line and must be compared with `main` before substantive changes. `main` is the stable integration line.
 
 ## Stable / validated baseline
 
@@ -33,17 +33,22 @@ Additional player-match evidence-layer tests currently validated locally:
 
 The project-health gate remains a separate required control for relevant data-layer changes.
 
-## Governing architecture contract
+The latest repository-side redesign smoke run is green.
 
-`FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` is now a required architectural-memory document for fresh sessions.
+## Governing architecture contracts
 
-It is governed by:
+The following are required architectural-memory documents for fresh sessions:
+
+- `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`
+- `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
+
+They are governed by:
 
 - `RISK_STRATEGY_FRAMEWORK.md`
 - `NON_DESTRUCTION_ASSURANCE.md`
 - `DATA_CONSTRUCTION.md`
 
-The contract establishes the FRL as a connected football evidence graph rather than a collection of isolated pages.
+The hierarchy contract establishes the FRL as a connected football evidence graph rather than a collection of isolated pages.
 
 Core principle:
 
@@ -51,23 +56,41 @@ Core principle:
 
 The FRL should preserve as much useful, provenance-aware football evidence as practical, including event-level source evidence, even when the project does not yet know how the information will be used. Retention does not imply trust: retained evidence must still be validated, reconciled, temporally safe and evaluated before promotion into trusted research or modelling features.
 
-Canonical entities are:
+The data-platform contract now establishes a second architectural boundary:
 
-- Player
-- Team
-- Fixture
+> **GitHub is the software and research-control plane; it is not the permanent bulk-data warehouse.**
 
-Canonical relationships include:
+The intended future separation is:
 
-- Player–Fixture: `(season, fixture_id, player_id)`
-- Team–Fixture: `(season, fixture_id, team_id)`
-- Fixture Events, attached through validated fixture/team/player identities where known
+```text
+external sources
+      ↓
+ingestion / source adapters
+      ↓
+raw immutable snapshots
+      ↓
+validated source layer
+      ↓
+canonical FRL entities/events
+      ↓
+derived state / features
+      ↓
+analytical engine
+      ↓
+research / models
+      ↓
+query_api
+      ↓
+GUI
+```
 
-The GUI is downstream from identity, canonical data, evidence, analytical state and modelling layers.
+The first scalable implementation direction is local-first, using columnar datasets such as Parquet and an analytical engine such as DuckDB, with object storage and workflow orchestration introduced only when the demonstrated scale/operational need justifies them.
+
+No bulk-data migration is being performed merely for architectural neatness. Existing trusted CSV artefacts remain in place until an additive, reproducible alternative has passed equivalence checks.
 
 ## Product navigation contract
 
-The primary sidebar is now fixed as:
+The primary sidebar is fixed as:
 
 - Home
 - Fixtures & Results
@@ -169,6 +192,17 @@ The current redesign direction is compact, editorial and playful without becomin
 
 Players filter work uses the approved light, transparent tile presentation with no dark selector/query surfaces.
 
+## Branch safety contract
+
+- `main` is the stable integration line.
+- `design/*`, `feature/*` and other explicit development branches are development lines.
+- Never write development or experimental work directly to `main`.
+- GitHub write operations must explicitly target the intended development branch.
+- Before substantive work, compare the active branch with `main`.
+- If the active branch is behind or diverged, inspect the main-only and branch-only commits before merging, rebasing or moving refs.
+- Before any destructive ref movement, create a named safety branch at the current tip.
+- Integrate to `main` through an explicit validated decision, not by silently moving the `main` ref.
+
 ## Non-destruction rule for current work
 
 UI redesign changes should not modify:
@@ -181,7 +215,9 @@ UI redesign changes should not modify:
 - historical data;
 - validated evidence-layer contracts.
 
-A UI change is successful only when the new presentation works and trusted existing behaviour remains intact.
+Data-platform work must not delete or overwrite the only known copy of source evidence or canonical artefacts. Storage migration is additive until equivalence and rollback are proven.
+
+A change is successful only when the new behaviour works and trusted existing behaviour remains intact.
 
 ## Verification discipline
 
@@ -212,6 +248,7 @@ read orientation
 → read non-destruction assurance
 → read UI design system
 → read FRL data hierarchy & organisation contract
+→ read FRL data platform architecture v1
 → establish branch/repository state
 → inspect relevant working/archived/local mechanisms
 → run 26/26
@@ -219,12 +256,23 @@ read orientation
 → only then start substantive work
 ```
 
-The hierarchy contract is part of project memory and must not be treated as optional background.
+The hierarchy and data-platform contracts are project memory and must not be treated as optional background.
 
 ## Immediate next step
 
-Continue implementing the architecture contract in the application without creating duplicate data mechanisms.
+**FRL Data Residency & Lineage Inventory**
 
-The next bounded feature is Team Profile + Team Stats, using the established canonical team identity and query seams rather than introducing new source joins.
+Before migrating anything, inventory the major existing datasets and record:
 
-From there, continue toward the connected research graph while preserving the deep-evidence retention principle, provenance, temporal safety and non-destruction guarantees.
+- origin/source family;
+- local path where known;
+- GitHub-tracked path where applicable;
+- raw/validated/canonical/derived status;
+- identity keys;
+- principal consumers;
+- update method/frequency;
+- provenance metadata available;
+- approximate size/row count;
+- whether the dataset should remain in Git, move toward object storage, or be regenerated.
+
+The first implementation milestone after the inventory is a local, reversible Parquet/DuckDB proof against one or two large existing datasets. Existing CSV-backed query paths remain trusted until equivalence is demonstrated.
