@@ -1,0 +1,1 @@
+This placeholder should not survive; visualisation integration is being written through the commit tree so it sits on the active branch tip.
