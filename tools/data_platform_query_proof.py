@@ -142,6 +142,21 @@ def run_query_proof(season: str = "2025-26", team: str = "Arsenal") -> dict[str,
             duck_table = _canonical_league_table(normalised)
 
             if csv_table["teams"] != duck_table:
+                if len(csv_table["teams"]) != len(duck_table):
+                    raise AssertionError(
+                        "league table row-count mismatch: "
+                        f"csv={len(csv_table['teams'])} duckdb={len(duck_table)}"
+                    )
+                fields = ["team", "played", "wins", "draws", "losses", "goals_for", "goals_against", "goal_difference", "points", "position"]
+                for idx, (csv_row, duck_row) in enumerate(zip(csv_table["teams"], duck_table), start=1):
+                    for field in fields:
+                        if str(csv_row.get(field, "")) != str(duck_row.get(field, "")):
+                            raise AssertionError(
+                                "league table mismatch at position "
+                                f"{idx}, field={field}: csv={csv_row.get(field)!r} "
+                                f"duckdb={duck_row.get(field)!r}; "
+                                f"csv_row={csv_row!r}; duck_row={duck_row!r}"
+                            )
                 raise AssertionError("league table mismatch between CSV-backed query and DuckDB analytical representation")
 
             csv_arsenal = {int(row["fixture_id"]): row for row in csv_fixtures["results"]}
