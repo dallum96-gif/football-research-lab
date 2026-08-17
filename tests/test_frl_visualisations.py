@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import altair as alt
 
@@ -49,6 +50,31 @@ def test_team_goals_trend_returns_altair_chart() -> None:
     mark = chart.to_dict()["mark"]
     assert mark["type"] == "line"
     assert mark["point"] is True
+
+
+def test_team_goals_trend_normalises_dst_timezone_for_altair() -> None:
+    result = _result()
+    rows = [dict(row) for row in result.rows]
+    rows[0]["kickoff_time"] = datetime(
+        2025, 8, 17, 16, 30,
+        tzinfo=ZoneInfo("Europe/London"),
+    )
+    result = ResearchResult(
+        query_type=result.query_type,
+        parameters=result.parameters,
+        columns=result.columns,
+        rows=rows,
+        population=result.population,
+        provenance=result.provenance,
+        temporal_context=result.temporal_context,
+    )
+
+    chart = team_goals_trend(result)
+    values = chart.to_dict()["data"]["values"]
+    assert values[0]["kickoff_time"] == datetime(
+        2025, 8, 17, 15, 30,
+        tzinfo=timezone.utc,
+    )
 
 
 def test_team_goals_trend_does_not_accept_wrong_result_type() -> None:
