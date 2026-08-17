@@ -4,15 +4,15 @@ We’re working on the **Football Research Laboratory**.
 
 ## North Star
 
-The Football Research Laboratory is intended to become a **serious, extensible football research and modelling platform**, not merely a football statistics website or a single betting model.
+The Football Research Laboratory is intended to become a **serious, extensible football research and modelling platform, football intelligence and scouting environment**, not merely a football statistics website or a single betting model.
 
-Its purpose is to allow a researcher to start with a football question or hypothesis and progressively:
+Its purpose is to allow a researcher, analyst or scout to start with a football question or hypothesis and progressively:
 
-**interrogate the underlying data → identify patterns → understand what is happening → construct derived metrics → build and evaluate predictive models → apply useful models where appropriate, including betting.**
+**interrogate the underlying data → identify patterns → understand what is happening → understand players/teams and their roles → construct derived metrics → build and evaluate predictive models → apply useful models where appropriate, including betting and decision support.**
 
 The system should ultimately allow the user to **query almost anything that can reasonably be answered from the available football data**, including through a future natural-language interface in which questions can be asked in plain English and answered with evidence and links back to the relevant underlying data and research objects.
 
-The initial implementation may be relatively small in scope, beginning with approximately a decade of Premier League data, but the architecture should be **deliberately extensible** toward much larger league, team, fixture and player datasets.
+The initial implementation may be relatively small in scope, beginning with approximately a decade of Premier League data, but the architecture should be **deliberately extensible** toward much larger league, team, fixture, player, event and scouting datasets.
 
 ## Core principles
 
@@ -26,7 +26,7 @@ Do not design the system around today’s hypotheses or today’s preferred metr
 
 ### 3. Derived metrics and models are experiments.
 
-Metrics, features and predictive models should be straightforward to construct, compare, revise and replace. There is no assumption that one permanent model is the “correct” model.
+Metrics, features, player/team classifications and predictive models should be straightforward to construct, compare, revise and replace. There is no assumption that one permanent model or classification is the “correct” one.
 
 ### 4. Research comes before betting.
 
@@ -34,7 +34,7 @@ Betting is an eventual application of predictive research, not the purpose of th
 
 ### 5. Explanation matters as well as prediction.
 
-The Laboratory should help us understand football phenomena, not merely produce predictions. A model that predicts well and a relationship that explains something interesting are both valuable research outputs.
+The Laboratory should help us understand football phenomena, players, teams and roles, not merely produce predictions. A model that predicts well and a relationship that explains something interesting are both valuable research outputs.
 
 ### 6. Data quality and provenance come before presentation.
 
@@ -60,15 +60,6 @@ Where practical, the Laboratory should allow an analysis to be reproduced rather
 
 The Laboratory should preserve sufficient temporal information to reconstruct the state of football at a specified point in time.
 
-We should be able to ask questions such as:
-
-* Who was the Premier League top scorer on a particular date?
-* How many goals had a team conceded by a particular date?
-* What was the league table on a particular date?
-* What had happened in a competition up to that point?
-
-Historical state should not be inferred only from the final state of a season; the system should retain the information necessary to reconstruct relevant historical states.
-
 ### 11. Historical state and information availability must be distinguishable.
 
 Where relevant, the Laboratory must distinguish between:
@@ -77,19 +68,13 @@ Where relevant, the Laboratory must distinguish between:
 
 and
 
-**what information would actually have been available to a researcher, bettor or predictive model at that point in time.**
-
-This is fundamental to reproducible historical analysis and to avoiding look-ahead bias, temporal leakage and hindsight contamination in predictive modelling.
+**what information would actually have been available to a researcher, bettor, scout or predictive model at that point in time.**
 
 ### 12. Uncertainty and limitations must remain visible.
 
-The Laboratory should distinguish between source facts, derived statistics, analytical interpretations and model outputs.
+The Laboratory should distinguish between source facts, derived statistics, analytical interpretations, scouting classifications and model outputs.
 
 Where data is incomplete, estimated, inconsistent, uncertain or insufficient to answer a question reliably, the system should expose that limitation rather than create false precision.
-
-A legitimate research outcome may be:
-
-**“The available data is insufficient to answer this question reliably.”**
 
 ### 13. The backend should preserve optionality.
 
@@ -97,19 +82,13 @@ The data foundation should be richer and more stable than any individual analyti
 
 Do not prematurely discard potentially useful source information merely because it does not have a current UI representation or known modelling use. Collect and preserve useful data responsibly, while keeping its provenance and meaning clear.
 
-### 14. The Laboratory should support both exploration and formal research.
+### 14. The Laboratory should support exploration, research, scouting and formal analysis.
 
-The platform should accommodate quick exploratory questions as well as rigorous, reproducible investigations.
-
-Exploration may be iterative and provisional; formal research should be identifiable as such and supported by appropriate validation, provenance and reproducibility.
-
-The guiding idea is:
-
-> **We are not building one football model. We are building the research environment in which we can discover which models, metrics and explanations are worth building.**
+Exploration may be iterative and provisional; formal research and scouting outputs should be identifiable as such and supported by appropriate validation, provenance and reproducibility.
 
 ### 15. Foundational decisions become durable project memory.
 
-When an architectural, data, ingestion, UI, modelling, provenance, safety or repository decision becomes fundamentally important to the long-term Laboratory, the authoritative detail must be written into the appropriate repository document and committed to the active development branch.
+When an architectural, data, ingestion, UI, modelling, provenance, safety, source-acquisition or repository decision becomes fundamentally important to the long-term Laboratory, the authoritative detail must be written into the appropriate repository document and committed to the active development branch.
 
 The Master Prompt should contain the recovery rule and point to the authoritative document; it should not attempt to hold every architectural detail itself.
 
@@ -127,12 +106,14 @@ Before doing substantive work, read:
 * `RISK_STRATEGY_FRAMEWORK.md`
 * `NON_DESTRUCTION_ASSURANCE.md`
 * `UI_DESIGN_SYSTEM.md`
+* `PROJECT_VISION.md`
 * `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`
-* `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
 * `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`
+* `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
 * `FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md`
 * `FRL_ANALYTICAL_DATA_LAYOUT_V1.md`
 * `FRL_VISUALISATION_DATA_CONTRACT.md`
+* `FRL_PLAYER_METADATA_SOURCE_ASSESSMENT_V1.md`
 * `SESSION_START_PROTOCOL.md`
 
 Then inspect the relevant code and establish the current branch/state before doing anything.
@@ -141,7 +122,7 @@ Do not ask me to re-explain the project when the information can be recovered fr
 
 The fresh-session sequence is therefore:
 
-**read orientation → read current work → read the governing data/architecture/relationship/residency/layout/visualisation contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
 
 ### Branch safety
 
@@ -172,45 +153,41 @@ When the active branch has become the effective current project state, that does
 
 Do not infer relationships from column names or numeric coincidence.
 
-In particular:
-
-```text
-Fixture (season, fixture_id)
-        ↓
-season-local home/away team IDs
-        ↓
-team_seasons.local_team_id
-        ↓
-verified persistent team identity
-```
-
-and:
-
-```text
-season-specific player source
-        ↓
-season context from the source/load operation
-        ↓
-(season, fpl_element)
-        ↓
-verified player identity registry
-        ↓
-source player identity
-```
-
 A format or storage migration is only equivalent when these canonical relationship and identity semantics survive, together with fail-closed behaviour. Matching row counts and columns is necessary but not sufficient.
+
+## Player metadata and scouting-source safety
+
+`FRL_PLAYER_METADATA_SOURCE_ASSESSMENT_V1.md` is authoritative for the current assessment of detailed player metadata sources.
+
+Desired future metadata includes fixture-level position, detailed role/position labels where genuinely supported, preferred foot and related scouting information.
+
+Do not make an external provider a foundational FRL ingestion dependency merely because a scraper or community API demonstrates that the field exists. Assess source rights, access stability, historical coverage, field semantics, identity resolution, reproducibility and redistribution before promotion.
+
+The preferred pattern is:
+
+```text
+source player/fixture evidence
+        ↓
+verified identity / fixture crosswalk
+        ↓
+player-fixture evidence
+        ↓
+derived role/position classification
+        ↓
+player research / scouting / modelling
+```
+
+Preserve source observations and derivation logic separately. Do not silently overwrite trusted canonical data.
 
 ## Long-term data architecture
 
 The FRL should be treated as a connected football evidence system with a data platform underneath the UI.
 
-Read `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` for the entity/relationship model, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` for verified join semantics, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md` for the storage/ingestion architecture, `FRL_ANALYTICAL_DATA_LAYOUT_V1.md` for the analytical representation and canonical grains, and `FRL_VISUALISATION_DATA_CONTRACT.md` for the visual research boundary.
+Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation and player-metadata source documents named above before making architecture changes.
 
 The guiding principle is:
 
 > **Retain broadly. Validate rigorously. Expose progressively. Promote empirically.**
-
-The FRL should preserve as much useful, provenance-aware football evidence as practical, including event-level evidence, even when its eventual analytical application is unknown. Retained evidence is not automatically trusted research data.
 
 The intended long-term separation is:
 
@@ -229,7 +206,7 @@ DERIVED STATE / FEATURES
       ↓
 ANALYTICAL LAYER
       ↓
-RESEARCH / MODELS
+RESEARCH / SCOUTING / MODELS
       ↓
 QUERY API
       ↓
@@ -256,23 +233,9 @@ Identity bridge datasets and source-local identifiers remain explicit. Derived d
 
 Data visualisation is a major part of the FRL, not decoration added after the analysis is finished.
 
-The platform should make it straightforward to build beautiful, useful and interactive:
+The platform should make it straightforward to build beautiful, useful and interactive charts, tables, comparisons, distributions, timelines, model diagnostics and bespoke visual research tools.
 
-- charts and trends;
-- analytical and sortable tables;
-- team/player/fixture comparison tools;
-- distributions and uncertainty views;
-- historical/rolling-state visualisations;
-- head-to-head and matchup views;
-- scatter/relationship/feature-exploration plots;
-- model calibration and performance visualisations;
-- research-population summaries;
-- timelines and event visualisations;
-- bespoke visual research tools where a question benefits from them.
-
-Visualisations are downstream research views over trusted analytical outputs. They must preserve the same population, filters, provenance, time semantics and uncertainty as the result they display. A chart, table or comparison must never become a parallel source of truth.
-
-The FRL may make these views sleek, playful, funny and visually appealing while retaining serious analytical standards. The visualisation layer should remain replaceable and should not make the data architecture dependent on one charting library.
+Visualisations are downstream research views over trusted analytical outputs and must inherit population, filters, provenance, temporal semantics, uncertainty and methodology. All user-facing visualisation must comply with `GUI_DESIGN_CONTRACT.md` and `UI_DESIGN_SYSTEM.md`.
 
 ## Current architectural priorities
 
@@ -287,7 +250,7 @@ The current architecture prioritises:
 1. trustworthy canonical football entities and relationships;
 2. rich retained source evidence;
 3. temporal/historical reconstruction;
-4. player, team and fixture interconnected research views;
+4. interconnected player/team/fixture research and scouting views;
 5. reusable analytical/query services;
 6. rich data visualisation and comparison capabilities;
 7. future combined metrics and research querying;
@@ -302,6 +265,6 @@ Build the house in stages, but keep the long-term shape of the house in mind.
 
 The blueprint will evolve as we learn more about the data and the research problems. That is expected.
 
-Preserve the underlying architecture so that new questions, variables, derived metrics and models can be added without repeatedly rebuilding the foundations.
+Preserve the underlying architecture so that new questions, variables, derived metrics, scouting classifications and models can be added without repeatedly rebuilding the foundations.
 
 **Build the foundations first. Discover the models later.**
