@@ -31,18 +31,18 @@ def _duckdb_fixture_rows(con: duckdb.DuckDBPyConnection, fixture_pq: Path, team_
         SELECT
             f.*,
             th.canonical_name AS home_team_name,
-            ta.canonical_name AS away_team_name
+            away_team.canonical_name AS away_team_name
         FROM {fixtures} f
         LEFT JOIN {teams} th
           ON f.season = th.season
          AND CAST(f.home_team_id AS VARCHAR) = CAST(th.local_team_id AS VARCHAR)
          AND th.mapping_status = 'VERIFIED'
-        LEFT JOIN {teams} ta
-          ON f.season = ta.season
-         AND CAST(f.away_team_id AS VARCHAR) = CAST(ta.local_team_id AS VARCHAR)
-         AND ta.mapping_status = 'VERIFIED'
+        LEFT JOIN {teams} away_team
+          ON f.season = away_team.season
+         AND CAST(f.away_team_id AS VARCHAR) = CAST(away_team.local_team_id AS VARCHAR)
+         AND away_team.mapping_status = 'VERIFIED'
         WHERE f.season = ?
-        ORDER BY CAST(f.kickoff_time AS TIMESTAMP), CAST(f.fixture_id AS BIGINT)
+        ORDER BY f.kickoff_time, CAST(f.fixture_id AS BIGINT)
     """
     return con.execute(query, [season]).fetchall(), [x[0] for x in con.description]
 
