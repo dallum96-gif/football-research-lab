@@ -129,6 +129,7 @@ Before doing substantive work, read:
 * `UI_DESIGN_SYSTEM.md`
 * `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`
 * `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
+* `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`
 * `SESSION_START_PROTOCOL.md`
 
 Then inspect the relevant code and establish the current branch/state before doing anything.
@@ -137,7 +138,7 @@ Do not ask me to re-explain the project when the information can be recovered fr
 
 The fresh-session sequence is therefore:
 
-**read orientation → read current work → read the governing data/architecture contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+**read orientation → read current work → read the governing data/architecture/relationship contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
 
 ### Branch safety
 
@@ -162,11 +163,45 @@ Development work should reach `main` through an explicit, validated integration/
 
 When the active branch has become the effective current project state, that does not automatically make it the new `main`. Decide deliberately when and how integration occurs.
 
+## Relationship and identity safety
+
+`FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` is authoritative for canonical join semantics.
+
+Do not infer relationships from column names or numeric coincidence.
+
+In particular:
+
+```text
+Fixture (season, fixture_id)
+        ↓
+season-local home/away team IDs
+        ↓
+team_seasons.local_team_id
+        ↓
+verified persistent team identity
+```
+
+and:
+
+```text
+season-specific player source
+        ↓
+season context from the source/load operation
+        ↓
+(season, fpl_element)
+        ↓
+verified player identity registry
+        ↓
+source player identity
+```
+
+A format or storage migration is only equivalent when these canonical relationship and identity semantics survive, together with fail-closed behaviour. Matching row counts and columns is necessary but not sufficient.
+
 ## Long-term data architecture
 
 The FRL should be treated as a connected football evidence system with a data platform underneath the UI.
 
-Read `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` for the entity/relationship model and `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md` for the storage/ingestion architecture.
+Read `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` for the entity/relationship model, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` for verified join semantics, and `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md` for the storage/ingestion architecture.
 
 The guiding principle is:
 
