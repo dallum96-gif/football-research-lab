@@ -1,16 +1,16 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 16 August 2026
+**Last updated:** 17 August 2026
 
 This file is intentionally short and volatile. Update it whenever the active task, branch, checkpoint or next step changes.
 
 ## Active branch
 
-`redesign-github-sync`
+`design/player-filter-tiles`
 
-This is the current development branch for the GUI redesign work.
+This is the active GUI/application-architecture branch for the current redesign work.
 
-Do not assume `main` contains these changes. Establish branch state before changing code.
+The branch is based on the current redesign PR and must be compared with `main` before substantive changes.
 
 ## Stable / validated baseline
 
@@ -24,45 +24,152 @@ Breakdown:
 - Player Research V0.1: 6/6
 - Player Research V0.2: 6/6
 
-Project health gate remains the required data-quality verification alongside the research gate.
+Additional player-match evidence-layer tests currently validated locally:
 
-## Approved Players UI checkpoint — 16 August 2026
+- Player-Match Source: 6/6
+- Player-Match Research: 3/3
+- Player Research Passing Integration: 3/3
+- Player Research Player-Match: 2/2
 
-The Players Research workspace is now considered an **approved visual/functional checkpoint** for the redesign.
+The project-health gate remains a separate required control for relevant data-layer changes.
 
-Preserved requirements:
+## Governing architecture contract
 
-- Season & scope starts collapsed.
-- Advanced conditions starts collapsed.
-- Useful player data appears before advanced configuration.
-- Player detail starts collapsed.
-- No separate Sort By control exists.
-- Statistic headings are plain text-style controls, not navigation links.
-- Clicking a sortable statistic changes row ordering only.
-- Clicking the same statistic again reverses ordering.
-- Sorting occurs client-side without a Streamlit rerun.
-- Table uses the approved white/surface FRL background.
-- Table typography follows the League Table / Overview visual benchmark.
-- Player-name typography remains compact and restrained.
-- Position is centred; numeric statistics are right-aligned.
-- Deprecated `use_container_width` is absent from the Players UI.
-- Deprecated `st.components.v1.html` has been removed from the Players table renderer; the current renderer uses the supported `st.iframe` signature.
+`FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` is now a required architectural-memory document for fresh sessions.
 
-This checkpoint is the visual source of truth for future Players changes. Functional additions must not alter its typography, sizing, spacing, colour, background, alignment or border treatment unless explicitly requested.
+It is governed by:
+
+- `RISK_STRATEGY_FRAMEWORK.md`
+- `NON_DESTRUCTION_ASSURANCE.md`
+- `DATA_CONSTRUCTION.md`
+
+The contract establishes the FRL as a connected football evidence graph rather than a collection of isolated pages.
+
+Core principle:
+
+> **Deep evidence underneath. Simple research experience on top.**
+
+The FRL should preserve as much useful, provenance-aware football evidence as practical, including event-level source evidence, even when the project does not yet know how the information will be used. Retention does not imply trust: retained evidence must still be validated, reconciled, temporally safe and evaluated before promotion into trusted research or modelling features.
+
+Canonical entities are:
+
+- Player
+- Team
+- Fixture
+
+Canonical relationships include:
+
+- Player–Fixture: `(season, fixture_id, player_id)`
+- Team–Fixture: `(season, fixture_id, team_id)`
+- Fixture Events, attached through validated fixture/team/player identities where known
+
+The GUI is downstream from identity, canonical data, evidence, analytical state and modelling layers.
+
+## Product navigation contract
+
+The primary sidebar is now fixed as:
+
+- Home
+- Fixtures & Results
+- League Table
+- Teams
+- Players
+- Analysis
+
+These are primary workspaces, not a list of every entity or analytical capability.
+
+Contextual/detail views do not become sidebar clutter. In particular:
+
+- Player–Fixture Detail is reached through a player/fixture relationship.
+- Form and Streaks are shared analytical services, not a sidebar workspace.
+- Matchday Centre, Query, Combined Metrics, Records and future mathematical/statistical models sit under Analysis.
+
+## Current product architecture direction
+
+The intended graph is:
+
+```text
+Player ←→ Player–Fixture ←→ Fixture ←→ Team–Fixture ←→ Team
+                              ↓
+                  shared historical/analytical state
+                              ↓
+             Research / Query / Models / Matchday
+                              ↓
+                             GUI
+```
+
+Team and Player each have separate profile and statistics/research responsibilities.
+
+### Teams
+
+Two primary views are planned:
+
+**Team Profile** — identity, history, current context, concise form, recent fixtures and connected navigation.
+
+**Team Stats** — season/multi-season statistics, filtering, comparisons, home/away analysis and deeper historical research.
+
+The existing canonical query mechanisms are the safe starting seam: `team_summary`, `team_compare`, `team_form`, `fixtures` and the verified team identity registry.
+
+### Players
+
+Three complementary views:
+
+**Player Profile** — who is this player?
+
+**Player Stats / Research** — what has this player done and how does it compare?
+
+**Player–Fixture Detail** — what did this player do in this specific match?
+
+### Fixtures & Results
+
+Fixture Explorer remains the entry point into the canonical fixture object, with Fixture Landing Page branching into match detail, player performance, player-fixture detail, team context, research and modelling.
+
+### League Table
+
+The League Table is an analytical competition view and should eventually support historical point-in-season views, ranges, home/away splits and navigation into Team Profile/Team Stats.
+
+### Analysis
+
+Analysis is the umbrella for:
+
+- Matchday Centre;
+- Prediction Lab;
+- Head-to-Head as an existing contextual analytical capability;
+- future Query/research tooling;
+- comparable-match discovery;
+- Combined Metrics;
+- Records;
+- future mathematical/statistical modelling;
+- research consensus / ensembles where justified;
+- explicit future market/decision layers.
+
+## Player-match source and identity architecture
+
+For work involving player-match source data, read:
+
+`PLAYER_MATCH_SOURCE_BRIDGE.md`
+
+The established audited principle is that canonical fixture identity remains `season + fixture_id`, and upstream source namespaces must be resolved through existing verified mechanisms rather than compared directly.
+
+The verified player-match enrichment layer is represented by:
+
+- `player_match_stats.py`
+- `player_match_research.py`
+- `player_research_player_match.py`
+- `player_identity_registry.py`
+- `player_identity_registry.csv`
+
+The evidence layer is fail-closed. Verified specialist values may override displayed metrics where identity and source evidence are proven; otherwise documented canonical fallback values remain visible and provenance records the absence of specialist verification.
 
 ## GUI design contract
 
-`GUI_DESIGN_CONTRACT.md` is the governing visual contract.
+`GUI_DESIGN_CONTRACT.md` and `UI_DESIGN_SYSTEM.md` remain governing visual references.
 
-Additional rule established during Players work:
+The current redesign direction is compact, editorial and playful without becoming decorative or form-heavy. The primary navigation is deliberately smaller than the application graph.
 
-> The application uses one consistent typography system. A component must not invent its own font family, font hierarchy or sizing scheme when an approved FRL component already establishes the visual language.
-
-Behavioural changes must preserve approved typography and layout unless the user explicitly requests a visual change.
+Players filter work uses the approved light, transparent tile presentation with no dark selector/query surfaces.
 
 ## Non-destruction rule for current work
-
-The 26/26 baseline is the pre-change research contract.
 
 UI redesign changes should not modify:
 
@@ -71,152 +178,53 @@ UI redesign changes should not modify:
 - persistent club identity;
 - provenance rules;
 - research calculations;
-- test expectations;
-- historical data.
+- historical data;
+- validated evidence-layer contracts.
 
 A UI change is successful only when the new presentation works and trusted existing behaviour remains intact.
 
-## Player-match source bridge — verified 16 August 2026
-
-For any work involving player-match source data, passing, chance creation, progressive actions, per-match player enrichment or source replacement, read:
-
-`PLAYER_MATCH_SOURCE_BRIDGE.md`
-
-The bridge has been audited against the full 3,800-fixture canonical universe. The established result is:
-
-- 3,799 canonical fixtures map uniquely to player-match source fixtures;
-- 0 missing player-match pairs among fixtures resolvable through the existing source mechanism;
-- 0 ambiguous player-match pairs;
-- the sole canonical exception is the already-documented 2019-20 Manchester City v Arsenal fixture 275, whose scheduled and actual kickoff are represented through the project's explicit correction/provenance mechanism.
-
-Important identity rules established by the audit:
-
-- canonical fixture IDs remain `season + fixture_id`;
-- canonical season-local team IDs must be translated through `identity/team_seasons.csv`;
-- `events_stats.matchId` and `players_match_stats.matchId` are different upstream namespaces and must not be compared directly;
-- historical gameweek is metadata, not the final identity key for postponed/rescheduled fixtures;
-- the existing `match_stats.fixture_source_match()` resolver is the trusted canonical-fixture → upstream-event mechanism and should be reused.
-
-No canonical data or application code was modified during the audit.
-
-## Player identity enrichment — current architecture decision
-
-Player-match enrichment has a second identity problem separate from fixture reconciliation. Do not join `players_match_stats.playerId` directly to FPL `element`/`player_code` values.
-
-The read-only audit established a deterministic season-level anchor set using:
-
-`normalized player name + verified seasonal persistent team identity`
-
-The latest audited baseline produced:
-
-- **1,798 exact 1:1 player-season anchors**;
-- **0 ambiguous player-season anchors**;
-- **935 unresolved player-season records** requiring further identity evidence.
-
-The source and FPL identifiers are separate namespaces. In `player_research.py`, `seasonal_player_id()` deliberately prefers `player_code` (falling back to `element`/`id`), while the external source has its own `playerId`; neither identifier is assumed equivalent to the other. Cross-season propagation may therefore occur only from **already-proven FPL-code → source-playerId anchors**.
-
-The cross-season audit must use this rule:
-
-> same proven FPL player code → unique previously proven source player ID → verify that source player ID is present for the current season and verified team.
-
-Name-only propagation, fuzzy matching, or club-name-only matching is not sufficient for a production identity merge. Remaining cases must stay explicitly unresolved until stronger evidence exists.
-
-Relevant audit/test files:
-
-- `player_identity_audit.py`
-- `tests/test-player-identity-audit.py`
-- `player_identity_crossseason_audit.py`
-- `tests/test-player-identity-crossseason.py`
-
-The cross-season test was updated to match the current ID-anchor model rather than the earlier name-based prototype.
-
-This identity layer is intended to become shared infrastructure for:
-
-- Player Research metrics;
-- future player profile pages;
-- fixture pages with player-level actions;
-- provenance and evidence displays.
-
-Do not create a permanent crosswalk file until the cross-season propagation audit and unresolved-player review establish the evidence standard.
-
-## Current product task
-
-Redesign the user interface so the Football Research Laboratory feels like a professional football research product rather than a conventional Streamlit dashboard.
-
-Target qualities:
-
-- professional
-- elegant
-- pretty
-- intuitive
-- natural
-- restrained
-- data-led
-- not AI-generated-looking
-
-Design reference in spirit:
-
-**StatsBomb analytical clarity + Football Manager information depth + modern application usability.**
-
-Do not copy either product literally.
-
-## Current navigation / workspace direction
-
-Current conceptual navigation:
-
-- Explore: League Table, Fixtures
-- Research: Players
-- Analysis: Head-to-Head, Form & Streaks
-- Modelling: Prediction Lab
-- Evidence: Data Quality, Provenance
-- Future utility: Squads
-
-Keep navigation compact, text-first and visually consistent.
-
-## Important current files
-
-- `gui/theme.py` — visual system
-- `gui/ui_shell.py` — navigation shell and workspace routing
-- `gui/app_redesign.py` — redesign preview entry point
-- `gui/player_research_ui.py` — approved Players workspace
-- `GUI_DESIGN_CONTRACT.md` — governing UI contract
-- `README.md` — current project orientation and validation baseline
-- `PLAYER_MATCH_SOURCE_BRIDGE.md` — verified player-match source identity/fixture bridge
-
-The trusted backend boundary remains:
-
-`query_lab.py` → `query_api.py` → GUI
-
 ## Verification discipline
 
-Before declaring a GUI change complete:
+Before declaring a substantive change complete:
 
-1. Verify Python syntax/compilation.
-2. Verify the route still exists.
-3. Verify existing data still renders.
-4. Verify requested controls work.
-5. Verify no deprecated Streamlit APIs were introduced.
-6. Verify the approved visual contract has not changed unintentionally.
-7. Run the **26/26** research gate.
-8. Run the project-health gate where relevant.
+1. Inspect the relevant current implementation and existing consumer.
+2. Identify the narrowest safe change surface.
+3. Add targeted regression coverage for new behaviour.
+4. Validate Python syntax/structure.
+5. Verify the route still exists.
+6. Verify existing data still renders.
+7. Verify requested controls work.
+8. Run the applicable research gate.
+9. Run the project-health gate where relevant.
+10. Inspect the GitHub Actions result before calling the branch safe.
 
-Do not claim 26/26 or project-health success unless the local checks have actually been executed and passed.
+Do not claim tests or project-health success unless they have actually been executed and passed.
 
-Do not add a new identity source or permanent crosswalk without a read-only audit and an explicit evidence threshold.
+## Fresh-session architecture sequence
 
-## What not to do
+The normal fresh-session Master Prompt should now be interpreted as requiring:
 
-- Do not run `git clean` in the full local research workspace.
-- Do not run `git reset --hard` to resolve local clutter.
-- Do not casually delete untracked research/data files.
-- Do not use `git add .` for deployable commits.
-- Do not modify the query/data layer for purely visual problems.
-- Do not source additional player history merely to make the future profile look complete.
-- Do not treat an exploratory UI mock-up as stable production behaviour.
-- Do not promote fuzzy or name-only player matches to verified identity.
+```text
+read orientation
+→ read current work
+→ read data construction
+→ read risk strategy
+→ read non-destruction assurance
+→ read UI design system
+→ read FRL data hierarchy & organisation contract
+→ establish branch/repository state
+→ inspect relevant working/archived/local mechanisms
+→ run 26/26
+→ run project health
+→ only then start substantive work
+```
+
+The hierarchy contract is part of project memory and must not be treated as optional background.
 
 ## Immediate next step
 
-Finish the read-only player identity audit. Validate the corrected cross-season anchor test, run the cross-season propagation audit, and classify the 935 unresolved player-season records into evidence-backed resolutions versus genuinely unresolved cases.
+Continue implementing the architecture contract in the application without creating duplicate data mechanisms.
 
-Only after the identity layer is sufficiently proven should Passing metrics be exposed in the Players UI or used to power future player profiles and fixture-level player enrichment.
+The next bounded feature is Team Profile + Team Stats, using the established canonical team identity and query seams rather than introducing new source joins.
+
+From there, continue toward the connected research graph while preserving the deep-evidence retention principle, provenance, temporal safety and non-destruction guarantees.
