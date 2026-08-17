@@ -41,6 +41,7 @@ The following are required architectural-memory documents for fresh sessions:
 
 - `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`
 - `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
+- `FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md`
 
 They are governed by:
 
@@ -56,7 +57,7 @@ Core principle:
 
 The FRL should preserve as much useful, provenance-aware football evidence as practical, including event-level source evidence, even when the project does not yet know how the information will be used. Retention does not imply trust: retained evidence must still be validated, reconciled, temporally safe and evaluated before promotion into trusted research or modelling features.
 
-The data-platform contract now establishes a second architectural boundary:
+The data-platform contract establishes a second architectural boundary:
 
 > **GitHub is the software and research-control plane; it is not the permanent bulk-data warehouse.**
 
@@ -87,6 +88,24 @@ GUI
 The first scalable implementation direction is local-first, using columnar datasets such as Parquet and an analytical engine such as DuckDB, with object storage and workflow orchestration introduced only when the demonstrated scale/operational need justifies them.
 
 No bulk-data migration is being performed merely for architectural neatness. Existing trusted CSV artefacts remain in place until an additive, reproducible alternative has passed equivalence checks.
+
+## Data residency & lineage status
+
+`FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md` now records the initial residency and lineage map for the major FRL datasets and source families.
+
+Known tracked canonical/derived datasets include:
+
+- `fixtures_master_corrected.csv` — canonical fixture master;
+- `identity/team_seasons.csv` — canonical persistent/season-local team identity registry;
+- `identity/data_quality/fixture_corrections.csv` — explicit correction provenance;
+- `data/fixture_match_stats.csv` — packaged fixture statistics;
+- `features/historical_match_state_v1.csv` and `features/historical_match_state_v2.csv` — derived historical state;
+- `_merged/players/*_all_players_gw.csv` — tracked historical Player Research datasets;
+- player identity and player-match evidence artefacts.
+
+The richer upstream `pl_stats` player-match and event source families remain a distinct local/source-workspace concern and are not to be confused with canonical FRL data merely because they were used to construct it.
+
+The inventory confirms the key current architecture gap: the original canonical fixture/team build is trusted but not yet represented by one clean end-to-end reproducible rebuild pipeline.
 
 ## Product navigation contract
 
@@ -249,6 +268,7 @@ read orientation
 → read UI design system
 → read FRL data hierarchy & organisation contract
 → read FRL data platform architecture v1
+→ read FRL data residency & lineage inventory v1
 → establish branch/repository state
 → inspect relevant working/archived/local mechanisms
 → run 26/26
@@ -256,23 +276,12 @@ read orientation
 → only then start substantive work
 ```
 
-The hierarchy and data-platform contracts are project memory and must not be treated as optional background.
+The hierarchy, data-platform and residency/lineage contracts are project memory and must not be treated as optional background.
 
 ## Immediate next step
 
-**FRL Data Residency & Lineage Inventory**
+**Local Parquet/DuckDB equivalence proof**
 
-Before migrating anything, inventory the major existing datasets and record:
+Select one or two large, trusted existing datasets from the residency inventory and build a local, additive Parquet representation. Use DuckDB to reproduce a small set of existing trusted query outputs and compare them against the current CSV-backed path.
 
-- origin/source family;
-- local path where known;
-- GitHub-tracked path where applicable;
-- raw/validated/canonical/derived status;
-- identity keys;
-- principal consumers;
-- update method/frequency;
-- provenance metadata available;
-- approximate size/row count;
-- whether the dataset should remain in Git, move toward object storage, or be regenerated.
-
-The first implementation milestone after the inventory is a local, reversible Parquet/DuckDB proof against one or two large existing datasets. Existing CSV-backed query paths remain trusted until equivalence is demonstrated.
+The first proof should be chosen by measurable size/analytical value rather than convenience. No current CSV-backed consumer should be switched over until the equivalence results, lineage and rollback path are documented.
