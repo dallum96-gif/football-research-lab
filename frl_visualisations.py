@@ -60,18 +60,16 @@ def team_goals_trend(result: ResearchResult) -> alt.Chart:
     if not values:
         raise ValueError("ResearchResult contains no completed fixtures for visualisation")
 
-    base = alt.Chart(alt.Data(values=values)).encode(
+    chart = alt.Chart(alt.Data(values=values)).encode(
         x=alt.X(
             "kickoff_time:T",
             title=None,
             axis=alt.Axis(
                 format="%d %b",
                 labelColor=FRL_MUTED,
-                titleColor=FRL_MUTED,
                 domainColor=FRL_BORDER,
                 tickColor=FRL_BORDER,
                 labelFontSize=11,
-                titleFontSize=11,
                 labelPadding=7,
             ),
         ),
@@ -81,7 +79,6 @@ def team_goals_trend(result: ResearchResult) -> alt.Chart:
             scale=alt.Scale(nice=True, zero=True),
             axis=alt.Axis(
                 labelColor=FRL_MUTED,
-                titleColor=FRL_MUTED,
                 domainColor=FRL_BORDER,
                 tickColor=FRL_BORDER,
                 gridColor=FRL_GRID,
@@ -116,11 +113,11 @@ def team_goals_trend(result: ResearchResult) -> alt.Chart:
         ],
     )
 
-    line = base.mark_line(strokeWidth=2.3)
-    points = base.mark_point(filled=True, size=44, strokeWidth=1.2)
-
     return (
-        (line + points)
+        chart.mark_line(
+            point=alt.OverlayMarkDef(filled=True, size=44, strokeWidth=1.2),
+            strokeWidth=2.3,
+        )
         .properties(
             height=285,
             background=FRL_SURFACE,
