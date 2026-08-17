@@ -5,7 +5,7 @@ This protocol is mandatory for any new coding/research session working on the Fo
 ## Before changing anything
 
 1. Treat `dallum96-gif/football-research-lab` as the GitHub source of truth for tracked project code and documentation.
-2. Read `PROJECT_ORIENTATION.md`, `CURRENT_WORK.md`, `DATA_CONSTRUCTION.md`, `RISK_STRATEGY_FRAMEWORK.md`, `NON_DESTRUCTION_ASSURANCE.md`, `UI_DESIGN_SYSTEM.md`, and `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` before substantive work.
+2. Read `PROJECT_ORIENTATION.md`, `CURRENT_WORK.md`, `DATA_CONSTRUCTION.md`, `RISK_STRATEGY_FRAMEWORK.md`, `NON_DESTRUCTION_ASSURANCE.md`, `UI_DESIGN_SYSTEM.md`, `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`, and `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` before substantive work.
 3. Establish the current branch and repository state and distinguish committed work from local/untracked experiments.
 4. Compare the active branch with `main` before substantive work. Record the merge-base and whether the branch is ahead, behind or diverged.
 5. If the active branch is behind `main`, inspect the main-only commits before creating new work.
@@ -16,6 +16,7 @@ This protocol is mandatory for any new coding/research session working on the Fo
 10. If a capability or classification is not obvious in GitHub, inspect the local source tree and trace the mechanism from source → retrieval/transformation → aggregation/classification → existing consumer.
 11. Do not infer that a capability is absent merely because it cannot be found by an intuitive filename, metric name, or GitHub search.
 12. Preserve existing retrieval, identity and classification mechanisms wherever possible. Reuse the established seam rather than creating a parallel mechanism.
+13. **Do not infer relationship semantics from column names or numeric coincidence.** Before designing joins, inspect the relevant relationship contract and actual consumer code and determine whether each identifier is source-local, season-local, persistent/canonical, or derived context.
 
 ## Foundational-decision memory rule
 
@@ -38,6 +39,40 @@ Examples of decisions that should normally be promoted into project memory inclu
 - reproducibility or validation requirements.
 
 Do not rely on conversation history to preserve such decisions. The repository is the durable project memory; the Master Prompt should point into that memory.
+
+## Relationship-integrity rule
+
+The FRL's canonical relationship semantics are governed by `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`.
+
+In particular:
+
+```text
+Fixture (season, fixture_id)
+        ↓
+season-local home/away team IDs
+        ↓
+team_seasons.local_team_id
+        ↓
+verified persistent team identity
+```
+
+and:
+
+```text
+season-specific player source
+        ↓
+season context derived from the source/load operation
+        ↓
+(season, fpl_element)
+        ↓
+verified player identity registry
+        ↓
+source player identity
+```
+
+Do not replace these with direct provider-to-provider joins merely because identifiers look numerically compatible.
+
+A data-format migration is only successful when canonical relationships, identity semantics and fail-closed behaviour survive, not merely when rows and columns are preserved.
 
 ## Branch model
 
