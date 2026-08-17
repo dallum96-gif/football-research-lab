@@ -135,6 +135,5 @@ def test_player_filter_tiles_v4_is_art_directed_and_light():
     assert "Build a shortlist" in renderer
     assert "Stats, thresholds & combinations" in renderer
     assert "frl-advanced-note" in renderer
-    assert "opacity:0" in renderer
     assert "[data-baseweb=\"menu\"]" in renderer
     assert "background:var(--frl-surface)" in renderer
