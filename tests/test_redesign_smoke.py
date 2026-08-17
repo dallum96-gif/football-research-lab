@@ -57,7 +57,7 @@ def test_navigation_keys_are_unique():
 def test_projection_lab_is_available_under_analysis():
     shell = (ROOT / "gui" / "ui_shell.py").read_text(encoding="utf-8-sig")
     assert 'selected == "analysis"' in shell
-    assert 'target = "prediction"' in shell or '"prediction"' in shell
+    assert '"prediction"' in shell
     assert "render_projection_lab" in shell
 
 
@@ -114,7 +114,7 @@ def test_player_filter_tile_design_boundary():
 def test_player_filter_tiles_v4_is_art_directed_and_light():
     renderer = (ROOT / "gui" / "player_filter_tiles_v4.py").read_text(encoding="utf-8-sig")
     assert "Build a shortlist" in renderer
-    assert "Explore stats, thresholds & combinations" in renderer
+    assert "Stats, thresholds & combinations" in renderer
     assert 'content:"＋"' in renderer
     assert "opacity:0" in renderer
     assert "[data-baseweb=\"menu\"]" in renderer
