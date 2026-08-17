@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any
 
 import altair as alt
 
 from frl_analytical import ResearchResult
+
+
+def _canonical_chart_datetime(value: Any) -> Any:
+    """Convert timezone-aware datetimes to UTC for Altair compatibility."""
+    if isinstance(value, datetime) and value.tzinfo is not None:
+        return value.astimezone(timezone.utc)
+    return value
 
 
 def team_goals_trend(result: ResearchResult) -> alt.Chart:
@@ -23,7 +31,7 @@ def team_goals_trend(result: ResearchResult) -> alt.Chart:
             continue
         rows.append(
             {
-                "kickoff_time": row["kickoff_time"],
+                "kickoff_time": _canonical_chart_datetime(row["kickoff_time"]),
                 "fixture_id": row["fixture_id"],
                 "opponent": row["opponent"],
                 "goals_for": row["goals_for"],
