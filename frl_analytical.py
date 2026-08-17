@@ -91,12 +91,12 @@ def league_table(season: str) -> ResearchResult:
                     CAST(f.fixture_id AS BIGINT) AS fixture_id,
                     CAST(f.home_team_id AS VARCHAR) AS home_team_id,
                     CAST(f.away_team_id AS VARCHAR) AS away_team_id,
-                    CAST(f.home_score AS INTEGER) AS home_score,
-                    CAST(f.away_score AS INTEGER) AS away_score
+                    TRY_CAST(f.home_score AS INTEGER) AS home_score,
+                    TRY_CAST(f.away_score AS INTEGER) AS away_score
                 FROM fixtures f
                 WHERE f.season = ?
-                  AND f.home_score <> ''
-                  AND f.away_score <> ''
+                  AND TRY_CAST(f.home_score AS INTEGER) IS NOT NULL
+                  AND TRY_CAST(f.away_score AS INTEGER) IS NOT NULL
             ),
             teams AS (
                 SELECT DISTINCT
@@ -105,11 +105,6 @@ def league_table(season: str) -> ResearchResult:
                 FROM team_seasons
                 WHERE season = ?
                   AND mapping_status = 'VERIFIED'
-            ),
-            appearances AS (
-                SELECT local_team_id, team FROM teams
-                UNION
-                SELECT local_team_id, team FROM teams
             ),
             team_results AS (
                 SELECT
