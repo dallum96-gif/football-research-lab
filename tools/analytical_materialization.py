@@ -46,7 +46,7 @@ def materialize(output_dir: Path) -> dict[str, int | str]:
                 CAST(f.home_team_id AS INTEGER) AS home_local_team_id,
                 CAST(f.away_team_id AS INTEGER) AS away_local_team_id,
                 CAST(ht.persistent_team_code AS INTEGER) AS home_persistent_team_code,
-                CAST(at.persistent_team_code AS INTEGER) AS away_persistent_team_code,
+                CAST(away_team.persistent_team_code AS INTEGER) AS away_persistent_team_code,
                 f.home_score,
                 f.away_score,
                 CASE
@@ -60,10 +60,10 @@ def materialize(output_dir: Path) -> dict[str, int | str]:
               ON f.season = ht.season
              AND CAST(f.home_team_id AS VARCHAR) = CAST(ht.local_team_id AS VARCHAR)
              AND ht.mapping_status = 'VERIFIED'
-            LEFT JOIN {teams} at
-              ON f.season = at.season
-             AND CAST(f.away_team_id AS VARCHAR) = CAST(at.local_team_id AS VARCHAR)
-             AND at.mapping_status = 'VERIFIED'
+            LEFT JOIN {teams} away_team
+              ON f.season = away_team.season
+             AND CAST(f.away_team_id AS VARCHAR) = CAST(away_team.local_team_id AS VARCHAR)
+             AND away_team.mapping_status = 'VERIFIED'
         """
         con.execute(f"COPY ({fixture_sql}) TO '{_escape(fixture_out)}' (FORMAT PARQUET, COMPRESSION ZSTD)")
 
