@@ -114,6 +114,8 @@ Before doing substantive work, read:
 * `FRL_ANALYTICAL_DATA_LAYOUT_V1.md`
 * `FRL_VISUALISATION_DATA_CONTRACT.md`
 * `FRL_PLAYER_METADATA_SOURCE_ASSESSMENT_V1.md`
+* `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`
+* `FRL_SOURCE_NORMALISATION_CONTRACT.md`
 * `SESSION_START_PROTOCOL.md`
 
 Then inspect the relevant code and establish the current branch/state before doing anything.
@@ -122,7 +124,7 @@ Do not ask me to re-explain the project when the information can be recovered fr
 
 The fresh-session sequence is therefore:
 
-**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source/discovery/normalisation contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
 
 ### Branch safety
 
@@ -183,7 +185,7 @@ Preserve source observations and derivation logic separately. Do not silently ov
 
 The FRL should be treated as a connected football evidence system with a data platform underneath the UI.
 
-Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation and player-metadata source documents named above before making architecture changes.
+Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation, discovery, normalisation and player-metadata source documents named above before making architecture changes.
 
 The guiding principle is:
 
@@ -218,6 +220,8 @@ GUI
 GitHub is primarily the versioned control plane for code, schemas, contracts, tests, transformations, provenance and selected reproducible artefacts. Large/raw evidence should not be allowed to turn Git into a permanent data warehouse merely because it is convenient today.
 
 The target architecture is local-first and scalable: columnar datasets such as Parquet with an analytical engine such as DuckDB initially, with object storage and orchestration introduced only when the data volume or operational requirements justify them. Do not perform a wholesale migration merely for architectural fashion.
+
+Different leagues and providers are expected to have different source schemas. The FRL must use explicit source adapters and normalisation contracts to translate source-specific field names, grains, identifiers, units and definitions into canonical FRL meanings without erasing the native evidence. See `FRL_SOURCE_NORMALISATION_CONTRACT.md`.
 
 The analytical layer must preserve the FRL graph rather than collapse it into a universal mega-table. Its primary canonical grains are:
 
