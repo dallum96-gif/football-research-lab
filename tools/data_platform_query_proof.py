@@ -42,7 +42,7 @@ def _duckdb_fixture_rows(con: duckdb.DuckDBPyConnection, fixture_pq: Path, team_
          AND CAST(f.away_team_id AS VARCHAR) = CAST(away_team.local_team_id AS VARCHAR)
          AND away_team.mapping_status = 'VERIFIED'
         WHERE f.season = ?
-        ORDER BY f.kickoff_time, CAST(f.fixture_id AS BIGINT)
+        ORDER BY CAST(f.kickoff_time AS VARCHAR), CAST(f.fixture_id AS BIGINT)
     """
     return con.execute(query, [season]).fetchall(), [x[0] for x in con.description]
 
