@@ -79,8 +79,9 @@ def _profile(summary: dict, form: dict, fixtures: dict) -> None:
             f"<span class='{'win' if result == 'W' else ''}'>{result}</span>"
             for result in recent.get("results", [])
         )
+        form_content = pills or '<span class="frl-team-card-copy">—</span>'
         st.markdown(
-            f"<div class='frl-team-card'><div class='frl-team-card-title'>Last five</div><div class='frl-team-form'>{pills or '<span class=\"frl-team-card-copy\">—</span>'}</div><div class='frl-team-card-copy'>{recent.get('points',0)} pts · {recent.get('goals_for',0)} scored · {recent.get('goals_against',0)} conceded</div></div>",
+            f"<div class='frl-team-card'><div class='frl-team-card-title'>Last five</div><div class='frl-team-form'>{form_content}</div><div class='frl-team-card-copy'>{recent.get('points',0)} pts · {recent.get('goals_for',0)} scored · {recent.get('goals_against',0)} conceded</div></div>",
             unsafe_allow_html=True,
         )
     with right:
