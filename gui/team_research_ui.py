@@ -22,6 +22,13 @@ def _fmt(value) -> str:
         return "—"
 
 
+def _fmt_signed(value) -> str:
+    try:
+        return f"{int(value):+,}"
+    except (TypeError, ValueError):
+        return "—"
+
+
 @st.cache_data(show_spinner=False)
 def _seasons() -> list[str]:
     return sorted(query_api.list_seasons(), key=_season_key, reverse=True)
@@ -92,7 +99,7 @@ def _profile(summary: dict, form: dict, fixtures: dict, season: str, team: str) 
         f"<strong>{_fmt(data.get('wins'))}</strong> wins · "
         f"<strong>{_fmt(data.get('points'))}</strong> points · "
         f"<strong>{_fmt(data.get('goals_for'))}–{_fmt(data.get('goals_against'))}</strong> goals · "
-        f"<strong>{_fmt(data.get('goal_difference')):+}</strong> GD"
+        f"<strong>{_fmt_signed(data.get('goal_difference'))}</strong> GD"
     )
     st.markdown(f"<div class='frl-team-record'>{record}</div>", unsafe_allow_html=True)
 
@@ -155,7 +162,7 @@ def _stats(comparison: dict) -> None:
     st.markdown("<div class='frl-team-section'>Research snapshot</div>", unsafe_allow_html=True)
     record = (
         f"<strong>{_fmt(latest.get('points'))}</strong> latest points · "
-        f"<strong>{int(latest.get('goal_difference', 0)):+d}</strong> latest GD · "
+        f"<strong>{_fmt_signed(latest.get('goal_difference'))}</strong> latest GD · "
         f"<strong>{_fmt(latest.get('wins'))}</strong> latest wins · "
         f"<strong>{len(rows)}</strong> seasons found"
     )
