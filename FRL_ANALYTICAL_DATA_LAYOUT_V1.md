@@ -154,7 +154,33 @@ A materialisation is not accepted merely because row counts and columns match. I
 
 No production consumer is switched to the analytical layer until those checks pass.
 
-## 9. Initial implementation scope
+## 9. Visualisation is a first-class research output
+
+Data visualisation is a major part of the FRL, not merely decorative presentation.
+
+The analytical layer should deliberately make it easy to create:
+
+- publication-quality charts and trend views;
+- interactive tables and sortable/rankable views;
+- team/player/fixture comparisons;
+- distributions and uncertainty views;
+- rolling and historical-state visualisations;
+- head-to-head and matchup comparisons;
+- scatter plots, relationship plots and feature exploration;
+- model calibration/performance visualisations;
+- research-population summaries;
+- timeline and event visualisations where event data supports them;
+- bespoke visual research tools where a football question benefits from a custom representation.
+
+Visualisations are **research views over trusted data**, not independent analytical authorities. A chart, table or comparison tool must preserve the same provenance, population, filters, time semantics and uncertainty as the underlying research result.
+
+The GUI may make visualisations beautiful, playful and highly browsable, but appearance must never change the meaning of the underlying data.
+
+Prefer reusable visualisation-ready analytical outputs over repeatedly transforming raw files inside individual UI components.
+
+The architecture should keep the visualisation layer replaceable so the FRL is not tied to one charting library or rendering technology.
+
+## 10. Initial implementation scope
 
 The first practical materialisation is intentionally narrow:
 
@@ -164,7 +190,7 @@ The first practical materialisation is intentionally narrow:
 
 Do not manufacture player-fixture rows from unrelated season-level player CSVs. Season-level player data is not player-fixture data.
 
-## 10. North Star alignment
+## 11. North Star alignment
 
 The analytical layer exists to make increasingly rich research possible without rebuilding the foundations:
 
@@ -175,7 +201,8 @@ The analytical layer exists to make increasingly rich research possible without 
 - comparable-match research;
 - player/team influence analysis;
 - mathematical and predictive models;
-- future natural-language research.
+- future natural-language research;
+- rich data visualisation and interactive comparison.
 
 The governing principle remains:
 
