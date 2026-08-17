@@ -28,7 +28,7 @@ def test_player_filter_tiles_are_transparent_and_on_brand():
     assert "background:transparent" in text
     assert "var(--frl-accent)" in text
     assert "var(--frl-text)" in text
-    assert "var(--frl-surface)" in text
+    assert 'font-family:"Source Sans"' in text
 
 
 def test_player_filter_tiles_keep_verified_passing_boundary():
