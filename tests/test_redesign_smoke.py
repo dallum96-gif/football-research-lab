@@ -61,3 +61,20 @@ def test_all_primary_workspaces_are_routable():
     app = (ROOT / "gui" / "app_redesign.py").read_text(encoding="utf-8-sig")
     for workspace in ("fixtures", "league-table", "form"):
         assert f'workspace == "{workspace}"' in app
+
+
+def test_player_filter_tile_design_boundary():
+    renderer = (ROOT / "gui" / "player_filter_tiles_v2.py").read_text(encoding="utf-8-sig")
+    shell = (ROOT / "gui" / "ui_shell.py").read_text(encoding="utf-8-sig")
+
+    assert "def render_player_research_ui_tiles" in renderer
+    assert "st.popover(" not in renderer
+    assert "background:transparent" in renderer
+    assert "var(--frl-accent)" in renderer
+    assert 'font-family:"Source Sans"' in renderer
+    assert "player_research_player_match" in renderer
+    assert "player_match_passes" in renderer
+    assert "player_match_accurate_passes" in renderer
+    assert "player_match_key_passes" in renderer
+    assert "player_match_big_chances_created" in renderer
+    assert "player_filter_tiles_v2" in shell
