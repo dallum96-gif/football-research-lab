@@ -5,7 +5,7 @@ This protocol is mandatory for any new coding/research session working on the Fo
 ## Before changing anything
 
 1. Treat `dallum96-gif/football-research-lab` as the GitHub source of truth for tracked project code and documentation.
-2. Read `PROJECT_ORIENTATION.md`, `CURRENT_WORK.md`, `DATA_CONSTRUCTION.md`, `RISK_STRATEGY_FRAMEWORK.md`, `NON_DESTRUCTION_ASSURANCE.md`, `UI_DESIGN_SYSTEM.md`, `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`, and `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` before substantive work.
+2. Read `PROJECT_ORIENTATION.md`, `CURRENT_WORK.md`, `DATA_CONSTRUCTION.md`, `RISK_STRATEGY_FRAMEWORK.md`, `NON_DESTRUCTION_ASSURANCE.md`, `UI_DESIGN_SYSTEM.md`, `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`, and `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md` before substantive work.
 3. Establish the current branch and repository state and distinguish committed work from local/untracked experiments.
 4. Compare the active branch with `main` before substantive work. Record the merge-base and whether the branch is ahead, behind or diverged.
 5. If the active branch is behind `main`, inspect the main-only commits before creating new work.
@@ -39,6 +39,77 @@ Examples of decisions that should normally be promoted into project memory inclu
 - reproducibility or validation requirements.
 
 Do not rely on conversation history to preserve such decisions. The repository is the durable project memory; the Master Prompt should point into that memory.
+
+## Full data-ecosystem discovery rule
+
+`FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md` is authoritative for discovery completeness.
+
+**Failure to find a field, metric, classification or capability in one repository location is never sufficient evidence that it does not exist.**
+
+Before concluding that information is absent, unavailable, or requires a new external source, audit the relevant whole ecosystem, including where applicable:
+
+- current working application and query layer;
+- archived, backup and previous implementations;
+- all relevant GitHub-tracked datasets and directory trees;
+- local upstream/source workspaces;
+- source-family variants and parallel products;
+- partitioned datasets such as `by_position`;
+- identity registries and crosswalks;
+- merged and derived datasets;
+- neighbouring fields that may encode the concept under another name or grain;
+- source documentation and provenance notes.
+
+Do not search only for the expected column name.
+
+The audit should establish:
+
+```text
+source family
+      ↓
+dataset / file / endpoint
+      ↓
+grain
+      ↓
+relevant fields
+      ↓
+source identifiers
+      ↓
+coverage
+      ↓
+transformation / derivation
+      ↓
+existing consumer
+      ↓
+FRL suitability
+```
+
+A capability may exist at a different grain, under another field name, inside a partitioned dataset, in an upstream source, or as a documented derived quantity.
+
+If the ecosystem audit genuinely finds no defensible source, record that conclusion and the evidence supporting it before sourcing externally.
+
+## Source-diversity / multi-league rule
+
+The FRL must be designed for future leagues and competitions whose sources may have different field names, schemas, identifier systems, grains, units and metric definitions.
+
+Do not assume that one provider schema is universal.
+
+Use explicit source adapters / normalisation contracts:
+
+```text
+SOURCE A
+   ↓
+adapter A ─┐
+            ├→ FRL canonical meaning
+SOURCE B   │
+   ↓       │
+adapter B ─┤
+            │
+SOURCE C   ─┘
+```
+
+Each adapter must retain native source semantics and document the mapping to FRL concepts, including field definition, grain, identifiers, transformations, units, missing-value semantics, coverage and provenance.
+
+A field-name match is not evidence that two sources measure the same thing. When sources cannot be harmonised without an unsupported assumption, preserve source-specific representations and leave the canonical concept unavailable rather than inventing equivalence.
 
 ## Relationship-integrity rule
 
