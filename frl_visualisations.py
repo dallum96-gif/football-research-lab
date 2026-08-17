@@ -60,12 +60,17 @@ def team_goals_trend(result: ResearchResult) -> alt.Chart:
 
     chart = (
         alt.Chart(alt.Data(values=values))
-        .mark_line(point=True)
+        .mark_line(point=True, strokeWidth=2.5)
         .encode(
             x=alt.X("kickoff_time:T", title="Kick-off"),
             y=alt.Y("value:Q", title="Goals"),
             detail="metric:N",
             color=alt.Color("metric:N", title=None),
+            shape=alt.Shape(
+                "result:N",
+                title="Result",
+                scale=alt.Scale(domain=["win", "draw", "loss", "unplayed"]),
+            ),
             tooltip=[
                 alt.Tooltip("kickoff_time:T", title="Kick-off"),
                 alt.Tooltip("opponent:N", title="Opponent"),
