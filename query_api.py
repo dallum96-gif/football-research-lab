@@ -108,6 +108,8 @@ def league_table(season):
 
     stats = {
         local_id: {
+            "team_id": local_id,
+            "persistent_team_code": record["persistent_team_code"],
             "team": record["team"],
             "played": 0,
             "wins": 0,
