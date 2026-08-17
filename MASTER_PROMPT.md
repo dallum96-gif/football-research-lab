@@ -130,6 +130,8 @@ Before doing substantive work, read:
 * `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`
 * `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
 * `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`
+* `FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md`
+* `FRL_ANALYTICAL_DATA_LAYOUT_V1.md`
 * `SESSION_START_PROTOCOL.md`
 
 Then inspect the relevant code and establish the current branch/state before doing anything.
@@ -138,7 +140,7 @@ Do not ask me to re-explain the project when the information can be recovered fr
 
 The fresh-session sequence is therefore:
 
-**read orientation → read current work → read the governing data/architecture/relationship contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+**read orientation → read current work → read the governing data/architecture/relationship/residency/layout contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
 
 ### Branch safety
 
@@ -201,7 +203,7 @@ A format or storage migration is only equivalent when these canonical relationsh
 
 The FRL should be treated as a connected football evidence system with a data platform underneath the UI.
 
-Read `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` for the entity/relationship model, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` for verified join semantics, and `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md` for the storage/ingestion architecture.
+Read `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md` for the entity/relationship model, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md` for verified join semantics, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md` for the storage/ingestion architecture, and `FRL_ANALYTICAL_DATA_LAYOUT_V1.md` for the analytical representation and canonical grains.
 
 The guiding principle is:
 
@@ -224,6 +226,8 @@ CANONICAL FRL DATA
       ↓
 DERIVED STATE / FEATURES
       ↓
+ANALYTICAL LAYER
+      ↓
 RESEARCH / MODELS
       ↓
 QUERY API
@@ -234,6 +238,16 @@ GUI
 GitHub is primarily the versioned control plane for code, schemas, contracts, tests, transformations, provenance and selected reproducible artefacts. Large/raw evidence should not be allowed to turn Git into a permanent data warehouse merely because it is convenient today.
 
 The target architecture is local-first and scalable: columnar datasets such as Parquet with an analytical engine such as DuckDB initially, with object storage and orchestration introduced only when the data volume or operational requirements justify them. Do not perform a wholesale migration merely for architectural fashion.
+
+The analytical layer must preserve the FRL graph rather than collapse it into a universal mega-table. Its primary canonical grains are:
+
+```text
+Fixture        = (season, fixture_id)
+Team–Fixture   = (season, fixture_id, persistent_team_code)
+Player–Fixture = (season, fixture_id, canonical player identity)
+```
+
+Identity bridge datasets and source-local identifiers remain explicit. Derived datasets and materialisations must retain a traceable route to their canonical inputs.
 
 ## Current architectural priorities
 
