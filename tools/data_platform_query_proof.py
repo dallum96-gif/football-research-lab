@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import tempfile
+from datetime import datetime
 
 import duckdb
 
@@ -22,6 +23,12 @@ def _promote(con: duckdb.DuckDBPyConnection, source: Path, target: Path) -> None
         f"COPY (SELECT * FROM read_csv_auto('{_escape(source)}', SAMPLE_SIZE=-1, HEADER=TRUE)) "
         f"TO '{_escape(target)}' (FORMAT PARQUET, COMPRESSION ZSTD)"
     )
+
+
+def _canonical_kickoff(value) -> str:
+    if isinstance(value, datetime):
+        return value.isoformat().replace("+00:00", "Z")
+    return str(value).replace("+00:00", "Z")
 
 
 def _duckdb_fixture_rows(con: duckdb.DuckDBPyConnection, fixture_pq: Path, team_pq: Path, season: str):
@@ -177,10 +184,15 @@ def run_query_proof(season: str = "2025-26", team: str = "Arsenal") -> dict[str,
             for fixture_id, csv_row in csv_arsenal.items():
                 duck_row = duck_arsenal[fixture_id]
                 for field in contract_fields:
-                    if str(csv_row.get(field, "")) != str(duck_row.get(field, "")):
+                    csv_value = csv_row.get(field, "")
+                    duck_value = duck_row.get(field, "")
+                    if field == "kickoff_time":
+                        csv_value = _canonical_kickoff(csv_value)
+                        duck_value = _canonical_kickoff(duck_value)
+                    if str(csv_value) != str(duck_value):
                         raise AssertionError(
                             f"fixture query mismatch fixture={fixture_id} field={field}: "
-                            f"csv={csv_row.get(field)!r} duckdb={duck_row.get(field)!r}"
+                            f"csv={csv_value!r} duckdb={duck_value!r}"
                         )
 
             return {
