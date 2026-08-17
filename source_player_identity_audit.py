@@ -1,4 +1,4 @@
-"""Read-only audit of players_match_stats playerId longitudinal identity."""
+﻿"""Read-only audit of players_match_stats playerId longitudinal identity."""
 
 from __future__ import annotations
 
