@@ -3,6 +3,8 @@ from __future__ import annotations
 import streamlit as st
 
 import query_api
+from frl_analytical import team_fixtures
+from frl_visualisations import team_goals_trend
 
 
 def _season_key(value: str) -> tuple[int, int]:
@@ -52,7 +54,7 @@ def _css() -> None:
     )
 
 
-def _profile(summary: dict, form: dict, fixtures: dict) -> None:
+def _profile(summary: dict, form: dict, fixtures: dict, season: str, team: str) -> None:
     data = summary.get("summary", {})
     recent = form.get("windows", {}).get("5", {})
     streaks = form.get("streaks", {})
@@ -71,6 +73,11 @@ def _profile(summary: dict, form: dict, fixtures: dict) -> None:
         for label, value, accent in items
     )
     st.markdown(f"<div class='frl-team-grid'>{cards}</div>", unsafe_allow_html=True)
+
+    trend_result = team_fixtures(season=season, team=team, limit=100)
+    st.markdown("<div class='frl-team-section'>Goals trend</div>", unsafe_allow_html=True)
+    st.caption("Goals scored and conceded across the selected Premier League season.")
+    st.altair_chart(team_goals_trend(trend_result), width="stretch")
 
     left, right = st.columns(2, gap="medium")
     with left:
@@ -172,6 +179,8 @@ def render_team_research_ui() -> None:
             query_api.team_summary(season=season, team=team),
             query_api.team_form(season=season, team=team),
             query_api.fixtures(season=season, team=team, limit=100),
+            season,
+            team,
         )
         return
 
