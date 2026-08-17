@@ -172,17 +172,17 @@ def run_relationship_proof(
             fixture_count = int(con.execute(f"SELECT COUNT(*) FROM {master}").fetchone()[0])
             duplicate_team_registry_keys = int(
                 con.execute(
-                    f"SELECT COUNT(*) FROM (SELECT season, club_id FROM {teams} WHERE mapping_status = 'VERIFIED' GROUP BY season, club_id HAVING COUNT(*) > 1)"
+                    f"SELECT COUNT(*) FROM (SELECT season, local_team_id FROM {teams} WHERE mapping_status = 'VERIFIED' GROUP BY season, local_team_id HAVING COUNT(*) > 1)"
                 ).fetchone()[0]
             )
             orphan_fixture_home_teams = int(
                 con.execute(
-                    f"SELECT COUNT(*) FROM {master} f LEFT JOIN {teams} t ON f.season = t.season AND CAST(f.home_team_id AS VARCHAR) = CAST(t.club_id AS VARCHAR) AND t.mapping_status = 'VERIFIED' WHERE t.club_id IS NULL"
+                    f"SELECT COUNT(*) FROM {master} f LEFT JOIN {teams} t ON f.season = t.season AND CAST(f.home_team_id AS VARCHAR) = CAST(t.local_team_id AS VARCHAR) AND t.mapping_status = 'VERIFIED' WHERE t.local_team_id IS NULL"
                 ).fetchone()[0]
             )
             orphan_fixture_away_teams = int(
                 con.execute(
-                    f"SELECT COUNT(*) FROM {master} f LEFT JOIN {teams} t ON f.season = t.season AND CAST(f.away_team_id AS VARCHAR) = CAST(t.club_id AS VARCHAR) AND t.mapping_status = 'VERIFIED' WHERE t.club_id IS NULL"
+                    f"SELECT COUNT(*) FROM {master} f LEFT JOIN {teams} t ON f.season = t.season AND CAST(f.away_team_id AS VARCHAR) = CAST(t.local_team_id AS VARCHAR) AND t.mapping_status = 'VERIFIED' WHERE t.local_team_id IS NULL"
                 ).fetchone()[0]
             )
 
