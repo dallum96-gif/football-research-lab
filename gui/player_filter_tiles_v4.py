@@ -1,7 +1,7 @@
 """FRL Players tile presentation v4.
 
-Adds the art-directed Advanced tile treatment without changing the
-underlying player research or verified Player-Match data contracts.
+Art-directed Advanced tile action layered over the verified v3 renderer.
+The underlying player research and Player-Match contracts are unchanged.
 """
 from __future__ import annotations
 
@@ -14,78 +14,59 @@ def _advanced_tile_style() -> None:
     st.markdown(
         """
         <style>
-        /* Advanced is an editorial tile action, not a form toggle. */
-        [data-testid="stToggle"] input {
-            position:absolute !important;
-            opacity:0 !important;
-            width:1px !important;
-            height:1px !important;
-        }
-
-        [data-testid="stToggle"] label {
-            position:relative !important;
-            display:flex !important;
-            align-items:flex-start !important;
-            gap:.34rem !important;
-            width:100% !important;
-            min-height:2.05rem !important;
-            padding:.08rem 0 !important;
-            cursor:pointer !important;
-            color:var(--frl-text) !important;
-            font-family:"Source Sans",sans-serif !important;
-            font-size:.72rem !important;
-            font-weight:790 !important;
-            letter-spacing:.01em !important;
-        }
-
-        [data-testid="stToggle"] label::before {
-            content:"＋";
-            flex:0 0 auto;
-            color:var(--frl-accent);
-            font-family:"Source Sans",sans-serif;
-            font-size:1rem;
-            font-weight:820;
-            line-height:.9;
-            margin-top:.02rem;
-        }
-
-        [data-testid="stToggle"] label::after {
-            content:"Explore stats, thresholds & combinations";
-            position:absolute;
-            left:1.18rem;
-            top:1rem;
-            color:var(--frl-muted);
-            font-family:"Source Sans",sans-serif;
-            font-size:.57rem;
-            font-weight:560;
-            line-height:1.15;
-            white-space:nowrap;
-        }
-
-        [data-testid="stToggle"] label > div {
+        /* Advanced is an editorial tile action, not a form control. */
+        [data-testid="stToggle"] {
             display:none !important;
         }
 
-        [data-testid="stToggle"] label:hover {
+        .frl-advanced-action {
+            margin:.04rem 0 0;
+        }
+
+        .frl-advanced-action button {
+            width:100% !important;
+            min-height:2.15rem !important;
+            height:2.15rem !important;
+            padding:.08rem 0 !important;
+            border:0 !important;
+            border-radius:0 !important;
+            background:transparent !important;
+            color:var(--frl-text) !important;
+            box-shadow:none !important;
+            font-family:"Source Sans",sans-serif !important;
+            font-size:.74rem !important;
+            font-weight:790 !important;
+            letter-spacing:.01em !important;
+            text-align:left !important;
+        }
+
+        .frl-advanced-action button:hover,
+        .frl-advanced-action button:focus-visible {
+            color:var(--frl-accent) !important;
+            background:rgba(232,93,63,.035) !important;
+            box-shadow:none !important;
+        }
+
+        .frl-advanced-action button::first-letter {
             color:var(--frl-accent) !important;
         }
 
-        [data-testid="stToggle"]:has(input:checked) label {
-            color:var(--frl-text) !important;
+        .frl-advanced-note {
+            color:var(--frl-muted) !important;
+            font-family:"Source Sans",sans-serif !important;
+            font-size:.57rem !important;
+            line-height:1.2 !important;
+            margin:.02rem 0 0 !important;
         }
 
-        [data-testid="stToggle"]:has(input:checked) label::before {
-            content:"✓";
-            color:var(--frl-accent);
-        }
-
-        /* Keep all selector/query surfaces light. */
+        /* Keep every query surface light and on-brand. */
         [data-baseweb="menu"],
         [data-baseweb="popover"],
         [role="listbox"],
         [data-testid="stSelectboxVirtualDropdown"] {
             background:var(--frl-surface) !important;
             color:var(--frl-text) !important;
+            border-color:var(--frl-border) !important;
         }
 
         [data-baseweb="menu"] li,
@@ -102,4 +83,35 @@ def _advanced_tile_style() -> None:
 
 def render_player_research_ui_tiles() -> None:
     _advanced_tile_style()
-    _render_v3()
+
+    original_toggle = st.toggle
+
+    def _editorial_toggle(label, value=False, key=None, **kwargs):
+        state_key = key or "frl_advanced"
+        current = bool(st.session_state.get(state_key, value))
+
+        with st.container(key="frl_advanced_action"):
+            action_label = "✓ Advanced active" if current else "＋ Build a shortlist"
+            clicked = st.button(
+                action_label,
+                key=f"{state_key}_editorial_button",
+                use_container_width=True,
+            )
+            st.markdown(
+                "<div class='frl-advanced-note'>"
+                "Stats, thresholds & combinations"
+                "</div>",
+                unsafe_allow_html=True,
+            )
+
+        if clicked:
+            st.session_state[state_key] = not current
+            st.rerun()
+
+        return current
+
+    st.toggle = _editorial_toggle
+    try:
+        _render_v3()
+    finally:
+        st.toggle = original_toggle
