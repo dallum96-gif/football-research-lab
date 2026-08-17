@@ -70,11 +70,12 @@ def test_team_goals_trend_normalises_dst_timezone_for_altair() -> None:
     )
 
     chart = team_goals_trend(result)
-    values = chart.to_dict()["data"]["values"]
-    assert values[0]["kickoff_time"] == datetime(
-        2025, 8, 17, 15, 30,
-        tzinfo=timezone.utc,
-    )
+    value = chart.to_dict()["data"]["values"][0]["kickoff_time"]
+    assert value["year"] == 2025
+    assert value["month"] == 8
+    assert value["date"] == 17
+    assert value["hours"] == 15
+    assert value["minutes"] == 30
 
 
 def test_team_goals_trend_does_not_accept_wrong_result_type() -> None:
