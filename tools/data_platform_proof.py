@@ -11,15 +11,16 @@ DEFAULT_PLAYER_SOURCE = ROOT / "_merged" / "players" / "2025-26_all_players_gw.c
 DEFAULT_FIXTURE_SOURCE = ROOT / "data" / "fixture_match_stats.csv"
 DEFAULT_FIXTURE_MASTER = ROOT / "fixtures_master_corrected.csv"
 DEFAULT_IDENTITY_REGISTRY = ROOT / "player_identity_registry.csv"
+DEFAULT_TEAM_REGISTRY = ROOT / "identity" / "team_seasons.csv"
 
 
 def _escape(value: Path) -> str:
     return str(value.resolve()).replace("'", "''")
 
 
-def _read_csv(con: duckdb.DuckDBPyConnection, path: Path) -> str:
+def _read_csv(path: Path) -> str:
     escaped = _escape(path)
-    return f"read_csv_auto('{escaped}', SAMPLE_SIZE=-1)"
+    return f"read_csv_auto('{escaped}', SAMPLE_SIZE=-1, HEADER=TRUE)"
 
 
 def _promote_to_parquet(
@@ -30,9 +31,18 @@ def _promote_to_parquet(
     csv = _escape(source)
     pq = _escape(parquet)
     con.execute(
-        f"COPY (SELECT * FROM read_csv_auto('{csv}', SAMPLE_SIZE=-1)) "
+        f"COPY (SELECT * FROM read_csv_auto('{csv}', SAMPLE_SIZE=-1, HEADER=TRUE)) "
         f"TO '{pq}' (FORMAT PARQUET, COMPRESSION ZSTD)"
     )
+
+
+def _source_season_expression(alias: str) -> str:
+    """Return the real season column used by the player source schema."""
+    return f"CAST({alias}._season AS VARCHAR)"
+
+
+def _element_expression(alias: str) -> str:
+    return f"CAST({alias}.element AS VARCHAR)"
 
 
 def run_player_proof(source: Path = DEFAULT_PLAYER_SOURCE) -> dict[str, int | str]:
@@ -46,7 +56,7 @@ def run_player_proof(source: Path = DEFAULT_PLAYER_SOURCE) -> dict[str, int | st
         con = duckdb.connect(database=":memory:")
         try:
             _promote_to_parquet(con, source, parquet)
-            csv = _read_csv(con, source)
+            csv = _read_csv(source)
             pq = f"read_parquet('{_escape(parquet)}')"
 
             csv_rows = int(con.execute(f"SELECT COUNT(*) FROM {csv}").fetchone()[0])
@@ -75,7 +85,7 @@ def run_fixture_proof(source: Path = DEFAULT_FIXTURE_SOURCE) -> dict[str, int | 
         con = duckdb.connect(database=":memory:")
         try:
             _promote_to_parquet(con, source, parquet)
-            csv = _read_csv(con, source)
+            csv = _read_csv(source)
             pq = f"read_parquet('{_escape(parquet)}')"
 
             csv_rows = int(con.execute(f"SELECT COUNT(*) FROM {csv}").fetchone()[0])
@@ -112,10 +122,11 @@ def run_relationship_proof(
     fixture_stats: Path = DEFAULT_FIXTURE_SOURCE,
     fixture_master: Path = DEFAULT_FIXTURE_MASTER,
     identity_registry: Path = DEFAULT_IDENTITY_REGISTRY,
+    team_registry: Path = DEFAULT_TEAM_REGISTRY,
     player_source: Path = DEFAULT_PLAYER_SOURCE,
 ) -> dict[str, int | str]:
     """Prove the principal FRL cross-layer relationships survive promotion."""
-    paths = [fixture_stats, fixture_master, identity_registry, player_source]
+    paths = [fixture_stats, fixture_master, identity_registry, team_registry, player_source]
     for path in paths:
         if not path.resolve().exists():
             raise FileNotFoundError(path)
@@ -126,6 +137,7 @@ def run_relationship_proof(
             "fixture_stats": tmp_path / "fixture_stats.parquet",
             "fixture_master": tmp_path / "fixture_master.parquet",
             "identity": tmp_path / "player_identity_registry.parquet",
+            "team_registry": tmp_path / "team_seasons.parquet",
             "players": tmp_path / "players.parquet",
         }
 
@@ -134,11 +146,13 @@ def run_relationship_proof(
             _promote_to_parquet(con, fixture_stats, promoted["fixture_stats"])
             _promote_to_parquet(con, fixture_master, promoted["fixture_master"])
             _promote_to_parquet(con, identity_registry, promoted["identity"])
+            _promote_to_parquet(con, team_registry, promoted["team_registry"])
             _promote_to_parquet(con, player_source, promoted["players"])
 
             stats = f"read_parquet('{_escape(promoted['fixture_stats'])}')"
             master = f"read_parquet('{_escape(promoted['fixture_master'])}')"
             identity = f"read_parquet('{_escape(promoted['identity'])}')"
+            teams = f"read_parquet('{_escape(promoted['team_registry'])}')"
             players = f"read_parquet('{_escape(promoted['players'])}')"
 
             orphan_fixture_stats = int(
@@ -153,9 +167,20 @@ def run_relationship_proof(
                 ).fetchone()[0]
             )
 
+            orphan_fixture_home_teams = int(
+                con.execute(
+                    f"SELECT COUNT(*) FROM {master} f LEFT JOIN {teams} t ON f.season = t.season AND CAST(f.home_team_id AS VARCHAR) = CAST(t.club_id AS VARCHAR) AND t.mapping_status = 'VERIFIED' WHERE t.club_id IS NULL"
+                ).fetchone()[0]
+            )
+            orphan_fixture_away_teams = int(
+                con.execute(
+                    f"SELECT COUNT(*) FROM {master} f LEFT JOIN {teams} t ON f.season = t.season AND CAST(f.away_team_id AS VARCHAR) = CAST(t.club_id AS VARCHAR) AND t.mapping_status = 'VERIFIED' WHERE t.club_id IS NULL"
+                ).fetchone()[0]
+            )
+
             duplicate_identity = int(
                 con.execute(
-                    f"SELECT COUNT(*) FROM (SELECT season, fpl_element FROM {identity} GROUP BY season, fpl_element HAVING COUNT(*) > 1)"
+                    f"SELECT COUNT(*) FROM (SELECT season, fpl_element FROM {identity} WHERE identity_status = 'VERIFIED' GROUP BY season, fpl_element HAVING COUNT(*) > 1)"
                 ).fetchone()[0]
             )
             verified_identity_rows = int(
@@ -165,7 +190,12 @@ def run_relationship_proof(
             )
             player_records_with_verified_identity = int(
                 con.execute(
-                    f"SELECT COUNT(*) FROM {players} p JOIN {identity} i ON p.season = i.season AND CAST(p.element AS VARCHAR) = CAST(i.fpl_element AS VARCHAR) WHERE i.identity_status = 'VERIFIED'"
+                    f"SELECT COUNT(*) FROM {players} p JOIN {identity} i ON {_source_season_expression('p')} = CAST(i.season AS VARCHAR) AND {_element_expression('p')} = CAST(i.fpl_element AS VARCHAR) WHERE i.identity_status = 'VERIFIED'"
+                ).fetchone()[0]
+            )
+            verified_identity_orphans = int(
+                con.execute(
+                    f"SELECT COUNT(*) FROM {identity} i LEFT JOIN {players} p ON {_source_season_expression('p')} = CAST(i.season AS VARCHAR) AND {_element_expression('p')} = CAST(i.fpl_element AS VARCHAR) WHERE i.identity_status = 'VERIFIED' AND p.element IS NULL"
                 ).fetchone()[0]
             )
 
@@ -175,18 +205,27 @@ def run_relationship_proof(
                 raise AssertionError(
                     f"fixture-stat join coverage mismatch: matched={fixture_stats_master_matches}, total={fixture_stats_total}"
                 )
+            if orphan_fixture_home_teams:
+                raise AssertionError(f"fixtures with unverified home-team mapping: {orphan_fixture_home_teams}")
+            if orphan_fixture_away_teams:
+                raise AssertionError(f"fixtures with unverified away-team mapping: {orphan_fixture_away_teams}")
             if duplicate_identity:
                 raise AssertionError(f"duplicate verified identity keys: {duplicate_identity}")
             if verified_identity_rows == 0:
                 raise AssertionError("no verified player identity rows available")
             if player_records_with_verified_identity == 0:
                 raise AssertionError("no player records join to verified identity registry")
+            if verified_identity_orphans:
+                raise AssertionError(f"verified identity rows without matching player source records: {verified_identity_orphans}")
 
             return {
                 "fixture_stats_rows": fixture_stats_total,
                 "fixture_stat_orphans": orphan_fixture_stats,
+                "home_team_orphans": orphan_fixture_home_teams,
+                "away_team_orphans": orphan_fixture_away_teams,
                 "identity_verified_rows": verified_identity_rows,
                 "player_records_with_verified_identity": player_records_with_verified_identity,
+                "verified_identity_orphans": verified_identity_orphans,
             }
         finally:
             con.close()
@@ -206,5 +245,6 @@ if __name__ == "__main__":
         f"player {player['rows']:,} rows / {player['columns']} columns; "
         f"fixtures {fixture['rows']:,} rows / canonical-key checks passed; "
         f"relationships {relationship['fixture_stats_rows']:,} fixture-stat rows / "
-        f"{relationship['identity_verified_rows']:,} verified identity rows"
+        f"{relationship['identity_verified_rows']:,} verified player identities / "
+        f"{relationship['player_records_with_verified_identity']:,} player records joined"
     )
