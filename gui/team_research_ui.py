@@ -156,7 +156,7 @@ def _stats(comparison: dict) -> None:
 
 def render_team_research_ui() -> None:
     _css()
-    seasons = sorted(query_api.available_seasons(), key=_season_key, reverse=True)
+    seasons = sorted(query_api.list_seasons(), key=_season_key, reverse=True)
     if not seasons:
         st.error("No verified team seasons are available.")
         return
