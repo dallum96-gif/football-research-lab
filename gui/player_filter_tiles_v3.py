@@ -57,11 +57,16 @@ def _style() -> None:
 
 
 def _passing(players: list[dict]) -> list[dict]:
+    """Enrich Passing from verified player-match data without erasing FPL data when unavailable."""
     enriched = player_research_player_match.enrich_players(players)
     for player in enriched:
         verified = player.get("player_match_identity_status") == "VERIFIED"
+        if not verified:
+            continue
         for target, source in PASSING_MAP.items():
-            player[target] = player.get(source) if verified else None
+            source_value = player.get(source)
+            if source_value is not None:
+                player[target] = source_value
     return enriched
 
 
