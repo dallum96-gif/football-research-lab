@@ -134,7 +134,7 @@ def test_player_filter_tiles_v4_is_art_directed_and_light():
     renderer = (ROOT / "gui" / "player_filter_tiles_v4.py").read_text(encoding="utf-8-sig")
     assert "Build a shortlist" in renderer
     assert "Stats, thresholds & combinations" in renderer
-    assert 'content:"＋"' in renderer
+    assert "frl-advanced-note" in renderer
     assert "opacity:0" in renderer
     assert "[data-baseweb=\"menu\"]" in renderer
     assert "background:var(--frl-surface)" in renderer
