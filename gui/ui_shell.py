@@ -76,7 +76,7 @@ def render_workspace_sidebar(active_key):
         st.stop()
 
     if selected == "players":
-        from gui.player_filter_tiles_v3 import render_player_research_ui_tiles as render_player_research_ui
+        from gui.player_filter_tiles_v4 import render_player_research_ui_tiles as render_player_research_ui
         st.markdown("<div class='frl-eyebrow'>Research</div>", unsafe_allow_html=True)
         st.markdown("<div class='frl-entity-title'>Players</div>", unsafe_allow_html=True)
         st.markdown("<div class='frl-context'>Player performance research across Premier League seasons</div>", unsafe_allow_html=True)
