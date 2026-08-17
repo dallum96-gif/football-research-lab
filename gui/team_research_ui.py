@@ -68,6 +68,7 @@ def _css() -> None:
         .frl-team-form .draw{color:var(--frl-muted);}
         .frl-team-form .loss{color:var(--frl-negative);border-color:rgba(232,93,63,.35)}
         .frl-team-row{display:grid;grid-template-columns:4rem minmax(0,1fr) 4.5rem 3rem;gap:.5rem;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--frl-border)}
+        .frl-team-row:hover{background:var(--frl-surface)}
         .frl-team-row:last-child{border-bottom:0}
         .frl-team-row-muted{color:var(--frl-muted-soft);font-size:.58rem}
         .frl-team-row-main{color:var(--frl-text);font-size:.68rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
