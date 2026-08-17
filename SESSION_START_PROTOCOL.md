@@ -17,6 +17,28 @@ This protocol is mandatory for any new coding/research session working on the Fo
 11. Do not infer that a capability is absent merely because it cannot be found by an intuitive filename, metric name, or GitHub search.
 12. Preserve existing retrieval, identity and classification mechanisms wherever possible. Reuse the established seam rather than creating a parallel mechanism.
 
+## Foundational-decision memory rule
+
+The Master Prompt is a **compressed recovery protocol**, not the authoritative storage location for project architecture.
+
+Whenever a decision becomes **fundamentally important to the long-term Laboratory**, do both of the following:
+
+1. **Commit the authoritative detail to the repository** in the most appropriate governing document, contract, architecture record or data/research documentation.
+2. **Update the Master Prompt / session-start instructions** so future sessions know that the new decision exists and exactly which repository document must be read to recover it.
+
+Examples of decisions that should normally be promoted into project memory include:
+
+- data architecture or storage boundaries;
+- canonical entity/relationship contracts;
+- branch/repository safety rules;
+- provenance or temporal-integrity rules;
+- ingestion/build contracts;
+- major GUI/navigation architecture;
+- research/model governance;
+- reproducibility or validation requirements.
+
+Do not rely on conversation history to preserve such decisions. The repository is the durable project memory; the Master Prompt should point into that memory.
+
 ## Branch model
 
 `main` is the **stable/trusted integration line**.
