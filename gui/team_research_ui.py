@@ -24,32 +24,24 @@ def _fmt_int(value) -> str:
         return "—"
 
 
-def _fmt_pct(value) -> str:
-    try:
-        return f"{float(value):.0f}%"
-    except (TypeError, ValueError):
-        return "—"
-
-
 def _team_css() -> None:
     st.markdown(
         """
         <style>
         .frl-team-kicker { color:var(--frl-accent); font-size:.58rem; font-weight:820; letter-spacing:.16em; text-transform:uppercase; }
-        .frl-team-title { margin-top:.22rem; color:var(--frl-text); font-family:"Source Sans",sans-serif; font-size:clamp(2rem,4vw,3.25rem); font-weight:820; line-height:.95; letter-spacing:-.045em; }
+        .frl-team-title { margin-top:.22rem; color:var(--frl-text); font-size:clamp(2rem,4vw,3.25rem); font-weight:820; line-height:.95; letter-spacing:-.045em; }
         .frl-team-note { margin-top:.42rem; color:var(--frl-muted); font-size:.78rem; line-height:1.35; }
-        .frl-team-switch { margin:.9rem 0 1.05rem; border-bottom:1px solid var(--frl-border); padding-bottom:.35rem; }
         .frl-team-stat-grid { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:.55rem; margin:1rem 0 1.1rem; }
-        .frl-team-stat { min-height:78px; padding:.72rem .78rem; border:1px solid var(--frl-border); border-radius:12px; background:transparent; }
+        .frl-team-stat { min-height:78px; padding:.72rem .78rem; border:1px solid var(--frl-border); border-radius:8px; background:var(--frl-surface); }
         .frl-team-stat-label { color:var(--frl-muted-soft); font-size:.52rem; font-weight:820; letter-spacing:.11em; text-transform:uppercase; }
         .frl-team-stat-value { margin-top:.32rem; color:var(--frl-text); font-size:1.28rem; font-weight:820; letter-spacing:-.035em; }
         .frl-team-stat-accent .frl-team-stat-value { color:var(--frl-accent); }
         .frl-team-section { margin-top:1.1rem; color:var(--frl-accent); font-size:.58rem; font-weight:820; letter-spacing:.15em; text-transform:uppercase; }
-        .frl-team-card { padding:.78rem .85rem; border:1px solid var(--frl-border); border-radius:12px; background:var(--frl-surface); }
+        .frl-team-card { padding:.78rem .85rem; border:1px solid var(--frl-border); border-radius:8px; background:var(--frl-surface); }
         .frl-team-card-title { color:var(--frl-text); font-size:.86rem; font-weight:780; }
         .frl-team-card-copy { margin-top:.2rem; color:var(--frl-muted); font-size:.67rem; line-height:1.4; }
         .frl-form-strip { display:flex; gap:.28rem; flex-wrap:wrap; margin-top:.5rem; }
-        .frl-form-pill { width:1.8rem; height:1.8rem; display:flex; align-items:center; justify-content:center; border:1px solid var(--frl-border); border-radius:7px; color:var(--frl-text); background:transparent; font-size:.62rem; font-weight:820; }
+        .frl-form-pill { width:1.8rem; height:1.8rem; display:flex; align-items:center; justify-content:center; border:1px solid var(--frl-border); border-radius:6px; color:var(--frl-text); background:transparent; font-size:.62rem; font-weight:820; }
         .frl-form-pill-win { border-color:rgba(232,93,63,.34); color:var(--frl-accent); }
         .frl-team-row { display:grid; grid-template-columns:2.8rem minmax(0,1fr) 5.2rem 3.8rem; gap:.6rem; align-items:center; padding:.62rem 0; border-bottom:1px solid var(--frl-border); }
         .frl-team-row:last-child { border-bottom:0; }
@@ -64,7 +56,7 @@ def _team_css() -> None:
     )
 
 
-def _profile(team: str, season: str, summary: dict, form: dict, fixtures: dict) -> None:
+def _profile(summary: dict, form: dict, fixtures: dict) -> None:
     s = summary.get("summary", {})
     streaks = form.get("streaks", {})
     window = form.get("windows", {}).get("5", {})
@@ -125,7 +117,7 @@ def _profile(team: str, season: str, summary: dict, form: dict, fixtures: dict) 
         st.caption("No fixture history is available for this scope.")
 
 
-def _stats(team: str, seasons: list[str], comparison: dict) -> None:
+def _stats(comparison: dict) -> None:
     rows = comparison.get("seasons", [])
     st.markdown("<div class='frl-team-section'>Season comparison</div>", unsafe_allow_html=True)
     if not rows:
@@ -149,17 +141,14 @@ def _stats(team: str, seasons: list[str], comparison: dict) -> None:
                 unsafe_allow_html=True,
             )
 
-    header = "".join(
-        "<div class='frl-team-row'><div class='frl-team-row-rank'>Season</div><div class='frl-team-row-name'>Record</div><div class='frl-team-row-meta'>GD</div><div class='frl-team-row-points'>Pts</div></div>"
-    )
+    header = "<div class='frl-team-row'><div class='frl-team-row-rank'>Season</div><div class='frl-team-row-name'>Record</div><div class='frl-team-row-meta'>GD</div><div class='frl-team-row-points'>Pts</div></div>"
     body = "".join(
         f"<div class='frl-team-row'><div class='frl-team-row-rank'>{row.get('season','')}</div><div class='frl-team-row-name'>{row.get('wins',0)}W · {row.get('draws',0)}D · {row.get('losses',0)}L · {row.get('played',0)} played</div><div class='frl-team-row-meta'>{row.get('goal_difference',0):+d}</div><div class='frl-team-row-points'>{row.get('points',0)}</div></div>"
         for row in rows
     )
     st.markdown(f"<div class='frl-team-card'>{header}{body}</div>", unsafe_allow_html=True)
 
-    skipped = comparison.get("skipped_seasons", [])
-    if skipped:
+    if comparison.get("skipped_seasons"):
         st.caption("Some requested seasons are intentionally omitted because the verified team identity was not present in those seasons.")
 
 
@@ -191,13 +180,14 @@ def render_team_research_ui() -> None:
         ["Profile", "Stats"],
         default=st.session_state.get("frl_team_view", "Profile"),
         key="frl_team_view",
+        label_visibility="collapsed",
     )
 
     if view == "Profile":
         summary = query_api.team_summary(season=season, team=team)
         form = query_api.team_form(season=season, team=team)
         fixtures = query_api.fixtures(season=season, team=team, limit=100)
-        _profile(team, season, summary, form, fixtures)
+        _profile(summary, form, fixtures)
         return
 
     compare_seasons = st.multiselect(
@@ -208,4 +198,4 @@ def render_team_research_ui() -> None:
     ) or [season]
     compare_seasons = sorted(compare_seasons, key=_season_key)
     comparison = query_api.team_compare(team=team, seasons=compare_seasons)
-    _stats(team, compare_seasons, comparison)
+    _stats(comparison)
