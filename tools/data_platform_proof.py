@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 import tempfile
 
 import duckdb
@@ -36,13 +37,12 @@ def _promote_to_parquet(
     )
 
 
-def _source_season_expression(alias: str) -> str:
-    """Return the real season column used by the player source schema."""
-    return f"CAST({alias}._season AS VARCHAR)"
-
-
-def _element_expression(alias: str) -> str:
-    return f"CAST({alias}.element AS VARCHAR)"
+def _season_from_player_source(source: Path) -> str:
+    """Derive the season context exactly as the existing loader does."""
+    match = re.search(r"(\d{4}-\d{2})", source.name)
+    if not match:
+        raise ValueError(f"Cannot derive season from player source filename: {source.name}")
+    return match.group(1)
 
 
 def run_player_proof(source: Path = DEFAULT_PLAYER_SOURCE) -> dict[str, int | str]:
@@ -131,6 +131,8 @@ def run_relationship_proof(
         if not path.resolve().exists():
             raise FileNotFoundError(path)
 
+    player_season = _season_from_player_source(player_source)
+
     with tempfile.TemporaryDirectory(prefix="frl-relationship-proof-") as tmp:
         tmp_path = Path(tmp)
         promoted = {
@@ -167,6 +169,12 @@ def run_relationship_proof(
                 ).fetchone()[0]
             )
 
+            fixture_count = int(con.execute(f"SELECT COUNT(*) FROM {master}").fetchone()[0])
+            duplicate_team_registry_keys = int(
+                con.execute(
+                    f"SELECT COUNT(*) FROM (SELECT season, club_id FROM {teams} WHERE mapping_status = 'VERIFIED' GROUP BY season, club_id HAVING COUNT(*) > 1)"
+                ).fetchone()[0]
+            )
             orphan_fixture_home_teams = int(
                 con.execute(
                     f"SELECT COUNT(*) FROM {master} f LEFT JOIN {teams} t ON f.season = t.season AND CAST(f.home_team_id AS VARCHAR) = CAST(t.club_id AS VARCHAR) AND t.mapping_status = 'VERIFIED' WHERE t.club_id IS NULL"
@@ -190,12 +198,12 @@ def run_relationship_proof(
             )
             player_records_with_verified_identity = int(
                 con.execute(
-                    f"SELECT COUNT(*) FROM {players} p JOIN {identity} i ON {_source_season_expression('p')} = CAST(i.season AS VARCHAR) AND {_element_expression('p')} = CAST(i.fpl_element AS VARCHAR) WHERE i.identity_status = 'VERIFIED'"
+                    f"SELECT COUNT(*) FROM {players} p JOIN {identity} i ON CAST('{player_season}' AS VARCHAR) = CAST(i.season AS VARCHAR) AND CAST(p.element AS VARCHAR) = CAST(i.fpl_element AS VARCHAR) WHERE i.identity_status = 'VERIFIED' AND i.season = '{player_season}'"
                 ).fetchone()[0]
             )
             verified_identity_orphans = int(
                 con.execute(
-                    f"SELECT COUNT(*) FROM {identity} i LEFT JOIN {players} p ON {_source_season_expression('p')} = CAST(i.season AS VARCHAR) AND {_element_expression('p')} = CAST(i.fpl_element AS VARCHAR) WHERE i.identity_status = 'VERIFIED' AND p.element IS NULL"
+                    f"SELECT COUNT(*) FROM {identity} i LEFT JOIN {players} p ON CAST('{player_season}' AS VARCHAR) = CAST(i.season AS VARCHAR) AND CAST(p.element AS VARCHAR) = CAST(i.fpl_element AS VARCHAR) WHERE i.identity_status = 'VERIFIED' AND i.season = '{player_season}' AND p.element IS NULL"
                 ).fetchone()[0]
             )
 
@@ -205,12 +213,14 @@ def run_relationship_proof(
                 raise AssertionError(
                     f"fixture-stat join coverage mismatch: matched={fixture_stats_master_matches}, total={fixture_stats_total}"
                 )
+            if duplicate_team_registry_keys:
+                raise AssertionError(f"duplicate verified team identity keys: {duplicate_team_registry_keys}")
             if orphan_fixture_home_teams:
                 raise AssertionError(f"fixtures with unverified home-team mapping: {orphan_fixture_home_teams}")
             if orphan_fixture_away_teams:
                 raise AssertionError(f"fixtures with unverified away-team mapping: {orphan_fixture_away_teams}")
             if duplicate_identity:
-                raise AssertionError(f"duplicate verified identity keys: {duplicate_identity}")
+                raise AssertionError(f"duplicate verified player identity keys: {duplicate_identity}")
             if verified_identity_rows == 0:
                 raise AssertionError("no verified player identity rows available")
             if player_records_with_verified_identity == 0:
@@ -220,6 +230,7 @@ def run_relationship_proof(
 
             return {
                 "fixture_stats_rows": fixture_stats_total,
+                "fixture_count": fixture_count,
                 "fixture_stat_orphans": orphan_fixture_stats,
                 "home_team_orphans": orphan_fixture_home_teams,
                 "away_team_orphans": orphan_fixture_away_teams,
