@@ -5,6 +5,7 @@ import altair as alt
 
 from frl_analytical import ResearchResult
 from frl_visualisations import team_goals_trend
+from frl_team_visualisations import team_season_ppg_comparison
 
 
 def _result() -> ResearchResult:
@@ -41,6 +42,63 @@ def _result() -> ResearchResult:
         population={"season": "2025-26", "rows_returned": 2},
         provenance={"fixture_source": "fixture-test"},
         temporal_context={"season": "2025-26"},
+    )
+
+
+def _team_season_result() -> ResearchResult:
+    columns = [
+        "season",
+        "points_per_match",
+        "played",
+        "complete",
+        "wins",
+        "draws",
+        "losses",
+        "goals_for_per_match",
+        "goals_against_per_match",
+    ]
+    return ResearchResult(
+        query_type="team_season_comparison",
+        parameters={"team": "Arsenal", "seasons": ["2023-24", "2024-25", "2025-26"]},
+        columns=columns,
+        rows=[
+            {
+                "season": "2023-24",
+                "points_per_match": 2.26,
+                "played": 38,
+                "complete": True,
+                "wins": 28,
+                "draws": 5,
+                "losses": 5,
+                "goals_for_per_match": 2.37,
+                "goals_against_per_match": 0.84,
+            },
+            {
+                "season": "2024-25",
+                "points_per_match": 1.97,
+                "played": 38,
+                "complete": True,
+                "wins": 20,
+                "draws": 15,
+                "losses": 3,
+                "goals_for_per_match": 1.84,
+                "goals_against_per_match": 0.84,
+            },
+            {
+                "season": "2025-26",
+                "points_per_match": 2.08,
+                "played": 38,
+                "complete": True,
+                "wins": 24,
+                "draws": 7,
+                "losses": 7,
+                "goals_for_per_match": 1.95,
+                "goals_against_per_match": 0.76,
+            },
+        ],
+        population={"requested_seasons": ["2023-24", "2024-25", "2025-26"]},
+        provenance={"fixture_source": "fixture-test"},
+        temporal_context={"seasons": ["2023-24", "2024-25", "2025-26"]},
     )
 
 
@@ -95,3 +153,14 @@ def test_team_goals_trend_does_not_accept_wrong_result_type() -> None:
         assert "team_fixtures" in str(exc)
     else:
         raise AssertionError("expected ValueError")
+
+
+def test_team_season_ppg_comparison_returns_layered_journey() -> None:
+    chart = team_season_ppg_comparison(_team_season_result())
+    assert isinstance(chart, alt.LayerChart)
+    spec = chart.to_dict()
+    assert len(spec["layer"]) == 4
+    assert spec["layer"][0]["mark"]["type"] == "line"
+    assert spec["layer"][1]["mark"]["type"] == "point"
+    assert spec["layer"][2]["mark"]["type"] == "rule"
+    assert "Vs selected-period mean" in [item.get("title") for item in spec["layer"][0]["encoding"]["tooltip"]]
