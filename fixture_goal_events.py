@@ -41,9 +41,9 @@ def fixture_goal_events(
     """Read persisted, verified goal events for one canonical FRL fixture.
 
     Live source retrieval intentionally does not occur here. The ingestion
-    boundary is responsible for resolving source identities and persisting the
-    resulting evidence into fixture_goal_events.csv.
+    boundary resolves source identities and persists the resulting evidence.
     """
+    del source_match_id
     key = (str(season), str(fixture_id))
     output: list[dict[str, Any]] = []
 
