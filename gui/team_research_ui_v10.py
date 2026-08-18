@@ -3,7 +3,8 @@ from __future__ import annotations
 import html
 import streamlit as st
 
-import gui.team_research_ui_v8 as base
+import gui.team_research_ui_v7 as ui_base
+import gui.team_research_ui_v8 as stats_base
 
 
 def _render_browse_controls(season: str, team: str, seasons: list[str], teams: list[str]) -> tuple[str, str]:
@@ -32,15 +33,15 @@ def _render_browse_controls(season: str, team: str, seasons: list[str], teams: l
 
 
 def render_team_research_ui() -> None:
-    base._css()
-    seasons = base._seasons()
+    ui_base._css()
+    seasons = ui_base._seasons()
     if not seasons:
         st.error("No verified team seasons are available.")
         return
 
     stored_season = st.session_state.get("frl_team10_season", seasons[0])
     season = stored_season if stored_season in seasons else seasons[0]
-    teams = [r.get("team") for r in base._league_table(season).get("teams", []) if r.get("team")]
+    teams = [r.get("team") for r in ui_base._league_table(season).get("teams", []) if r.get("team")]
     if not teams:
         st.error("No verified teams are available for this season.")
         return
@@ -69,10 +70,10 @@ def render_team_research_ui() -> None:
         st.session_state["frl_team10_team"] = selected_team
         st.rerun()
 
-    summary = base._team_summary(season, team)
-    form = base._team_form(season, team)
-    rows = list(base._comparison(team, tuple(seasons[:10])).rows)
+    summary = ui_base._team_summary(season, team)
+    form = ui_base._team_form(season, team)
+    rows = list(ui_base._comparison(team, tuple(seasons[:10])).rows)
     if view == "Stats":
-        base._stats(team, season, summary, rows)
+        stats_base._stats(team, season, summary, rows)
     else:
-        base._profile(team, season, summary, form, rows)
+        ui_base._profile(team, season, summary, form, rows)
