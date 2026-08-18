@@ -24,8 +24,12 @@ def _utc(value: Any) -> Any:
 
 
 def _base_chart(data: list[dict[str, Any]]) -> alt.Chart:
+    return alt.Chart(alt.Data(values=data))
+
+
+def _style_chart(chart: alt.Chart, height: int = 285) -> alt.Chart:
     return (
-        alt.Chart(alt.Data(values=data))
+        chart
         .configure_view(stroke=FRL_BORDER, strokeWidth=1)
         .configure_axis(
             labelColor=FRL_MUTED,
@@ -39,7 +43,7 @@ def _base_chart(data: list[dict[str, Any]]) -> alt.Chart:
         )
         .configure_legend(labelFont="Arial", titleFont="Arial", labelColor=FRL_MUTED)
         .properties(
-            height=285,
+            height=height,
             background=FRL_SURFACE,
             padding={"left": 4, "right": 8, "top": 8, "bottom": 4},
         )
@@ -109,16 +113,23 @@ def team_performance_trajectory(result: ResearchResult) -> alt.Chart:
             alt.Tooltip("fixture_id:Q", title="Fixture"),
         ],
     )
-    return chart.mark_line(
-        point=alt.OverlayMarkDef(filled=True, size=38, strokeWidth=1.0),
-        strokeWidth=2.1,
+    return _style_chart(
+        chart.mark_line(
+            point=alt.OverlayMarkDef(filled=True, size=38, strokeWidth=1.0),
+            strokeWidth=2.1,
+        )
     )
 
 
-def team_season_ppg_comparison(result: ResearchResult) -> alt.LayerChart:
-    """Show the team's season-by-season PPG journey against its selected-period mean."""
+def team_season_performance_map(result: ResearchResult) -> alt.LayerChart:
+    """Map each season by attacking output and defensive concession rate.
+
+    The chronological path shows how the team's performance profile moved between
+    seasons; point size and colour encode points per match so the map separates
+    *how* a team performed from the resulting league points.
+    """
     if result.query_type != "team_season_comparison":
-        raise ValueError("team_season_ppg_comparison requires a team_season_comparison ResearchResult")
+        raise ValueError("team_season_performance_map requires a team_season_comparison ResearchResult")
 
     required = {
         "season",
@@ -149,31 +160,28 @@ def team_season_ppg_comparison(result: ResearchResult) -> alt.LayerChart:
         }
         for row in result.rows
         if row.get("points_per_match") is not None
+        and row.get("goals_for_per_match") is not None
+        and row.get("goals_against_per_match") is not None
     ]
     if not values:
-        raise ValueError("ResearchResult contains no comparable season PPG values")
+        raise ValueError("ResearchResult contains no comparable season performance values")
 
     values.sort(key=lambda row: row["season"])
-    mean_ppg = sum(row["ppg"] for row in values) / len(values)
-    for row in values:
-        row["delta_from_mean"] = row["ppg"] - mean_ppg
-
-    chart = _base_chart(values).encode(
+    base = _base_chart(values)
+    encoding = dict(
         x=alt.X(
-            "season:N",
-            sort=None,
-            title=None,
-            axis=alt.Axis(labelAngle=0, labelPadding=8),
+            "goals_for_per_match:Q",
+            title="Goals scored / match",
+            scale=alt.Scale(zero=True, nice=True),
         ),
         y=alt.Y(
-            "ppg:Q",
-            title=None,
+            "goals_against_per_match:Q",
+            title="Goals conceded / match",
             scale=alt.Scale(zero=True, nice=True),
         ),
         tooltip=[
             alt.Tooltip("season:N", title="Season"),
             alt.Tooltip("ppg:Q", title="Points per match", format=".2f"),
-            alt.Tooltip("delta_from_mean:Q", title="Vs selected-period mean", format="+.2f"),
             alt.Tooltip("wins:Q", title="Wins"),
             alt.Tooltip("draws:Q", title="Draws"),
             alt.Tooltip("losses:Q", title="Losses"),
@@ -184,38 +192,37 @@ def team_season_ppg_comparison(result: ResearchResult) -> alt.LayerChart:
         ],
     )
 
-    line = chart.mark_line(
-        color=FRL_ACCENT,
-        strokeWidth=2.4,
+    line = base.encode(
+        **encoding,
+        order=alt.Order("season:N", sort="ascending"),
+    ).mark_line(
+        color=FRL_BORDER,
+        strokeWidth=1.6,
     )
-    points = chart.mark_point(
-        color=FRL_ACCENT,
+
+    points = base.encode(
+        **encoding,
+        size=alt.Size(
+            "ppg:Q",
+            title="PPG",
+            scale=alt.Scale(range=[80, 520]),
+            legend=None,
+        ),
+        color=alt.Color(
+            "ppg:Q",
+            title="Points / match",
+            scale=alt.Scale(range=[FRL_SECONDARY, FRL_ACCENT]),
+            legend=alt.Legend(format=".1f", orient="top-right", titlePadding=4),
+        ),
+    ).mark_point(
         filled=True,
-        size=74,
+        opacity=0.95,
         stroke=FRL_SURFACE,
         strokeWidth=2,
     )
 
-    mean_rule = (
-        alt.Chart(alt.Data(values=[{"mean_ppg": mean_ppg}]))
-        .encode(y=alt.Y("mean_ppg:Q"))
-        .mark_rule(color=FRL_MUTED, strokeDash=[5, 4], strokeWidth=1.2)
-    )
+    return _style_chart(alt.layer(line, points), height=320)
 
-    mean_label = (
-        alt.Chart(alt.Data(values=[{"mean_ppg": mean_ppg, "label": f"Selected-period mean · {mean_ppg:.2f}"}]))
-        .encode(
-            y=alt.Y("mean_ppg:Q"),
-            text=alt.Text("label:N"),
-        )
-        .mark_text(
-            align="left",
-            baseline="bottom",
-            dx=8,
-            dy=-6,
-            color=FRL_MUTED,
-            fontSize=10,
-        )
-    )
 
-    return alt.layer(line, points, mean_rule, mean_label)
+# Backwards-compatible name for callers that used the earlier PPG-specific visual.
+team_season_ppg_comparison = team_season_performance_map
