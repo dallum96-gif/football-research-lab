@@ -1,35 +1,42 @@
-"""Quiet, text-led navigation shell for the Football Research Laboratory."""
+"""Quiet, grouped navigation shell for the Football Research Laboratory."""
 
 import streamlit as st
 
 import query_api
-from gui.navigation import HIDDEN_WORKSPACES, SECTION_ORDER, navigation_by_section
+from gui.navigation import HIDDEN_WORKSPACES, NAVIGATION, SECTION_ORDER, navigation_by_section
 
 
 ICONS = {
     "overview": ":material/home:",
     "fixtures": ":material/calendar_month:",
     "league-table": ":material/table_rows:",
+    "team-profile": ":material/shield:",
+    "team-stats": ":material/analytics:",
+    "player-profile": ":material/person:",
+    "player-stats": ":material/bar_chart:",
+    "prediction": ":material/query_stats:",
+    "head-to-head": ":material/swap_horiz:",
     "teams": ":material/shield:",
     "players": ":material/person:",
     "analysis": ":material/insights:",
-    "head-to-head": ":material/swap_horiz:",
-    "prediction": ":material/query_stats:",
     "form": ":material/trending_up:",
     "data-quality": ":material/verified:",
     "provenance": ":material/link:",
 }
 
-PRIMARY_WORKSPACES = {
-    "overview",
-    "fixtures",
-    "league-table",
-    "teams",
-    "players",
-    "analysis",
+PRIMARY_WORKSPACES = {item.key for item in NAVIGATION}
+VALID_WORKSPACES = PRIMARY_WORKSPACES | set(HIDDEN_WORKSPACES)
+
+
+TEAM_VIEW_TARGETS = {
+    "team-profile": "Profile",
+    "team-stats": "Stats",
 }
 
-VALID_WORKSPACES = PRIMARY_WORKSPACES | set(HIDDEN_WORKSPACES)
+PLAYER_VIEW_TARGETS = {
+    "player-profile": "Profile",
+    "player-stats": "Stats",
+}
 
 
 def current_workspace(default="overview"):
@@ -45,23 +52,31 @@ def _render_teams_hub():
     render_team_research_ui()
 
 
+def _render_players_hub():
+    from gui.player_filter_tiles_v4 import render_player_research_ui_tiles as render_player_research_ui
+    st.markdown("<div class='frl-eyebrow'>Research</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-entity-title'>Players</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-context'>Player performance research across Premier League seasons</div>", unsafe_allow_html=True)
+    render_player_research_ui()
+
+
 def _render_analysis_hub():
-    st.markdown("<div class='frl-eyebrow'>Analysis</div>", unsafe_allow_html=True)
-    st.markdown("<div class='frl-entity-title'>Analysis</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-eyebrow'>Matchday Centre</div>", unsafe_allow_html=True)
+    st.markdown("<div class='frl-entity-title'>Matchday Centre</div>", unsafe_allow_html=True)
     st.markdown(
-        "<div class='frl-context'>One analytical workspace for Matchday, modelling and future research tools.</div>",
+        "<div class='frl-context'>Match-specific evidence, modelling and future analytical tools.</div>",
         unsafe_allow_html=True,
     )
 
     tools = [
         (
-            "Matchday Centre",
-            "Fixture context, Stat Pack and the route into prediction.",
+            "Projection Lab",
+            "Fixture context, projections and the route into prediction.",
             "prediction",
         ),
         (
-            "Head-to-Head",
-            "Compare two clubs through their shared Premier League history.",
+            "H2H / Stats Pack",
+            "Compare two clubs through shared history and match-specific evidence.",
             "head-to-head",
         ),
     ]
@@ -83,14 +98,46 @@ def _render_analysis_hub():
         "<div class='frl-collage-section'>Coming into the same analytical layer</div>",
         unsafe_allow_html=True,
     )
-    st.caption("Query, comparable matches, combined metrics, records and future mathematical/statistical models are designed to consume the same canonical graph and shared analytical services.")
+    st.caption(
+        "Query, comparable matches, combined metrics, records and future mathematical/statistical models are designed to consume the same canonical graph and shared analytical services."
+    )
+
+
+def _sidebar_navigation_css() -> None:
+    st.sidebar.markdown(
+        """
+        <style>
+        .frl-sidebar-brand{color:var(--frl-text);font-size:.68rem;font-weight:850;letter-spacing:.14em;line-height:1.3;margin:.15rem 0 1.1rem}
+        .frl-sidebar-section{color:var(--frl-muted-soft);font-size:.54rem;font-weight:850;letter-spacing:.16em;text-transform:uppercase;margin:.95rem 0 .24rem;padding-top:.12rem}
+        [data-testid="stSidebar"] .stButton{margin:0 !important}
+        [data-testid="stSidebar"] .stButton > button{justify-content:flex-start !important;text-align:left !important;border-radius:5px !important;border:1px solid transparent !important;min-height:2rem !important;padding:.18rem .5rem !important;font-size:.72rem !important;font-weight:650 !important;box-shadow:none !important}
+        [data-testid="stSidebar"] .stButton > button:hover{background:var(--frl-surface) !important;border-color:var(--frl-border) !important}
+        [data-testid="stSidebar"] .stButton > button[kind="primary"]{background:var(--frl-surface) !important;color:var(--frl-accent) !important;border-color:var(--frl-border) !important}
+        [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover{background:var(--frl-surface) !important}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _navigate(item_key: str) -> None:
+    st.session_state["frl_workspace"] = item_key
+    st.query_params["workspace"] = item_key
+
+    if item_key in TEAM_VIEW_TARGETS:
+        st.session_state["frl_team_view"] = TEAM_VIEW_TARGETS[item_key]
+    elif item_key in PLAYER_VIEW_TARGETS:
+        st.session_state["frl_player_view"] = PLAYER_VIEW_TARGETS[item_key]
+
+    st.rerun()
 
 
 def render_workspace_sidebar(active_key):
-    """Render compact, text-led primary navigation and contextual workspaces."""
+    """Render compact, grouped primary navigation and contextual workspaces."""
     grouped = navigation_by_section()
     selected = current_workspace(active_key)
 
+    _sidebar_navigation_css()
     st.sidebar.markdown(
         "<div class='frl-sidebar-brand'>FOOTBALL RESEARCH LABORATORY</div>",
         unsafe_allow_html=True,
@@ -101,20 +148,32 @@ def render_workspace_sidebar(active_key):
         if not items:
             continue
 
+        st.sidebar.markdown(
+            f"<div class='frl-sidebar-section'>{section}</div>",
+            unsafe_allow_html=True,
+        )
+
         for item in items:
             if st.sidebar.button(
                 item.label,
                 key=f"nav_{item.key}",
                 icon=ICONS.get(item.key),
-                use_container_width=True,
-                type="secondary",
+                width="stretch",
+                type="primary" if selected == item.key else "tertiary",
+                help=item.description,
             ):
-                st.session_state["frl_workspace"] = item.key
-                st.query_params["workspace"] = item.key
-                st.rerun()
+                _navigate(item.key)
 
-    if selected == "teams":
+    if selected in TEAM_VIEW_TARGETS or selected == "teams":
+        if selected in TEAM_VIEW_TARGETS:
+            st.session_state["frl_team_view"] = TEAM_VIEW_TARGETS[selected]
         _render_teams_hub()
+        st.stop()
+
+    if selected in PLAYER_VIEW_TARGETS or selected == "players":
+        if selected in PLAYER_VIEW_TARGETS:
+            st.session_state["frl_player_view"] = PLAYER_VIEW_TARGETS[selected]
+        _render_players_hub()
         st.stop()
 
     if selected == "analysis":
@@ -124,14 +183,6 @@ def render_workspace_sidebar(active_key):
     if selected == "head-to-head":
         from gui.head_to_head_ui import render_head_to_head
         render_head_to_head()
-        st.stop()
-
-    if selected == "players":
-        from gui.player_filter_tiles_v4 import render_player_research_ui_tiles as render_player_research_ui
-        st.markdown("<div class='frl-eyebrow'>Research</div>", unsafe_allow_html=True)
-        st.markdown("<div class='frl-entity-title'>Players</div>", unsafe_allow_html=True)
-        st.markdown("<div class='frl-context'>Player performance research across Premier League seasons</div>", unsafe_allow_html=True)
-        render_player_research_ui()
         st.stop()
 
     if selected == "prediction":
