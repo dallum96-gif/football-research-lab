@@ -38,24 +38,6 @@ def _minute_label(seconds: str | int | None, native_label: str | None) -> str:
     return f"{value // 60 + 1}'"
 
 
-def _player_name(row: dict[str, Any]) -> str | None:
-    for key in ("playerName", "scorerName", "name"):
-        value = row.get(key)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
-    for key in ("player", "scorer"):
-        value = row.get(key)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
-        if isinstance(value, dict):
-            name = value.get("name") or value.get("displayName") or value.get("fullName")
-            if isinstance(name, dict):
-                name = name.get("display") or name.get("full") or name.get("first")
-            if name:
-                return str(name).strip()
-    return None
-
-
 def _parse_scorer_text(text: str) -> tuple[str | None, str | None]:
     match = re.search(r"\.\s+(.+?)\s+\(([^)]+)\)", text or "")
     if not match:
@@ -68,19 +50,11 @@ def _is_goal_event(event: dict[str, Any]) -> bool:
 
 
 def _own_goal(text: str, event: dict[str, Any]) -> bool:
-    return bool(event.get("ownGoal") is True or event.get("isOwnGoal") is True or "own goal" in text.casefold())
-
-
-def _source_side(source_scorer_id: str, home_team_code: str | None, away_team_code: str | None, player_index: dict[str, tuple[str, str]]) -> str:
-    candidate = player_index.get(source_scorer_id)
-    if candidate is None:
-        return ""
-    _, team_code = candidate
-    if team_code == home_team_code:
-        return "home"
-    if team_code == away_team_code:
-        return "away"
-    return ""
+    return bool(
+        event.get("ownGoal") is True
+        or event.get("isOwnGoal") is True
+        or "own goal" in text.casefold()
+    )
 
 
 @lru_cache(maxsize=32)
@@ -105,7 +79,7 @@ def _competition_season_id(season: str) -> str | None:
 
 
 @lru_cache(maxsize=64)
-def _pulse_fixture_id(season: str, source_match_id: str | int) -> str | None:
+def _pulse_fixture(season: str, source_match_id: str | int) -> dict[str, Any] | None:
     source = str(source_match_id).strip()
     if not source.isdigit():
         return None
@@ -137,10 +111,7 @@ def _pulse_fixture_id(season: str, source_match_id: str | int) -> str | None:
         alt_ids = fixture.get("altIds") or {}
         if str(alt_ids.get("opta") or "").strip() == target:
             matches.append(fixture)
-    if len(matches) != 1:
-        return None
-    value = matches[0].get("id")
-    return str(int(float(value))) if value not in (None, "") else None
+    return matches[0] if len(matches) == 1 else None
 
 
 @lru_cache(maxsize=64)
@@ -176,14 +147,27 @@ def _verified_player_index(season: str) -> dict[str, tuple[str, str]]:
     return index
 
 
-@lru_cache(maxsize=128)
+def _team_names(pulse_fixture: dict[str, Any]) -> tuple[str, str]:
+    teams = pulse_fixture.get("teams") or []
+    if len(teams) < 2:
+        return "", ""
+    home = teams[0].get("team", {}) if isinstance(teams[0], dict) else {}
+    away = teams[1].get("team", {}) if isinstance(teams[1], dict) else {}
+    return str(home.get("name") or home.get("shortName") or "").strip(), str(away.get("name") or away.get("shortName") or "").strip()
+
+
+@lru_cache(maxsize=64)
 def _live_goal_events(season: str, source_match_id: str | int) -> tuple[dict[str, Any], ...]:
-    pulse_id = _pulse_fixture_id(season, source_match_id)
-    if pulse_id is None:
+    pulse_fixture = _pulse_fixture(season, source_match_id)
+    if pulse_fixture is None:
         return tuple()
+    pulse_id = pulse_fixture.get("id")
+    if pulse_id in (None, ""):
+        return tuple()
+
     try:
         response = requests.get(
-            f"{PULSE_BASE}/fixtures/{pulse_id}/textstream/EN",
+            f"{PULSE_BASE}/fixtures/{int(float(pulse_id))}/textstream/EN",
             params={"pageSize": 1000, "sort": "desc"},
             headers=PULSE_HEADERS,
             timeout=20,
@@ -193,12 +177,15 @@ def _live_goal_events(season: str, source_match_id: str | int) -> tuple[dict[str
     except (requests.RequestException, ValueError):
         return tuple()
 
+    home_name, away_name = _team_names(pulse_fixture)
     events = ((payload.get("events") or {}).get("content") or [])
     player_index = _verified_player_index(season)
     goals: list[dict[str, Any]] = []
+
     for event in events:
         if not isinstance(event, dict) or not _is_goal_event(event):
             continue
+
         text = str(event.get("text") or "").strip()
         scorer_name, scorer_team = _parse_scorer_text(text)
         player_ids = event.get("playerIds") or []
@@ -206,32 +193,48 @@ def _live_goal_events(season: str, source_match_id: str | int) -> tuple[dict[str
         candidate = player_index.get(scorer_id)
         if candidate is None:
             continue
-        canonical_name, team_code = candidate
+
+        canonical_name, _team_code = candidate
         if not canonical_name:
             continue
+
+        scoring_side = ""
+        if scorer_team:
+            if scorer_team.casefold() == home_name.casefold():
+                scoring_side = "home"
+            elif scorer_team.casefold() == away_name.casefold():
+                scoring_side = "away"
+
+        own_goal = _own_goal(text, event)
+        if own_goal and scoring_side:
+            scoring_side = "away" if scoring_side == "home" else "home"
+
         time_block = event.get("time") or {}
         seconds_raw = time_block.get("secs")
         seconds = int(float(seconds_raw)) if seconds_raw not in (None, "") else None
-        side = ""
-        if scorer_team:
-            side = "home" if scorer_team.casefold() == "arsenal" else "away" if scorer_team.casefold() == "liverpool" else ""
+
         goals.append(
             {
                 "minute": _minute_label(seconds, str(time_block.get("label") or "")),
                 "seconds": seconds,
                 "player_name": canonical_name,
-                "side": side,
-                "own_goal": _own_goal(text, event),
+                "side": scoring_side,
+                "own_goal": own_goal,
                 "source_event_id": str(event.get("id") or ""),
                 "source_scorer_id": scorer_id,
             }
         )
+
     goals.sort(key=lambda row: (row["seconds"] is None, row["seconds"] or 0, row["source_event_id"]))
     return tuple(goals)
 
 
 @lru_cache(maxsize=128)
-def fixture_goal_events(season: str, fixture_id: str | int, source_match_id: str | int | None = None) -> tuple[dict[str, Any], ...]:
+def fixture_goal_events(
+    season: str,
+    fixture_id: str | int,
+    source_match_id: str | int | None = None,
+) -> tuple[dict[str, Any], ...]:
     key = (str(season), str(fixture_id))
     output: list[dict[str, Any]] = []
 
@@ -250,6 +253,7 @@ def fixture_goal_events(season: str, fixture_id: str | int, source_match_id: str
                 "source_event_id": row.get("source_event_id", "").strip(),
             }
         )
+
     if output:
         output.sort(key=lambda row: (row["seconds"] is None, row["seconds"] or 0, row["source_event_id"]))
         return tuple(output)
