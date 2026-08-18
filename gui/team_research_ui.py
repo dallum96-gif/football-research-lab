@@ -4,7 +4,7 @@ import streamlit as st
 
 import query_api
 from team_research_analytics import team_performance_profile, team_season_comparison
-from frl_team_visualisations import team_performance_trajectory, team_season_ppg_comparison
+from frl_team_visualisations import team_performance_trajectory, team_season_performance_map
 
 
 def _season_key(value: str) -> tuple[int, int]:
@@ -261,9 +261,9 @@ def _stats(comparison) -> None:
         return
 
     signals = comparison.population.get("signals", {})
-    st.markdown("<div class='frl-team-section'>Season comparison</div>", unsafe_allow_html=True)
-    st.caption("PPG is the primary comparison metric so season performance is comparable across the selected seasons.")
-    st.altair_chart(team_season_ppg_comparison(comparison), width="stretch")
+    st.markdown("<div class='frl-team-section'>Season performance map</div>", unsafe_allow_html=True)
+    st.caption("Each point is a season: move right for more scoring and down for fewer goals conceded. Point size and colour show points per match; the line connects seasons chronologically.")
+    st.altair_chart(team_season_performance_map(comparison), width="stretch")
 
     header = "<div class='frl-team-row frl-team-table-head'><div>Season</div><div>Record</div><div>PPG</div><div>GF / GA</div></div>"
     body = ""
@@ -314,7 +314,14 @@ def render_team_research_ui() -> None:
     st.markdown(f"<div class='frl-team-title'>{team}</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='frl-team-note'>{season} · verified team identity · research workspace</div>", unsafe_allow_html=True)
 
-    view = st.segmented_control("Team view", ["Profile", "Stats"], default="Profile", key="frl_team_view", label_visibility="collapsed")
+    default_view = st.session_state.pop("_frl_team_view_target", "Profile")
+    view = st.segmented_control(
+        "Team view",
+        ["Profile", "Stats"],
+        default=default_view,
+        key="frl_team_view",
+        label_visibility="collapsed",
+    )
     if view == "Profile":
         _profile(
             _team_summary(season, team),

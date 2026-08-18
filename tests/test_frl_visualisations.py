@@ -5,7 +5,7 @@ import altair as alt
 
 from frl_analytical import ResearchResult
 from frl_visualisations import team_goals_trend
-from frl_team_visualisations import team_season_ppg_comparison
+from frl_team_visualisations import team_season_performance_map
 
 
 def _result() -> ResearchResult:
@@ -155,12 +155,16 @@ def test_team_goals_trend_does_not_accept_wrong_result_type() -> None:
         raise AssertionError("expected ValueError")
 
 
-def test_team_season_ppg_comparison_returns_layered_journey() -> None:
-    chart = team_season_ppg_comparison(_team_season_result())
+def test_team_season_performance_map_returns_attack_defence_evolution() -> None:
+    chart = team_season_performance_map(_team_season_result())
     assert isinstance(chart, alt.LayerChart)
+
     spec = chart.to_dict()
-    assert len(spec["layer"]) == 4
+    assert len(spec["layer"]) == 2
     assert spec["layer"][0]["mark"]["type"] == "line"
     assert spec["layer"][1]["mark"]["type"] == "point"
-    assert spec["layer"][2]["mark"]["type"] == "rule"
-    assert "Vs selected-period mean" in [item.get("title") for item in spec["layer"][0]["encoding"]["tooltip"]]
+    assert spec["layer"][1]["encoding"]["x"]["field"] == "goals_for_per_match"
+    assert spec["layer"][1]["encoding"]["y"]["field"] == "goals_against_per_match"
+    assert spec["layer"][1]["encoding"]["color"]["field"] == "ppg"
+    assert spec["layer"][1]["encoding"]["size"]["field"] == "ppg"
+    assert spec["background"] == "#fffdf8"
