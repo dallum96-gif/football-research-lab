@@ -75,6 +75,29 @@ For fixtures this includes, as appropriate:
 
 An unknown schema should stop the pipeline rather than silently produce nonsense.
 
+### Source diversity and league portability
+
+The FRL must assume that different leagues, competitions and source families may provide materially different schemas, field names, identifier systems, grains, units and definitions for apparently similar concepts.
+
+The FRL should therefore use explicit source adapters / normalisation contracts rather than assuming that one provider schema is universal. See `FRL_SOURCE_NORMALISATION_CONTRACT.md`.
+
+Each adapter should document, where applicable:
+
+- source field name;
+- source field definition;
+- source grain;
+- source identifier;
+- FRL canonical concept;
+- transformation or aggregation applied;
+- units and scaling;
+- missing-value semantics;
+- coverage limitations;
+- source/version/provenance.
+
+A field-name match is not sufficient evidence that two sources measure the same thing. When concepts cannot be harmonised defensibly, preserve source-specific evidence and leave the FRL canonical concept unavailable rather than creating false equivalence.
+
+This architecture allows the FRL to expand across leagues without forcing every new source to imitate the first provider's schema.
+
 ## 4. Identity
 
 Season-local team IDs are not globally stable.
@@ -82,6 +105,8 @@ Season-local team IDs are not globally stable.
 Persistent club identity is a separate concern from season-local identity.
 
 Historical changes such as renames, promotions, relegations and source-ID changes must be handled through identity registries rather than ad hoc string matching.
+
+Player, fixture and event identifiers should follow the same principle: source identifiers remain source-local until explicitly reconciled into a verified FRL identity.
 
 ## 5. Provenance
 
@@ -112,6 +137,51 @@ GITHUB LABORATORY CONTRACTS
         ↓
 NEW IMPLEMENTATION (only if genuinely necessary)
 ```
+
+### Whole-data-ecosystem discovery requirement
+
+`FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md` is authoritative for discovery completeness.
+
+**Failure to find a field, metric, classification or capability in one repository location is never sufficient evidence that it does not exist.**
+
+Before concluding that information is absent, unavailable, or requires a new external source, audit the relevant whole ecosystem, including where applicable:
+
+- the current working application and query layer;
+- archived, backup and previous implementations;
+- all relevant GitHub-tracked datasets and directory structures;
+- the local upstream/source workspace;
+- source-family variants and parallel data products;
+- partitioned datasets such as `by_position`;
+- identity registries and crosswalks;
+- merged/derived datasets;
+- neighbouring fields that may encode the requested concept under a different name or grain;
+- source documentation and provenance notes.
+
+Do not search only for the expected metric/column name. The same information may exist at another grain, in a partitioned dataset, in an upstream source family, or as a documented derived quantity.
+
+The audit should establish, where applicable:
+
+```text
+SOURCE FAMILY
+     ↓
+FILE / ENDPOINT / DATASET
+     ↓
+GRAIN
+     ↓
+RELEVANT FIELDS
+     ↓
+IDENTIFIER KEYS
+     ↓
+COVERAGE
+     ↓
+TRANSFORMATION / DERIVATION
+     ↓
+EXISTING CONSUMER
+     ↓
+FRL SUITABILITY
+```
+
+If the ecosystem audit genuinely finds no defensible source, record that conclusion and the evidence supporting it before sourcing externally.
 
 Existing working behaviour is evidence of intended behaviour. Archived implementations may reveal established retrieval paths, classifications, calculations and interface contracts.
 

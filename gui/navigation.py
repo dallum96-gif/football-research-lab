@@ -11,20 +11,70 @@ class NavigationItem:
     description: str = ""
 
 
+# Primary navigation is intentionally smaller than the underlying application graph.
+# Contextual/detail views and evidence tooling remain reachable by relationship links
+# or deep links without becoming competing top-level workspaces.
 NAVIGATION = (
-    NavigationItem("overview", "Overview", "Explore", "Start at the laboratory overview and choose a research workspace."),
-    NavigationItem("fixtures", "Fixtures", "Explore", "Explore canonical Premier League fixtures and open individual match pages."),
-    NavigationItem("league-table", "League Table", "Explore", "Inspect a season's league table and team performance."),
-    NavigationItem("players", "Players", "Research", "Search and filter player research across the available seasons."),
-    NavigationItem("head-to-head", "Head-to-Head", "Analysis", "Compare two clubs across their shared Premier League history."),
-    NavigationItem("form", "Form & Streaks", "Analysis", "Inspect recent form, match ranges and current streaks."),
-    NavigationItem("prediction", "Projection Lab", "Analysis", "Project a prospective Premier League fixture using the Poisson model."),
-    NavigationItem("data-quality", "Data Quality", "Data & Evidence", "Inspect data completeness and quality controls."),
-    NavigationItem("provenance", "Provenance", "Data & Evidence", "Inspect the sources and lineage behind research outputs."),
+    NavigationItem(
+        "overview",
+        "Home",
+        "Primary",
+        "The front door to the laboratory and its research entry points.",
+    ),
+    NavigationItem(
+        "fixtures",
+        "Fixtures & Results",
+        "Primary",
+        "Explore canonical fixtures, results and individual match research objects.",
+    ),
+    NavigationItem(
+        "league-table",
+        "League Table",
+        "Primary",
+        "Inspect current and historical competition standings and team context.",
+    ),
+    NavigationItem(
+        "teams",
+        "Teams",
+        "Primary",
+        "Explore club profiles, team statistics and connected fixture research.",
+    ),
+    NavigationItem(
+        "players",
+        "Players",
+        "Primary",
+        "Explore player profiles, statistics, research and match appearances.",
+    ),
+    NavigationItem(
+        "analysis",
+        "Analysis",
+        "Primary",
+        "Access Matchday, modelling and future research tools.",
+    ),
 )
 
-SECTION_ORDER = ("Explore", "Research", "Analysis", "Data & Evidence")
-FUTURE_WORKSPACES = ("player-profile", "player-history", "comparisons", "custom-query")
+SECTION_ORDER = ("Primary",)
+
+# Existing keys remain valid for contextual/deep-link compatibility. They are not
+# primary navigation destinations under the v1.0 organisation contract.
+HIDDEN_WORKSPACES = (
+    "head-to-head",
+    "form",
+    "prediction",
+    "data-quality",
+    "provenance",
+)
+
+# Future capabilities that are deliberately not treated as navigation until their
+# user journeys are established.
+FUTURE_WORKSPACES = (
+    "player-profile",
+    "player-history",
+    "comparisons",
+    "custom-query",
+    "records",
+    "combined-metrics",
+)
 
 
 def navigation_by_section():

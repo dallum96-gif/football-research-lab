@@ -1,4 +1,4 @@
-"""Player Research adapter for verified player-match enrichment."""
+﻿"""Player Research adapter for verified player-match enrichment."""
 from __future__ import annotations
 
 from typing import Iterable
