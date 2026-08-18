@@ -34,17 +34,19 @@ def _nav_items():
     return items
 
 
-def test_navigation_contains_exact_primary_workspaces():
+def test_navigation_information_architecture():
     items = _nav_items()
-    assert [(key, label) for key, label, _ in items] == [
-        ("overview", "Home"),
-        ("fixtures", "Fixtures & Results"),
-        ("league-table", "League Table"),
-        ("teams", "Teams"),
-        ("players", "Players"),
-        ("analysis", "Analysis"),
+    assert [(key, label, section) for key, label, section in items] == [
+        ("overview", "Home", "Homepage"),
+        ("fixtures", "Fixtures", "General"),
+        ("league-table", "League Table", "General"),
+        ("team-profile", "Team Profile", "Teams"),
+        ("team-stats", "Team Stats", "Teams"),
+        ("player-profile", "Player Profile", "Players"),
+        ("player-stats", "Player Stats", "Players"),
+        ("prediction", "Projection Lab", "Matchday Centre"),
+        ("head-to-head", "H2H / Stats Pack", "Matchday Centre"),
     ]
-    assert all(section == "Primary" for _, _, section in items)
 
 
 def test_navigation_keys_are_unique():
@@ -54,24 +56,24 @@ def test_navigation_keys_are_unique():
     assert len(keys) == len(set(keys))
 
 
-def test_projection_lab_is_available_under_analysis():
+def test_sidebar_preserves_grouped_headings_and_interaction():
     shell = (ROOT / "gui" / "ui_shell.py").read_text(encoding="utf-8-sig")
-    assert 'selected == "analysis"' in shell
-    assert '"prediction"' in shell
+    assert "frl-sidebar-section" in shell
+    assert "FOOTBALL RESEARCH LABORATORY" in shell
+    assert 'type="primary" if selected == item.key else "tertiary"' in shell
+    assert "help=item.description" in shell
+    assert "TEAM_VIEW_TARGETS" in shell
+    assert "PLAYER_VIEW_TARGETS" in shell
+    assert "width=\"stretch\"" in shell
+
+
+def test_primary_routes_remain_compatible():
+    shell = (ROOT / "gui" / "ui_shell.py").read_text(encoding="utf-8-sig")
+    assert "selected in TEAM_VIEW_TARGETS" in shell
+    assert "selected in PLAYER_VIEW_TARGETS" in shell
+    assert 'selected == "head-to-head"' in shell
+    assert 'selected == "prediction"' in shell
     assert "render_projection_lab" in shell
-
-
-def test_all_primary_workspaces_are_routable():
-    shell = (ROOT / "gui" / "ui_shell.py").read_text(encoding="utf-8-sig")
-    routes = {
-        "teams": "_render_teams_hub",
-        "analysis": "_render_analysis_hub",
-        "players": "render_player_research_ui",
-    }
-
-    for workspace, renderer in routes.items():
-        assert f'selected == "{workspace}"' in shell
-        assert renderer in shell
 
     app = (ROOT / "gui" / "app_redesign.py").read_text(encoding="utf-8-sig")
     for workspace in ("overview", "fixtures", "league-table"):
@@ -86,20 +88,18 @@ def test_team_research_view_contract():
     assert "Team Profile" in team_ui or "Team view" in team_ui
     assert '"Profile"' in team_ui
     assert '"Stats"' in team_ui
-    assert "query_api.team_summary" in team_ui
     assert "team_season_comparison" in team_ui or "query_api.team_compare" in team_ui
     assert "query_api.team_form" in team_ui
     assert "query_api.fixtures" in team_ui
     assert "fixtures_master_corrected.csv" not in team_ui
     assert 'font-family:"Source Sans"' not in team_ui
     assert "background:var(--frl-surface)" in team_ui
-    assert 'selected == "teams"' in shell
     assert "render_team_research_ui" in shell
 
 
 def test_hidden_contextual_workspaces_remain_compatible():
     navigation = (ROOT / "gui" / "navigation.py").read_text(encoding="utf-8-sig")
-    for key in ("head-to-head", "form", "prediction", "data-quality", "provenance"):
+    for key in ("form", "data-quality", "provenance"):
         assert key in navigation
     assert "HIDDEN_WORKSPACES" in navigation
 
