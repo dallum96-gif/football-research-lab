@@ -10,6 +10,7 @@ from typing import Any
 import re
 
 import requests
+import streamlit as st
 
 BASE_URL = "https://footballapi.pulselive.com/football"
 HEADERS = {
@@ -150,7 +151,11 @@ def _normalise_event(event: dict[str, Any], home_team_id: str | None, away_team_
 
 
 @lru_cache(maxsize=512)
-def fixture_goal_events(source_match_id: str | int | None, home_team_id: str | int | None = None, away_team_id: str | int | None = None) -> dict[str, Any]:
+def fixture_goal_events(
+    source_match_id: str | int | None,
+    home_team_id: str | int | None = None,
+    away_team_id: str | int | None = None,
+) -> dict[str, Any]:
     """Fetch and normalise goal events for a PulseLive fixture ID."""
     if source_match_id in (None, ""):
         return {"status": "UNAVAILABLE", "goals": [], "source": None}
@@ -187,3 +192,37 @@ def fixture_goal_events(source_match_id: str | int | None, home_team_id: str | i
 
     goals.sort(key=lambda item: (item["minute"], item.get("seconds_remainder") or 0))
     return {"status": "AVAILABLE", "goals": goals, "source": url}
+
+
+def render_fixture_goal_timeline(goal_data: dict[str, Any], home: str, away: str) -> None:
+    """Render a compact scorer strip beneath the fixture scoreline."""
+    if goal_data.get("status") != "AVAILABLE" or not goal_data.get("goals"):
+        return
+
+    st.markdown(
+        "<div style='margin-top:.75rem;color:var(--frl-muted-soft);font-size:.56rem;"
+        "font-weight:820;letter-spacing:.13em;text-transform:uppercase;text-align:center;'>Goals</div>",
+        unsafe_allow_html=True,
+    )
+
+    rows = []
+    for goal in goal_data["goals"]:
+        minute = f"{goal['minute']}'"
+        name = goal["player"] + (" · OG" if goal.get("own_goal") else "")
+        side = goal.get("side")
+        home_name = name if side == "home" else ""
+        away_name = name if side == "away" else ""
+
+        rows.append(
+            "<div style='display:grid;grid-template-columns:minmax(0,1fr) 3.2rem minmax(0,1fr);"
+            "align-items:center;min-height:1.75rem;border-bottom:1px solid var(--frl-border);'>"
+            f"<div style='text-align:right;padding:.12rem .7rem;color:var(--frl-text);font-size:.72rem;font-weight:760;'>{home_name}</div>"
+            f"<div style='text-align:center;color:var(--frl-muted);font-size:.66rem;font-weight:820;'>{minute}</div>"
+            f"<div style='text-align:left;padding:.12rem .7rem;color:var(--frl-text);font-size:.72rem;font-weight:760;'>{away_name}</div>"
+            "</div>"
+        )
+
+    st.markdown(
+        "<div style='margin:0 auto .15rem;max-width:720px;'>" + "".join(rows) + "</div>",
+        unsafe_allow_html=True,
+    )
