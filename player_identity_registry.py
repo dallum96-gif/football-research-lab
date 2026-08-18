@@ -1,4 +1,4 @@
-"""Generate the verified FRL FPL-element -> source player identity registry.
+﻿"""Generate the verified FRL FPL-element -> source player identity registry.
 
 The registry is derived from audited exact-name+verified-team matches. A
 season-local FPL element may appear under more than one team when a player

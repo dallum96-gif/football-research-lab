@@ -11,20 +11,92 @@ class NavigationItem:
     description: str = ""
 
 
+# Primary navigation mirrors the way a researcher thinks about the laboratory:
+# homepage -> general football evidence -> team/player research -> matchday work.
 NAVIGATION = (
-    NavigationItem("overview", "Overview", "Explore", "Start at the laboratory overview and choose a research workspace."),
-    NavigationItem("fixtures", "Fixtures", "Explore", "Explore canonical Premier League fixtures and open individual match pages."),
-    NavigationItem("league-table", "League Table", "Explore", "Inspect a season's league table and team performance."),
-    NavigationItem("players", "Players", "Research", "Search and filter player research across the available seasons."),
-    NavigationItem("head-to-head", "Head-to-Head", "Analysis", "Compare two clubs across their shared Premier League history."),
-    NavigationItem("form", "Form & Streaks", "Analysis", "Inspect recent form, match ranges and current streaks."),
-    NavigationItem("prediction", "Projection Lab", "Analysis", "Project a prospective Premier League fixture using the Poisson model."),
-    NavigationItem("data-quality", "Data Quality", "Data & Evidence", "Inspect data completeness and quality controls."),
-    NavigationItem("provenance", "Provenance", "Data & Evidence", "Inspect the sources and lineage behind research outputs."),
+    NavigationItem(
+        "overview",
+        "Home",
+        "Homepage",
+        "The front door to the laboratory and its research entry points.",
+    ),
+    NavigationItem(
+        "fixtures",
+        "Fixtures",
+        "General",
+        "Explore canonical fixtures, results and individual match research objects.",
+    ),
+    NavigationItem(
+        "league-table",
+        "League Table",
+        "General",
+        "Inspect current and historical competition standings and team context.",
+    ),
+    NavigationItem(
+        "team-profile",
+        "Team Profile",
+        "Teams",
+        "Understand a club's identity, season story and recent evidence.",
+    ),
+    NavigationItem(
+        "team-stats",
+        "Team Stats",
+        "Teams",
+        "Interrogate team performance across seasons, splits and distributions.",
+    ),
+    NavigationItem(
+        "player-profile",
+        "Player Profile",
+        "Players",
+        "Explore a player's identity, roles, history and connected evidence.",
+    ),
+    NavigationItem(
+        "player-stats",
+        "Player Stats",
+        "Players",
+        "Compare player output and performance across seasons and contexts.",
+    ),
+    NavigationItem(
+        "prediction",
+        "Projection Lab",
+        "Matchday Centre",
+        "Apply current analytical and modelling tools to a match.",
+    ),
+    NavigationItem(
+        "head-to-head",
+        "H2H / Stats Pack",
+        "Matchday Centre",
+        "Build match-specific context from shared history and statistical evidence.",
+    ),
 )
 
-SECTION_ORDER = ("Explore", "Research", "Analysis", "Data & Evidence")
-FUTURE_WORKSPACES = ("player-profile", "player-history", "comparisons", "custom-query")
+SECTION_ORDER = (
+    "Homepage",
+    "General",
+    "Teams",
+    "Players",
+    "Matchday Centre",
+)
+
+# Existing keys remain valid for contextual/deep-link compatibility.
+HIDDEN_WORKSPACES = (
+    "teams",
+    "players",
+    "analysis",
+    "form",
+    "data-quality",
+    "provenance",
+)
+
+# Future capabilities that are deliberately not treated as navigation until their
+# user journeys are established.
+FUTURE_WORKSPACES = (
+    "player-history",
+    "comparisons",
+    "custom-query",
+    "records",
+    "combined-metrics",
+)
 
 
 def navigation_by_section():

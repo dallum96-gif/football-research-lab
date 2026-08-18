@@ -1,4 +1,4 @@
-"""Read-only builder/auditor for the FRL FPL element -> source playerId crosswalk.
+﻿"""Read-only builder/auditor for the FRL FPL element -> source playerId crosswalk.
 
 The historical FPL files use season-local ``element`` values. The external
 player-match source provides a longitudinal ``playerId``. This module builds

@@ -1,4 +1,4 @@
-"""Read-only cross-season FPL <-> player-match identity audit.
+﻿"""Read-only cross-season FPL <-> player-match identity audit.
 
 This layer propagates only identities already proven by the deterministic
 season-level audit. It never promotes fuzzy/name-only matches.
