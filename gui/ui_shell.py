@@ -83,11 +83,11 @@ def _sidebar_navigation_css() -> None:
         section[data-testid="stSidebar"] .block-container,
         section[data-testid="stSidebar"] [data-testid="stSidebarContent"],
         section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] { font-family:"Source Sans",sans-serif !important; }
-        .frl-sidebar-brand{display:block;width:100%;margin:0 0 1.05rem;padding:0;color:#fffaf0;text-align:left;font-family:"Source Sans",sans-serif;font-size:.67rem;font-weight:800;letter-spacing:.105em;line-height:1.2;text-transform:uppercase}
-        .frl-sidebar-section{display:block;width:100%;margin:1.05rem 0 .35rem;padding:0;color:#8f8a7f;text-align:left;font-family:"Source Sans",sans-serif;font-size:.53rem;font-weight:800;letter-spacing:.145em;line-height:1.1;text-transform:uppercase}
+        .frl-sidebar-brand{display:block;width:100%;margin:0 0 .9rem;padding:0;color:#fffaf0;text-align:left;font-family:"Source Sans",sans-serif;font-size:.67rem;font-weight:800;letter-spacing:.105em;line-height:1.2;text-transform:uppercase}
+        .frl-sidebar-section{display:block;width:100%;margin:.78rem 0 .18rem;padding:0;color:#8f8a7f;text-align:left;font-family:"Source Sans",sans-serif;font-size:.53rem;font-weight:800;letter-spacing:.145em;line-height:1.1;text-transform:uppercase}
         .frl-sidebar-section:first-of-type{margin-top:0}
         .frl-nav{display:block;width:100%;margin:0;padding:0}
-        .frl-nav-item{display:flex;width:100%;height:1.72rem;align-items:center;gap:.52rem;margin:0;padding:.12rem .36rem;border-left:2px solid transparent;border-radius:0 5px 5px 0;background:transparent;color:#c9c6bc !important;text-decoration:none !important;font-family:"Source Sans",sans-serif;font-size:.73rem;font-weight:600;line-height:1;transition:background .12s ease,color .12s ease,border-color .12s ease}
+        .frl-nav-item{display:flex;width:100%;height:1.58rem;align-items:center;gap:.52rem;margin:0;padding:.08rem .36rem;border-left:2px solid transparent;border-radius:0 5px 5px 0;background:transparent;color:#c9c6bc !important;text-decoration:none !important;font-family:"Source Sans",sans-serif;font-size:.73rem;font-weight:600;line-height:1;transition:background .12s ease,color .12s ease,border-color .12s ease}
         .frl-nav-item:hover{background:rgba(255,255,255,.055);color:#fffaf0 !important}
         .frl-nav-item.is-active{background:rgba(255,255,255,.065);border-left-color:#e85d3f;color:#f06d4e !important;font-weight:700}
         .frl-nav-icon{width:1.05rem;flex:0 0 1.05rem;display:inline-flex;align-items:center;justify-content:center;color:inherit;font-family:"Material Symbols Rounded","Material Symbols Outlined",sans-serif;font-size:17px;line-height:1;font-variation-settings:"FILL" 0,"wght" 520,"GRAD" 0,"opsz" 20}
