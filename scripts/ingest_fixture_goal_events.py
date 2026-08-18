@@ -115,10 +115,28 @@ def _score_total(fixture: dict) -> int:
         return 0
 
 
-def ingest(sleep_seconds: float = 0.15, limit: int | None = None):
+def ingest(
+    sleep_seconds: float = 0.15,
+    limit: int | None = None,
+    fixture_key: str | None = None,
+):
     fixtures = _load_fixtures()
     identity_rows = query_lab.load_identity_registry()
     player_index = _verified_player_index()
+
+    if fixture_key:
+        try:
+            target_season, target_fixture_id = fixture_key.split(":", 1)
+        except ValueError as exc:
+            raise ValueError("--fixture must use SEASON:FIXTURE_ID") from exc
+        fixtures = [
+            row
+            for row in fixtures
+            if row["season"] == target_season
+            and str(row["fixture_id"]) == target_fixture_id
+        ]
+        if not fixtures:
+            raise ValueError(f"Canonical fixture not found: {fixture_key}")
 
     if limit is not None:
         fixtures = fixtures[:limit]
@@ -244,6 +262,7 @@ def ingest(sleep_seconds: float = 0.15, limit: int | None = None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--fixture", default=None, help="Target canonical fixture as SEASON:FIXTURE_ID")
     parser.add_argument("--sleep", type=float, default=0.15)
     args = parser.parse_args()
-    ingest(sleep_seconds=args.sleep, limit=args.limit)
+    ingest(sleep_seconds=args.sleep, limit=args.limit, fixture_key=args.fixture)
