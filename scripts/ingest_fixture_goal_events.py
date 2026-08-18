@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import csv
 import re
+import sys
 import time
 from collections import defaultdict
 from datetime import datetime, timezone
@@ -10,13 +11,16 @@ from pathlib import Path
 
 import requests
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 import player_identity_crosswalk
 import player_research
 import query_lab
 from match_stats import fixture_source_match
 
-ROOT = Path(__file__).resolve().parents[1]
-FIXTURE_FILE = ROOT / "data" / "fixtures_master_corrected.csv"
+FIXTURE_FILE = ROOT / "fixtures_master_corrected.csv"
 OUTPUT = ROOT / "data" / "fixture_goal_events.csv"
 PULSE_BASE = "https://footballapi.pulselive.com/football"
 HEADERS = {
