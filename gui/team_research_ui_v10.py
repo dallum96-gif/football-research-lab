@@ -13,7 +13,7 @@ def _browse_css() -> None:
         <style>
         .frl-team10-browse-note{
             margin:.42rem 0 .18rem;
-            color:var(--frl-muted-soft);
+            color:#7b756a;
             font-size:.56rem;
             font-weight:780;
             letter-spacing:.11em;
@@ -22,41 +22,30 @@ def _browse_css() -> None:
         .frl-team10-browse-rule{
             margin:.05rem 0 .48rem;
             height:1px;
-            background:var(--frl-border);
+            background:#d6cfc3;
         }
-        .st-key-frl_team10_season,
-        .st-key-frl_team10_team{
-            margin:0 !important;
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1) div[data-testid="stSelectbox"],
+        div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stSelectbox"]{
+            margin:0;
         }
-        .st-key-frl_team10_season [data-testid="stSelectbox"],
-        .st-key-frl_team10_team [data-testid="stSelectbox"]{
-            width:fit-content !important;
-            min-width:0 !important;
-        }
-        .st-key-frl_team10_season [data-baseweb="select"] > div,
-        .st-key-frl_team10_team [data-baseweb="select"] > div{
-            min-height:1.86rem;
-            border:1px solid var(--frl-border) !important;
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1) div[data-testid="stSelectbox"] [data-baseweb="select"] > div,
+        div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stSelectbox"] [data-baseweb="select"] > div{
+            min-height:1.95rem;
+            border:1px solid #cfc7ba !important;
             border-radius:7px;
-            background:var(--frl-surface) !important;
+            background:#f3efe7 !important;
             box-shadow:none !important;
         }
-        .st-key-frl_team10_season [data-baseweb="select"] > div{
-            width:118px !important;
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1) div[data-testid="stSelectbox"] [data-baseweb="select"]{
+            max-width:118px;
         }
-        .st-key-frl_team10_team [data-baseweb="select"] > div{
-            width:220px !important;
+        div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stSelectbox"] [data-baseweb="select"]{
+            max-width:220px;
         }
-        .st-key-frl_team10_season [data-baseweb="select"] [role="button"],
-        .st-key-frl_team10_team [data-baseweb="select"] [role="button"]{
-            color:var(--frl-text) !important;
-            background:transparent !important;
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [role="button"]{
+            color:#302d28 !important;
             font-size:.68rem;
             font-weight:700;
-        }
-        .st-key-frl_team10_season [data-baseweb="select"] svg,
-        .st-key-frl_team10_team [data-baseweb="select"] svg{
-            color:var(--frl-muted-soft) !important;
         }
         </style>
         """,
