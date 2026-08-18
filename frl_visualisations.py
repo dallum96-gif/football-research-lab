@@ -60,23 +60,48 @@ def team_goals_trend(result: ResearchResult) -> alt.Chart:
     if not values:
         raise ValueError("ResearchResult contains no completed fixtures for visualisation")
 
-    base = alt.Chart(alt.Data(values=values)).encode(
+    chart = alt.Chart(alt.Data(values=values)).encode(
         x=alt.X(
             "kickoff_time:T",
             title=None,
-            axis=alt.Axis(format="%d %b", labelColor=FRL_MUTED, domainColor=FRL_BORDER, tickColor=FRL_BORDER, labelFontSize=11, labelPadding=7),
+            axis=alt.Axis(
+                format="%d %b",
+                labelColor=FRL_MUTED,
+                domainColor=FRL_BORDER,
+                tickColor=FRL_BORDER,
+                labelFontSize=11,
+                labelPadding=7,
+            ),
         ),
         y=alt.Y(
             "value:Q",
             title=None,
             scale=alt.Scale(nice=True, zero=True),
-            axis=alt.Axis(labelColor=FRL_MUTED, domainColor=FRL_BORDER, tickColor=FRL_BORDER, gridColor=FRL_GRID, gridOpacity=0.7, labelFontSize=11, labelPadding=7),
+            axis=alt.Axis(
+                labelColor=FRL_MUTED,
+                domainColor=FRL_BORDER,
+                tickColor=FRL_BORDER,
+                gridColor=FRL_GRID,
+                gridOpacity=0.7,
+                labelFontSize=11,
+                labelPadding=7,
+            ),
         ),
         color=alt.Color(
             "metric:N",
             title=None,
-            scale=alt.Scale(domain=["Goals for", "Goals against"], range=[FRL_ACCENT, FRL_SECONDARY]),
-            legend=alt.Legend(orient="top-left", labelColor=FRL_MUTED, labelFontSize=11, symbolSize=70, padding=0, offset=0),
+            scale=alt.Scale(
+                domain=["Goals for", "Goals against"],
+                range=[FRL_ACCENT, FRL_SECONDARY],
+            ),
+            legend=alt.Legend(
+                orient="top-left",
+                labelColor=FRL_MUTED,
+                labelFontSize=11,
+                symbolSize=70,
+                padding=0,
+                offset=0,
+            ),
         ),
         tooltip=[
             alt.Tooltip("kickoff_time:T", title="Date", format="%d %b %Y"),
@@ -89,11 +114,15 @@ def team_goals_trend(result: ResearchResult) -> alt.Chart:
     )
 
     return (
-        base.mark_line(
+        chart.mark_line(
             point=alt.OverlayMarkDef(filled=True, size=44, strokeWidth=1.2),
             strokeWidth=2.3,
         )
-        .properties(height=285, background=FRL_SURFACE, padding={"left": 4, "right": 8, "top": 8, "bottom": 4})
+        .properties(
+            height=285,
+            background=FRL_SURFACE,
+            padding={"left": 4, "right": 8, "top": 8, "bottom": 4},
+        )
         .configure_view(stroke=FRL_BORDER, strokeWidth=1)
         .configure_axis(labelFont="Arial", titleFont="Arial")
         .configure_legend(labelFont="Arial", titleFont="Arial")

@@ -1102,6 +1102,252 @@ def query_fixtures(
     }
 
 
+def fixture_detail(
+    season,
+    fixture_id,
+):
+    if not season:
+        raise ValueError("season is required")
+
+    if fixture_id in (None, ""):
+        raise ValueError("fixture_id is required")
+
+    fixtures = load_fixtures()
+
+    matches = [
+        row
+        for row in fixtures
+        if row["season"] == str(season)
+        and str(row["fixture_id"]) == str(fixture_id)
+    ]
+
+    if len(matches) != 1:
+        raise ValueError(
+            f"Expected exactly one fixture for "
+            f"{season}/{fixture_id}; found {len(matches)}"
+        )
+
+    fixture = dict(matches[0])
+
+    identity_rows = load_identity_registry()
+
+    names = {
+        (
+            row["season"],
+            str(row["local_team_id"]),
+        ): row["canonical_name"].replace("_", " ")
+        for row in identity_rows
+    }
+
+    fixture["home_team_name"] = names.get(
+        (
+            season,
+            str(fixture["home_team_id"]),
+        ),
+        f"ID {fixture['home_team_id']}",
+    )
+
+    fixture["away_team_name"] = names.get(
+        (
+            season,
+            str(fixture["away_team_id"]),
+        ),
+        f"ID {fixture['away_team_id']}",
+    )
+
+    from match_stats import fixture_stats
+
+    stats = fixture_stats(
+        fixture,
+        identity_rows,
+    )
+
+    return {
+        "query_type": "fixture_detail",
+        "query_version": QUERY_VERSION,
+        "fixture": fixture,
+        "stats": stats,
+        "provenance": {
+            "canonical_source": FIXTURE_FILE,
+            "identity_source": IDENTITY_FILE,
+            "correction_source": CORRECTIONS_FILE,
+            "source_match_id": stats.get(
+                "source_match_id"
+            ),
+        },
+        "generated_at":
+            datetime.now().astimezone().isoformat(),
+    }
+
+def team_form(
+    season,
+    team=None,
+    team_id=None,
+):
+    if not season:
+        raise ValueError("--season is required")
+
+    if team and team_id:
+        raise ValueError(
+            "Use either team or team_id, not both."
+        )
+
+    if team is None and team_id is None:
+        raise ValueError(
+            "Either team or team_id is required."
+        )
+
+    fixture_query = query_fixtures(
+        season=season,
+        team=team,
+        team_id=team_id,
+        limit=None,
+    )
+
+    selected_team_id = fixture_query[
+        "filters"
+    ]["team_id"]
+
+    completed = []
+
+    for row in fixture_query["results"]:
+        result_code = fixture_result(
+            row,
+            selected_team_id,
+        )
+
+        if result_code == "UNPLAYED":
+            continue
+
+        if (
+            str(row["home_team_id"])
+            == str(selected_team_id)
+        ):
+            goals_for = int(row["home_score"])
+            goals_against = int(row["away_score"])
+        else:
+            goals_for = int(row["away_score"])
+            goals_against = int(row["home_score"])
+
+        completed.append(
+            {
+                **row,
+                "result": result_code,
+                "points": {
+                    "W": 3,
+                    "D": 1,
+                    "L": 0,
+                }[result_code],
+                "goals_for": goals_for,
+                "goals_against": goals_against,
+                "goal_difference": (
+                    goals_for - goals_against
+                ),
+                "clean_sheet": (
+                    goals_against == 0
+                ),
+                "scored": (
+                    goals_for > 0
+                ),
+            }
+        )
+
+    completed.sort(
+        key=lambda row: datetime.fromisoformat(
+            row["kickoff_time"].replace(
+                "Z",
+                "+00:00",
+            )
+        )
+    )
+
+    def current_streak(predicate):
+        total = 0
+
+        for row in reversed(completed):
+            if not predicate(row):
+                break
+
+            total += 1
+
+        return total
+
+    def window_summary(window):
+        recent = completed[-window:]
+
+        return {
+            "matches": len(recent),
+            "results": [
+                row["result"]
+                for row in recent
+            ],
+            "points": sum(
+                row["points"]
+                for row in recent
+            ),
+            "goals_for": sum(
+                row["goals_for"]
+                for row in recent
+            ),
+            "goals_against": sum(
+                row["goals_against"]
+                for row in recent
+            ),
+            "goal_difference": sum(
+                row["goal_difference"]
+                for row in recent
+            ),
+        }
+
+    windows = {
+        "3": window_summary(3),
+        "5": window_summary(5),
+    }
+
+    streaks = {
+        "current_win_streak": current_streak(
+            lambda row: row["result"] == "W"
+        ),
+        "current_unbeaten_streak": current_streak(
+            lambda row: row["result"] in {"W", "D"}
+        ),
+        "current_loss_streak": current_streak(
+            lambda row: row["result"] == "L"
+        ),
+        "current_clean_sheet_streak": current_streak(
+            lambda row: row["clean_sheet"]
+        ),
+        "current_scoring_streak": current_streak(
+            lambda row: row["scored"]
+        ),
+    }
+
+    return {
+        "query_type": "team_form",
+        "query_version": QUERY_VERSION,
+        "season": season,
+        "matches": completed,
+        "windows": windows,
+        "streaks": streaks,
+        "excluded_unplayed": (
+            fixture_query["total_matches"]
+            - len(completed)
+        ),
+        "filters": fixture_query["filters"],
+        "identity_resolution": (
+            fixture_query[
+                "identity_resolution"
+            ]
+        ),
+        "source_file": fixture_query[
+            "source_file"
+        ],
+        "identity_source_file": (
+            fixture_query[
+                "identity_source_file"
+            ]
+        ),
+    }
 
 def team_summary(
     season,
@@ -2519,6 +2765,76 @@ def main():
     raise RuntimeError(
         "Unsupported query"
     )
+
+def test_team_form():
+    result = query_lab.team_form(
+        season="2024-25",
+        team="Liverpool",
+    )
+
+    completed = result["matches"]
+
+    assert completed
+
+    assert all(
+        row["result"] in {"W", "D", "L"}
+        for row in completed
+    )
+
+    assert all(
+        row["points"] in {0, 1, 3}
+        for row in completed
+    )
+
+    assert all(
+        row["goals_for"] >= 0
+        and row["goals_against"] >= 0
+        for row in completed
+    )
+
+    assert all(
+        row["goal_difference"]
+        == row["goals_for"]
+        - row["goals_against"]
+        for row in completed
+    )
+
+    assert all(
+        completed[i]["kickoff_time"]
+        <= completed[i + 1]["kickoff_time"]
+        for i in range(len(completed) - 1)
+    )
+
+    assert result["windows"]["3"]["matches"] <= 3
+    assert result["windows"]["5"]["matches"] <= 5
+
+    assert (
+        result["streaks"]["current_win_streak"]
+        <= len(completed)
+    )
+
+    assert (
+        result["streaks"]["current_unbeaten_streak"]
+        <= len(completed)
+    )
+
+    assert (
+        result["streaks"]["current_loss_streak"]
+        <= len(completed)
+    )
+
+    assert (
+        result["streaks"]["current_clean_sheet_streak"]
+        <= len(completed)
+    )
+
+    assert (
+        result["streaks"]["current_scoring_streak"]
+        <= len(completed)
+    )
+
+    assert result["excluded_unplayed"] >= 0
+
 
 
 if __name__ == "__main__":

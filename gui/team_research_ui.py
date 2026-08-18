@@ -3,8 +3,8 @@ from __future__ import annotations
 import streamlit as st
 
 import query_api
-from frl_analytical import team_fixtures
-from frl_visualisations import team_goals_trend
+from team_research_analytics import team_performance_profile, team_season_comparison
+from frl_team_visualisations import team_performance_trajectory, team_season_ppg_comparison
 
 
 def _season_key(value: str) -> tuple[int, int]:
@@ -18,6 +18,22 @@ def _season_key(value: str) -> tuple[int, int]:
 def _fmt(value) -> str:
     try:
         return f"{int(value):,}"
+    except (TypeError, ValueError):
+        return "—"
+
+
+def _fmt_float(value, digits: int = 2) -> str:
+    if value is None:
+        return "—"
+    try:
+        return f"{float(value):.{digits}f}"
+    except (TypeError, ValueError):
+        return "—"
+
+
+def _fmt_signed(value) -> str:
+    try:
+        return f"{int(value):+,}"
     except (TypeError, ValueError):
         return "—"
 
@@ -43,13 +59,18 @@ def _team_form(season: str, team: str) -> dict:
 
 
 @st.cache_data(show_spinner=False)
-def _team_fixtures_visual(season: str, team: str):
-    return team_fixtures(season=season, team=team, limit=100)
+def _team_fixtures_display(season: str, team: str) -> dict:
+    return query_api.fixtures(season=season, team=team, limit=100)
 
 
 @st.cache_data(show_spinner=False)
-def _team_fixtures_display(season: str, team: str) -> dict:
-    return query_api.fixtures(season=season, team=team, limit=100)
+def _team_profile(season: str, team: str):
+    return team_performance_profile(season=season, team=team, rolling_window=5)
+
+
+@st.cache_data(show_spinner=False)
+def _team_comparison(team: str, seasons: list[str]):
+    return team_season_comparison(team=team, seasons=seasons)
 
 
 def _css() -> None:
@@ -62,29 +83,142 @@ def _css() -> None:
         .frl-team-section{color:var(--frl-muted-soft);font-size:.61rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;margin:1.2rem 0 .42rem}
         .frl-team-record{color:var(--frl-muted);font-size:.76rem;margin:.72rem 0 1rem;padding:.72rem 0;border-top:1px solid var(--frl-border);border-bottom:1px solid var(--frl-border)}
         .frl-team-record strong{color:var(--frl-text);font-weight:780}
+        .frl-team-findings{color:var(--frl-muted);font-size:.78rem;line-height:1.5;margin:.15rem 0 .6rem}
+        .frl-team-findings strong{color:var(--frl-text);font-weight:780}
         .frl-team-form{display:flex;gap:.35rem;margin:.2rem 0 .6rem}
         .frl-team-form span{min-width:1.8rem;height:1.8rem;border:1px solid var(--frl-border);border-radius:5px;display:flex;align-items:center;justify-content:center;color:var(--frl-muted);font-size:.62rem;font-weight:800}
         .frl-team-form .win{color:var(--frl-secondary);border-color:rgba(154,170,66,.45)}
-        .frl-team-form .draw{color:var(--frl-muted);}
+        .frl-team-form .draw{color:var(--frl-muted)}
         .frl-team-form .loss{color:var(--frl-negative);border-color:rgba(232,93,63,.35)}
-        .frl-team-row{display:grid;grid-template-columns:4rem minmax(0,1fr) 4.5rem 3rem;gap:.5rem;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--frl-border)}
+        .frl-team-row{display:grid;grid-template-columns:5rem minmax(0,1fr) 5rem 4rem;gap:.5rem;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--frl-border)}
         .frl-team-row:hover{background:var(--frl-surface)}
         .frl-team-row:last-child{border-bottom:0}
         .frl-team-row-muted{color:var(--frl-muted-soft);font-size:.58rem}
         .frl-team-row-main{color:var(--frl-text);font-size:.68rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .frl-team-row-meta{color:var(--frl-muted);font-size:.6rem;text-align:right}
         .frl-team-row-accent{color:var(--frl-text);font-size:.66rem;font-weight:800;text-align:right}
-        @media(max-width:900px){.frl-team-row{grid-template-columns:3.2rem minmax(0,1fr) 4rem 2.8rem}}
+        .frl-team-table-head{color:var(--frl-muted-soft);font-size:.56rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:.4rem 0;border-bottom:1px solid var(--frl-border)}
+        .frl-team-method{color:var(--frl-muted-soft);font-size:.58rem;line-height:1.45;margin-top:.45rem}
+        @media(max-width:900px){.frl-team-row{grid-template-columns:3.8rem minmax(0,1fr) 4.5rem 3.4rem}}
         </style>
         """,
         unsafe_allow_html=True,
     )
 
 
-def _profile(summary: dict, form: dict, fixtures: dict, season: str, team: str) -> None:
-    data = summary.get("summary", {})
+def _render_venue_splits(profile) -> None:
+    venue_rows = profile.population.get("venue_splits", [])
+    if not venue_rows:
+        return
+
+    st.markdown("<div class='frl-team-section'>Home / away split</div>", unsafe_allow_html=True)
+    st.caption("Same season, same fixture population; venue is defined from the selected team's home/away status.")
+    header = "<div class='frl-team-row frl-team-table-head'><div>Venue</div><div>Record</div><div>PPG</div><div>GF / GA</div></div>"
+    body = ""
+    for row in venue_rows:
+        body += (
+            f"<div class='frl-team-row'>"
+            f"<div class='frl-team-row-muted'>{row['label']}</div>"
+            f"<div class='frl-team-row-main'>{row['wins']}W · {row['matches'] - row['wins']} non-wins · {row['win_rate'] * 100:.0f}% win rate</div>"
+            f"<div class='frl-team-row-meta'>{_fmt_float(row['ppg'])}</div>"
+            f"<div class='frl-team-row-accent'>{_fmt_float(row['goals_per_match'])} / {_fmt_float(row['goals_against_per_match'])}</div>"
+            f"</div>"
+        )
+    st.markdown(header + body, unsafe_allow_html=True)
+
+
+def _render_phases(profile) -> None:
+    phase_rows = profile.population.get("phase_splits", [])
+    if not phase_rows:
+        return
+
+    st.markdown("<div class='frl-team-section'>Season phases</div>", unsafe_allow_html=True)
+    st.caption("The completed season is divided into three chronological thirds by fixture count.")
+    header = "<div class='frl-team-row frl-team-table-head'><div>Phase</div><div>Record</div><div>PPG</div><div>GF / GA</div></div>"
+    body = ""
+    for row in phase_rows:
+        if row["matches"] == 0:
+            continue
+        body += (
+            f"<div class='frl-team-row'>"
+            f"<div class='frl-team-row-muted'>{row['label']}</div>"
+            f"<div class='frl-team-row-main'>{row['matches']} matches · {row['wins']} wins</div>"
+            f"<div class='frl-team-row-meta'>{_fmt_float(row['ppg'])}</div>"
+            f"<div class='frl-team-row-accent'>{_fmt_float(row['goals_per_match'])} / {_fmt_float(row['goals_against_per_match'])}</div>"
+            f"</div>"
+        )
+    st.markdown(header + body, unsafe_allow_html=True)
+
+
+def _render_findings(profile) -> None:
+    overall = profile.population.get("overall", {})
+    venue = profile.population.get("venue_splits", [])
+    phases = [row for row in profile.population.get("phase_splits", []) if row.get("matches", 0)]
+
+    best_phase = max(phases, key=lambda row: row.get("ppg", -1), default=None)
+    home = next((row for row in venue if row.get("label") == "Home"), None)
+    away = next((row for row in venue if row.get("label") == "Away"), None)
+
+    finding_bits = [
+        f"<strong>{_fmt_float(overall.get('ppg'))}</strong> points per match overall",
+        f"<strong>{overall.get('clean_sheet_rate', 0) * 100:.0f}%</strong> clean-sheet rate",
+        f"<strong>{overall.get('failed_to_score_rate', 0) * 100:.0f}%</strong> failed-to-score rate",
+    ]
+    if best_phase:
+        finding_bits.append(
+            f"best phase: <strong>{best_phase['label']}</strong> at <strong>{_fmt_float(best_phase['ppg'])} PPG</strong>"
+        )
+    if home and away:
+        finding_bits.append(
+            f"home/away PPG gap: <strong>{_fmt_float(home['ppg'] - away['ppg'])}</strong>"
+        )
+
+    st.markdown(
+        "<div class='frl-team-findings'>" + " · ".join(finding_bits) + "</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _render_recent_form(form: dict) -> None:
     recent = form.get("windows", {}).get("5", {})
-    streaks = form.get("streaks", {})
+    st.markdown("<div class='frl-team-section'>Recent form</div>", unsafe_allow_html=True)
+    spans = []
+    for result in recent.get("results", []):
+        result_class = {"W": "win", "D": "draw", "L": "loss"}.get(result, "")
+        spans.append(f"<span class='{result_class}'>{result}</span>")
+    pills = "".join(spans) or "<span>—</span>"
+    st.markdown(f"<div class='frl-team-form'>{pills}</div>", unsafe_allow_html=True)
+    st.caption(
+        f"{recent.get('points', 0)} pts · {recent.get('goals_for', 0)} scored · {recent.get('goals_against', 0)} conceded"
+    )
+
+
+def _render_recent_fixtures(fixtures: dict) -> None:
+    st.markdown("<div class='frl-team-section'>Recent fixtures</div>", unsafe_allow_html=True)
+    rows = list(fixtures.get("results", []))[-5:]
+    if not rows:
+        st.info("No fixture history is available for this scope.")
+        return
+
+    for row in reversed(rows):
+        home = row.get("home_team_name", "Home")
+        away = row.get("away_team_name", "Away")
+        score = "—"
+        if row.get("home_score") not in (None, "") and row.get("away_score") not in (None, ""):
+            score = f"{row['home_score']}–{row['away_score']}"
+        st.markdown(
+            f"<div class='frl-team-row'>"
+            f"<div class='frl-team-row-muted'>GW {row.get('gameweek','—')}</div>"
+            f"<div class='frl-team-row-main'>{home} <span style='color:var(--frl-muted-soft)'>v</span> {away}</div>"
+            f"<div class='frl-team-row-meta'>{str(row.get('kickoff_time',''))[:10]}</div>"
+            f"<div class='frl-team-row-accent'>{score}</div>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
+
+def _profile(summary: dict, form: dict, fixtures: dict, profile) -> None:
+    data = summary.get("summary", {})
 
     st.markdown("<div class='frl-team-section'>Season snapshot</div>", unsafe_allow_html=True)
     record = (
@@ -92,84 +226,73 @@ def _profile(summary: dict, form: dict, fixtures: dict, season: str, team: str) 
         f"<strong>{_fmt(data.get('wins'))}</strong> wins · "
         f"<strong>{_fmt(data.get('points'))}</strong> points · "
         f"<strong>{_fmt(data.get('goals_for'))}–{_fmt(data.get('goals_against'))}</strong> goals · "
-        f"<strong>{_fmt(data.get('goal_difference')):+}</strong> GD"
+        f"<strong>{_fmt_signed(data.get('goal_difference'))}</strong> GD"
     )
     st.markdown(f"<div class='frl-team-record'>{record}</div>", unsafe_allow_html=True)
+    _render_findings(profile)
 
-    st.markdown("<div class='frl-team-section'>Goals trend</div>", unsafe_allow_html=True)
-    st.caption("Goals scored and conceded by fixture. Hover a point for the opponent, result and fixture evidence.")
-    trend_result = _team_fixtures_visual(season, team)
-    st.altair_chart(team_goals_trend(trend_result), width="stretch")
+    st.markdown("<div class='frl-team-section'>Performance trajectory</div>", unsafe_allow_html=True)
+    st.caption("Rolling five-match PPG shows short-term momentum against the cumulative season baseline.")
+    st.altair_chart(team_performance_trajectory(profile), width="stretch")
 
     left, right = st.columns(2, gap="medium")
     with left:
-        st.markdown("<div class='frl-team-section'>Recent form</div>", unsafe_allow_html=True)
-        spans = []
-        for result in recent.get("results", []):
-            result_class = {"W": "win", "D": "draw", "L": "loss"}.get(result, "")
-            spans.append(f"<span class='{result_class}'>{result}</span>")
-        pills = "".join(spans) or '<span>—</span>'
-        st.markdown(f"<div class='frl-team-form'>{pills}</div>", unsafe_allow_html=True)
-        st.caption(
-            f"{recent.get('points', 0)} pts · {recent.get('goals_for', 0)} scored · {recent.get('goals_against', 0)} conceded"
-        )
-
+        _render_venue_splits(profile)
     with right:
-        st.markdown("<div class='frl-team-section'>Current runs</div>", unsafe_allow_html=True)
-        for label, value in [
-            ("Wins", streaks.get("current_win_streak", 0)),
-            ("Unbeaten", streaks.get("current_unbeaten_streak", 0)),
-            ("Clean sheets", streaks.get("current_clean_sheet_streak", 0)),
-            ("Scoring", streaks.get("current_scoring_streak", 0)),
-        ]:
-            st.markdown(
-                f"<div class='frl-team-row'><div class='frl-team-row-muted'>run</div><div class='frl-team-row-main'>{label}</div><div class='frl-team-row-meta'>current</div><div class='frl-team-row-accent'>{_fmt(value)}</div></div>",
-                unsafe_allow_html=True,
-            )
+        _render_recent_form(form)
 
-    st.markdown("<div class='frl-team-section'>Recent fixtures</div>", unsafe_allow_html=True)
-    recent_rows = list(fixtures.get("results", []))[-5:]
-    if not recent_rows:
-        st.markdown("<div class='frl-empty-state'>No fixture history is available for this scope.</div>", unsafe_allow_html=True)
-        return
+    _render_phases(profile)
+    _render_recent_fixtures(fixtures)
 
-    for row in reversed(recent_rows):
-        home = row.get("home_team_name", "Home")
-        away = row.get("away_team_name", "Away")
-        score = "—"
-        if row.get("home_score") not in (None, "") and row.get("away_score") not in (None, ""):
-            score = f"{row['home_score']}–{row['away_score']}"
-        st.markdown(
-            f"<div class='frl-team-row'><div class='frl-team-row-muted'>{row.get('gameweek','')}</div><div class='frl-team-row-main'>{home} <span style='color:var(--frl-muted-soft)'>v</span> {away}</div><div class='frl-team-row-meta'>{str(row.get('kickoff_time',''))[:10]}</div><div class='frl-team-row-accent'>{score}</div></div>",
-            unsafe_allow_html=True,
-        )
+    st.markdown(
+        "<div class='frl-team-method'>"
+        f"Coverage: {profile.population.get('completed_matches', 0)} completed fixtures. "
+        f"Rolling window: {profile.population.get('rolling_window', 5)} matches. "
+        "Metrics are derived from the canonical fixture result and inherit its provenance."
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
 
-def _stats(comparison: dict) -> None:
-    rows = comparison.get("seasons", [])
+def _stats(comparison) -> None:
+    rows = comparison.rows
     if not rows:
         st.info("No verified season records are available for this team in the selected range.")
         return
 
-    latest = rows[-1]
-    st.markdown("<div class='frl-team-section'>Research snapshot</div>", unsafe_allow_html=True)
-    record = (
-        f"<strong>{_fmt(latest.get('points'))}</strong> latest points · "
-        f"<strong>{int(latest.get('goal_difference', 0)):+d}</strong> latest GD · "
-        f"<strong>{_fmt(latest.get('wins'))}</strong> latest wins · "
-        f"<strong>{len(rows)}</strong> seasons found"
-    )
-    st.markdown(f"<div class='frl-team-record'>{record}</div>", unsafe_allow_html=True)
-
+    signals = comparison.population.get("signals", {})
     st.markdown("<div class='frl-team-section'>Season comparison</div>", unsafe_allow_html=True)
-    header = "<div class='frl-team-row'><div class='frl-team-row-muted'>Season</div><div class='frl-team-row-main'>Record</div><div class='frl-team-row-meta'>GD</div><div class='frl-team-row-accent'>Pts</div></div>"
-    body = "".join(
-        f"<div class='frl-team-row'><div class='frl-team-row-muted'>{row.get('season','')}</div><div class='frl-team-row-main'>{row.get('wins',0)}W · {row.get('draws',0)}D · {row.get('losses',0)}L · {row.get('played',0)} played</div><div class='frl-team-row-meta'>{int(row.get('goal_difference',0)):+d}</div><div class='frl-team-row-accent'>{row.get('points',0)}</div></div>"
-        for row in rows
-    )
-    st.markdown(f"<div>{header}{body}</div>", unsafe_allow_html=True)
-    if comparison.get("skipped_seasons"):
-        st.caption("Some requested seasons are omitted because the verified team identity was not present in those seasons.")
+    st.caption("PPG is the primary comparison metric so season performance is comparable across the selected seasons.")
+    st.altair_chart(team_season_ppg_comparison(comparison), width="stretch")
+
+    header = "<div class='frl-team-row frl-team-table-head'><div>Season</div><div>Record</div><div>PPG</div><div>GF / GA</div></div>"
+    body = ""
+    for row in rows:
+        body += (
+            f"<div class='frl-team-row'>"
+            f"<div class='frl-team-row-muted'>{row.get('season','')}</div>"
+            f"<div class='frl-team-row-main'>{row.get('wins',0)}W · {row.get('draws',0)}D · {row.get('losses',0)}L · {row.get('played',0)} played</div>"
+            f"<div class='frl-team-row-meta'>{_fmt_float(row.get('points_per_match'))}</div>"
+            f"<div class='frl-team-row-accent'>{_fmt_float(row.get('goals_for_per_match'))} / {_fmt_float(row.get('goals_against_per_match'))}</div>"
+            f"</div>"
+        )
+    st.markdown(header + body, unsafe_allow_html=True)
+
+    best_ppg = signals.get("best_ppg")
+    best_attack = signals.get("best_attack")
+    best_defence = signals.get("best_defence")
+    if best_ppg or best_attack or best_defence:
+        bits = []
+        if best_ppg:
+            bits.append(f"best PPG: <strong>{best_ppg['season']}</strong> ({_fmt_float(best_ppg['points_per_match'])})")
+        if best_attack:
+            bits.append(f"best attack: <strong>{best_attack['season']}</strong> ({_fmt_float(best_attack['goals_for_per_match'])} GF/match)")
+        if best_defence:
+            bits.append(f"best defence: <strong>{best_defence['season']}</strong> ({_fmt_float(best_defence['goals_against_per_match'])} GA/match)")
+        st.markdown("<div class='frl-team-findings'>" + " · ".join(bits) + "</div>", unsafe_allow_html=True)
+
+    if comparison.population.get("skipped_seasons"):
+        st.caption("Some requested seasons are omitted because verified persistent club identity was not present in those seasons.")
 
 
 def render_team_research_ui() -> None:
@@ -189,7 +312,7 @@ def render_team_research_ui() -> None:
     team = st.selectbox("Team", teams, index=0, key="frl_selected_team")
     st.markdown("<div class='frl-team-kicker'>Team research</div>", unsafe_allow_html=True)
     st.markdown(f"<div class='frl-team-title'>{team}</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='frl-team-note'>{season} · verified team identity · football research context</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='frl-team-note'>{season} · verified team identity · research workspace</div>", unsafe_allow_html=True)
 
     view = st.segmented_control("Team view", ["Profile", "Stats"], default="Profile", key="frl_team_view", label_visibility="collapsed")
     if view == "Profile":
@@ -197,11 +320,15 @@ def render_team_research_ui() -> None:
             _team_summary(season, team),
             _team_form(season, team),
             _team_fixtures_display(season, team),
-            season,
-            team,
+            _team_profile(season, team),
         )
         return
 
-    selected = st.multiselect("Seasons", seasons, default=seasons[: min(4, len(seasons))], key="frl_team_stats_seasons") or [season]
+    selected = st.multiselect(
+        "Seasons",
+        seasons,
+        default=seasons[: min(6, len(seasons))],
+        key="frl_team_stats_seasons",
+    ) or [season]
     selected = sorted(selected, key=_season_key)
-    _stats(query_api.team_compare(team=team, seasons=selected))
+    _stats(_team_comparison(team, selected))
