@@ -31,25 +31,11 @@ HEADERS = {
 }
 
 FIELDS = (
-    "season",
-    "fixture_id",
-    "source_match_id",
-    "source_event_id",
-    "source_event_type",
-    "source_event_seconds",
-    "source_event_time_label",
-    "source_event_text",
-    "source_scorer_name",
-    "source_scorer_team",
-    "source_scorer_id",
-    "identity_status",
-    "fpl_element",
-    "player_name",
-    "side",
-    "own_goal",
-    "source_url",
-    "retrieved_at_utc",
-    "goal_count_match",
+    "season", "fixture_id", "source_match_id", "source_event_id",
+    "source_event_type", "source_event_seconds", "source_event_time_label",
+    "source_event_text", "source_scorer_name", "source_scorer_team",
+    "source_scorer_id", "identity_status", "fpl_element", "player_name",
+    "side", "own_goal", "source_url", "retrieved_at_utc", "goal_count_match",
 )
 
 
@@ -106,7 +92,7 @@ def _is_goal(event: dict) -> bool:
 
 
 def _request_fixture(source_match_id: str):
-    url = f"{PULSE_BASE}/fixtures/{source_match_id}"
+    url = f"{PULSE_BASE}/fixtures/{source_match_id}/textstream/EN?pageSize=1000&sort=desc"
     response = requests.get(url, headers=HEADERS, timeout=20)
     response.raise_for_status()
     return response.json(), url
@@ -119,25 +105,16 @@ def _score_total(fixture: dict) -> int:
         return 0
 
 
-def ingest(
-    sleep_seconds: float = 0.15,
-    limit: int | None = None,
-    fixture_key: str | None = None,
-):
+def ingest(sleep_seconds: float = 0.15, limit: int | None = None, fixture_key: str | None = None):
     fixtures = _load_fixtures()
     identity_rows = query_lab.load_identity_registry()
     player_index = _verified_player_index()
 
     if fixture_key:
-        try:
-            target_season, target_fixture_id = fixture_key.split(":", 1)
-        except ValueError as exc:
-            raise ValueError("--fixture must use SEASON:FIXTURE_ID") from exc
+        target_season, target_fixture_id = fixture_key.split(":", 1)
         fixtures = [
-            row
-            for row in fixtures
-            if row["season"] == target_season
-            and str(row["fixture_id"]) == target_fixture_id
+            row for row in fixtures
+            if row["season"] == target_season and str(row["fixture_id"]) == target_fixture_id
         ]
         if not fixtures:
             raise ValueError(f"Canonical fixture not found: {fixture_key}")
@@ -152,7 +129,6 @@ def ingest(
         season = fixture["season"]
         fixture_id = fixture["fixture_id"]
         total_goals = _score_total(fixture)
-
         if total_goals == 0:
             continue
 
@@ -205,7 +181,6 @@ def ingest(
 
             key = (season, scorer_team_code, _norm(scorer_name))
             candidates = player_index.get(key, ()) if scorer_name and scorer_team_code else ()
-
             identity_status = "VERIFIED" if len(candidates) == 1 else "UNRESOLVED"
             fpl_element = candidates[0][0] if len(candidates) == 1 else ""
             canonical_name = candidates[0][1] if len(candidates) == 1 else ""
@@ -221,29 +196,27 @@ def ingest(
             player_ids = event.get("playerIds") or []
             source_scorer_id = str(player_ids[0]) if player_ids else ""
 
-            rows.append(
-                {
-                    "season": season,
-                    "fixture_id": fixture_id,
-                    "source_match_id": str(source_match_id),
-                    "source_event_id": str(event.get("id") or ""),
-                    "source_event_type": str(event.get("type") or ""),
-                    "source_event_seconds": str(seconds or ""),
-                    "source_event_time_label": label,
-                    "source_event_text": text,
-                    "source_scorer_name": scorer_name or "",
-                    "source_scorer_team": scorer_team or "",
-                    "source_scorer_id": source_scorer_id,
-                    "identity_status": identity_status,
-                    "fpl_element": fpl_element,
-                    "player_name": canonical_name,
-                    "side": scoring_side,
-                    "own_goal": str(own_goal).lower(),
-                    "source_url": source_url,
-                    "retrieved_at_utc": retrieved_at,
-                    "goal_count_match": goal_count_match,
-                }
-            )
+            rows.append({
+                "season": season,
+                "fixture_id": fixture_id,
+                "source_match_id": str(source_match_id),
+                "source_event_id": str(event.get("id") or ""),
+                "source_event_type": str(event.get("type") or ""),
+                "source_event_seconds": str(seconds or ""),
+                "source_event_time_label": label,
+                "source_event_text": text,
+                "source_scorer_name": scorer_name or "",
+                "source_scorer_team": scorer_team or "",
+                "source_scorer_id": source_scorer_id,
+                "identity_status": identity_status,
+                "fpl_element": fpl_element,
+                "player_name": canonical_name,
+                "side": scoring_side,
+                "own_goal": str(own_goal).lower(),
+                "source_url": source_url,
+                "retrieved_at_utc": retrieved_at,
+                "goal_count_match": goal_count_match,
+            })
 
         print(f"[{number}/{len(fixtures)}] {season}/{fixture_id}: {len(goals)} goals")
         time.sleep(sleep_seconds)
