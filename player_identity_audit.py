@@ -1,4 +1,4 @@
-"""Read-only audit for the FRL FPL ↔ player-match player identity bridge.
+﻿"""Read-only audit for the FRL FPL Ôåö player-match player identity bridge.
 
 This module does not write files and does not create canonical identities.
 It tests whether existing FPL player records can be deterministically matched
@@ -256,8 +256,8 @@ def run_audit() -> dict:
 
 def print_report(report: dict) -> None:
     print("=" * 96)
-    print("FRL / FPL ↔ PLAYER-MATCH PLAYER IDENTITY AUDIT")
-    print("READ ONLY — NO FILES WILL BE WRITTEN")
+    print("FRL / FPL Ôåö PLAYER-MATCH PLAYER IDENTITY AUDIT")
+    print("READ ONLY ÔÇö NO FILES WILL BE WRITTEN")
     print("=" * 96)
     print()
 

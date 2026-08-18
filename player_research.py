@@ -517,3 +517,52 @@ def filter_players(
             results.append(player)
 
     return results
+
+def player_detail(
+    season,
+    player_code,
+):
+    for player in season_players(
+        season
+    ):
+        for row in player["_records"]:
+            if str(
+                seasonal_player_id(row)
+            ) == str(player_code):
+                result = dict(player)
+
+                result["_evidence"] = {
+                    "query_version":
+                        query_lab.QUERY_VERSION,
+                    "source_file":
+                        player["_source_files"][0],
+                    "source_rows":
+                        player["_source_rows"],
+                    "source_files":
+                        list(
+                            player[
+                                "_source_files"
+                            ]
+                        ),
+                    "season":
+                        season,
+                    "player_name":
+                        player[
+                            "player_name"
+                        ],
+                    "seasonal_source_id":
+                        str(
+                            seasonal_player_id(
+                                row
+                            )
+                        ),
+                    "aggregation":
+                        "SUM approved additive "
+                        "metrics; per-90 from "
+                        "pooled totals / minutes × 90",
+                }
+
+                return result
+
+    return None
+

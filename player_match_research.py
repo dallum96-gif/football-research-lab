@@ -1,4 +1,4 @@
-"""Verified player-match enrichment for Player Research.
+﻿"""Verified player-match enrichment for Player Research.
 
 This adapter is intentionally fail-closed. It consumes only the locally
 materialized player_identity_registry.csv produced by the audited registry
@@ -58,36 +58,103 @@ def source_ids_for_records(rows) -> tuple[str, ...]:
     return tuple(sorted(ids))
 
 
-def player_match_evidence_for_records(rows) -> dict[str, object]:
+def _season_source_player_id(records):
+    """Resolve exactly one verified source player ID for each season."""
+    by_season = defaultdict(list)
+
+    for row in records:
+        season = str(row.get("_season") or row.get("season") or "").strip()
+        if not season:
+            continue
+        by_season[season].append(row)
+
+    resolved = {}
+
+    for season, season_records in by_season.items():
+        source_ids = {
+            source_player_id_for_record(row)
+            for row in season_records
+        }
+        source_ids.discard(None)
+
+        if len(source_ids) != 1:
+            return None
+
+        resolved[season] = next(iter(source_ids))
+
+    return resolved
+
+
+@lru_cache(maxsize=32)
+def _season_totals(season):
+    """Return cached player-match totals for one season."""
+    return player_match_stats.player_season_totals(season)
+
+
+def player_match_evidence_for_records(rows):
     records = tuple(rows)
-    source_ids = source_ids_for_records(records)
-    if len(source_ids) != 1:
+
+    if not records:
         return {
             "status": "UNAVAILABLE",
             "source_player_id": None,
             "metrics": {},
-            "reason": (
-                "NO_VERIFIED_SOURCE_ID" if not source_ids
-                else "MULTIPLE_VERIFIED_SOURCE_IDS"
-            ),
+            "reason": "NO_RECORDS",
         }
 
-    source_player_id = source_ids[0]
-    seasons = sorted({str(r.get("_season") or r.get("season") or "").strip() for r in records if r.get("_season") or r.get("season")})
-    source_rows = []
-    for season in seasons:
-        source_rows.extend(
-            player_match_stats.player_match_records_for_player(
-                source_player_id,
-                season,
-            )
-        )
+    season_source_ids = _season_source_player_id(records)
 
-    metrics = player_match_stats.aggregate_rows(source_rows)
+    if not season_source_ids:
+        return {
+            "status": "UNAVAILABLE",
+            "source_player_id": None,
+            "metrics": {},
+            "reason": "NO_VERIFIED_SOURCE_ID",
+        }
+
+    metrics_by_season = []
+
+    for season in sorted(season_source_ids):
+        source_player_id = season_source_ids[season]
+        totals = _season_totals(season)
+        metrics = totals.get(source_player_id)
+
+        if metrics is None:
+            return {
+                "status": "UNAVAILABLE",
+                "source_player_id": None,
+                "metrics": {},
+                "reason": "SOURCE_PLAYER_DATA_UNAVAILABLE",
+            }
+
+        metrics_by_season.append(metrics)
+
+    pooled = {}
+    metric_names = set().union(
+        *(metrics.keys() for metrics in metrics_by_season)
+    )
+
+    for metric in metric_names:
+        values = [metrics.get(metric) for metrics in metrics_by_season]
+        numeric_values = [value for value in values if value is not None]
+        pooled[metric] = sum(numeric_values) if numeric_values else None
+
+    passes = pooled.get("passes")
+    accurate_passes = pooled.get("accurate_passes")
+    pooled["pass_accuracy"] = (
+        accurate_passes / passes * 100.0
+        if passes not in (None, 0) and accurate_passes is not None
+        else None
+    )
+
+    unique_source_ids = sorted(set(season_source_ids.values()))
+
     return {
         "status": "VERIFIED",
-        "source_player_id": source_player_id,
-        "metrics": metrics,
+        "source_player_id": unique_source_ids[0] if len(unique_source_ids) == 1 else None,
+        "source_player_ids": unique_source_ids,
+        "season_source_player_ids": dict(season_source_ids),
+        "metrics": pooled,
         "reason": "VERIFIED_FPL_ELEMENT_TO_SOURCE_PLAYER_ID",
     }
 
