@@ -1,4 +1,4 @@
-﻿"""Additive adapter for the external player-match evidence source.
+"""Additive adapter for the external player-match evidence source.
 
 The canonical FPL player dataset and fixture master remain authoritative.
 This module reuses the existing verified fixture/team identity mechanism and
@@ -13,11 +13,12 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Iterable
 
+from frl_data_paths import player_match_root
 from match_stats import fixture_source_match
 from query_lab import load_identity_registry
 
 
-PL_ROOT = Path(r"C:\Users\dlall\football_database\Premier-League-Stats\pl_stats")
+PL_ROOT = player_match_root()
 
 
 # Source fields audited on 16 August 2026. Coverage is seasonal and absent
@@ -79,7 +80,7 @@ def _open_csv(path: Path):
 @lru_cache(maxsize=20)
 def _season_player_match_files(season: str) -> tuple[Path, ...]:
     if not PL_ROOT.is_dir():
-        raise FileNotFoundError(f"Player-match source root not found: {PL_ROOT}")
+        return tuple()
     expected = f"{season}_players_match_stats.csv"
     return tuple(sorted(PL_ROOT.rglob(expected)))
 
