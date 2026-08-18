@@ -31,11 +31,25 @@ HEADERS = {
 }
 
 FIELDS = (
-    "season", "fixture_id", "source_match_id", "source_event_id",
-    "source_event_type", "source_event_seconds", "source_event_time_label",
-    "source_event_text", "source_scorer_name", "source_scorer_team",
-    "source_scorer_id", "identity_status", "fpl_element", "player_name",
-    "side", "own_goal", "source_url", "retrieved_at_utc", "goal_count_match",
+    "season",
+    "fixture_id",
+    "source_match_id",
+    "source_event_id",
+    "source_event_type",
+    "source_event_seconds",
+    "source_event_time_label",
+    "source_event_text",
+    "source_scorer_name",
+    "source_scorer_team",
+    "source_scorer_id",
+    "identity_status",
+    "fpl_element",
+    "player_name",
+    "side",
+    "own_goal",
+    "source_url",
+    "retrieved_at_utc",
+    "goal_count_match",
 )
 
 
@@ -67,12 +81,17 @@ def _verified_player_index():
             if element:
                 names[(season, element)] = player_research.display_player_name(row)
 
-    index: dict[tuple[str, str, str], list[tuple[str, str]]] = defaultdict(list)
+    index: dict[tuple[str, str], list[tuple[str, str, str]]] = defaultdict(list)
     for row in report["confirmed"]:
-        key = (row["season"], str(row["team_code"]), row["name_norm"])
-        element = str(row["element"])
+        source_player_id = str(row["source_player_id"]).strip()
+        element = str(row["element"]).strip()
+        if not source_player_id or not element:
+            continue
         player_name = names.get((row["season"], element), row["name_norm"])
-        index[key].append((element, player_name))
+        team_code = str(row["team_code"]).split(";")[0].strip()
+        index[(row["season"], source_player_id)].append(
+            (element, player_name, team_code)
+        )
 
     return {key: tuple(values) for key, values in index.items()}
 
@@ -105,16 +124,25 @@ def _score_total(fixture: dict) -> int:
         return 0
 
 
-def ingest(sleep_seconds: float = 0.15, limit: int | None = None, fixture_key: str | None = None):
+def ingest(
+    sleep_seconds: float = 0.15,
+    limit: int | None = None,
+    fixture_key: str | None = None,
+):
     fixtures = _load_fixtures()
     identity_rows = query_lab.load_identity_registry()
     player_index = _verified_player_index()
 
     if fixture_key:
-        target_season, target_fixture_id = fixture_key.split(":", 1)
+        try:
+            target_season, target_fixture_id = fixture_key.split(":", 1)
+        except ValueError as exc:
+            raise ValueError("--fixture must use SEASON:FIXTURE_ID") from exc
         fixtures = [
-            row for row in fixtures
-            if row["season"] == target_season and str(row["fixture_id"]) == target_fixture_id
+            row
+            for row in fixtures
+            if row["season"] == target_season
+            and str(row["fixture_id"]) == target_fixture_id
         ]
         if not fixtures:
             raise ValueError(f"Canonical fixture not found: {fixture_key}")
@@ -129,6 +157,7 @@ def ingest(sleep_seconds: float = 0.15, limit: int | None = None, fixture_key: s
         season = fixture["season"]
         fixture_id = fixture["fixture_id"]
         total_goals = _score_total(fixture)
+
         if total_goals == 0:
             continue
 
@@ -149,12 +178,6 @@ def ingest(sleep_seconds: float = 0.15, limit: int | None = None, fixture_key: s
             print(f"[SKIP] {season}/{fixture_id}: source request failed: {exc}")
             continue
 
-        source_fixture = payload.get("fixture") or {}
-        teams = source_fixture.get("teams") or []
-        if len(teams) >= 2:
-            home_source_team = str((teams[0].get("team") or {}).get("name") or home_source_team).strip()
-            away_source_team = str((teams[1].get("team") or {}).get("name") or away_source_team).strip()
-
         events = ((payload.get("events") or {}).get("content") or [])
         goals = [event for event in events if isinstance(event, dict) and _is_goal(event)]
         goal_count_match = str(len(goals) == total_goals).lower()
@@ -165,25 +188,22 @@ def ingest(sleep_seconds: float = 0.15, limit: int | None = None, fixture_key: s
         for event in goals:
             text = str(event.get("text") or "").strip()
             scorer_name, scorer_team = _parse_scorer(text)
-            scorer_team_norm = _team_norm(scorer_team)
-            home_match = scorer_team_norm == _team_norm(home_source_team)
-            away_match = scorer_team_norm == _team_norm(away_source_team)
 
-            if home_match:
-                scorer_side = "home"
-                scorer_team_code = home_source_code
-            elif away_match:
-                scorer_side = "away"
-                scorer_team_code = away_source_code
-            else:
-                scorer_side = ""
-                scorer_team_code = ""
+            player_ids = event.get("playerIds") or []
+            source_scorer_id = str(player_ids[0]).strip() if player_ids else ""
+            candidates = player_index.get((season, source_scorer_id), ()) if source_scorer_id else ()
 
-            key = (season, scorer_team_code, _norm(scorer_name))
-            candidates = player_index.get(key, ()) if scorer_name and scorer_team_code else ()
             identity_status = "VERIFIED" if len(candidates) == 1 else "UNRESOLVED"
             fpl_element = candidates[0][0] if len(candidates) == 1 else ""
             canonical_name = candidates[0][1] if len(candidates) == 1 else ""
+            scorer_team_code = candidates[0][2] if len(candidates) == 1 else ""
+
+            if scorer_team_code == home_source_code:
+                scorer_side = "home"
+            elif scorer_team_code == away_source_code:
+                scorer_side = "away"
+            else:
+                scorer_side = ""
 
             own_goal = "own goal" in text.casefold()
             scoring_side = (
@@ -193,30 +213,30 @@ def ingest(sleep_seconds: float = 0.15, limit: int | None = None, fixture_key: s
             time_block = event.get("time") or {}
             seconds = time_block.get("secs")
             label = str(time_block.get("label") or "").strip()
-            player_ids = event.get("playerIds") or []
-            source_scorer_id = str(player_ids[0]) if player_ids else ""
 
-            rows.append({
-                "season": season,
-                "fixture_id": fixture_id,
-                "source_match_id": str(source_match_id),
-                "source_event_id": str(event.get("id") or ""),
-                "source_event_type": str(event.get("type") or ""),
-                "source_event_seconds": str(seconds or ""),
-                "source_event_time_label": label,
-                "source_event_text": text,
-                "source_scorer_name": scorer_name or "",
-                "source_scorer_team": scorer_team or "",
-                "source_scorer_id": source_scorer_id,
-                "identity_status": identity_status,
-                "fpl_element": fpl_element,
-                "player_name": canonical_name,
-                "side": scoring_side,
-                "own_goal": str(own_goal).lower(),
-                "source_url": source_url,
-                "retrieved_at_utc": retrieved_at,
-                "goal_count_match": goal_count_match,
-            })
+            rows.append(
+                {
+                    "season": season,
+                    "fixture_id": fixture_id,
+                    "source_match_id": str(source_match_id),
+                    "source_event_id": str(event.get("id") or ""),
+                    "source_event_type": str(event.get("type") or ""),
+                    "source_event_seconds": str(seconds or ""),
+                    "source_event_time_label": label,
+                    "source_event_text": text,
+                    "source_scorer_name": scorer_name or "",
+                    "source_scorer_team": scorer_team or "",
+                    "source_scorer_id": source_scorer_id,
+                    "identity_status": identity_status,
+                    "fpl_element": fpl_element,
+                    "player_name": canonical_name,
+                    "side": scoring_side,
+                    "own_goal": str(own_goal).lower(),
+                    "source_url": source_url,
+                    "retrieved_at_utc": retrieved_at,
+                    "goal_count_match": goal_count_match,
+                }
+            )
 
         print(f"[{number}/{len(fixtures)}] {season}/{fixture_id}: {len(goals)} goals")
         time.sleep(sleep_seconds)
