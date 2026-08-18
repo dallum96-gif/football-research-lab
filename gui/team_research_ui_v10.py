@@ -7,12 +7,59 @@ import gui.team_research_ui_v7 as ui_base
 import gui.team_research_ui_v8 as stats_base
 
 
-def _render_browse_controls(season: str, team: str, seasons: list[str], teams: list[str]) -> tuple[str, str]:
+def _browse_css() -> None:
     st.markdown(
-        "<div style='margin-top:.55rem;color:var(--frl-muted-soft);font-size:.56rem;font-weight:820;letter-spacing:.11em;text-transform:uppercase;'>Browse team research</div>",
+        """
+        <style>
+        .frl-team10-browse-note{
+            margin:.42rem 0 .18rem;
+            color:var(--frl-muted-soft);
+            font-size:.56rem;
+            font-weight:780;
+            letter-spacing:.11em;
+            text-transform:uppercase;
+        }
+        .frl-team10-browse-rule{
+            margin:.05rem 0 .48rem;
+            height:1px;
+            background:var(--frl-border);
+        }
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1) div[data-testid="stSelectbox"],
+        div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stSelectbox"]{
+            margin:0;
+        }
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1) div[data-testid="stSelectbox"] [data-baseweb="select"] > div,
+        div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stSelectbox"] [data-baseweb="select"] > div{
+            min-height:1.95rem;
+            border:1px solid var(--frl-border);
+            border-radius:7px;
+            background:transparent;
+            box-shadow:none;
+        }
+        div[data-testid="stHorizontalBlock"] > div:nth-child(1) div[data-testid="stSelectbox"] [data-baseweb="select"]{
+            max-width:150px;
+        }
+        div[data-testid="stHorizontalBlock"] > div:nth-child(2) div[data-testid="stSelectbox"] [data-baseweb="select"]{
+            max-width:260px;
+        }
+        div[data-testid="stSelectbox"] [data-baseweb="select"] [role="button"]{
+            color:var(--frl-text) !important;
+            font-size:.68rem;
+            font-weight:700;
+        }
+        </style>
+        """,
         unsafe_allow_html=True,
     )
-    cols = st.columns([1.0, 2.0], gap="small")
+
+
+def _render_browse_controls(season: str, team: str, seasons: list[str], teams: list[str]) -> tuple[str, str]:
+    _browse_css()
+    st.markdown(
+        "<div class='frl-team10-browse-note'>Browse team research</div>",
+        unsafe_allow_html=True,
+    )
+    cols = st.columns([0.72, 1.0], gap="small")
     with cols[0]:
         selected_season = st.selectbox(
             "Season",
@@ -29,6 +76,7 @@ def _render_browse_controls(season: str, team: str, seasons: list[str], teams: l
             key="frl_team10_team",
             label_visibility="collapsed",
         )
+    st.markdown("<div class='frl-team10-browse-rule'></div>", unsafe_allow_html=True)
     return selected_season, selected_team
 
 
