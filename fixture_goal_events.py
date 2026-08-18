@@ -13,6 +13,7 @@ from functools import lru_cache
 from typing import Any
 
 import requests
+import streamlit as st
 
 BASE_URL = "https://api.sofascore.com/api/v1/event"
 HEADERS = {
@@ -92,3 +93,65 @@ def fixture_goal_events(source_match_id: str | int | None) -> dict[str, Any]:
         "source_match_id": event_id,
         "goals": goals,
     }
+
+
+def _minute_label(goal: dict[str, Any]) -> str:
+    minute = goal.get("minute")
+    added = goal.get("added_time")
+    if minute is None:
+        return "–'"
+    return f"{minute}+{added}'" if added else f"{minute}'"
+
+
+def render_fixture_goal_timeline(goal_data: dict[str, Any], home: str, away: str) -> None:
+    """Render a compact scorer timeline beneath the fixture scoreline."""
+    if goal_data.get("status") != "AVAILABLE":
+        return
+
+    goals = goal_data.get("goals", [])
+
+    st.markdown(
+        "<div style='margin-top:.95rem;margin-bottom:.15rem;color:var(--frl-muted-soft);"
+        "font-size:.56rem;font-weight:820;letter-spacing:.13em;text-transform:uppercase;"
+        "text-align:center;'>Goal timeline</div>",
+        unsafe_allow_html=True,
+    )
+
+    if not goals:
+        st.markdown(
+            "<div style='text-align:center;color:var(--frl-muted-soft);font-size:.66rem;"
+            "padding:.25rem 0 .5rem;'>No goals</div>",
+            unsafe_allow_html=True,
+        )
+        return
+
+    rows: list[str] = []
+    for goal in goals:
+        player = goal.get("player") or "Unknown scorer"
+        minute = _minute_label(goal)
+        suffix = " · OG" if goal.get("own_goal") else ""
+        label = f"{player}{suffix}"
+
+        if goal.get("is_home"):
+            rows.append(
+                "<div style='display:grid;grid-template-columns:1fr 4.2rem 1fr;align-items:center;min-height:1.65rem;'>"
+                f"<div style='text-align:right;color:var(--frl-text);font-size:.69rem;font-weight:740;padding-right:.55rem;'>{label}</div>"
+                f"<div style='text-align:center;color:var(--frl-muted-soft);font-size:.59rem;font-weight:820;letter-spacing:.05em;'>{minute}</div>"
+                "<div></div>"
+                "</div>"
+            )
+        else:
+            rows.append(
+                "<div style='display:grid;grid-template-columns:1fr 4.2rem 1fr;align-items:center;min-height:1.65rem;'>"
+                "<div></div>"
+                f"<div style='text-align:center;color:var(--frl-muted-soft);font-size:.59rem;font-weight:820;letter-spacing:.05em;'>{minute}</div>"
+                f"<div style='text-align:left;color:var(--frl-text);font-size:.69rem;font-weight:740;padding-left:.55rem;'>{label}</div>"
+                "</div>"
+            )
+
+    st.markdown(
+        "<div style='max-width:760px;margin:0 auto .45rem;'>"
+        + "".join(rows)
+        + "</div>",
+        unsafe_allow_html=True,
+    )
