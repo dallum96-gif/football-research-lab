@@ -1,4 +1,4 @@
-﻿import argparse
+import argparse
 import csv
 import json
 import os
@@ -35,6 +35,7 @@ QUERY_VERSION = "0.4.1"
 
 METRICS = {
     "goals": "goals_scored",
+    "own_goals": "own_goals",
     "assists": "assists",
     "minutes": "minutes",
     "points": "total_points",
@@ -448,2407 +449,355 @@ def top_players(
         "query_version": QUERY_VERSION,
         "season": season,
         "metric": metric,
-        "source_column": source_column,
-        "source_file": path,
-        "source_rows": len(rows),
-        "generated_at":
-            datetime.now().astimezone().isoformat(),
         "results": [
             {
                 "rank": rank,
-                "player_key": key,
                 "player": names[key],
-                "value": value
+                "player_key": key,
+                "value": value,
             }
             for rank, (key, value)
             in enumerate(
                 ranked,
                 start=1
             )
-        ]
+        ],
+        "source_file": path,
+        "source_rows": len(rows),
     }
 
 
-def player_total(
-    season,
-    player_search,
-    metric
-):
-    rows, path, columns = load_player_rows(
-        season
-    )
-
+def top_player_records(season, metric="goals", limit=10):
+    rows, path, columns = load_player_rows(season)
     source_column = METRICS[metric]
 
     if source_column not in columns:
         raise ValueError(
-            f"Column '{source_column}' "
-            f"is not present in {season}"
+            f"Column '{source_column}' is not present in {season}"
         )
 
-    search = player_search.casefold()
-
-    matches = []
+    totals = {}
+    names = {}
+    teams = {}
 
     for row in rows:
+        key = player_key(row)
+        totals[key] = totals.get(key, 0.0) + to_number(row.get(source_column))
+        names[key] = display_name(row)
+        teams[key] = row.get("team_name") or row.get("team") or ""
 
-        name = display_name(row)
+    ranked = sorted(
+        totals.items(),
+        key=lambda item: (-item[1], names[item[0]].lower())
+    )[:limit]
 
-        if search in name.casefold():
-            matches.append(row)
-
-    if not matches:
-        raise ValueError(
-            f"No player matching "
-            f"'{player_search}' found in {season}"
-        )
-
-    unique_players = {
-        player_key(row)
-        for row in matches
+    return {
+        "query_type": "top_player_records",
+        "query_version": QUERY_VERSION,
+        "season": season,
+        "metric": metric,
+        "results": [
+            {
+                "rank": rank,
+                "player": names[key],
+                "player_key": key,
+                "team": teams[key],
+                "value": value,
+            }
+            for rank, (key, value) in enumerate(ranked, start=1)
+        ],
+        "source_file": path,
+        "source_rows": len(rows),
     }
 
-    if len(unique_players) > 1:
 
-        candidates = sorted(
-            {
-                display_name(row)
-                for row in matches
-            }
-        )
+def player_total(season, player, metric="goals"):
+    rows, path, columns = load_player_rows(season)
+    source_column = METRICS[metric]
 
+    if source_column not in columns:
         raise ValueError(
-            "Player search was ambiguous. "
-            "Candidates: "
-            + ", ".join(candidates)
+            f"Column '{source_column}' is not present in {season}"
         )
 
-    total = sum(
-        to_number(
-            row.get(source_column)
-        )
-        for row in matches
-    )
+    needle = str(player).strip().casefold()
+    matched = []
+    for row in rows:
+        name = display_name(row)
+        key = player_key(row)
+        if needle in name.casefold() or needle == str(key).casefold():
+            matched.append(row)
 
-    player = display_name(matches[0])
+    if not matched:
+        raise ValueError(f"No player matching '{player}' found in {season}.")
 
+    value = sum(to_number(row.get(source_column)) for row in matched)
     return {
         "query_type": "player_total",
         "query_version": QUERY_VERSION,
         "season": season,
         "metric": metric,
-        "player_search": player_search,
-        "player": player,
-        "player_key": player_key(
-            matches[0]
-        ),
-        "source_column": source_column,
+        "player": display_name(matched[0]),
+        "value": value,
         "source_file": path,
-        "source_rows": len(rows),
-        "matching_rows": len(matches),
-        "generated_at":
-            datetime.now().astimezone().isoformat(),
-        "result": {
-            "value": total
-        }
+        "source_rows": len(matched),
     }
 
 
-def print_top_players(
-    result,
-    explain=False
-):
-    print()
+def _fixture_result(team_id, home_id, away_id, home_score, away_score):
+    if home_score in (None, "") or away_score in (None, ""):
+        return "UNPLAYED"
 
-    print(
-        f"Top {len(result['results'])} "
-        f"players by {result['metric']} "
-        f"? {result['season']}"
-    )
+    home_score = int(home_score)
+    away_score = int(away_score)
 
-    print()
+    if team_id == home_id:
+        return "W" if home_score > away_score else "D" if home_score == away_score else "L"
 
-    print(
-        f"{'Rank':>4}  "
-        f"{'Player':<40}  "
-        f"{'Value':>10}"
-    )
-
-    print("-" * 60)
-
-    for item in result["results"]:
-
-        value = item["value"]
-
-        formatted = (
-            str(int(value))
-            if float(value).is_integer()
-            else f"{value:.2f}"
-        )
-
-        print(
-            f"{item['rank']:>4}  "
-            f"{item['player']:<40}  "
-            f"{formatted:>10}"
-        )
-
-    if explain:
-
-        print()
-        print("Evidence")
-        print("-------")
-        print(
-            f"Query version: "
-            f"{result['query_version']}"
-        )
-        print(
-            f"Source file:   "
-            f"{result['source_file']}"
-        )
-        print(
-            f"Source column: "
-            f"{result['source_column']}"
-        )
-        print(
-            f"Rows scanned:  "
-            f"{result['source_rows']}"
-        )
-        print(
-            f"Generated:     "
-            f"{result['generated_at']}"
-        )
-
-
-def print_player_total(
-    result,
-    explain=False
-):
-    value = result[
-        "result"
-    ]["value"]
-
-    formatted = (
-        str(int(value))
-        if float(value).is_integer()
-        else f"{value:.2f}"
-    )
-
-    print()
-
-    print(
-        f"{result['player']} "
-        f"? {result['metric']} "
-        f"? {result['season']}"
-    )
-
-    print()
-
-    print(
-        f"Value: {formatted}"
-    )
-
-    if explain:
-
-        print()
-        print("Evidence")
-        print("-------")
-        print(
-            f"Query version: "
-            f"{result['query_version']}"
-        )
-        print(
-            f"Source file:   "
-            f"{result['source_file']}"
-        )
-        print(
-            f"Source column: "
-            f"{result['source_column']}"
-        )
-        print(
-            f"Rows scanned:  "
-            f"{result['source_rows']}"
-        )
-        print(
-            f"Rows contributing: "
-            f"{result['matching_rows']}"
-        )
-        print(
-            f"Generated: "
-            f"{result['generated_at']}"
-        )
-
-
-def load_fixture_corrections():
-    if not os.path.isfile(CORRECTIONS_FILE):
-        return {}
-
-    rows, _ = load_csv(
-        CORRECTIONS_FILE
-    )
-
-    return {
-        (
-            row["season"],
-            row["fixture_id"],
-        ): row
-        for row in rows
-    }
-
-
-def apply_fixture_corrections(rows):
-    corrections = load_fixture_corrections()
-
-    output = []
-
-    for row in rows:
-
-        working = dict(row)
-
-        key = (
-            row["season"],
-            row["fixture_id"],
-        )
-
-        correction = corrections.get(key)
-
-        # Preserve the raw scheduled kickoff.
-        working["scheduled_kickoff_time"] = (
-            row["kickoff_time"]
-        )
-
-        if correction:
-
-            working["kickoff_time"] = (
-                correction["actual_kickoff"]
-            )
-
-            working["home_score"] = (
-                correction["home_score"]
-            )
-
-            working["away_score"] = (
-                correction["away_score"]
-            )
-
-            working["data_corrected"] = "true"
-
-            working["correction_status"] = (
-                correction["status"]
-            )
-
-            working["correction_source"] = (
-                correction["source"]
-            )
-
-        else:
-
-            working["data_corrected"] = "false"
-            working["correction_status"] = ""
-            working["correction_source"] = ""
-
-        output.append(working)
-
-    return output
-
-
-def load_fixtures():
-    rows, columns = load_csv(
-        FIXTURE_FILE
-    )
-
-    required = {
-        "season",
-        "fixture_id",
-        "fixture_code",
-        "kickoff_time",
-        "gameweek",
-        "home_team_id",
-        "away_team_id",
-        "home_score",
-        "away_score",
-    }
-
-    missing = sorted(
-        required - set(columns)
-    )
-
-    if missing:
-        raise ValueError(
-            "Fixture master is missing "
-            "required columns: "
-            + ", ".join(missing)
-        )
-
-    return apply_fixture_corrections(
-        rows
-    )
-
-
-def fixture_result(
-    row,
-    team_id
-):
-    home_id = str(
-        row["home_team_id"]
-    )
-
-    away_id = str(
-        row["away_team_id"]
-    )
-
-    if str(team_id) == home_id:
-
-        if (
-            row["home_score"] == ""
-            or row["away_score"] == ""
-        ):
-            return "UNPLAYED"
-
-        home_score = int(
-            row["home_score"]
-        )
-
-        away_score = int(
-            row["away_score"]
-        )
-
-        if home_score > away_score:
-            return "W"
-
-        if home_score < away_score:
-            return "L"
-
-        return "D"
-
-    if str(team_id) == away_id:
-
-        if (
-            row["home_score"] == ""
-            or row["away_score"] == ""
-        ):
-            return "UNPLAYED"
-
-        home_score = int(
-            row["home_score"]
-        )
-
-        away_score = int(
-            row["away_score"]
-        )
-
-        if away_score > home_score:
-            return "W"
-
-        if away_score < home_score:
-            return "L"
-
-        return "D"
-
-    return None
-
-
-def query_fixtures(
-    season=None,
-    team_id=None,
-    opponent_id=None,
-    team=None,
-    opponent=None,
-    venue=None,
-    result=None,
-    limit=100
-):
-
-    rows = load_fixtures()
-
-    identity_evidence = {
-        "identity_file":
-            IDENTITY_FILE,
-        "team":
-            None,
-        "opponent":
-            None,
-    }
-
-    resolved_team = None
-    resolved_opponent = None
-
-    if team:
-
-        resolved_team = resolve_team(
-            season,
-            team
-        )
-
-        team_id = resolved_team[
-            "local_team_id"
-        ]
-
-        identity_evidence["team"] = (
-            resolved_team
-        )
-
-    if opponent:
-
-        resolved_opponent = resolve_team(
-            season,
-            opponent
-        )
-
-        opponent_id = resolved_opponent[
-            "local_team_id"
-        ]
-
-        identity_evidence["opponent"] = (
-            resolved_opponent
-        )
-
-    matches = []
-
-    selected_team_id = (
-        str(team_id)
-        if team_id is not None
-        else None
-    )
-
-    selected_opponent_id = (
-        str(opponent_id)
-        if opponent_id is not None
-        else None
-    )
-
-    for row in rows:
-
-        if (
-            season
-            and row["season"] != season
-        ):
-            continue
-
-        home_id = str(
-            row["home_team_id"]
-        )
-
-        away_id = str(
-            row["away_team_id"]
-        )
-
-        if selected_team_id:
-
-            if selected_team_id not in {
-                home_id,
-                away_id,
-            }:
-                continue
-
-        if selected_opponent_id:
-
-            if selected_team_id:
-
-                selected_opponent = (
-                    away_id
-                    if home_id
-                    == selected_team_id
-                    else home_id
-                )
-
-                if (
-                    selected_opponent
-                    != selected_opponent_id
-                ):
-                    continue
-
-            elif selected_opponent_id not in {
-                home_id,
-                away_id,
-            }:
-                continue
-
-        if venue and selected_team_id:
-
-            if (
-                venue == "home"
-                and home_id != selected_team_id
-            ):
-                continue
-
-            if (
-                venue == "away"
-                and away_id != selected_team_id
-            ):
-                continue
-
-        if result and selected_team_id:
-
-            if (
-                fixture_result(
-                    row,
-                    selected_team_id
-                )
-                != result.upper()
-            ):
-                continue
-
-        matches.append(row)
-
-    matches.sort(
-        key=lambda row: (
-            datetime.fromisoformat(
-                row[
-                    "kickoff_time"
-                ].replace(
-                    "Z",
-                    "+00:00"
-                )
-            ),
-            row["season"],
-            int(row["fixture_id"]),
-        )
-    )
-
-    # Enrich fixture rows with canonical team names.
-    identity_rows = load_identity_registry()
-
-    name_lookup = {
-        (
-            item["season"],
-            item["local_team_id"],
-        ): item["canonical_name"].replace("_", " ")
-        for item in identity_rows
-    }
-
-    enriched_matches = []
-
-    for row in matches:
-        enriched = dict(row)
-
-        enriched["home_team_name"] = name_lookup.get(
-            (
-                row["season"],
-                str(row["home_team_id"]),
-            ),
-            f"ID {row['home_team_id']}",
-        )
-
-        enriched["away_team_name"] = name_lookup.get(
-            (
-                row["season"],
-                str(row["away_team_id"]),
-            ),
-            f"ID {row['away_team_id']}",
-        )
-
-        enriched_matches.append(enriched)
-
-    matches = enriched_matches
-
-    total_matches = len(matches)
-
-    if limit:
-        matches = matches[:limit]
-
-    return {
-        "query_type":
-            "fixtures",
-
-        "query_version":
-            QUERY_VERSION,
-
-        "source_file":
-            FIXTURE_FILE,
-
-        "identity_source_file":
-            IDENTITY_FILE,
-
-        "generated_at":
-            datetime.now().astimezone().isoformat(),
-
-        "filters": {
-            "season":
-                season,
-
-            "team":
-                team,
-
-            "opponent":
-                opponent,
-
-            "team_id":
-                selected_team_id,
-
-            "opponent_id":
-                selected_opponent_id,
-
-            "venue":
-                venue,
-
-            "result": (
-                result.upper()
-                if result
-                else None
-            ),
-        },
-
-        "identity_resolution":
-            identity_evidence,
-
-        "total_matches":
-            total_matches,
-
-        "returned_matches":
-            len(matches),
-
-        "results":
-            matches,
-    }
-
-
-def fixture_detail(
-    season,
-    fixture_id,
-):
-    if not season:
-        raise ValueError("season is required")
-
-    if fixture_id in (None, ""):
-        raise ValueError("fixture_id is required")
-
-    fixtures = load_fixtures()
-
-    matches = [
-        row
-        for row in fixtures
-        if row["season"] == str(season)
-        and str(row["fixture_id"]) == str(fixture_id)
-    ]
-
-    if len(matches) != 1:
-        raise ValueError(
-            f"Expected exactly one fixture for "
-            f"{season}/{fixture_id}; found {len(matches)}"
-        )
-
-    fixture = dict(matches[0])
-
-    identity_rows = load_identity_registry()
-
-    names = {
-        (
-            row["season"],
-            str(row["local_team_id"]),
-        ): row["canonical_name"].replace("_", " ")
-        for row in identity_rows
-    }
-
-    fixture["home_team_name"] = names.get(
-        (
-            season,
-            str(fixture["home_team_id"]),
-        ),
-        f"ID {fixture['home_team_id']}",
-    )
-
-    fixture["away_team_name"] = names.get(
-        (
-            season,
-            str(fixture["away_team_id"]),
-        ),
-        f"ID {fixture['away_team_id']}",
-    )
-
-    from match_stats import fixture_stats
-
-    stats = fixture_stats(
-        fixture,
-        identity_rows,
-    )
-
-    return {
-        "query_type": "fixture_detail",
-        "query_version": QUERY_VERSION,
-        "fixture": fixture,
-        "stats": stats,
-        "provenance": {
-            "canonical_source": FIXTURE_FILE,
-            "identity_source": IDENTITY_FILE,
-            "correction_source": CORRECTIONS_FILE,
-            "source_match_id": stats.get(
-                "source_match_id"
-            ),
-        },
-        "generated_at":
-            datetime.now().astimezone().isoformat(),
-    }
-
-def team_form(
-    season,
-    team=None,
-    team_id=None,
-):
-    if not season:
-        raise ValueError("--season is required")
-
-    if team and team_id:
-        raise ValueError(
-            "Use either team or team_id, not both."
-        )
-
-    if team is None and team_id is None:
-        raise ValueError(
-            "Either team or team_id is required."
-        )
-
-    fixture_query = query_fixtures(
-        season=season,
-        team=team,
-        team_id=team_id,
-        limit=None,
-    )
-
-    selected_team_id = fixture_query[
-        "filters"
-    ]["team_id"]
-
-    completed = []
-
-    for row in fixture_query["results"]:
-        result_code = fixture_result(
-            row,
-            selected_team_id,
-        )
-
-        if result_code == "UNPLAYED":
-            continue
-
-        if (
-            str(row["home_team_id"])
-            == str(selected_team_id)
-        ):
-            goals_for = int(row["home_score"])
-            goals_against = int(row["away_score"])
-        else:
-            goals_for = int(row["away_score"])
-            goals_against = int(row["home_score"])
-
-        completed.append(
-            {
-                **row,
-                "result": result_code,
-                "points": {
-                    "W": 3,
-                    "D": 1,
-                    "L": 0,
-                }[result_code],
-                "goals_for": goals_for,
-                "goals_against": goals_against,
-                "goal_difference": (
-                    goals_for - goals_against
-                ),
-                "clean_sheet": (
-                    goals_against == 0
-                ),
-                "scored": (
-                    goals_for > 0
-                ),
-            }
-        )
-
-    completed.sort(
-        key=lambda row: datetime.fromisoformat(
-            row["kickoff_time"].replace(
-                "Z",
-                "+00:00",
-            )
-        )
-    )
-
-    def current_streak(predicate):
-        total = 0
-
-        for row in reversed(completed):
-            if not predicate(row):
-                break
-
-            total += 1
-
-        return total
-
-    def window_summary(window):
-        recent = completed[-window:]
-
-        return {
-            "matches": len(recent),
-            "results": [
-                row["result"]
-                for row in recent
-            ],
-            "points": sum(
-                row["points"]
-                for row in recent
-            ),
-            "goals_for": sum(
-                row["goals_for"]
-                for row in recent
-            ),
-            "goals_against": sum(
-                row["goals_against"]
-                for row in recent
-            ),
-            "goal_difference": sum(
-                row["goal_difference"]
-                for row in recent
-            ),
-        }
-
-    windows = {
-        "3": window_summary(3),
-        "5": window_summary(5),
-    }
-
-    streaks = {
-        "current_win_streak": current_streak(
-            lambda row: row["result"] == "W"
-        ),
-        "current_unbeaten_streak": current_streak(
-            lambda row: row["result"] in {"W", "D"}
-        ),
-        "current_loss_streak": current_streak(
-            lambda row: row["result"] == "L"
-        ),
-        "current_clean_sheet_streak": current_streak(
-            lambda row: row["clean_sheet"]
-        ),
-        "current_scoring_streak": current_streak(
-            lambda row: row["scored"]
-        ),
-    }
-
-    return {
-        "query_type": "team_form",
-        "query_version": QUERY_VERSION,
-        "season": season,
-        "matches": completed,
-        "windows": windows,
-        "streaks": streaks,
-        "excluded_unplayed": (
-            fixture_query["total_matches"]
-            - len(completed)
-        ),
-        "filters": fixture_query["filters"],
-        "identity_resolution": (
-            fixture_query[
-                "identity_resolution"
-            ]
-        ),
-        "source_file": fixture_query[
-            "source_file"
-        ],
-        "identity_source_file": (
-            fixture_query[
-                "identity_source_file"
-            ]
-        ),
-    }
-
-def team_summary(
-    season,
-    team=None,
-    team_id=None,
-):
-    if not season:
-        raise ValueError("--season is required")
-
-    if team and team_id:
-        raise ValueError(
-            "Use either --team or --team-id, not both."
-        )
-
-    identity = None
-
-    if team:
-        identity = resolve_team(season, team)
-        team_id = identity["local_team_id"]
-
-    if team_id is None:
-        raise ValueError(
-            "Either --team or --team-id is required."
-        )
-
-    team_id = str(team_id)
-    rows = load_fixtures()
-
-    selected = [
-        row
-        for row in rows
-        if (
-            row["season"] == season
-            and team_id in {
-                str(row["home_team_id"]),
-                str(row["away_team_id"]),
-            }
-        )
-    ]
-
-    selected.sort(
-        key=lambda row: datetime.fromisoformat(
-            row["kickoff_time"].replace("Z", "+00:00")
-        )
-    )
-
-    identity_rows = load_identity_registry()
-
-    name_lookup = {
-        (
-            row["season"],
-            row["local_team_id"],
-        ): row["canonical_name"].replace("_", " ")
-        for row in identity_rows
-    }
-
-    played = 0
-    wins = 0
-    draws = 0
-    losses = 0
-    goals_for = 0
-    goals_against = 0
-    points = 0
-    unplayed = []
-
-    for row in selected:
-
-        if (
-            row["home_score"] == ""
-            or row["away_score"] == ""
-        ):
-            unplayed.append({
-                "season": row["season"],
-                "fixture_id": row["fixture_id"],
-                "gameweek": row["gameweek"],
-                "kickoff_time": row["kickoff_time"],
-                "home_team_id": row["home_team_id"],
-                "away_team_id": row["away_team_id"],
-                "home_team_name": name_lookup.get(
-                    (
-                        row["season"],
-                        str(row["home_team_id"]),
-                    ),
-                    f"ID {row['home_team_id']}",
-                ),
-                "away_team_name": name_lookup.get(
-                    (
-                        row["season"],
-                        str(row["away_team_id"]),
-                    ),
-                    f"ID {row['away_team_id']}",
-                ),
-            })
-            continue
-
-        played += 1
-
-        home_score = int(row["home_score"])
-        away_score = int(row["away_score"])
-
-        if str(row["home_team_id"]) == team_id:
-            goals_for += home_score
-            goals_against += away_score
-
-            if home_score > away_score:
-                wins += 1
-                points += 3
-            elif home_score == away_score:
-                draws += 1
-                points += 1
-            else:
-                losses += 1
-
-        else:
-            goals_for += away_score
-            goals_against += home_score
-
-            if away_score > home_score:
-                wins += 1
-                points += 3
-            elif away_score == home_score:
-                draws += 1
-                points += 1
-            else:
-                losses += 1
-
-    if identity:
-        team_name = identity["canonical_name"]
-    else:
-        matching = [
-            row
-            for row in identity_rows
-            if (
-                row["season"] == season
-                and row["local_team_id"] == team_id
-            )
-        ]
-
-        team_name = (
-            matching[0]["canonical_name"].replace("_", " ")
-            if len(matching) == 1
-            else f"ID {team_id}"
-        )
-
-    return {
-        "query_type": "team_summary",
-        "query_version": QUERY_VERSION,
-        "season": season,
-        "team": team_name,
-        "team_id": team_id,
-        "persistent_team_code": (
-            identity["persistent_team_code"]
-            if identity
-            else None
-        ),
-        "identity_resolution": identity,
-        "source_file": FIXTURE_FILE,
-        "identity_source_file": IDENTITY_FILE,
-        "generated_at": datetime.now().astimezone().isoformat(),
-        "summary": {
-            "matches_in_schedule": len(selected),
-            "played": played,
-            "unplayed": len(unplayed),
-            "wins": wins,
-            "draws": draws,
-            "losses": losses,
-            "goals_for": goals_for,
-            "goals_against": goals_against,
-            "goal_difference": (
-                goals_for - goals_against
-            ),
-            "points": points,
-        },
-        "data_quality": {
-            "status": (
-                "COMPLETE"
-                if not unplayed
-                else "INCOMPLETE"
-            ),
-            "unplayed_fixtures": unplayed,
-        },
-    }
-
+    return "W" if away_score > home_score else "D" if away_score == home_score else "L"
 
 
 def league_table(season):
-    if not season:
-        raise ValueError(
-            "--season is required"
-        )
+    by_local_id, _, _ = _team_lookup(season)
+    fixtures = [row for row in _load_csv(FIXTURE_FILE) if row.get("season") == season]
 
-    rows = load_fixtures()
-    identity_rows = load_identity_registry()
-
-    name_lookup = {
-        (
-            row["season"],
-            row["local_team_id"],
-        ): row["canonical_name"].replace("_", " ")
-        for row in identity_rows
+    stats = {
+        local_id: {
+            "team_id": local_id,
+            "persistent_team_code": record["persistent_team_code"],
+            "team": record["team"],
+            "played": 0,
+            "wins": 0,
+            "draws": 0,
+            "losses": 0,
+            "goals_for": 0,
+            "goals_against": 0,
+            "goal_difference": 0,
+            "points": 0,
+        }
+        for local_id, record in by_local_id.items()
     }
 
-    teams = {}
+    for row in fixtures:
+        home_id = str(row.get("home_team_id", "")).strip()
+        away_id = str(row.get("away_team_id", "")).strip()
 
-    season_rows = [
-        row
-        for row in rows
-        if row["season"] == season
-    ]
+        if home_id not in stats or away_id not in stats:
+            raise ValueError(
+                f"Fixture identity missing for {season}: "
+                f"{home_id} vs {away_id} (fixture {row.get('fixture_id')})."
+            )
 
-    for row in season_rows:
-
-        home_id = str(row["home_team_id"])
-        away_id = str(row["away_team_id"])
-
-        if home_id not in teams:
-            teams[home_id] = {
-                "team_id": home_id,
-                "team": name_lookup.get(
-                    (
-                        season,
-                        home_id,
-                    ),
-                    f"ID {home_id}",
-                ),
-                "played": 0,
-                "wins": 0,
-                "draws": 0,
-                "losses": 0,
-                "goals_for": 0,
-                "goals_against": 0,
-                "points": 0,
-                "unplayed": 0,
-            }
-
-        if away_id not in teams:
-            teams[away_id] = {
-                "team_id": away_id,
-                "team": name_lookup.get(
-                    (
-                        season,
-                        away_id,
-                    ),
-                    f"ID {away_id}",
-                ),
-                "played": 0,
-                "wins": 0,
-                "draws": 0,
-                "losses": 0,
-                "goals_for": 0,
-                "goals_against": 0,
-                "points": 0,
-                "unplayed": 0,
-            }
-
-        home = teams[home_id]
-        away = teams[away_id]
-
-        if (
-            row["home_score"] == ""
-            or row["away_score"] == ""
-        ):
-            home["unplayed"] += 1
-            away["unplayed"] += 1
+        if row.get("home_score") in (None, "") or row.get("away_score") in (None, ""):
             continue
 
         home_score = int(row["home_score"])
         away_score = int(row["away_score"])
+        home = stats[home_id]
+        away = stats[away_id]
 
         home["played"] += 1
         away["played"] += 1
-
         home["goals_for"] += home_score
         home["goals_against"] += away_score
-
         away["goals_for"] += away_score
         away["goals_against"] += home_score
 
         if home_score > away_score:
-
             home["wins"] += 1
             away["losses"] += 1
             home["points"] += 3
-
-        elif home_score < away_score:
-
+        elif away_score > home_score:
             away["wins"] += 1
             home["losses"] += 1
             away["points"] += 3
-
         else:
-
             home["draws"] += 1
             away["draws"] += 1
             home["points"] += 1
             away["points"] += 1
 
-    table = []
+    rows = []
+    for item in stats.values():
+        item["goal_difference"] = item["goals_for"] - item["goals_against"]
+        rows.append(item)
 
-    for team in teams.values():
-
-        team = dict(team)
-
-        team["goal_difference"] = (
-            team["goals_for"]
-            - team["goals_against"]
-        )
-
-        team["scheduled"] = (
-            team["played"]
-            + team["unplayed"]
-        )
-
-        team["complete"] = (
-            team["unplayed"] == 0
-        )
-
-        table.append(team)
-
-    table.sort(
-        key=lambda team: (
-            -team["points"],
-            -team["goal_difference"],
-            -team["goals_for"],
-            team["team"].casefold(),
+    rows.sort(
+        key=lambda item: (
+            -item["points"],
+            -item["goal_difference"],
+            -item["goals_for"],
+            item["team"].casefold(),
         )
     )
 
-    for position, team in enumerate(
-        table,
-        start=1,
-    ):
-        team["position"] = position
+    for position, item in enumerate(rows, start=1):
+        item["position"] = position
 
     return {
         "query_type": "league_table",
         "query_version": QUERY_VERSION,
         "season": season,
-        "source_file": FIXTURE_FILE,
-        "identity_source_file": IDENTITY_FILE,
-        "corrections_file": CORRECTIONS_FILE,
-        "generated_at":
-            datetime.now().astimezone().isoformat(),
-        "complete": all(
-            team["complete"]
-            for team in table
-        ),
-        "teams": table,
+        "source_file": str(FIXTURE_FILE),
+        "source_rows": len(fixtures),
+        "teams": rows,
     }
 
 
-
-def team_compare(
-    team,
-    seasons,
+def fixtures(
+    season=None,
+    team=None,
+    opponent=None,
+    venue=None,
+    result=None,
+    limit=100,
 ):
-    if not seasons:
-        raise ValueError(
-            "At least one season is required."
-        )
+    if not season:
+        raise ValueError("Season is required for fixture queries.")
 
-    requested_seasons = list(
-        dict.fromkeys(seasons)
-    )
+    by_local_id, _, _ = _team_lookup(season)
+    team_id = _resolve_team_id(season, team)
+    opponent_id = _resolve_team_id(season, opponent)
 
-    identity_rows = load_identity_registry()
+    rows = [row for row in _load_csv(FIXTURE_FILE) if row.get("season") == season]
+    results = []
 
-    requested_candidates = [
-        row
-        for row in identity_rows
-        if (
-            row["season"] in requested_seasons
-            and (
-                normalise_team_name(
-                    row.get("canonical_name")
-                )
-                == normalise_team_name(team)
-                or
-                normalise_team_name(
-                    row.get("source_name")
-                )
-                == normalise_team_name(team)
+    for row in rows:
+        home_id = str(row.get("home_team_id", "")).strip()
+        away_id = str(row.get("away_team_id", "")).strip()
+
+        if home_id not in by_local_id or away_id not in by_local_id:
+            raise ValueError(
+                f"Fixture identity missing for {season}: "
+                f"{home_id} vs {away_id} (fixture {row.get('fixture_id')})."
             )
-            and row["mapping_status"] == "VERIFIED"
-        )
-    ]
 
-    if not requested_candidates:
-        raise ValueError(
-            f"No team matching '{team}' "
-            f"found in the requested seasons."
-        )
-
-    persistent_codes = {
-        row["persistent_team_code"]
-        for row in requested_candidates
-    }
-
-    if len(persistent_codes) != 1:
-        raise ValueError(
-            "Team comparison could not resolve "
-            "a unique persistent club identity."
-        )
-
-    persistent_code = next(
-        iter(persistent_codes)
-    )
-
-    canonical_name = (
-        requested_candidates[0][
-            "canonical_name"
-        ].replace("_", " ")
-    )
-
-    participating_seasons = {
-        row["season"]
-        for row in identity_rows
-        if (
-            row["persistent_team_code"]
-            == persistent_code
-            and row["mapping_status"]
-            == "VERIFIED"
-        )
-    }
-
-    summaries = []
-    skipped_seasons = []
-
-    for season in requested_seasons:
-
-        if season not in participating_seasons:
-            skipped_seasons.append({
-                "season": season,
-                "status": "NOT_IN_PL",
-            })
+        if team_id and team_id not in (home_id, away_id):
+            continue
+        if opponent_id and opponent_id not in (home_id, away_id):
+            continue
+        if opponent_id and team_id and opponent_id == team_id:
             continue
 
-        summary = team_summary(
-            season=season,
-            team=canonical_name,
+        current_venue = None
+        if team_id:
+            current_venue = "home" if home_id == team_id else "away"
+            if venue and venue != current_venue:
+                continue
+
+        current_result = (
+            _fixture_result(
+                team_id,
+                home_id,
+                away_id,
+                row.get("home_score"),
+                row.get("away_score"),
+            )
+            if team_id
+            else None
         )
 
-        summaries.append(summary)
+        if result and current_result != result:
+            continue
+
+        output = dict(row)
+        output["home_team_name"] = by_local_id[home_id]["team"]
+        output["away_team_name"] = by_local_id[away_id]["team"]
+        results.append(output)
+
+    results.sort(
+        key=lambda item: (
+            str(item.get("kickoff_time", "")),
+            int(item.get("fixture_id", 0)),
+        )
+    )
 
     return {
-        "query_type": "team_compare",
+        "query_type": "fixtures",
         "query_version": QUERY_VERSION,
-        "team": canonical_name,
-        "persistent_team_code": persistent_code,
-        "identity_source_file": IDENTITY_FILE,
-        "fixture_source_file": FIXTURE_FILE,
-        "corrections_file": CORRECTIONS_FILE,
-        "generated_at":
-            datetime.now().astimezone().isoformat(),
-        "requested_seasons":
-            requested_seasons,
-        "skipped_seasons":
-            skipped_seasons,
-        "seasons": [
-            {
-                "season":
-                    summary["season"],
-                "team_id":
-                    summary["team_id"],
-                "played":
-                    summary["summary"]["played"],
-                "scheduled":
-                    summary["summary"][
-                        "matches_in_schedule"
-                    ],
-                "unplayed":
-                    summary["summary"]["unplayed"],
-                "complete":
-                    summary["data_quality"][
-                        "status"
-                    ] == "COMPLETE",
-                "wins":
-                    summary["summary"]["wins"],
-                "draws":
-                    summary["summary"]["draws"],
-                "losses":
-                    summary["summary"]["losses"],
-                "goals_for":
-                    summary["summary"]["goals_for"],
-                "goals_against":
-                    summary["summary"][
-                        "goals_against"
-                    ],
-                "goal_difference":
-                    summary["summary"][
-                        "goal_difference"
-                    ],
-                "points":
-                    summary["summary"]["points"],
-                "unplayed_fixtures":
-                    summary["data_quality"][
-                        "unplayed_fixtures"
-                    ],
-            }
-            for summary in summaries
-        ],
-    }
-
-
-
-def head_to_head(
-    team,
-    opponent,
-    seasons,
-):
-    if not seasons:
-        raise ValueError(
-            "At least one season is required."
-        )
-
-    if not team or not opponent:
-        raise ValueError(
-            "Both team and opponent are required."
-        )
-
-    requested_seasons = list(
-        dict.fromkeys(seasons)
-    )
-
-    matches = []
-    skipped_seasons = []
-
-    team_names = {}
-    opponent_names = {}
-
-    for season in requested_seasons:
-
-        try:
-            resolved_team = resolve_team(
-                season,
-                team,
-            )
-            resolved_opponent = resolve_team(
-                season,
-                opponent,
-            )
-        except ValueError:
-            skipped_seasons.append({
-                "season": season,
-                "status": "NOT_BOTH_IN_PL",
-            })
-            continue
-
-        team_names[season] = (
-            resolved_team[
-                "canonical_name"
-            ]
-        )
-
-        opponent_names[season] = (
-            resolved_opponent[
-                "canonical_name"
-            ]
-        )
-
-        fixture_result = query_fixtures(
-            season=season,
-            team=resolved_team[
-                "canonical_name"
-            ],
-            opponent=resolved_opponent[
-                "canonical_name"
-            ],
-            limit=100,
-        )
-
-        for row in fixture_result["results"]:
-
-            home_score = row[
-                "home_score"
-            ]
-            away_score = row[
-                "away_score"
-            ]
-
-            if (
-                home_score == ""
-                or away_score == ""
-            ):
-                result = "UNPLAYED"
-            else:
-                home_score = int(
-                    home_score
-                )
-                away_score = int(
-                    away_score
-                )
-
-                team_is_home = (
-                    row["home_team_name"]
-                    == resolved_team[
-                        "canonical_name"
-                    ]
-                )
-
-                if (
-                    team_is_home
-                    and home_score > away_score
-                ) or (
-                    not team_is_home
-                    and away_score > home_score
-                ):
-                    result = "W"
-                elif (
-                    home_score == away_score
-                ):
-                    result = "D"
-                else:
-                    result = "L"
-
-            matches.append({
-                "season":
-                    season,
-                "fixture_id":
-                    row["fixture_id"],
-                "gameweek":
-                    row["gameweek"],
-                "kickoff_time":
-                    row["kickoff_time"],
-                "home_team_name":
-                    row["home_team_name"],
-                "away_team_name":
-                    row["away_team_name"],
-                "home_score":
-                    row["home_score"],
-                "away_score":
-                    row["away_score"],
-                "team_result":
-                    result,
-            })
-
-    matches.sort(
-        key=lambda row: (
-            row["kickoff_time"],
-            row["season"],
-            int(row["fixture_id"]),
-        )
-    )
-
-    wins = sum(
-        1
-        for row in matches
-        if row["team_result"] == "W"
-    )
-
-    draws = sum(
-        1
-        for row in matches
-        if row["team_result"] == "D"
-    )
-
-    losses = sum(
-        1
-        for row in matches
-        if row["team_result"] == "L"
-    )
-
-    goals_for = 0
-    goals_against = 0
-
-    for row in matches:
-
-        if (
-            row["home_score"] == ""
-            or row["away_score"] == ""
-        ):
-            continue
-
-        home_score = int(
-            row["home_score"]
-        )
-        away_score = int(
-            row["away_score"]
-        )
-
-        if (
-            row["home_team_name"]
-            == team_names[row["season"]]
-        ):
-            goals_for += home_score
-            goals_against += away_score
-        else:
-            goals_for += away_score
-            goals_against += home_score
-
-    return {
-        "query_type":
-            "head_to_head",
-        "query_version":
-            QUERY_VERSION,
-        "team":
-            next(
-                iter(team_names.values()),
-                team,
-            ),
-        "opponent":
-            next(
-                iter(opponent_names.values()),
-                opponent,
-            ),
-        "requested_seasons":
-            requested_seasons,
-        "skipped_seasons":
-            skipped_seasons,
-        "shared_seasons":
-            [
-                season
-                for season
-                in requested_seasons
-                if season
-                not in {
-                    item["season"]
-                    for item
-                    in skipped_seasons
-                }
-            ],
-        "summary": {
-            "matches":
-                len(matches),
-            "wins":
-                wins,
-            "draws":
-                draws,
-            "losses":
-                losses,
-            "goals_for":
-                goals_for,
-            "goals_against":
-                goals_against,
-            "goal_difference":
-                goals_for - goals_against,
+        "season": season,
+        "filters": {
+            "team_id": team_id,
+            "opponent_id": opponent_id,
+            "venue": venue,
+            "result": result,
         },
-        "matches":
-            matches,
+        "total_matches": len(results),
+        "results": results[:limit],
+        "source_file": str(FIXTURE_FILE),
     }
 
 
-def print_team_summary(
-    result,
-    explain=False,
-):
-    summary = result["summary"]
+def team_summary(season, team):
+    return query_lab.team_summary(season=season, team=team)
 
-    print()
-    print(
-        f"{result['team']} ? "
-        f"{result['season']}"
-    )
-    print()
 
-    print(
-        f"Record: "
-        f"{summary['wins']}W "
-        f"{summary['draws']}D "
-        f"{summary['losses']}L"
-    )
+def team_compare(team, seasons):
+    return query_lab.team_compare(team=team, seasons=seasons)
 
-    print(
-        f"Goals:  "
-        f"{summary['goals_for']}-"
-        f"{summary['goals_against']} "
-        f"(GD {summary['goal_difference']:+d})"
-    )
 
-    print(
-        f"Points: "
-        f"{summary['points']}"
-    )
+def head_to_head(team, opponent, seasons):
+    return query_lab.head_to_head(team=team, opponent=opponent, seasons=seasons)
 
-    print(
-        f"Scheduled: "
-        f"{summary['matches_in_schedule']}"
-    )
 
-    print(
-        f"Played:    "
-        f"{summary['played']}"
-    )
+def team_form(season, team=None, team_id=None):
+    return query_lab.team_form(season=season, team=team, team_id=team_id)
 
-    print(
-        f"Unplayed:  "
-        f"{summary['unplayed']}"
-    )
 
-    unplayed = result.get(
-        "data_quality",
-        {}
-    ).get(
-        "unplayed_fixtures",
-        []
-    )
+def top_players(season, metric="goals", limit=10):
+    return query_lab.top_players(season=season, metric=metric, limit=limit)
 
-    if unplayed:
-        print()
-        print("Data quality")
-        print("------------")
 
-        for fixture in unplayed:
-            print(
-                f"GW {fixture['gameweek']}: "
-                f"{fixture['home_team_name']} "
-                f"vs {fixture['away_team_name']} "
-                f"(fixture {fixture['fixture_id']}) "
-                f"? score missing"
-            )
+def player_total(season, player, metric="goals"):
+    return query_lab.player_total(season=season, player_search=player, metric=metric)
 
-    if explain:
 
-        print()
-        print("Evidence")
-        print("-------")
-        print(
-            f"Query version: "
-            f"{result['query_version']}"
-        )
-        print(
-            f"Fixture source: "
-            f"{result['source_file']}"
-        )
-        print(
-            f"Identity source: "
-            f"{result['identity_source_file']}"
+def fixture_detail(season, fixture_id):
+    return query_lab.fixture_detail(season=season, fixture_id=fixture_id)
+
+
+def list_seasons():
+    rows = query_lab.load_identity_registry()
+    return sorted({row["season"] for row in rows})
+
+
+def list_metrics():
+    return dict(query_lab.METRICS)
+
+
+def dispatch(query, **kwargs):
+    queries = {
+        "league-table": league_table,
+        "team-summary": team_summary,
+        "team-compare": team_compare,
+        "fixtures": fixtures,
+        "head-to-head": head_to_head,
+        "team-form": team_form,
+        "top-players": top_players,
+        "player-total": player_total,
+    }
+
+    if query not in queries:
+        raise ValueError(
+            f"Unknown query '{query}'. Available: {', '.join(sorted(queries))}"
         )
 
-        if result["identity_resolution"]:
-
-            ident = result[
-                "identity_resolution"
-            ]
-
-            print(
-                f"Persistent club ID: "
-                f"{ident['persistent_team_code']}"
-            )
-
-            print(
-                f"Season-local team ID: "
-                f"{ident['local_team_id']}"
-            )
-
-            print(
-                f"Identity status: "
-                f"{ident['mapping_status']}"
-            )
-
-        print(
-            f"Generated: "
-            f"{result['generated_at']}"
-        )
-
-
-
-def print_team_compare(
-    result,
-    explain=False,
-):
-    print()
-    print(
-        f"{result['team']} "
-        f"season comparison"
-    )
-    print()
-
-    print(
-        f"{'Season':<10} "
-        f"{'ID':>3} "
-        f"{'W':>3} "
-        f"{'D':>3} "
-        f"{'L':>3} "
-        f"{'GF':>4} "
-        f"{'GA':>4} "
-        f"{'GD':>5} "
-        f"{'Pts':>4} "
-        f"{'Played':>6} "
-        f"{'Status':<10}"
-    )
-
-    print("-" * 76)
-
-    for row in result["seasons"]:
-
-        status = (
-            "COMPLETE"
-            if row["complete"]
-            else f"{row['unplayed']} missing"
-        )
-
-        print(
-            f"{row['season']:<10} "
-            f"{row['team_id']:>3} "
-            f"{row['wins']:>3} "
-            f"{row['draws']:>3} "
-            f"{row['losses']:>3} "
-            f"{row['goals_for']:>4} "
-            f"{row['goals_against']:>4} "
-            f"{row['goal_difference']:>+5} "
-            f"{row['points']:>4} "
-            f"{row['played']:>3}/"
-            f"{row['scheduled']:<2} "
-            f"{status:<10}"
-        )
-
-    if explain:
-
-        print()
-        print("Evidence")
-        print("-------")
-
-        print(
-            f"Persistent club ID: "
-            f"{result['persistent_team_code']}"
-        )
-
-        print(
-            f"Identity source: "
-            f"{result['identity_source_file']}"
-        )
-
-        print(
-            f"Fixture source: "
-            f"{result['fixture_source_file']}"
-        )
-
-        print(
-            f"Corrections source: "
-            f"{result['corrections_file']}"
-        )
-
-        print(
-            f"Query version: "
-            f"{result['query_version']}"
-        )
-
-        print(
-            f"Generated: "
-            f"{result['generated_at']}"
-        )
-
-        incomplete = [
-            row
-            for row in result["seasons"]
-            if not row["complete"]
-        ]
-
-        if incomplete:
-
-            print()
-            print("Incomplete seasons")
-            print("------------------")
-
-            for row in incomplete:
-
-                print(
-                    f"{row['season']}: "
-                    f"{row['unplayed']} "
-                    f"unplayed fixture(s)"
-                )
-
-
-
-def print_league_table(
-    result,
-    explain=False,
-):
-    print()
-    print(
-        f"Premier League ? "
-        f"{result['season']}"
-    )
-    print()
-
-    print(
-        f"{'Pos':>3} "
-        f"{'Team':<30} "
-        f"{'P':>3} "
-        f"{'W':>3} "
-        f"{'D':>3} "
-        f"{'L':>3} "
-        f"{'GF':>4} "
-        f"{'GA':>4} "
-        f"{'GD':>5} "
-        f"{'Pts':>4}"
-    )
-
-    print("-" * 78)
-
-    for team in result["teams"]:
-
-        print(
-            f"{team['position']:>3} "
-            f"{team['team']:<30} "
-            f"{team['played']:>3} "
-            f"{team['wins']:>3} "
-            f"{team['draws']:>3} "
-            f"{team['losses']:>3} "
-            f"{team['goals_for']:>4} "
-            f"{team['goals_against']:>4} "
-            f"{team['goal_difference']:>+5} "
-            f"{team['points']:>4}"
-        )
-
-    incomplete = [
-        team
-        for team in result["teams"]
-        if not team["complete"]
-    ]
-
-    if incomplete:
-
-        print()
-        print("Data quality")
-        print("------------")
-
-        for team in incomplete:
-
-            print(
-                f"{team['team']}: "
-                f"{team['unplayed']} "
-                f"unplayed fixture(s)"
-            )
-
-    if explain:
-
-        print()
-        print("Evidence")
-        print("-------")
-        print(
-            f"Fixture source: "
-            f"{result['source_file']}"
-        )
-        print(
-            f"Identity source: "
-            f"{result['identity_source_file']}"
-        )
-        print(
-            f"Corrections source: "
-            f"{result['corrections_file']}"
-        )
-        print(
-            f"Query version: "
-            f"{result['query_version']}"
-        )
-        print(
-            f"Table complete: "
-            f"{result['complete']}"
-        )
-        print(
-            f"Generated: "
-            f"{result['generated_at']}"
-        )
+    return queries[query](**kwargs)
 
 
 def main():
-
-    parser = argparse.ArgumentParser(
-        description=(
-            "Football Research Laboratory "
-            "Query Lab"
-        )
-    )
-
-    parser.add_argument(
-        "--query",
-        choices=(
-            "top-players",
-            "player-total",
-            "fixtures",
-            "team-summary",
-            "team-compare",
-            "league-table",
-        ),
-        default="top-players",
-    )
-
-    parser.add_argument(
-        "--season"
-    )
-
-    parser.add_argument(
-        "--seasons",
-        nargs="+",
-        help=(
-            "Multiple seasons for team-comparison queries."
-        ),
-    )
-
-    parser.add_argument(
-        "--metric",
-        default="goals",
-        choices=sorted(
-            METRICS
-        )
-    )
-
-    parser.add_argument(
-        "--player"
-    )
-
-    parser.add_argument(
-        "--team"
-    )
-
-    parser.add_argument(
-        "--opponent"
-    )
-
-    parser.add_argument(
-        "--team-id"
-    )
-
-    parser.add_argument(
-        "--opponent-id"
-    )
-
-    parser.add_argument(
-        "--venue",
-        choices=(
-            "home",
-            "away",
-        )
-    )
-
-    parser.add_argument(
-        "--result",
-        choices=(
-            "W",
-            "D",
-            "L",
-            "UNPLAYED",
-        )
-    )
-
-    parser.add_argument(
-        "--limit",
-        type=int,
-        default=10,
-    )
-
-    parser.add_argument(
-        "--explain",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--json",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--list-seasons",
-        action="store_true",
-    )
-
-    parser.add_argument(
-        "--list-metrics",
-        action="store_true",
-    )
-
-    args = parser.parse_args()
-
-    if args.list_seasons:
-
-        for season in season_files():
-            print(season)
-
-        return 0
-
-    if args.list_metrics:
-
-        for metric, column in sorted(
-            METRICS.items()
-        ):
-            print(
-                f"{metric}: {column}"
-            )
-
-        return 0
-
-    if args.limit < 1:
-        parser.error(
-            "--limit must be >= 1"
-        )
-
-    if args.query in {
-        "top-players",
-        "player-total",
-    } and not args.season:
-
-        parser.error(
-            "--season is required"
-        )
-
-    if args.query == "player-total" and not args.player:
-
-        parser.error(
-            "--player is required "
-            "for player-total"
-        )
-
-    if args.query == "fixtures":
-
-        if (
-            args.team
-            and args.team_id
-        ):
-            parser.error(
-                "Use either --team or "
-                "--team-id, not both."
-            )
-
-        if (
-            args.opponent
-            and args.opponent_id
-        ):
-            parser.error(
-                "Use either --opponent or "
-                "--opponent-id, not both."
-            )
-
-        if (
-            args.team
-            and not args.season
-        ):
-            parser.error(
-                "--season is required "
-                "when using --team."
-            )
-
-        if (
-            args.opponent
-            and not args.season
-        ):
-            parser.error(
-                "--season is required "
-                "when using --opponent."
-            )
-
-    if args.query == "top-players":
-
-        result = top_players(
-            args.season,
-            args.metric,
-            args.limit,
-        )
-
-        if args.json:
-            print(
-                json.dumps(
-                    result,
-                    indent=2,
-                )
-            )
-        else:
-            print_top_players(
-                result,
-                args.explain,
-            )
-
-        return 0
-
-    if args.query == "player-total":
-
-        result = player_total(
-            args.season,
-            args.player,
-            args.metric,
-        )
-
-        if args.json:
-            print(
-                json.dumps(
-                    result,
-                    indent=2,
-                )
-            )
-        else:
-            print_player_total(
-                result,
-                args.explain,
-            )
-
-        return 0
-
-    if args.query == "league-table":
-
-        if not args.season:
-            parser.error(
-                "--season is required"
-            )
-
-        result = league_table(
-            season=args.season,
-        )
-
-        if args.json:
-            print(
-                json.dumps(
-                    result,
-                    indent=2,
-                )
-            )
-        else:
-            print_league_table(
-                result,
-                args.explain,
-            )
-
-        return 0
-
-    if args.query == "team-compare":
-
-        if not args.team:
-            parser.error(
-                "--team is required for "
-                "team-compare"
-            )
-
-        if not args.seasons:
-            parser.error(
-                "--seasons is required for "
-                "team-compare"
-            )
-
-        result = team_compare(
-            team=args.team,
-            seasons=args.seasons,
-        )
-
-        if args.json:
-            print(
-                json.dumps(
-                    result,
-                    indent=2,
-                )
-            )
-        else:
-            print_team_compare(
-                result,
-                args.explain,
-            )
-
-        return 0
-
-    if args.query == "team-summary":
-
-        if not args.season:
-            parser.error(
-                "--season is required"
-            )
-
-        if args.team and args.team_id:
-            parser.error(
-                "Use either --team or --team-id, not both."
-            )
-
-        if not args.team and not args.team_id:
-            parser.error(
-                "Either --team or --team-id is required."
-            )
-
-        result = team_summary(
-            season=args.season,
-            team=args.team,
-            team_id=args.team_id,
-        )
-
-        if args.json:
-            print(
-                json.dumps(
-                    result,
-                    indent=2,
-                )
-            )
-        else:
-            print_team_summary(
-                result,
-                args.explain,
-            )
-
-        return 0
-
-    if args.query == "fixtures":
-
-        result = query_fixtures(
-            season=args.season,
-            team_id=args.team_id,
-            opponent_id=args.opponent_id,
-            team=args.team,
-            opponent=args.opponent,
-            venue=args.venue,
-            result=args.result,
-            limit=args.limit,
-        )
-
-        if args.json:
-            print(
-                json.dumps(
-                    result,
-                    indent=2,
-                )
-            )
-        else:
-            print_fixtures(
-                result,
-                args.explain,
-            )
-
-        return 0
-
-    raise RuntimeError(
-        "Unsupported query"
-    )
-
-def test_team_form():
-    result = query_lab.team_form(
-        season="2024-25",
-        team="Liverpool",
-    )
-
-    completed = result["matches"]
-
-    assert completed
-
-    assert all(
-        row["result"] in {"W", "D", "L"}
-        for row in completed
-    )
-
-    assert all(
-        row["points"] in {0, 1, 3}
-        for row in completed
-    )
-
-    assert all(
-        row["goals_for"] >= 0
-        and row["goals_against"] >= 0
-        for row in completed
-    )
-
-    assert all(
-        row["goal_difference"]
-        == row["goals_for"]
-        - row["goals_against"]
-        for row in completed
-    )
-
-    assert all(
-        completed[i]["kickoff_time"]
-        <= completed[i + 1]["kickoff_time"]
-        for i in range(len(completed) - 1)
-    )
-
-    assert result["windows"]["3"]["matches"] <= 3
-    assert result["windows"]["5"]["matches"] <= 5
-
-    assert (
-        result["streaks"]["current_win_streak"]
-        <= len(completed)
-    )
-
-    assert (
-        result["streaks"]["current_unbeaten_streak"]
-        <= len(completed)
-    )
-
-    assert (
-        result["streaks"]["current_loss_streak"]
-        <= len(completed)
-    )
-
-    assert (
-        result["streaks"]["current_clean_sheet_streak"]
-        <= len(completed)
-    )
-
-    assert (
-        result["streaks"]["current_scoring_streak"]
-        <= len(completed)
-    )
-
-    assert result["excluded_unplayed"] >= 0
-
+    import json
+    payload = json.loads(sys.stdin.read())
+    query = payload.get("query")
+    if not query:
+        raise ValueError("Request must contain 'query'.")
+    result = dispatch(query, **payload.get("params", {}))
+    print(json.dumps(result, indent=2, ensure_ascii=False))
 
 
 if __name__ == "__main__":
-
     try:
-        raise SystemExit(
-            main()
-        )
-
+        main()
     except Exception as exc:
-
-        print(
-            f"ERROR: {exc}",
-            file=sys.stderr,
-        )
-
+        print(json.dumps({"error": str(exc), "type": type(exc).__name__}, indent=2))
         raise SystemExit(1)
