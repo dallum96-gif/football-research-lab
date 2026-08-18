@@ -92,7 +92,10 @@ def _sidebar_navigation_css() -> None:
 def _navigate(item_key: str) -> None:
     st.session_state["frl_workspace"] = item_key
     st.query_params["workspace"] = item_key
-    st.session_state.pop(f"frl_team_view_{item_key}", None)
+    if item_key == "team-profile":
+        st.session_state.pop("frl_team_view_profile", None)
+    elif item_key == "team-stats":
+        st.session_state.pop("frl_team_view_stats", None)
     st.rerun()
 
 
