@@ -7,6 +7,7 @@ import sys
 import time
 from collections import defaultdict
 from datetime import datetime, timezone
+from functools import lru_cache
 from pathlib import Path
 
 import requests
@@ -34,6 +35,7 @@ FIELDS = (
     "season",
     "fixture_id",
     "source_match_id",
+    "source_pulse_fixture_id",
     "source_event_id",
     "source_event_type",
     "source_event_seconds",
@@ -55,11 +57,6 @@ FIELDS = (
 
 def _norm(value: str | None) -> str:
     return player_identity_crosswalk.normalize_name(value)
-
-
-def _team_norm(value: str | None) -> str:
-    text = (value or "").replace("_", " ").replace("&", " and ")
-    return _norm(text)
 
 
 def _load_fixtures():
@@ -110,11 +107,75 @@ def _is_goal(event: dict) -> bool:
     return event_type in {"goal", "penalty goal"}
 
 
-def _request_fixture(source_match_id: str):
-    url = f"{PULSE_BASE}/fixtures/{source_match_id}/textstream/EN?pageSize=1000&sort=desc"
-    response = requests.get(url, headers=HEADERS, timeout=20)
+@lru_cache(maxsize=1)
+def _pulse_competition_seasons() -> dict[str, str]:
+    url = f"{PULSE_BASE}/competitions/1/compseasons"
+    response = requests.get(
+        url,
+        params={"page": 0, "pageSize": 100},
+        headers=HEADERS,
+        timeout=20,
+    )
     response.raise_for_status()
-    return response.json(), url
+    content = response.json().get("content") or []
+    output: dict[str, str] = {}
+    for row in content:
+        label = str(row.get("label") or "").strip()
+        season_id = row.get("id")
+        if label and season_id not in (None, ""):
+            output[label] = str(int(float(season_id)))
+    return output
+
+
+@lru_cache(maxsize=32)
+def _pulse_fixture_index(season: str) -> dict[str, str]:
+    competition_season = _pulse_competition_seasons().get(str(season))
+    if not competition_season:
+        raise ValueError(f"PulseLive competition season not found: {season}")
+
+    url = f"{PULSE_BASE}/fixtures"
+    response = requests.get(
+        url,
+        params={
+            "comps": 1,
+            "compSeasons": competition_season,
+            "page": 0,
+            "pageSize": 380,
+            "sort": "asc",
+            "statuses": "C",
+            "altIds": "true",
+        },
+        headers=HEADERS,
+        timeout=20,
+    )
+    response.raise_for_status()
+
+    output: dict[str, str] = {}
+    for fixture in response.json().get("content") or []:
+        pulse_id = fixture.get("id")
+        alt_ids = fixture.get("altIds") or {}
+        opta_id = str(alt_ids.get("opta") or "").strip()
+        if pulse_id in (None, "") or not opta_id:
+            continue
+        if opta_id.startswith("g"):
+            output[opta_id[1:]] = str(int(float(pulse_id)))
+    return output
+
+
+def _pulse_fixture_id(season: str, source_match_id: str) -> str | None:
+    return _pulse_fixture_index(season).get(str(source_match_id).strip())
+
+
+def _request_fixture(pulse_fixture_id: str):
+    url = f"{PULSE_BASE}/fixtures/{pulse_fixture_id}/textstream/EN"
+    response = requests.get(
+        url,
+        params={"pageSize": 1000, "sort": "desc"},
+        headers=HEADERS,
+        timeout=20,
+    )
+    response.raise_for_status()
+    return response.json(), response.url
 
 
 def _score_total(fixture: dict) -> int:
@@ -169,21 +230,34 @@ def ingest(
         source_match_id, source_home, source_away = resolved
         home_source_code = str(source_home.get("team_id") or "").strip()
         away_source_code = str(source_away.get("team_id") or "").strip()
-        home_source_team = str(source_home.get("team") or "").strip()
-        away_source_team = str(source_away.get("team") or "").strip()
+
+        pulse_fixture_id = _pulse_fixture_id(season, str(source_match_id))
+        if not pulse_fixture_id:
+            print(
+                f"[SKIP] {season}/{fixture_id}: source match {source_match_id} "
+                f"has no current PulseLive fixture identity"
+            )
+            continue
 
         try:
-            payload, source_url = _request_fixture(str(source_match_id))
+            payload, source_url = _request_fixture(pulse_fixture_id)
         except (requests.RequestException, ValueError) as exc:
             print(f"[SKIP] {season}/{fixture_id}: source request failed: {exc}")
             continue
 
         events = ((payload.get("events") or {}).get("content") or [])
-        goals = [event for event in events if isinstance(event, dict) and _is_goal(event)]
+        goals = [
+            event
+            for event in events
+            if isinstance(event, dict) and _is_goal(event)
+        ]
         goal_count_match = str(len(goals) == total_goals).lower()
 
         if len(goals) != total_goals:
-            print(f"[WARN] {season}/{fixture_id}: score={total_goals}, source goals={len(goals)}")
+            print(
+                f"[WARN] {season}/{fixture_id}: score={total_goals}, "
+                f"source goals={len(goals)}"
+            )
 
         for event in goals:
             text = str(event.get("text") or "").strip()
@@ -191,7 +265,11 @@ def ingest(
 
             player_ids = event.get("playerIds") or []
             source_scorer_id = str(player_ids[0]).strip() if player_ids else ""
-            candidates = player_index.get((season, source_scorer_id), ()) if source_scorer_id else ()
+            candidates = (
+                player_index.get((season, source_scorer_id), ())
+                if source_scorer_id
+                else ()
+            )
 
             identity_status = "VERIFIED" if len(candidates) == 1 else "UNRESOLVED"
             fpl_element = candidates[0][0] if len(candidates) == 1 else ""
@@ -207,7 +285,11 @@ def ingest(
 
             own_goal = "own goal" in text.casefold()
             scoring_side = (
-                "away" if scorer_side == "home" else "home" if scorer_side == "away" else ""
+                "away"
+                if scorer_side == "home"
+                else "home"
+                if scorer_side == "away"
+                else ""
             ) if own_goal else scorer_side
 
             time_block = event.get("time") or {}
@@ -219,6 +301,7 @@ def ingest(
                     "season": season,
                     "fixture_id": fixture_id,
                     "source_match_id": str(source_match_id),
+                    "source_pulse_fixture_id": str(pulse_fixture_id),
                     "source_event_id": str(event.get("id") or ""),
                     "source_event_type": str(event.get("type") or ""),
                     "source_event_seconds": str(seconds or ""),
@@ -238,7 +321,10 @@ def ingest(
                 }
             )
 
-        print(f"[{number}/{len(fixtures)}] {season}/{fixture_id}: {len(goals)} goals")
+        print(
+            f"[{number}/{len(fixtures)}] {season}/{fixture_id}: "
+            f"{len(goals)} goals"
+        )
         time.sleep(sleep_seconds)
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
@@ -259,7 +345,15 @@ def ingest(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=None)
-    parser.add_argument("--fixture", default=None, help="Target canonical fixture as SEASON:FIXTURE_ID")
+    parser.add_argument(
+        "--fixture",
+        default=None,
+        help="Target canonical fixture as SEASON:FIXTURE_ID",
+    )
     parser.add_argument("--sleep", type=float, default=0.15)
     args = parser.parse_args()
-    ingest(sleep_seconds=args.sleep, limit=args.limit, fixture_key=args.fixture)
+    ingest(
+        sleep_seconds=args.sleep,
+        limit=args.limit,
+        fixture_key=args.fixture,
+    )
