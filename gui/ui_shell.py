@@ -38,7 +38,7 @@ def current_workspace(default="overview"):
 
 
 def _render_teams_hub():
-    from gui.team_research_ui import render_team_research_ui
+    from gui.team_research_ui_v3 import render_team_research_ui
     render_team_research_ui()
 
 
@@ -78,8 +78,10 @@ def _sidebar_navigation_css() -> None:
         .frl-sidebar-section{color:var(--frl-muted-soft);font-size:.54rem;font-weight:850;letter-spacing:.16em;text-transform:uppercase;margin:.95rem 0 .24rem;padding-top:.12rem}
         [data-testid="stSidebar"] .stButton{margin:0 !important}
         [data-testid="stSidebar"] .stButton > button{justify-content:flex-start !important;text-align:left !important;border-radius:5px !important;border:1px solid transparent !important;min-height:2rem !important;padding:.18rem .5rem !important;font-size:.72rem !important;font-weight:650 !important;box-shadow:none !important}
-        [data-testid="stSidebar"] .stButton > button > div{justify-content:flex-start !important;width:100% !important}
-        [data-testid="stSidebar"] .stButton > button p{text-align:left !important;width:100% !important;margin:0 !important}
+        [data-testid="stSidebar"] .stButton > button > div{justify-content:flex-start !important;align-items:center !important;display:flex !important;width:100% !important;text-align:left !important}
+        [data-testid="stSidebar"] .stButton > button > div > div{justify-content:flex-start !important;text-align:left !important;width:auto !important}
+        [data-testid="stSidebar"] .stButton > button p{text-align:left !important;width:auto !important;margin:0 !important}
+        [data-testid="stSidebar"] .stButton > button span{text-align:left !important}
         [data-testid="stSidebar"] .stButton > button:hover{background:var(--frl-surface) !important;border-color:var(--frl-border) !important}
         [data-testid="stSidebar"] .stButton > button[kind="primary"]{background:var(--frl-surface) !important;color:var(--frl-accent) !important;border-color:var(--frl-border) !important}
         [data-testid="stSidebar"] .stButton > button[kind="primary"]:hover{background:var(--frl-surface) !important}
@@ -92,10 +94,6 @@ def _sidebar_navigation_css() -> None:
 def _navigate(item_key: str) -> None:
     st.session_state["frl_workspace"] = item_key
     st.query_params["workspace"] = item_key
-    if item_key == "team-profile":
-        st.session_state.pop("frl_team_view_profile", None)
-    elif item_key == "team-stats":
-        st.session_state.pop("frl_team_view_stats", None)
     st.rerun()
 
 
