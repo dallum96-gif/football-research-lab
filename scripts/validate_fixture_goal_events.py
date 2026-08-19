@@ -17,7 +17,7 @@ if str(ROOT) not in sys.path:
 import player_identity_audit
 import player_research
 import query_lab
-from match_stats import fixture_source_match
+from match_stats import fixture_source_match, season_matches, canonical_to_utc, source_to_utc
 
 RAW = ROOT / "data" / "raw" / "fixture_goal_events_pulselive.csv"
 OUT = ROOT / "data" / "fixture_goal_events.csv"
@@ -166,26 +166,69 @@ def verified_team_index() -> dict[tuple[str, str], str]:
     return resolved
 
 
-def resolve_fixture_source_map(identity_rows, fixtures):
-    source_map: dict[tuple[str, str], tuple[dict[str, str], tuple]] = {}
+def resolve_fixture_source_for_match(
+    season: str,
+    source_match_id: str,
+    identity_rows,
+    fixtures: dict[tuple[str, str], dict[str, str]],
+):
+    """Reverse-resolve one source match using the existing FRL fixture mechanism.
 
+    This avoids the old O(all canonical fixtures * all source matches) scan.
+    We first use the source match's own kickoff/team identity to shortlist
+    canonical fixtures, then let fixture_source_match() remain the final authority.
+    """
+    source_rows = season_matches(season).get(str(source_match_id), [])
+    home = next((row for row in source_rows if row.get("venue", "").strip().lower() == "home"), None)
+    away = next((row for row in source_rows if row.get("venue", "").strip().lower() == "away"), None)
+
+    if home is None or away is None:
+        raise RuntimeError(
+            f"Source match {season}/{source_match_id} has no complete home/away rows"
+        )
+
+    try:
+        source_kickoff = source_to_utc(home["kickoff"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise RuntimeError(
+            f"Invalid source kickoff for {season}/{source_match_id}: {home.get('kickoff')!r}"
+        ) from exc
+
+    identity = {
+        (row["season"], str(row["local_team_id"]).strip()): str(row["persistent_team_code"]).strip()
+        for row in identity_rows
+        if row["season"] == season and row["mapping_status"] == "VERIFIED"
+    }
+    source_home_team = str(home.get("team_id", "")).strip()
+    source_away_team = str(away.get("team_id", "")).strip()
+
+    candidates = []
     for fixture in fixtures.values():
-        resolved = fixture_source_match(fixture, identity_rows)
-        if not resolved:
+        if fixture["season"] != season:
+            continue
+        try:
+            kickoff = canonical_to_utc(fixture["kickoff_time"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if kickoff != source_kickoff:
             continue
 
-        source_id = str(resolved[0]).strip()
-        key = (str(fixture["season"]).strip(), source_id)
+        home_persistent = identity.get((season, str(fixture["home_team_id"]).strip()))
+        away_persistent = identity.get((season, str(fixture["away_team_id"]).strip()))
+        if home_persistent != source_home_team or away_persistent != source_away_team:
+            continue
 
-        if key in source_map:
-            raise RuntimeError(
-                f"Multiple canonical fixtures resolve to source match {key}: "
-                f"{source_map[key][0]['fixture_id']} and {fixture['fixture_id']}"
-            )
+        resolved = fixture_source_match(fixture, identity_rows)
+        if resolved and str(resolved[0]).strip() == str(source_match_id):
+            candidates.append((fixture, resolved))
 
-        source_map[key] = (fixture, resolved)
+    if len(candidates) != 1:
+        raise RuntimeError(
+            f"Expected exactly one canonical fixture for source match "
+            f"{season}/{source_match_id}; found {len(candidates)}"
+        )
 
-    return source_map
+    return candidates[0]
 
 
 def atomic_write(path: Path, rows: list[dict[str, str]]) -> None:
@@ -217,16 +260,34 @@ def atomic_write(path: Path, rows: list[dict[str, str]]) -> None:
 
 def main() -> None:
     raw = load_rows(RAW)
+    print(f"RAW ROWS: {len(raw):,}", flush=True)
+
     identity_rows = query_lab.load_identity_registry()
     player_index = verified_event_player_index()
     team_index = verified_team_index()
+    print("IDENTITY: loaded", flush=True)
 
     fixtures = {
         (row["season"], str(row["fixture_id"])): row
         for row in query_lab.load_csv(query_lab.FIXTURE_FILE)[0]
     }
 
-    fixture_source_map = resolve_fixture_source_map(identity_rows, fixtures)
+    source_keys = sorted({
+        (str(row.get("season") or "").strip(), str(row.get("source_match_id") or "").strip())
+        for row in raw
+        if row.get("season") and row.get("source_match_id")
+    })
+    print(f"SOURCE MATCHES TO RESOLVE: {len(source_keys):,}", flush=True)
+
+    fixture_source_map = {}
+    for index, (season, source_match_id) in enumerate(source_keys, start=1):
+        print(f"FIXTURE {index}/{len(source_keys)}: {season}/{source_match_id}", flush=True)
+        fixture_source_map[(season, source_match_id)] = resolve_fixture_source_for_match(
+            season,
+            source_match_id,
+            identity_rows,
+            fixtures,
+        )
 
     canonical_rows: list[dict[str, str]] = []
     skipped = 0
@@ -243,14 +304,7 @@ def main() -> None:
             skipped += 1
             continue
 
-        fixture_entry = fixture_source_map.get((season, source_match_id))
-        if not fixture_entry:
-            raise RuntimeError(
-                f"Expected exactly one canonical fixture for source match "
-                f"{season}/{source_match_id}; found 0"
-            )
-
-        fixture, (resolved_source_id, source_home, source_away) = fixture_entry
+        fixture, (resolved_source_id, source_home, source_away) = fixture_source_map[(season, source_match_id)]
         if str(resolved_source_id) != source_match_id:
             raise RuntimeError("Source-match reconciliation changed the source identifier")
 
