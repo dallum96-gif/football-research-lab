@@ -136,7 +136,10 @@ def normalise_recovery_row(row: dict[str, str]) -> dict[str, str]:
     return row
 
 
-def validate_fixture_master(rows: list[dict[str, str]]) -> dict[tuple[str, str], tuple[int, int]]:
+def validate_fixture_master(
+    rows: list[dict[str, str]],
+    target_seasons: set[str],
+) -> dict[tuple[str, str], tuple[int, int]]:
     if not rows:
         raise RuntimeError("fixtures_master.csv is empty")
     missing = sorted(REQUIRED_FIXTURE - set(rows[0]))
@@ -145,6 +148,9 @@ def validate_fixture_master(rows: list[dict[str, str]]) -> dict[tuple[str, str],
 
     scores: dict[tuple[str, str], tuple[int, int]] = {}
     for row in rows:
+        season = str(row.get("season") or "").strip()
+        if season not in target_seasons:
+            continue
         key = key_of(row)
         if not key[0] or not key[1]:
             raise RuntimeError("fixtures_master.csv contains blank season/fixture_id")
@@ -153,8 +159,12 @@ def validate_fixture_master(rows: list[dict[str, str]]) -> dict[tuple[str, str],
             raise RuntimeError(f"Fixture master score conflict: {key}")
         scores[key] = score
 
-    if len(scores) != 380:
-        raise RuntimeError(f"Expected 380 canonical fixtures, found {len(scores)}")
+    expected_fixture_count = 380 * len(target_seasons)
+    if len(scores) != expected_fixture_count:
+        raise RuntimeError(
+            f"Expected {expected_fixture_count} fixture rows for seasons "
+            f"{sorted(target_seasons)}, found {len(scores)}"
+        )
     return scores
 
 
@@ -196,8 +206,17 @@ def main() -> None:
 
     current = validate_existing_rows(load_csv(GOALS))
     recovery = [normalise_recovery_row(row) for row in load_csv(RECOVERY)]
-    fixture_scores = validate_fixture_master(load_csv(FIXTURES))
     stage = load_csv(STAGE)
+
+    target_seasons = {
+        str(row.get("season") or "").strip()
+        for row in current + recovery
+        if str(row.get("season") or "").strip()
+    }
+    if not target_seasons:
+        raise RuntimeError("No target seasons found in goal evidence")
+
+    fixture_scores = validate_fixture_master(load_csv(FIXTURES), target_seasons)
 
     missing = sorted(REQUIRED_RECOVERY - set(recovery[0])) if recovery else sorted(REQUIRED_RECOVERY)
     if missing:
@@ -233,17 +252,13 @@ def main() -> None:
 
     counts = Counter(key_of(row) for row in merged)
     incomplete = []
+    stage_by_fixture = {key_of(row): row for row in stage if key_of(row)[0] in target_seasons}
     for key, score in fixture_scores.items():
         expected = score[0] + score[1]
         actual = counts.get(key, 0)
         if actual != expected:
-            stage_row = next(
-                (row for row in stage if key_of(row) == key),
-                {},
-            )
-            incomplete.append(
-                (key, expected, actual, stage_row.get("status", ""), score)
-            )
+            stage_row = stage_by_fixture.get(key, {})
+            incomplete.append((key, expected, actual, stage_row.get("status", ""), score))
 
     reference = [
         row for row in merged
@@ -257,6 +272,7 @@ def main() -> None:
     print("============================================================")
     print("VERIFIED FIXTURE GOAL EVIDENCE COMPLETION")
     print("============================================================")
+    print(f"Target seasons:          {', '.join(sorted(target_seasons))}")
     print(f"Source root:             {SOURCE_ROOT}")
     print(f"Existing canonical rows: {len(current)}")
     print(f"Recovery rows:           {len(recovery)}")
@@ -306,7 +322,7 @@ def main() -> None:
 
     print(f"Output:                  {GOALS}")
     print(f"Audit:                   {AUDIT}")
-    print("AUDIT PASSED: all 380 fixtures have complete verified goal evidence.")
+    print("AUDIT PASSED: all target fixtures have complete verified goal evidence.")
 
 
 if __name__ == "__main__":
