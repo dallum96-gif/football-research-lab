@@ -6,8 +6,9 @@ adds player-match evidence without rewriting established research contracts.
 
 Important source-layout rule:
 ``players_match_stats/by_position`` contains partitioned copies of the source
-rows. The canonical player-match source scan must use the season files directly
-under each club's ``players_match_stats`` directory so a player-match row is not
+rows, while ``pl_stats/_merged/players_match_stats`` contains another merged
+materialisation. Neither is an additional evidence source. The canonical scan
+must use the direct per-club seasonal files only so a player-match row is not
 loaded multiple times.
 """
 
@@ -87,8 +88,9 @@ def _season_player_match_files(season: str) -> tuple[Path, ...]:
     """Return canonical per-club player-match files for one season.
 
     The upstream repository also stores partitioned copies below
-    ``players_match_stats/by_position``. Those files are not additional
-    evidence rows and must not be included in the canonical scan.
+    ``players_match_stats/by_position`` and a merged materialisation below
+    ``_merged/players_match_stats``. Those are not additional evidence rows
+    and must not be included in the canonical scan.
     """
     if not PL_ROOT.is_dir():
         raise FileNotFoundError(f"Player-match source root not found: {PL_ROOT}")
@@ -96,7 +98,7 @@ def _season_player_match_files(season: str) -> tuple[Path, ...]:
     expected = f"{season}_players_match_stats.csv"
     paths = []
     for club_dir in sorted(PL_ROOT.iterdir()):
-        if not club_dir.is_dir():
+        if not club_dir.is_dir() or club_dir.name.startswith("_"):
             continue
         candidate = club_dir / "players_match_stats" / expected
         if candidate.is_file():
@@ -109,7 +111,7 @@ def available_seasons() -> tuple[str, ...]:
         return tuple()
     seasons = set()
     for club_dir in PL_ROOT.iterdir():
-        if not club_dir.is_dir():
+        if not club_dir.is_dir() or club_dir.name.startswith("_"):
             continue
         for path in (club_dir / "players_match_stats").glob("*_players_match_stats.csv"):
             seasons.add(path.name.replace("_players_match_stats.csv", ""))
