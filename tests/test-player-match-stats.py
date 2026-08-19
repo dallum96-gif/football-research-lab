@@ -48,11 +48,13 @@ def test_source_seasons():
     )
 
 
-def test_source_files_exclude_partitions():
+def test_source_files_exclude_materialisations():
     paths = player_match_stats._season_player_match_files("2016-17")
     assert paths
     assert all("by_position" not in path.parts for path in paths)
+    assert all("_merged" not in path.parts for path in paths)
     assert all(path.parent.name == "players_match_stats" for path in paths)
+    assert all(not path.parts[-3].startswith("_") for path in paths)
 
 
 def test_passing_schema_contract():
@@ -162,7 +164,7 @@ def test_aggregate_rows():
 
 TESTS = [
     test_source_seasons,
-    test_source_files_exclude_partitions,
+    test_source_files_exclude_materialisations,
     test_passing_schema_contract,
     test_metric_coverage,
     test_player_match_pair_resolution,
