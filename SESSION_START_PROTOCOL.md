@@ -5,12 +5,12 @@ This protocol is mandatory for any new coding/research session working on the Fo
 ## Before changing anything
 
 1. Treat `dallum96-gif/football-research-lab` as the GitHub source of truth for tracked project code and documentation.
-2. Read `PROJECT_ORIENTATION.md`, `CURRENT_WORK.md`, `DATA_CONSTRUCTION.md`, `RISK_STRATEGY_FRAMEWORK.md`, `NON_DESTRUCTION_ASSURANCE.md`, `UI_DESIGN_SYSTEM.md`, `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`, and `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md` before substantive work.
+2. Read `PROJECT_ORIENTATION.md`, `CURRENT_WORK.md`, `DATA_CONSTRUCTION.md`, `RISK_STRATEGY_FRAMEWORK.md`, `NON_DESTRUCTION_ASSURANCE.md`, `UI_DESIGN_SYSTEM.md`, `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`, `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`, `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`, `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`, and `FRL_SOURCE_BOUNDARY_CONTRACT.md` before substantive work.
 3. Establish the current branch and repository state and distinguish committed work from local/untracked experiments.
 4. Compare the active branch with `main` before substantive work. Record the merge-base and whether the branch is ahead, behind or diverged.
 5. If the active branch is behind `main`, inspect the main-only commits before creating new work.
 6. If the active branch is ahead of `main` by substantial work, do not casually rebase, force-push or merge it. First audit what the commits represent and decide which history is intended to become trusted project state.
-7. **Never write development or experimental work directly to `main`.** When using GitHub APIs or connectors that have an optional branch parameter, always pass the intended development branch explicitly. Never rely on a default branch when making a write.
+7. **Never write development or experimental work directly to `main`.** When using GitHub APIs or connectors that have an optional branch parameter, always pass the intended development branch explicitly. Never rely on a default branch when making a development write.
 8. Before any destructive ref movement, create a named safety branch pointing to the current tip and record why the ref is being moved.
 9. Inspect the current working application and relevant archived/backup implementation before replacing an established capability.
 10. If a capability or classification is not obvious in GitHub, inspect the local source tree and trace the mechanism from source → retrieval/transformation → aggregation/classification → existing consumer.
@@ -36,7 +36,8 @@ Examples of decisions that should normally be promoted into project memory inclu
 - ingestion/build contracts;
 - major GUI/navigation architecture;
 - research/model governance;
-- reproducibility or validation requirements.
+- reproducibility or validation requirements;
+- source-acquisition and source-boundary rules.
 
 Do not rely on conversation history to preserve such decisions. The repository is the durable project memory; the Master Prompt should point into that memory.
 
@@ -44,15 +45,15 @@ Do not rely on conversation history to preserve such decisions. The repository i
 
 `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md` is authoritative for discovery completeness.
 
-**Failure to find a field, metric, classification or capability in one repository location is never sufficient evidence that it does not exist.**
+**Failure to find a field, metric, classification or capability in one repository location is never sufficient evidence that the FRL does not have it.**
 
-Before concluding that information is absent, unavailable, or requires a new external source, audit the relevant whole ecosystem, including where applicable:
+Before concluding that information is absent, inspect the approved source ecosystem in full, including where applicable:
 
 - current working application and query layer;
 - archived, backup and previous implementations;
 - all relevant GitHub-tracked datasets and directory trees;
-- local upstream/source workspaces;
-- source-family variants and parallel products;
+- the approved upstream GitHub source repository and its source directories;
+- the upstream feeds used by that repository;
 - partitioned datasets such as `by_position`;
 - identity registries and crosswalks;
 - merged and derived datasets;
@@ -85,11 +86,27 @@ FRL suitability
 
 A capability may exist at a different grain, under another field name, inside a partitioned dataset, in an upstream source, or as a documented derived quantity.
 
-If the ecosystem audit genuinely finds no defensible source, record that conclusion and the evidence supporting it before sourcing externally.
+If the approved ecosystem audit genuinely finds no defensible source or derivation, record that conclusion. Do **not** substitute another football-data provider while the current source-boundary rule remains active.
+
+## Hard upstream source boundary
+
+`FRL_SOURCE_BOUNDARY_CONTRACT.md` is a mandatory source-governance rule.
+
+Until the FRL expands beyond **2008-09** or adds another **league/competition**, all football data used by the FRL must come exclusively from:
+
+`imadeddine-belkat/Premier-League-Stats`
+
+and the upstream feeds used by that repository itself.
+
+The operating pattern is to take the upstream repository's CSV/source evidence and write or copy controlled source artefacts into the FRL repository before validation, canonicalisation or derivation.
+
+Do not introduce Transfermarkt, StatsBomb, another GitHub football dataset, another API, a third-party injury dataset, or any other independent football-data provider into the FRL during this scope period merely because it appears to fill a data gap.
+
+External sources may be discussed conceptually, but they are not approved FRL evidence until the expansion trigger occurs and a formal source-acquisition decision is made.
 
 ## Source-diversity / multi-league rule
 
-The FRL must be designed for future leagues and competitions whose sources may have different field names, schemas, identifier systems, grains, units and metric definitions.
+The FRL must be designed for future leagues and competitions whose sources may use different field names, schemas, identifier systems, grains, units and metric definitions.
 
 Do not assume that one provider schema is universal.
 
@@ -107,9 +124,7 @@ adapter B ─┤
 SOURCE C   ─┘
 ```
 
-Each adapter must retain native source semantics and document the mapping to FRL concepts, including field definition, grain, identifiers, transformations, units, missing-value semantics, coverage and provenance.
-
-A field-name match is not evidence that two sources measure the same thing. When sources cannot be harmonised without an unsupported assumption, preserve source-specific representations and leave the canonical concept unavailable rather than inventing equivalence.
+When the source-boundary expansion trigger eventually occurs, new source families must be assessed under `FRL_SOURCE_NORMALISATION_CONTRACT.md` and `FRL_SOURCE_BOUNDARY_CONTRACT.md` before promotion.
 
 ## Relationship-integrity rule
 
@@ -179,7 +194,7 @@ The project also has a separate PowerShell health gate:
 .\project-health.ps1
 ```
 
-The health gate is distinct from the 26/26 research-test baseline. A new session must understand both.
+The health gate is distinct from the 26/26 research-test baseline.
 
 ### Interpretation of the health gate
 
