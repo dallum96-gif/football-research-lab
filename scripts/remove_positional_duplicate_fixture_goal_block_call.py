@@ -30,7 +30,7 @@ def main() -> None:
     updated = text.replace(DUPLICATE, "", 1)
     TARGET.write_text(updated, encoding="utf-8")
 
-    compile(compile(updated, str(TARGET), "exec"), str(TARGET), "exec")
+    compile(updated, str(TARGET), "exec")
     print("POSITIONAL DUPLICATE: removed")
     print("KEYWORD GOAL BLOCK CALL: preserved")
     print("GOAL EVIDENCE: untouched")
