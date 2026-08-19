@@ -70,7 +70,7 @@ def patch_query_api():
     if marker not in text:
         raise RuntimeError("query_api.py anchor missing: IDENTITY_FILE")
 
-    if "GOAL_EVENTS_FILE = ROOT / \"data\" / \"fixture_goal_events.csv\"" not in text:
+    if 'GOAL_EVENTS_FILE = ROOT / "data" / "fixture_goal_events.csv"' not in text:
         text = text.replace(
             marker,
             marker + 'GOAL_EVENTS_FILE = ROOT / "data" / "fixture_goal_events.csv"\n',
@@ -97,37 +97,29 @@ def patch_query_api():
 def patch_app():
     text = read(APP)
 
-    old_import = 'from gui.player_research_ui import render_player_research_ui\n'
-    if old_import not in text:
+    import_anchor = 'from gui.player_research_ui import render_player_research_ui\n'
+    if import_anchor not in text:
         raise RuntimeError("app_redesign.py anchor missing: player research import")
 
-    marker = '''\n\ndef render_fixture_goal_lines(goal_events, side):\n    events = (goal_events or {}).get(side, []) if isinstance(goal_events, dict) else []\n    if not events:\n        return ""\n\n    lines = []\n    for event in events:\n        minute = str(event.get("minute") or "").strip()\n        player = str(event.get("player") or "").strip()\n        if minute and player:\n            lines.append(\n                f"<div style='color:var(--frl-muted-soft);font-size:.62rem;"\n                f"font-weight:500;line-height:1.25;margin-top:.18rem;'>{minute}' {player}</div>"\n            )\n\n    return "".join(lines)\n'''
+    helper = '''\n\ndef render_fixture_goal_lines(goal_events, side):\n    events = (goal_events or {}).get(side, []) if isinstance(goal_events, dict) else []\n    if not events:\n        return ""\n\n    lines = []\n    for event in events:\n        minute = str(event.get("minute") or "").strip()\n        player = str(event.get("player") or "").strip()\n        if minute and player:\n            lines.append(\n                f"<div style='color:var(--frl-muted-soft);font-size:.62rem;"\n                f"font-weight:500;line-height:1.25;margin-top:.18rem;'>{minute}' {player}</div>"\n            )\n\n    return "".join(lines)\n'''
 
     if "def render_fixture_goal_lines(goal_events, side):" not in text:
-        text = text.replace(old_import, old_import + marker, 1)
+        text = text.replace(import_anchor, import_anchor + helper, 1)
 
-    signature = '    def kit_markup(team, side):\n'
-    if signature not in text:
-        raise RuntimeError("app_redesign.py anchor missing: kit_markup")
+    goal_marker = '    home_core = stats["home"]["core"]\n    away_core = stats["away"]["core"]\n'
+    if goal_marker not in text:
+        raise RuntimeError("app_redesign.py anchor missing: match core stats")
+    if '    goal_events = detail.get("goal_events", {})\n' not in text:
+        text = text.replace(goal_marker, goal_marker + '\n    goal_events = detail.get("goal_events", {})\n', 1)
 
-    if '    goal_events = detail.get("goal_events", {})\n\n    def kit_markup(team, side):\n' not in text:
-        text = text.replace(
-            signature,
-            '    goal_events = detail.get("goal_events", {})\n\n' + signature,
-            1,
-        )
+    start = text.find('    def kit_markup(team, side):\n')
+    end = text.find('    score_cols = st.columns(', start)
+    if start == -1 or end == -1:
+        raise RuntimeError("app_redesign.py anchor missing: kit_markup block")
 
-    close_anchor = '            f"</div>"\n        )\n'
-    if close_anchor not in text:
-        raise RuntimeError("app_redesign.py anchor missing: kit markup close")
+    new_kit = '''    def kit_markup(team, side):\n        colour = kit_colours.get(team, "#6f7b84")\n        alignment = "justify-content:flex-end;" if side == "home" else "justify-content:flex-start;"\n        goal_html = render_fixture_goal_lines(goal_events, side)\n        return (\n            f"<div style='display:flex;flex-direction:column;align-items:{'flex-end' if side == 'home' else 'flex-start'};gap:.18rem;">"\n            f"<div style='display:flex;align-items:center;gap:.58rem;{alignment}'>"\n            f"<span style='display:inline-block;width:26px;height:28px;"\n            f"background:{colour};"\n            f"clip-path:polygon(22% 0,38% 0,44% 12%,56% 12%,62% 0,78% 0,100% 25%,84% 39%,76% 28%,76% 100%,24% 100%,24% 28%,16% 39%,0 25%);'></span>"\n            f"<span style='color:var(--frl-text);font-size:1.35rem;font-weight:820;line-height:1.05;'>{team}</span>"\n            f"</div>"\n            f"{goal_html}"\n            f"</div>"\n        )\n\n'''
 
-    if '            + render_fixture_goal_lines(goal_events, side)\n            + f"</div>"\n        )\n' not in text:
-        text = text.replace(
-            close_anchor,
-            '            + render_fixture_goal_lines(goal_events, side)\n' + close_anchor,
-            1,
-        )
-
+    text = text[:start] + new_kit + text[end:]
     return text
 
 
