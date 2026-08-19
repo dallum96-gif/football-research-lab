@@ -22,7 +22,6 @@ EXPECTED_SEASONS = (
     "2025-26",
 )
 
-
 EXPECTED_FIELDS = {
     "passes": "totalPass",
     "accurate_passes": "accuratePass",
@@ -49,6 +48,13 @@ def test_source_seasons():
     )
 
 
+def test_source_files_exclude_partitions():
+    paths = player_match_stats._season_player_match_files("2016-17")
+    assert paths
+    assert all("by_position" not in path.parts for path in paths)
+    assert all(path.parent.name == "players_match_stats" for path in paths)
+
+
 def test_passing_schema_contract():
     assert player_match_stats.PASSING_METRICS
     for metric in player_match_stats.PASSING_METRICS:
@@ -72,8 +78,6 @@ def test_metric_coverage():
 
 
 def test_player_match_pair_resolution():
-    identity_rows = tuple(player_match_stats._identity_rows())
-
     fixture = {
         "season": "2019-20",
         "fixture_id": "1",
@@ -101,17 +105,31 @@ def test_known_fixture_exception():
         "away_team_id": "1",
     }
 
-    # The canonical resolver intentionally treats this as a known correction
-    # state, so the player-match adapter must not invent a match through a
-    # guessed scheduled date.
     try:
         player_match_stats.player_match_id_for_fixture(fixture)
     except (ValueError, KeyError):
         return
 
-    # If a future correction-aware resolver can resolve it, that is also valid;
-    # the important invariant is that the adapter never raises an ambiguous
-    # source match or silently fabricates an identity.
+
+def test_participation_classification():
+    assert player_match_stats.classify_participation(
+        {"substitute": "False", "minutesPlayed": "90"}
+    ) == "starting"
+    assert player_match_stats.classify_participation(
+        {"substitute": "True", "minutesPlayed": "31"}
+    ) == "sub_in"
+    assert player_match_stats.classify_participation(
+        {"substitute": "True", "minutesPlayed": "0"}
+    ) == "bench"
+    assert player_match_stats.classify_participation(
+        {"substitute": "False", "minutesPlayed": "0"}
+    ) == "unknown"
+
+
+def test_source_player_id():
+    assert player_match_stats.source_player_id({"playerId": "1185"}) == "1185"
+    assert player_match_stats.source_player_id({"pl_code": "11334"}) == "11334"
+    assert player_match_stats.source_player_id({}) is None
 
 
 def test_aggregate_rows():
@@ -144,10 +162,13 @@ def test_aggregate_rows():
 
 TESTS = [
     test_source_seasons,
+    test_source_files_exclude_partitions,
     test_passing_schema_contract,
     test_metric_coverage,
     test_player_match_pair_resolution,
     test_known_fixture_exception,
+    test_participation_classification,
+    test_source_player_id,
     test_aggregate_rows,
 ]
 
