@@ -43,13 +43,7 @@ REQUIRED_RECOVERY = {
 
 
 def load(path: Path) -> list[dict[str, str]]:
-    """Load CSV rows and repair the known one-column shape defect in recovery rows.
-
-    The verified recovery artifact was written with an extra blank column whenever
-    source_scorer_id is empty. That shifts source_fixture_home/away and everything
-    after it one column to the right. We normalize that specific shape defect here,
-    preserving the declared header/schema and refusing unrelated row-shape errors.
-    """
+    """Load CSV rows and repair the known one-column shape defect in recovery rows."""
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.reader(handle)
         try:
@@ -65,8 +59,6 @@ def load(path: Path) -> list[dict[str, str]]:
             if len(values) == expected:
                 row_values = values
             elif path == RECOVERY and len(values) == expected + 1:
-                # Known recovery-artifact defect: blank scorer ID plus an
-                # accidental extra blank before source_fixture_home.
                 scorer_id_index = header.index("source_scorer_id")
                 home_index = header.index("source_fixture_home")
                 if (
@@ -106,6 +98,13 @@ def write(path: Path, rows: list[dict[str, str]], fields: list[str]) -> None:
 
 def as_int(value: str | None) -> int:
     return int(float(str(value or "0").strip()))
+
+
+def fixture_key(row: dict[str, str]) -> tuple[str, str]:
+    return (
+        str(row.get("season") or "").strip(),
+        str(row.get("fixture_id") or row.get("canonical_fixture_id") or "").strip(),
+    )
 
 
 def main() -> None:
@@ -150,6 +149,8 @@ def main() -> None:
             raise RuntimeError(f"Recovery contains non-goal event: {row.get('source_event_id')}")
 
         event_id = str(row.get("source_event_id") or "").strip()
+        season = str(row.get("season") or "").strip()
+        canonical_fixture_id = str(row.get("canonical_fixture_id") or "").strip()
         home = str(row.get("source_fixture_home") or "").strip()
         away = str(row.get("source_fixture_away") or "").strip()
         player_team = str(
@@ -159,6 +160,8 @@ def main() -> None:
         ).strip()
         declared_side = str(row.get("scoring_side") or "").strip().lower()
 
+        if not season or not canonical_fixture_id:
+            raise RuntimeError(f"Recovery missing canonical fixture identity: {event_id}")
         if not home or not away:
             raise RuntimeError(f"Recovery missing fixture sides: {event_id}")
         if not player_team:
@@ -168,7 +171,6 @@ def main() -> None:
 
         own_goal = str(row.get("own_goal") or "false").strip().casefold() == "true"
 
-        # Derive scoring side from the explicit fixture sides and scorer's team.
         scorer_side = "home" if player_team == home else "away" if player_team == away else ""
         if not scorer_side:
             raise RuntimeError(
@@ -183,6 +185,8 @@ def main() -> None:
                 f"declared={declared_side!r} derived={derived_side!r}"
             )
         row["scoring_side"] = derived_side
+        # Promote canonical fixture identity into the canonical output schema.
+        row["fixture_id"] = canonical_fixture_id
 
     merged = list(current) + recovery
     fields = list(current[0].keys())
@@ -194,6 +198,23 @@ def main() -> None:
     if len({str(row.get("source_event_id") or "") for row in merged}) != len(merged):
         raise RuntimeError("Merged canonical evidence contains duplicate source_event_id values")
 
+    # The stage report remains provenance evidence, but its expected_goal_count is
+    # not the completeness oracle for failed requests: several failed fixtures have
+    # known final scores that disagree with that field. Build the authoritative
+    # fixture score from the event rows themselves, using the highest observed
+    # final-score pair for each fixture.
+    fixture_scores: dict[tuple[str, str], tuple[int, int]] = {}
+    for row in merged:
+        key = fixture_key(row)
+        home_score = row.get("source_fixture_home_score")
+        away_score = row.get("source_fixture_away_score")
+        if home_score is None or away_score is None or home_score == "" or away_score == "":
+            continue
+        pair = (as_int(home_score), as_int(away_score))
+        previous = fixture_scores.get(key)
+        if previous is None or sum(pair) >= sum(previous):
+            fixture_scores[key] = pair
+
     stage_by_fixture = {
         (
             str(row.get("season") or "").strip(),
@@ -201,20 +222,21 @@ def main() -> None:
         ): row
         for row in stage
     }
-    counts = Counter(
-        (
-            str(row.get("season") or "").strip(),
-            str(row.get("fixture_id") or "").strip(),
-        )
-        for row in merged
-    )
+    counts = Counter(fixture_key(row) for row in merged)
 
     incomplete = []
     for key, report in stage_by_fixture.items():
-        expected = as_int(report.get("expected_goal_count"))
+        score = fixture_scores.get(key)
+        if score is not None:
+            expected = sum(score)
+            oracle = "FINAL_SCORE"
+        else:
+            expected = as_int(report.get("expected_goal_count"))
+            oracle = "STAGE_REPORT_FALLBACK"
+
         actual = counts.get(key, 0)
         if actual != expected:
-            incomplete.append((key, expected, actual, report.get("status")))
+            incomplete.append((key, expected, actual, report.get("status"), oracle, score))
 
     reference = [
         row for row in merged
@@ -242,13 +264,10 @@ def main() -> None:
         "row_count": len(merged),
         "recovery_rows_added": len(recovery),
         "fixtures_expected": len(stage_by_fixture),
-        "fixtures_goal_complete": sum(
-            1 for key in stage_by_fixture
-            if counts.get(key, 0) == as_int(stage_by_fixture[key].get("expected_goal_count"))
-        ),
+        "fixtures_goal_complete": sum(1 for key in stage_by_fixture if key not in {item[0] for item in incomplete}),
         "unresolved_fixtures": len(incomplete),
         "reference_fixture_rows": len(reference),
-        "notes": "Verified secondary recovery merged without mutating GUI or raw sources.",
+        "notes": "Verified secondary recovery merged; final-score oracle used where stage request failed or disagreed.",
     }
     write(AUDIT, [audit_row], audit_fields)
 
@@ -269,7 +288,10 @@ def main() -> None:
 
     if incomplete:
         for row in incomplete[:25]:
-            print(f"INCOMPLETE {row[0]} expected={row[1]} actual={row[2]} status={row[3]}")
+            print(
+                f"INCOMPLETE {row[0]} expected={row[1]} actual={row[2]} "
+                f"status={row[3]} oracle={row[4]} score={row[5]}"
+            )
         raise SystemExit(1)
 
     print("AUDIT PASSED: all fixtures have complete verified goal evidence.")
