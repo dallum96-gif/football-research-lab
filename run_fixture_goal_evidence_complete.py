@@ -22,10 +22,12 @@ def main() -> None:
     spec.loader.exec_module(module)
 
     source_raw = SOURCE_ROOT / "data" / "raw"
+    frl_raw = ROOT / "data" / "raw"
+
     module.PULSELIVE = source_raw / "fixture_goal_events_pulselive.staged.csv"
-    module.MANUAL_RECOVERY = source_raw / "fixture_goal_events_secondary_recovery_2016_17.csv"
     module.STAGE_REPORT = source_raw / "fixture_goal_events_stage_report.csv"
-    module.SECONDARY_CACHE = source_raw / "_secondary_goal_dataset_cache.csv"
+    module.MANUAL_RECOVERY = frl_raw / "fixture_goal_events_secondary_recovery_2016_17.csv"
+    module.SECONDARY_CACHE = frl_raw / "_secondary_goal_dataset_cache.csv"
 
     print("FIXTURE-GOAL COMPLETE BUILDER: canonical source paths injected")
     print(f"SOURCE ROOT: {SOURCE_ROOT}")
