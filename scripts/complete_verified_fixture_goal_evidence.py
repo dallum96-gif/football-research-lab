@@ -20,7 +20,6 @@ def discover_source_root() -> Path:
 
     candidates = [
         ROOT.parent / "Premier-League-Stats" / "fpl_scraper" / "fpl_stats",
-        ROOT.parent / "Premier-League-Stats" / "fpl_scraper" / "fpl_stats".replace("/", os.sep),
     ]
     for candidate in candidates:
         if (candidate / "data" / "raw" / "fixture_goal_events_stage_report.csv").is_file():
@@ -38,7 +37,7 @@ REQUIRED_RECOVERY = {
     "source_event_type", "source_event_time_label", "source_scorer_name",
     "source_scorer_team", "source_scorer_player_team", "source_fixture_home",
     "source_fixture_away", "source_fixture_home_score", "source_fixture_away_score",
-    "scoring_side", "own_goal", "evidence_source_url",
+    "own_goal", "evidence_source_url",
 }
 
 
@@ -58,6 +57,32 @@ def write(path: Path, rows: list[dict[str, str]], fields: list[str]) -> None:
 
 def as_int(value: str | None) -> int:
     return int(float(str(value or "0").strip()))
+
+
+def derive_scoring_side(row: dict[str, str]) -> str:
+    """Derive scoring side from explicit fixture sides and player team.
+
+    For ordinary goals the scoring side is the player's team. For own goals,
+    the scoring side is the opposite fixture side. This is deterministic and
+    avoids requiring the recovery file to carry a precomputed field.
+    """
+    home = str(row.get("source_fixture_home") or "").strip()
+    away = str(row.get("source_fixture_away") or "").strip()
+    player_team = str(
+        row.get("source_scorer_player_team")
+        or row.get("source_scorer_team")
+        or ""
+    ).strip()
+    if not home or not away or not player_team:
+        return ""
+
+    own_goal = str(row.get("own_goal") or "false").strip().casefold() == "true"
+
+    if player_team == home:
+        return "away" if own_goal else "home"
+    if player_team == away:
+        return "home" if own_goal else "away"
+    return ""
 
 
 def main() -> None:
@@ -97,38 +122,64 @@ def main() -> None:
     if overlap:
         raise RuntimeError(f"Recovery overlaps existing canonical event IDs: {sorted(overlap)[:10]}")
 
+    validated_recovery: list[dict[str, str]] = []
     for row in recovery:
+        event_id = str(row.get("source_event_id") or "").strip()
         if str(row.get("source_event_type") or "").strip().casefold() != "goal":
-            raise RuntimeError(f"Recovery contains non-goal event: {row.get('source_event_id')}")
-        if str(row.get("scoring_side") or "").strip().lower() not in {"home", "away"}:
-            raise RuntimeError(f"Recovery missing scoring side: {row.get('source_event_id')}")
+            raise RuntimeError(f"Recovery contains non-goal event: {event_id}")
         if str(row.get("evidence_source_url") or "").strip() == "":
-            raise RuntimeError(f"Recovery missing evidence URL: {row.get('source_event_id')}")
-        own_goal = str(row.get("own_goal") or "false").strip().casefold() == "true"
-        player_team = str(row.get("source_scorer_player_team") or row.get("source_scorer_team") or "").strip()
-        scoring_side = str(row.get("scoring_side") or "").strip().lower()
+            raise RuntimeError(f"Recovery missing evidence URL: {event_id}")
+
         home = str(row.get("source_fixture_home") or "").strip()
         away = str(row.get("source_fixture_away") or "").strip()
         if not home or not away:
-            raise RuntimeError(f"Recovery missing fixture sides: {row.get('source_event_id')}")
-        if own_goal:
-            expected_player_team = away if scoring_side == "home" else home
-            if player_team != expected_player_team:
-                raise RuntimeError(
-                    f"Own-goal identity mismatch: {row.get('source_event_id')} "
-                    f"player_team={player_team!r} expected={expected_player_team!r}"
-                )
-        else:
-            expected_player_team = home if scoring_side == "home" else away
-            if player_team != expected_player_team:
-                raise RuntimeError(
-                    f"Scorer-side mismatch: {row.get('source_event_id')} "
-                    f"player_team={player_team!r} expected={expected_player_team!r}"
-                )
+            raise RuntimeError(f"Recovery missing fixture sides: {event_id}")
 
-    merged = list(current) + recovery
+        own_goal = str(row.get("own_goal") or "false").strip().casefold() == "true"
+        player_team = str(
+            row.get("source_scorer_player_team")
+            or row.get("source_scorer_team")
+            or ""
+        ).strip()
+        scoring_side = str(row.get("scoring_side") or "").strip().lower()
+        derived_side = derive_scoring_side(row)
+
+        if not derived_side:
+            raise RuntimeError(
+                f"Cannot derive scoring side: {event_id} "
+                f"player_team={player_team!r} home={home!r} away={away!r} own_goal={own_goal}"
+            )
+
+        if scoring_side and scoring_side != derived_side:
+            raise RuntimeError(
+                f"Recovery scoring-side disagreement: {event_id} "
+                f"declared={scoring_side!r} derived={derived_side!r}"
+            )
+
+        expected_player_team = (
+            away if derived_side == "home" else home
+            if own_goal
+            else home if derived_side == "home" else away
+        )
+        # More explicit equivalent check to keep the own-goal rule readable.
+        if own_goal:
+            expected_player_team = away if derived_side == "home" else home
+        else:
+            expected_player_team = home if derived_side == "home" else away
+
+        if player_team != expected_player_team:
+            raise RuntimeError(
+                f"Recovery scorer-side mismatch: {event_id} "
+                f"player_team={player_team!r} expected={expected_player_team!r}"
+            )
+
+        row = dict(row)
+        row["scoring_side"] = derived_side
+        validated_recovery.append(row)
+
+    merged = list(current) + validated_recovery
     fields = list(current[0].keys())
-    for row in recovery:
+    for row in validated_recovery:
         for key in row.keys():
             if key not in fields:
                 fields.append(key)
@@ -176,12 +227,12 @@ def main() -> None:
         "status": "PASSED" if not incomplete else "BLOCKED",
         "source_file": str(RECOVERY),
         "row_count": len(merged),
-        "recovery_rows_added": len(recovery),
+        "recovery_rows_added": len(validated_recovery),
         "fixtures_expected": len(stage_by_fixture),
         "fixtures_goal_complete": sum(1 for key in stage_by_fixture if counts.get(key, 0) == as_int(stage_by_fixture[key].get("expected_goal_count"))),
         "unresolved_fixtures": len(incomplete),
         "reference_fixture_rows": len(reference),
-        "notes": "Verified secondary recovery merged without mutating GUI or raw sources.",
+        "notes": "Verified secondary recovery merged without mutating GUI or raw sources; scoring_side derived deterministically from explicit fixture sides and player team.",
     }
     write(AUDIT, [audit_row], audit_fields)
 
@@ -191,7 +242,7 @@ def main() -> None:
     print(f"Source root:             {SOURCE_ROOT}")
     print(f"Stage report:            {STAGE}")
     print(f"Existing canonical rows: {len(current)}")
-    print(f"Verified recovery rows:  {len(recovery)}")
+    print(f"Verified recovery rows:  {len(validated_recovery)}")
     print(f"Merged canonical rows:   {len(merged)}")
     print(f"Fixtures expected:       {len(stage_by_fixture)}")
     print(f"Fixtures goal-complete:  {audit_row['fixtures_goal_complete']}/{len(stage_by_fixture)}")
