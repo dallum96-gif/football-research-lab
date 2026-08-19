@@ -121,7 +121,7 @@ def _sidebar_navigation_html(grouped, selected: str) -> str:
             icon = html.escape(ICONS.get(item.key, "circle"), quote=True)
             active = " is-active" if selected == item.key else ""
             parts.append(
-                f'<a class="frl-sidebar-link{active}" href="?workspace={key}" aria-label="{label}">'
+                f'<a class="frl-sidebar-link{active}" href="?workspace={key}" target="_self" aria-label="{label}">'
                 f'<span class="frl-sidebar-icon">{icon}</span>'
                 f'<span class="frl-sidebar-label">{label}</span>'
                 "</a>"
