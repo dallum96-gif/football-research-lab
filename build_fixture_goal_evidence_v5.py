@@ -19,6 +19,14 @@ REQUIRED_EVENT = {
     "source_event_text", "source_scorer_name", "source_scorer_team", "source_scorer_id",
 }
 
+# Verified 2016-17 source/team-display aliases established by the full 1,006-event audit.
+HISTORICAL_TEAM_ALIASES = {
+    "Tottenham Hotspur": "Spurs",
+    "Manchester City": "Man City",
+    "Manchester United": "Man Utd",
+    "Middlesbrough": "Boro",
+}
+
 
 def read_csv(path: Path):
     with path.open("r", encoding="utf-8-sig", newline="") as handle:
@@ -98,11 +106,16 @@ def stage_audit():
 
 def resolve_scorer_team(season, scorer_team, home, away, aliases):
     scorer = str(scorer_team or "").replace("_", " ").strip()
-    if scorer in {home, away}:
+
+    if scorer in (home, away):
         return scorer
 
+    explicit_alias = HISTORICAL_TEAM_ALIASES.get(scorer)
+    if explicit_alias in (home, away):
+        return explicit_alias
+
     canonical = aliases.get((season, norm(scorer)))
-    if canonical in {home, away}:
+    if canonical in (home, away):
         return canonical
 
     candidates = []
@@ -212,7 +225,8 @@ def build():
             f"FIXTURES_WITH_GOALS={len({(r['season'], r['fixture_id']) for r in output_rows})};"
             f"SOURCE_FIELDS={len(event_fields)};"
             f"STAGE_REPORT_FIXTURES={len(audits)};"
-            f"GOAL_COUNT_MISMATCH_FIXTURES={len(mismatch_fixtures)}"
+            f"GOAL_COUNT_MISMATCH_FIXTURES={len(mismatch_fixtures)};"
+            f"HISTORICAL_ALIASES={len(HISTORICAL_TEAM_ALIASES)}"
         ),
     }]
     for season, fixture_id in sorted(mismatch_fixtures):
