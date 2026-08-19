@@ -15,6 +15,7 @@ import query_lab
 from match_stats import fixture_source_match
 
 RAW = ROOT / "data" / "raw" / "fixture_goal_events_pulselive.csv"
+FPL_FALLBACK = ROOT / "data" / "raw" / "fpl_historical_identity_fallback.csv"
 OUT = ROOT / "data" / "fixture_goal_events.csv"
 
 FIELDS = [
@@ -40,7 +41,7 @@ def load(path):
 
 
 def fpl_element_by_name(season):
-    """Read the season GW history, which is the local FPL player source containing element."""
+    """Read local FPL GW history, then verified historical fallback provenance for missing names."""
     path = ROOT / "_merged" / "players" / f"{season}_all_players_gw.csv"
     rows = load(path)
     values: dict[str, set[tuple[str, str]]] = defaultdict(set)
@@ -53,6 +54,26 @@ def fpl_element_by_name(season):
         if not name or not element:
             continue
         values[norm(name)].add((element, name.replace("_", " ")))
+
+    if FPL_FALLBACK.exists():
+        for row in load(FPL_FALLBACK):
+            if str(row.get("verification_status") or "").strip() != "VERIFIED":
+                continue
+            if str(row.get("season") or "").strip() != season:
+                continue
+            name_norm = norm(row.get("normalized_name") or row.get("source_name"))
+            element = str(row.get("fpl_element") or "").strip()
+            source_name = str(row.get("source_name") or "").strip()
+            if not name_norm or not element:
+                continue
+            fallback_value = (element, source_name)
+            existing = values.get(name_norm, set())
+            if existing and existing != {fallback_value}:
+                raise RuntimeError(
+                    f"Conflicting FPL identity for {season}/{name_norm}: "
+                    f"local={sorted(existing)!r}, fallback={fallback_value!r}"
+                )
+            values[name_norm].add(fallback_value)
 
     resolved = {}
     for key, candidates in values.items():
@@ -126,11 +147,13 @@ def main():
             if hit and str(hit[0]).strip() == source_id:
                 hits.append((fixture, hit))
         if len(hits) != 1:
-            raise RuntimeError(f"Expected exactly one canonical fixture for {season}/{source_id}; found {len(hits)}")
+            raise RuntimeError(
+                f"Expected exactly one canonical fixture for {season}/{source_id}; found {len(hits)}"
+            )
         resolved[(season, source_id)] = hits[0]
 
     player_indexes = {season: player_bridge(season) for season in seasons}
-    print("PLAYER IDENTITY: loaded from FPL GW history + FRL archive crosswalk", flush=True)
+    print("PLAYER IDENTITY: loaded from FPL GW history + verified fallback + FRL archive crosswalk", flush=True)
 
     out = []
     for row in raw:
@@ -151,7 +174,9 @@ def main():
         away_code = str(away.get("team_id", "")).strip()
         scorer_side = "home" if team_code == home_code else "away" if team_code == away_code else ""
         if not scorer_side:
-            raise RuntimeError(f"Scorer team does not match fixture sides: {scorer_name}/{row['source_scorer_team']}")
+            raise RuntimeError(
+                f"Scorer team does not match fixture sides: {scorer_name}/{row['source_scorer_team']}"
+            )
 
         own_goal = str(row.get("own_goal", "false")).casefold() == "true"
         scoring_side = ("away" if scorer_side == "home" else "home") if own_goal else scorer_side
