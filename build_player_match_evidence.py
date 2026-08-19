@@ -4,14 +4,13 @@ The builder keeps source-native player-match fields intact and adds only FRL
 relationship/provenance columns around them. It is deliberately fail-closed:
 unresolved or ambiguous fixtures are reported and are not fabricated.
 
-Output grain:
-    one row per (season, canonical fixture, source player-match row)
-
-The source boundary is the Premier-League-Stats local workspace only.
+The documented 2019-20 Manchester City v Arsenal correction is represented as
+a known exception rather than invented into a player-match mapping.
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
 import os
 from pathlib import Path
@@ -24,24 +23,13 @@ from player_match_stats import (
     source_player_id,
 )
 
-
 ROOT = Path(__file__).resolve().parent
 FIXTURE_FILE = ROOT / "fixtures_master_corrected.csv"
 OUTPUT_FILE = ROOT / "data" / "player_match_evidence.csv"
 AUDIT_FILE = ROOT / "data" / "player_match_evidence_build_audit.csv"
-
-
-FIXTURE_FIELDS = (
-    "season",
-    "fixture_id",
-    "fixture_code",
-    "kickoff_time",
-    "gameweek",
-    "home_team_id",
-    "away_team_id",
-    "home_score",
-    "away_score",
-)
+KNOWN_EXCEPTIONS = {
+    ("2019-20", "275"): "Documented Manchester City v Arsenal fixture correction case",
+}
 
 
 def read_csv(path: Path) -> tuple[list[dict], list[str]]:
@@ -57,17 +45,26 @@ def read_csv(path: Path) -> tuple[list[dict], list[str]]:
 
 def load_fixtures() -> list[dict]:
     rows, fields = read_csv(FIXTURE_FILE)
-    missing = sorted(set(FIXTURE_FIELDS) - set(fields))
+    required = {
+        "season", "fixture_id", "fixture_code", "kickoff_time", "gameweek",
+        "home_team_id", "away_team_id", "home_score", "away_score",
+    }
+    missing = sorted(required - set(fields))
     if missing:
         raise ValueError("Fixture master missing: " + ", ".join(missing))
     return rows
 
 
-def build() -> tuple[int, int]:
+def build(season_filter: str | None = None) -> tuple[int, int, int]:
     if not PL_ROOT.is_dir():
         raise FileNotFoundError(f"Approved upstream source not found: {PL_ROOT}")
 
     fixtures = load_fixtures()
+    if season_filter:
+        fixtures = [row for row in fixtures if row["season"] == season_filter]
+        if not fixtures:
+            raise ValueError(f"No canonical fixtures found for season {season_filter}")
+
     evidence: list[dict] = []
     audit: list[dict] = []
     duplicate_keys: set[tuple[str, str, str, str]] = set()
@@ -75,29 +72,32 @@ def build() -> tuple[int, int]:
     for fixture in fixtures:
         season = fixture["season"]
         fixture_id = fixture["fixture_id"]
+        known_reason = KNOWN_EXCEPTIONS.get((season, fixture_id))
 
         try:
             match_id = player_match_id_for_fixture(fixture)
             if match_id is None:
+                status = "KNOWN_EXCEPTION" if known_reason else "UNRESOLVED"
                 audit.append({
                     "season": season,
                     "fixture_id": fixture_id,
-                    "status": "UNRESOLVED",
+                    "status": status,
                     "source_match_id": "",
                     "player_rows": "0",
-                    "reason": "No verified player-match source fixture",
+                    "reason": known_reason or "No verified player-match source fixture",
                 })
                 continue
 
             rows = fixture_player_match_rows(fixture)
             if not rows:
+                status = "KNOWN_EXCEPTION" if known_reason else "NO_PLAYER_ROWS"
                 audit.append({
                     "season": season,
                     "fixture_id": fixture_id,
-                    "status": "NO_PLAYER_ROWS",
+                    "status": status,
                     "source_match_id": match_id,
                     "player_rows": "0",
-                    "reason": "Source fixture resolved but returned no player rows",
+                    "reason": known_reason or "Source fixture resolved but returned no player rows",
                 })
                 continue
 
@@ -135,7 +135,6 @@ def build() -> tuple[int, int]:
                     "frl_source_file": row.get("_source_file", ""),
                 }
 
-                # Preserve every source-native player-match variable unchanged.
                 for key, value in row.items():
                     if key == "_source_file":
                         continue
@@ -154,13 +153,14 @@ def build() -> tuple[int, int]:
             })
 
         except (ValueError, KeyError) as exc:
+            status = "KNOWN_EXCEPTION" if known_reason else "ERROR"
             audit.append({
                 "season": season,
                 "fixture_id": fixture_id,
-                "status": "ERROR",
+                "status": status,
                 "source_match_id": "",
                 "player_rows": "0",
-                "reason": str(exc),
+                "reason": known_reason or str(exc),
             })
 
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -181,12 +181,7 @@ def build() -> tuple[int, int]:
         temp_output.write_text("", encoding="utf-8")
 
     audit_columns = [
-        "season",
-        "fixture_id",
-        "status",
-        "source_match_id",
-        "player_rows",
-        "reason",
+        "season", "fixture_id", "status", "source_match_id", "player_rows", "reason",
     ]
     with temp_audit.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=audit_columns)
@@ -196,14 +191,29 @@ def build() -> tuple[int, int]:
     os.replace(temp_output, OUTPUT_FILE)
     os.replace(temp_audit, AUDIT_FILE)
 
-    return len(evidence), sum(1 for row in audit if row["status"] != "RESOLVED")
+    unresolved = sum(
+        row["status"] in {"UNRESOLVED", "ERROR", "NO_PLAYER_ROWS", "DUPLICATE_SOURCE_ROW"}
+        for row in audit
+    )
+    known = sum(row["status"] == "KNOWN_EXCEPTION" for row in audit)
+    return len(evidence), unresolved, known
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--season", help="Build one canonical season only")
+    args = parser.parse_args()
+
+    row_count, unresolved, known = build(args.season)
+    print(f"PLAYER-MATCH EVIDENCE: {row_count} player-match rows written")
+    print(f"KNOWN EXCEPTIONS: {known}")
+    print(f"UNRESOLVED/ERROR STATES: {unresolved}")
+    print(f"Output: {OUTPUT_FILE}")
+    print(f"Audit: {AUDIT_FILE}")
+
+    if unresolved:
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":
-    row_count, issue_count = build()
-    print(f"PLAYER-MATCH EVIDENCE: {row_count} player-match rows written")
-    print(f"FIXTURE AUDIT: {issue_count} unresolved/error fixture states")
-    if issue_count:
-        print(f"Review: {AUDIT_FILE}")
-        raise SystemExit(1)
-    print(f"Output: {OUTPUT_FILE}")
+    main()
