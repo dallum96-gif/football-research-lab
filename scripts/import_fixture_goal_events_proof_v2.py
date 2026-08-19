@@ -4,6 +4,7 @@ import csv
 from collections import defaultdict
 from pathlib import Path
 import sys
+import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -27,7 +28,9 @@ FIELDS = [
 
 
 def norm(s):
-    return " ".join(str(s or "").casefold().replace("_", " ").split())
+    text = unicodedata.normalize("NFKD", str(s or ""))
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    return " ".join(text.casefold().replace("_", " ").split())
 
 
 def load(path):
@@ -66,7 +69,7 @@ def archive_players_by_name_team(season):
     index: dict[tuple[str, str], set[tuple[str, str]]] = defaultdict(set)
     for (name, team_code), values in player_identity_audit.source_player_index(season).items():
         for pid, display in values:
-            index[(name, str(team_code).strip())].add((pid, display))
+            index[(norm(name), str(team_code).strip())].add((pid, display))
     return index
 
 
