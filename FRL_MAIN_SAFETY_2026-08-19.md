@@ -1,0 +1,1 @@
+Safety marker created because an unintended documentation write briefly landed on main during site-functionality branch preparation. The accidental file will be removed from main immediately after this marker is created. No feature or production-data change was intended.
