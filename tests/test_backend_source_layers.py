@@ -1,4 +1,9 @@
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 import build_player_season_evidence as player_season
 import build_squad_evidence as squad
