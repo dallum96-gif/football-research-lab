@@ -6,7 +6,7 @@ import argparse
 import csv
 from pathlib import Path
 
-from build_fixture_team_evidence import FIXTURE_FIELDS, PL_ROOT, _read_csv if False else None
+from build_fixture_team_evidence import PL_ROOT
 
 ROOT = Path(__file__).resolve().parent
 OUTPUT = ROOT / "data" / "fixture_team_evidence.csv"
@@ -40,11 +40,17 @@ def main():
     args = parser.parse_args()
 
     files = source_files(args.season)
+    if not files:
+        raise FileNotFoundError(f"No approved events_stats files found for {args.season}")
+
     source_fields = set()
     for path in files:
         source_fields.update(read_header(path))
 
-    frl_header = set(read_header(OUTPUT)) if OUTPUT.is_file() else set()
+    if not OUTPUT.is_file():
+        raise FileNotFoundError(f"Evidence output not found: {OUTPUT}")
+
+    frl_header = set(read_header(OUTPUT))
     frl_source_fields = {f[len("source_"):] for f in frl_header if f.startswith("source_")}
 
     missing = sorted(source_fields - frl_source_fields)
