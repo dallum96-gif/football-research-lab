@@ -4,7 +4,6 @@ import csv
 from collections import defaultdict
 from pathlib import Path
 import sys
-import unicodedata
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -29,9 +28,8 @@ FIELDS = [
 
 
 def norm(s):
-    text = unicodedata.normalize("NFKD", str(s or ""))
-    text = "".join(c for c in text if not unicodedata.combining(c))
-    return " ".join(text.casefold().replace("_", " ").split())
+    """Use the authoritative FRL player-name normalisation everywhere."""
+    return player_identity_audit.normalize_name(s)
 
 
 def load(path):
