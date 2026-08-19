@@ -7,14 +7,12 @@ from pathlib import Path
 import os
 import sys
 import tempfile
-import unicodedata
-import re
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-import player_identity_crosswalk
+import player_identity_audit
 import player_research
 import query_lab
 from match_stats import fixture_source_match
@@ -55,54 +53,11 @@ def load_rows(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
-def normalize_name(value: str | None) -> str:
-    text = unicodedata.normalize("NFKD", str(value or ""))
-    text = "".join(c for c in text if not unicodedata.combining(c))
-    text = text.casefold().replace("'", "")
-    text = re.sub(r"[^a-z0-9]+", " ", text)
-    return " ".join(text.split())
-
-
-def verified_event_player_index() -> dict[tuple[str, str, str], tuple[str, str, str]]:
-    """Use the established FRL crosswalk candidate mechanism for event-player resolution.
-
-    Important namespace rule:
-      PulseLive event player ID != archive playerId != FPL element.
-
-    The PulseLive event ID is retained independently. The established crosswalk resolves
-    the event scorer's verified name+team to the archive playerId and FPL element.
-    """
-    index: dict[tuple[str, str, str], set[tuple[str, str, str]]] = defaultdict(set)
-
-    for season in player_identity_crosswalk.SEASONS:
-        for candidate in player_identity_crosswalk.exact_name_team_candidates(season):
-            key = (
-                str(candidate["season"]).strip(),
-                normalize_name(candidate["name_norm"]),
-                str(candidate["team_code"]).strip(),
-            )
-            index[key].add(
-                (
-                    str(candidate["source_player_id"]).strip(),
-                    str(candidate["element"]).strip(),
-                    str(candidate.get("name_norm") or "").strip(),
-                )
-            )
-
-    resolved: dict[tuple[str, str, str], tuple[str, str, str]] = {}
-    for key, values in index.items():
-        if len(values) != 1:
-            raise RuntimeError(
-                f"Established player crosswalk is ambiguous for {key}: {sorted(values)!r}"
-            )
-        resolved[key] = next(iter(values))
-    return resolved
-
-
 def verified_team_index() -> dict[tuple[str, str], str]:
-    """Map season + normalized team name to persistent team code using the FRL registry."""
+    """Resolve season + source team name to verified persistent team code."""
     rows = query_lab.load_identity_registry()
     index: dict[tuple[str, str], set[str]] = defaultdict(set)
+
     for row in rows:
         if row["mapping_status"] != "VERIFIED":
             continue
@@ -114,7 +69,7 @@ def verified_team_index() -> dict[tuple[str, str], str]:
             row.get("club_id"),
             code,
         ):
-            normalized = normalize_name(name)
+            normalized = player_identity_audit.normalize_name(name)
             if normalized:
                 index[(season, normalized)].add(code)
 
@@ -128,8 +83,14 @@ def verified_team_index() -> dict[tuple[str, str], str]:
     return resolved
 
 
-def source_name_team_code(team_index: dict[tuple[str, str], str], season: str, team_name: str) -> str:
-    code = team_index.get((season, normalize_name(team_name)))
+def source_name_team_code(
+    team_index: dict[tuple[str, str], str],
+    season: str,
+    team_name: str,
+) -> str:
+    code = team_index.get(
+        (season, player_identity_audit.normalize_name(team_name))
+    )
     if not code:
         raise RuntimeError(
             f"No verified FRL team identity for {season}/{team_name!r}"
@@ -137,21 +98,60 @@ def source_name_team_code(team_index: dict[tuple[str, str], str], season: str, t
     return code
 
 
+def verified_player_bridge(season: str, team_code: str):
+    """Use the existing read-only FRL player identity audit as the bridge.
+
+    The audit explicitly maps FPL season-local records to persistent team codes,
+    then matches them to the archive playerId namespace. PulseLive event player IDs
+    remain separate provenance identifiers.
+    """
+    fpl_index = player_identity_audit.fpl_player_index(season)
+    source_index = player_identity_audit.source_player_index(season)
+
+    bridge = {}
+
+    for (name_norm, code), fpl_players in fpl_index.items():
+        if code != team_code:
+            continue
+
+        source_players = source_index.get((name_norm, code), set())
+
+        if len(fpl_players) != 1 or len(source_players) != 1:
+            continue
+
+        fpl_element, player_name = next(iter(fpl_players))
+        archive_player_id, source_name = next(iter(source_players))
+
+        bridge[name_norm] = (
+            archive_player_id,
+            fpl_element,
+            player_name,
+            source_name,
+        )
+
+    return bridge
+
+
 def resolve_fixture_source_map(identity_rows, fixtures):
     """Resolve source match IDs once through the existing canonical mechanism."""
     source_map: dict[tuple[str, str], tuple[dict[str, str], tuple]] = {}
+
     for fixture in fixtures.values():
         resolved = fixture_source_match(fixture, identity_rows)
         if not resolved:
             continue
+
         source_id = str(resolved[0]).strip()
         key = (str(fixture["season"]).strip(), source_id)
+
         if key in source_map:
             raise RuntimeError(
                 f"Multiple canonical fixtures resolve to source match {key}: "
                 f"{source_map[key][0]['fixture_id']} and {fixture['fixture_id']}"
             )
+
         source_map[key] = (fixture, resolved)
+
     return source_map
 
 
@@ -163,6 +163,7 @@ def atomic_write(path: Path, rows: list[dict[str, str]]) -> None:
         dir=str(path.parent),
         text=True,
     )
+
     try:
         with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
             writer = csv.DictWriter(handle, fieldnames=FIELDS)
@@ -182,7 +183,6 @@ def atomic_write(path: Path, rows: list[dict[str, str]]) -> None:
 def main() -> None:
     raw = load_rows(RAW)
     identity_rows = query_lab.load_identity_registry()
-    player_index = verified_event_player_index()
     team_index = verified_team_index()
 
     fixtures = {
@@ -191,6 +191,7 @@ def main() -> None:
     }
     fixture_source_map = resolve_fixture_source_map(identity_rows, fixtures)
 
+    player_bridges: dict[tuple[str, str], dict[str, tuple]] = {}
     canonical_rows: list[dict[str, str]] = []
     skipped = 0
     unresolved_players: list[tuple[str, str, str, str, str]] = []
@@ -217,28 +218,35 @@ def main() -> None:
         if str(resolved_source_id) != source_match_id:
             raise RuntimeError("Source-match reconciliation changed the source identifier")
 
-        scorer_team_code = source_name_team_code(team_index, season, scorer_team)
-        identity_matches = player_index.get(
-            (season, normalize_name(scorer_name), scorer_team_code)
+        scorer_team_code = source_name_team_code(
+            team_index,
+            season,
+            scorer_team,
         )
-        if not identity_matches:
+
+        bridge_key = (season, scorer_team_code)
+        if bridge_key not in player_bridges:
+            player_bridges[bridge_key] = verified_player_bridge(
+                season,
+                scorer_team_code,
+            )
+
+        player_index = player_bridges[bridge_key]
+        name_norm = player_identity_audit.normalize_name(scorer_name)
+        identity_match = player_index.get(name_norm)
+
+        if not identity_match:
             unresolved_players.append(
                 (season, source_match_id, pulse_player_id, scorer_name, scorer_team)
             )
             continue
 
-        archive_player_id, element, crosswalk_name = identity_matches
-        player_name = player_research.display_player_name(
-            next(
-                row_player
-                for row_player in player_research._load_season_rows(season)
-                if str(row_player.get("element") or "").strip() == element
-            )
-        )
-        if normalize_name(player_name) != normalize_name(scorer_name):
+        archive_player_id, element, player_name, source_name = identity_match
+
+        if player_identity_audit.normalize_name(source_name) != name_norm:
             raise RuntimeError(
-                f"Player name reconciliation changed for {season}/{source_match_id}: "
-                f"{scorer_name!r} -> {player_name!r}"
+                f"Archive player name reconciliation changed for {season}/{source_match_id}: "
+                f"{scorer_name!r} -> {source_name!r}"
             )
 
         home_team_code = str(source_home.get("team_id") or "").strip()
@@ -248,6 +256,7 @@ def main() -> None:
             else "away" if scorer_team_code == away_team_code
             else ""
         )
+
         if not scorer_side:
             raise RuntimeError(
                 f"Verified player {archive_player_id} cannot be reconciled to either "
@@ -281,7 +290,7 @@ def main() -> None:
         )
         raise RuntimeError(
             f"Refusing canonical promotion: {len(unresolved_players)} PulseLive scorer rows "
-            f"could not be bridged using the established FRL exact-name+team crosswalk. "
+            f"could not be bridged through the established FRL player identity audit. "
             f"Sample: {sample}"
         )
 
