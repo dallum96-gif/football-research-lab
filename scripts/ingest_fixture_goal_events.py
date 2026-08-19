@@ -107,6 +107,24 @@ def _is_goal(event: dict) -> bool:
     return event_type in {"goal", "penalty goal"}
 
 
+def _canonical_season_label(label: str) -> str:
+    """Normalise PulseLive season labels to the FRL season convention.
+
+    Examples:
+      2016/17 -> 2016-17
+      English Premier League Season 2026/2027 -> 2026-27
+    """
+    text = str(label or "").strip()
+    match = re.search(r"(\d{4})/(\d{2}|\d{4})$", text)
+    if not match:
+        return text
+    start = match.group(1)
+    end = match.group(2)
+    if len(end) == 4:
+        end = end[-2:]
+    return f"{start}-{end}"
+
+
 @lru_cache(maxsize=1)
 def _pulse_competition_seasons() -> dict[str, str]:
     url = f"{PULSE_BASE}/competitions/1/compseasons"
@@ -123,13 +141,15 @@ def _pulse_competition_seasons() -> dict[str, str]:
         label = str(row.get("label") or "").strip()
         season_id = row.get("id")
         if label and season_id not in (None, ""):
-            output[label] = str(int(float(season_id)))
+            output[_canonical_season_label(label)] = str(int(float(season_id)))
     return output
 
 
 @lru_cache(maxsize=32)
 def _pulse_fixture_index(season: str) -> dict[str, str]:
-    competition_season = _pulse_competition_seasons().get(str(season))
+    competition_season = _pulse_competition_seasons().get(
+        _canonical_season_label(str(season))
+    )
     if not competition_season:
         raise ValueError(f"PulseLive competition season not found: {season}")
 
