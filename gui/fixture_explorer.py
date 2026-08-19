@@ -226,7 +226,7 @@ def render_fixture_explorer(season, team, get_fixtures):
 
         cols[1].markdown(
             f"""
-            <a href="?fixture={season}:{row['fixture_id']}"
+            <a href="?fixture={season}:{row['fixture_id']}" target="_self"
                style="
                    display:flex;
                    align-items:center;
