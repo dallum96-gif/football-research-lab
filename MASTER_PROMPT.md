@@ -117,6 +117,7 @@ Before doing substantive work, read:
 * `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`
 * `FRL_SOURCE_NORMALISATION_CONTRACT.md`
 * `SESSION_START_PROTOCOL.md`
+* `LOCAL_CHECKOUT_EXECUTION_SOP.md`
 
 Then inspect the relevant code and establish the current branch/state before doing anything.
 
@@ -124,7 +125,17 @@ Do not ask me to re-explain the project when the information can be recovered fr
 
 The fresh-session sequence is therefore:
 
-**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source/discovery/normalisation contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source/discovery/normalisation/execution contracts → establish repo/branch state → verify local synchronisation and required paths → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+
+### Local checkout / execution safety
+
+`LOCAL_CHECKOUT_EXECUTION_SOP.md` is authoritative for local execution and repository-state checks.
+
+Whenever substantive work depends on the user's local checkout, establish the local branch, synchronisation state, required file/path existence and network/transport availability before giving execution commands. Never assume remote state equals local state.
+
+For newly created scripts or files, verify that the path exists on the intended branch and in the user's local checkout before instructing the user to execute it. Verify connectivity before relying on `git pull` or other network-dependent operations.
+
+Use the smallest reversible change surface, protect canonical data, fail closed on identity/provenance problems, and report exact changed/unchanged state and validation results. Do not use conversation state as a substitute for repository state.
 
 ### Branch safety
 
@@ -185,7 +196,7 @@ Preserve source observations and derivation logic separately. Do not silently ov
 
 The FRL should be treated as a connected football evidence system with a data platform underneath the UI.
 
-Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation, discovery, normalisation and player-metadata source documents named above before making architecture changes.
+Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation, discovery, normalisation, execution and player-metadata source documents named above before making architecture changes.
 
 The guiding principle is:
 
