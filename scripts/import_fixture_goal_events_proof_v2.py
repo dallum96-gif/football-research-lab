@@ -21,7 +21,10 @@ FIELDS = [
     "season", "fixture_id", "source_match_id", "source_pulse_fixture_id",
     "source_event_id", "source_event_type", "source_event_seconds",
     "source_event_time_label", "source_event_text", "source_scorer_name",
-    "source_scorer_team", "source_scorer_id", "pulse_player_id",
+    "source_scorer_team", "source_scorer_id", "source_assist_ids",
+    "source_fixture_home", "source_fixture_away",
+    "source_fixture_home_score", "source_fixture_away_score",
+    "source_pulse_fixture_id", "pulse_player_id",
     "archive_player_id", "identity_status", "fpl_element", "player_name",
     "side", "own_goal", "source_url", "retrieved_at_utc", "goal_count_match",
 ]
@@ -180,7 +183,7 @@ def main():
         scoring_side = ("away" if scorer_side == "home" else "home") if own_goal else scorer_side
 
         out.append({
-            **row,
+            **{field: row.get(field, "") for field in FIELDS},
             "fixture_id": str(fixture["fixture_id"]),
             "pulse_player_id": row["source_scorer_id"],
             "archive_player_id": archive_player_id,
@@ -192,7 +195,7 @@ def main():
 
     temp = OUT.with_suffix(".tmp")
     with temp.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=FIELDS)
+        w = csv.DictWriter(f, fieldnames=FIELDS, extrasaction="raise")
         w.writeheader()
         w.writerows(out)
     temp.replace(OUT)
