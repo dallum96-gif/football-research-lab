@@ -24,9 +24,9 @@ FIELDS = [
     "source_scorer_team", "source_scorer_id", "source_assist_ids",
     "source_fixture_home", "source_fixture_away",
     "source_fixture_home_score", "source_fixture_away_score",
-    "source_pulse_fixture_id", "pulse_player_id",
-    "archive_player_id", "identity_status", "fpl_element", "player_name",
-    "side", "own_goal", "source_url", "retrieved_at_utc", "goal_count_match",
+    "pulse_player_id", "archive_player_id", "identity_status", "fpl_element",
+    "player_name", "side", "own_goal", "source_url", "retrieved_at_utc",
+    "goal_count_match",
 ]
 
 
