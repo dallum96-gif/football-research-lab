@@ -1,0 +1,2 @@
+season,normalized_name,source_name,persistent_team_code,fpl_element,source_repo,source_path,source_ref,verification_status
+2016-17,sadio mane,Sadio Mané,14,212,vaastav/Fantasy-Premier-League,data/2016-17/players_raw.csv,master,VERIFIED
