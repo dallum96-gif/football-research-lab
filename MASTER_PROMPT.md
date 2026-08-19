@@ -116,6 +116,7 @@ Before doing substantive work, read:
 * `FRL_PLAYER_METADATA_SOURCE_ASSESSMENT_V1.md`
 * `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`
 * `FRL_SOURCE_NORMALISATION_CONTRACT.md`
+* `FRL_SOURCE_BOUNDARY_CONTRACT.md`
 * `SESSION_START_PROTOCOL.md`
 
 Then inspect the relevant code and establish the current branch/state before doing anything.
@@ -124,7 +125,35 @@ Do not ask me to re-explain the project when the information can be recovered fr
 
 The fresh-session sequence is therefore:
 
-**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source/discovery/normalisation contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source/discovery/normalisation/source-boundary contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+
+## Upstream source boundary
+
+The current football-data source boundary is deliberately hard and is governed by `FRL_SOURCE_BOUNDARY_CONTRACT.md`.
+
+Until the FRL expands beyond **2008-09** or adds another **league/competition**, the Laboratory must source football data exclusively from:
+
+`imadeddine-belkat/Premier-League-Stats`
+
+and the upstream feeds used by that repository itself.
+
+The current FRL operating pattern is to take the repository's source CSV evidence and write/copy controlled source artefacts into the FRL repository before validation, canonicalisation or derivation.
+
+No alternative football-data provider or third-party football dataset may be introduced during this scope period merely to fill a perceived gap. The first response to a missing capability is deeper discovery within this approved source boundary.
+
+Do not confuse:
+
+```text
+upstream source evidence
+        ↓
+FRL imported evidence
+        ↓
+FRL canonical data
+        ↓
+FRL derived research data
+```
+
+with separate independent sources. The upstream repository and its own documented feeds are the sole football evidence boundary until the stated expansion trigger is reached.
 
 ### Branch safety
 
@@ -143,7 +172,7 @@ If the active branch is ahead of `main` by substantial work, do not casually reb
 * which branch contains the intended trusted state;
 * whether any work has accidentally been written to `main`.
 
-If destructive ref movement is genuinely required, create a named safety branch at the current tip first and record why the ref is being moved.
+If destructive ref movement is genuinely required, create a named safety branch at the current tip and record why the ref is being moved.
 
 Development work should reach `main` through an explicit, validated integration/release decision rather than by moving the `main` ref directly.
 
@@ -165,6 +194,8 @@ Desired future metadata includes fixture-level position, detailed role/position 
 
 Do not make an external provider a foundational FRL ingestion dependency merely because a scraper or community API demonstrates that the field exists. Assess source rights, access stability, historical coverage, field semantics, identity resolution, reproducibility and redistribution before promotion.
 
+The current source-boundary contract is stricter: before the FRL expands beyond 2008-09 or adds another league/competition, such external football data must **not** be promoted into the FRL at all.
+
 The preferred pattern is:
 
 ```text
@@ -185,7 +216,7 @@ Preserve source observations and derivation logic separately. Do not silently ov
 
 The FRL should be treated as a connected football evidence system with a data platform underneath the UI.
 
-Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation, discovery, normalisation and player-metadata source documents named above before making architecture changes.
+Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation, discovery, normalisation, source-boundary and player-metadata source documents named above before making architecture changes.
 
 The guiding principle is:
 
