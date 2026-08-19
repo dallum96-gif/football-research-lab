@@ -147,12 +147,11 @@ def main() -> None:
     except Exception:
         candidate.unlink(missing_ok=True)
         raise RuntimeError("Candidate failed Python syntax validation; nothing changed.")
+    candidate.unlink(missing_ok=True)
 
     shutil.copy2(TARGET, BACKUP)
     TARGET.write_text(updated, encoding="utf-8")
-    candidate.unlink(missing_ok=True)
 
-    # Stage only the exact change produced by this script.
     original_lines = current.splitlines(keepends=True)
     updated_lines = updated.splitlines(keepends=True)
     patch = "".join(
@@ -179,26 +178,19 @@ def main() -> None:
     finally:
         patch_file.unlink(missing_ok=True)
 
-    # Restore unstaged copy, leaving only the surgical hunk staged.
-    unstaged = TARGET.read_text(encoding="utf-8")
-    head = run("git", "show", "HEAD:gui/app_redesign.py").stdout
-    target_head = head.replace(OLD, NEW, 1)
-    TARGET.write_text(target_head, encoding="utf-8")
-
-    try:
-        py_compile.compile(str(TARGET), doraise=True)
-    except Exception:
-        TARGET.write_text(unstaged, encoding="utf-8")
-        run("git", "reset", "HEAD", "--", "gui/app_redesign.py", check=False)
-        raise RuntimeError("Final target failed syntax validation; staged patch removed.")
+    py_compile.compile(str(TARGET), doraise=True)
+    run("git", "diff", "--cached", "--check")
 
     staged = run("git", "diff", "--cached", "--name-only").stdout.splitlines()
     if staged != ["gui/app_redesign.py"]:
         run("git", "reset", "HEAD", "--", "gui/app_redesign.py", check=False)
-        TARGET.write_text(unstaged, encoding="utf-8")
         raise RuntimeError(f"Staged scope was not surgical: {staged}")
 
-    run("git", "diff", "--cached", "--check")
+    staged_diff = run("git", "diff", "--cached", "--", "gui/app_redesign.py").stdout
+    if OLD not in staged_diff or NEW not in staged_diff:
+        run("git", "reset", "HEAD", "--", "gui/app_redesign.py", check=False)
+        raise RuntimeError("Staged diff did not contain the intended control redesign.")
+
     run("git", "commit", "-m", "Redesign fixture team and season controls")
     run("git", "push", "origin", BRANCH)
 
@@ -208,12 +200,12 @@ def main() -> None:
     print("Target: gui/app_redesign.py")
     print("Team selector: larger, light, labelled")
     print("Season selector: compact, light, labelled")
-    print("Dark/raised control treatment: removed for these controls")
-    print("Existing local unrelated work: preserved")
+    print("Raised/dark selector treatment: removed for these controls")
+    print("Existing unrelated local work: preserved")
     print("Staged scope: gui/app_redesign.py only")
     print("Syntax: PASS")
     print("Diff check: PASS")
-    print("Pushed: feature/complete-player-match-evidence-2026-08-19")
+    print("Pushed: feature/site-functionality-2026-08-19")
 
 
 if __name__ == "__main__":
