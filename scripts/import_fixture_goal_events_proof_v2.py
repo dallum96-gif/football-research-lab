@@ -10,7 +10,6 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import player_identity_audit
-import player_research
 import query_lab
 from match_stats import fixture_source_match
 
@@ -37,32 +36,62 @@ def load(path):
         return list(csv.DictReader(f))
 
 
-def player_bridge(season):
-    fpl = {}
-    for row in player_research._load_season_rows(season):
-        name = player_research.display_player_name(row)
-        club = player_research._row_club(row)
-        element = player_research.seasonal_player_id(row)
-        if not name or not club or not element:
-            continue
-        team = query_lab.resolve_team(season, club)
-        key = (norm(name), str(team["persistent_team_code"]).strip())
-        value = (str(element).strip(), name.strip())
-        if key in fpl and fpl[key] != value:
-            raise RuntimeError(f"Ambiguous FPL player identity: {season}/{key}")
-        fpl[key] = value
+def fpl_element_by_name(season):
+    """Read the season GW history, which is the local FPL player source containing element."""
+    path = ROOT / "_merged" / "players" / f"{season}_all_players_gw.csv"
+    rows = load(path)
+    values: dict[str, set[tuple[str, str]]] = defaultdict(set)
 
-    archive = defaultdict(set)
+    for row in rows:
+        name = str(row.get("name") or "").strip()
+        element = str(row.get("element") or "").strip()
+        if not element:
+            element = str(row.get("id") or "").strip()
+        if not name or not element:
+            continue
+        values[norm(name)].add((element, name.replace("_", " ")))
+
+    resolved = {}
+    for key, candidates in values.items():
+        if len(candidates) != 1:
+            raise RuntimeError(
+                f"Ambiguous FPL element for {season}/{key}: {sorted(candidates)!r}"
+            )
+        resolved[key] = next(iter(candidates))
+
+    return resolved
+
+
+def archive_players_by_name_team(season):
+    index: dict[tuple[str, str], set[tuple[str, str]]] = defaultdict(set)
     for (name, team_code), values in player_identity_audit.source_player_index(season).items():
         for pid, display in values:
-            archive[(name, str(team_code).strip())].add((pid, display))
+            index[(name, str(team_code).strip())].add((pid, display))
+    return index
 
+
+def player_bridge(season):
+    """Bridge scorer name/team to archive playerId and FPL element without conflating ID namespaces."""
+    fpl = fpl_element_by_name(season)
+    archive = archive_players_by_name_team(season)
     out = {}
-    for key, fpl_value in fpl.items():
-        vals = archive.get(key, set())
-        if len(vals) == 1:
-            pid, display = next(iter(vals))
-            out[key] = (pid, fpl_value[0], fpl_value[1] or display)
+
+    for (name_norm, team_code), values in archive.items():
+        fpl_value = fpl.get(name_norm)
+        if not fpl_value:
+            continue
+        if len(values) != 1:
+            raise RuntimeError(
+                f"Ambiguous archive player identity: {season}/{name_norm}/{team_code}: {sorted(values)!r}"
+            )
+        archive_player_id, archive_display = next(iter(values))
+        fpl_element, fpl_display = fpl_value
+        out[(name_norm, team_code)] = (
+            archive_player_id,
+            fpl_element,
+            fpl_display or archive_display,
+        )
+
     return out
 
 
@@ -98,7 +127,7 @@ def main():
         resolved[(season, source_id)] = hits[0]
 
     player_indexes = {season: player_bridge(season) for season in seasons}
-    print("PLAYER IDENTITY: loaded", flush=True)
+    print("PLAYER IDENTITY: loaded from FPL GW history + FRL archive crosswalk", flush=True)
 
     out = []
     for row in raw:
@@ -110,7 +139,9 @@ def main():
         team_code = str(team["persistent_team_code"]).strip()
         identity = player_indexes[season].get((norm(scorer_name), team_code))
         if not identity:
-            raise RuntimeError(f"No verified player bridge: {season}/{source_id}/{row['source_scorer_id']}/{scorer_name}/{row['source_scorer_team']}")
+            raise RuntimeError(
+                f"No verified player bridge: {season}/{source_id}/{row['source_scorer_id']}/{scorer_name}/{row['source_scorer_team']}"
+            )
 
         archive_player_id, element, player_name = identity
         home_code = str(home.get("team_id", "")).strip()
