@@ -381,10 +381,7 @@ def get_head_to_head(team, opponent, seasons):
 
 @st.cache_data
 def get_team_form(season, team):
-    return query_api.team_form(
-        season=season,
-        team=team,
-    )
+    return query_api.team_form(season=season, team=team)
 
 
 @st.cache_data
@@ -609,7 +606,7 @@ elif workspace == "fixtures":
     if team not in teams:
         team = default_team
 
-    header_left, header_team, header_season = st.columns([5.4, 1.7, 1.25], gap="small", vertical_alignment="bottom")
+    header_left, header_team, header_season = st.columns([7.2, 1.65, 0.9], gap="small", vertical_alignment="bottom")
     with header_left:
         st.markdown("<div class='frl-eyebrow'>Fixtures</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='frl-entity-title'>{team}</div>", unsafe_allow_html=True)
@@ -1230,7 +1227,6 @@ elif workspace == "form":
                         unsafe_allow_html=True,
                     )
 
-        # Current streaks
         results = [
             form_result(row)
             for row in completed
