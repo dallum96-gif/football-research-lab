@@ -1,5 +1,7 @@
 from pathlib import Path
+import ast
 import csv
+import shutil
 
 ROOT = Path(__file__).resolve().parent.parent
 QUERY_API = ROOT / "query_api.py"
@@ -11,8 +13,10 @@ def read(path):
     return path.read_text(encoding="utf-8-sig")
 
 
-def write(path, content):
-    path.write_text(content, encoding="utf-8")
+def atomic_write(path, content):
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    tmp.write_text(content, encoding="utf-8")
+    tmp.replace(path)
 
 
 def validate_goal_csv():
@@ -25,8 +29,8 @@ def validate_goal_csv():
     required = {
         "season", "fixture_id", "source_match_id", "source_event_id",
         "source_event_time_label", "source_scorer_name", "source_scorer_team",
-        "source_scorer_id", "pulse_player_id", "archive_player_id",
-        "identity_status", "fpl_element"
+        "source_scorer_id", "source_fixture_home", "source_fixture_away",
+        "pulse_player_id", "archive_player_id", "identity_status", "fpl_element"
     }
     missing = sorted(required - set(rows[0] if rows else []))
     if missing:
@@ -38,7 +42,25 @@ def validate_goal_csv():
     if len({row["source_event_id"] for row in rows}) != len(rows):
         raise RuntimeError("Goal-event CSV contains duplicate source_event_id values")
 
+    target = [
+        row for row in rows
+        if row.get("season") == "2016-17"
+        and row.get("fixture_id") == "8"
+        and row.get("source_match_id") == "855173"
+    ]
+    if len(target) != 7:
+        raise RuntimeError(
+            "Expected exactly 7 verified goal events for 2016-17/8 "
+            f"(source match 855173); found {len(target)}"
+        )
+
     return rows
+
+
+def backup(path):
+    backup_path = path.with_suffix(path.suffix + ".pre_goal_scorers.bak")
+    if not backup_path.exists():
+        shutil.copy2(path, backup_path)
 
 
 def patch_query_api():
@@ -55,7 +77,7 @@ def patch_query_api():
             1,
         )
 
-    helper = '''\n\ndef fixture_goal_events(season, fixture_id):\n    """Return verified goal events for one canonical fixture.\n\n    This is deliberately read-only: it consumes the already validated\n    canonical goal-event evidence and never reconstructs fixture identity.\n    """\n    if not GOAL_EVENTS_FILE.is_file():\n        return {\n            "query_type": "fixture_goal_events",\n            "query_version": QUERY_VERSION,\n            "season": season,\n            "fixture_id": str(fixture_id),\n            "source_file": str(GOAL_EVENTS_FILE),\n            "available": False,\n            "home": [],\n            "away": [],\n        }\n\n    rows = [\n        row for row in _load_csv(GOAL_EVENTS_FILE)\n        if row.get("season") == str(season)\n        and str(row.get("fixture_id", "")) == str(fixture_id)\n    ]\n\n    rows = sorted(\n        rows,\n        key=lambda row: (\n            float(row.get("source_event_seconds") or 0),\n            int(row.get("source_event_id") or 0),\n        ),\n    )\n\n    home = []\n    away = []\n\n    for row in rows:\n        item = {\n            "minute": row.get("source_event_time_label") or "",\n            "player": row.get("player_name") or row.get("source_scorer_name") or "",\n            "source_event_id": row.get("source_event_id") or "",\n            "source_match_id": row.get("source_match_id") or "",\n            "pulse_player_id": row.get("pulse_player_id") or "",\n            "archive_player_id": row.get("archive_player_id") or "",\n            "fpl_element": row.get("fpl_element") or "",\n            "identity_status": row.get("identity_status") or "",\n            "team": row.get("source_scorer_team") or "",\n        }\n\n        # Side is evidence-derived from the verified scorer team and the\n        # verified fixture home/away fields stored with the canonical event.\n        if row.get("source_scorer_team") == row.get("source_fixture_home"):\n            home.append(item)\n        elif row.get("source_scorer_team") == row.get("source_fixture_away"):\n            away.append(item)\n        else:\n            raise ValueError(\n                f"Goal event team cannot be reconciled to fixture sides: "\n                f"{season}/{fixture_id}/{row.get('source_event_id')}"\n            )\n\n    return {\n        "query_type": "fixture_goal_events",\n        "query_version": QUERY_VERSION,\n        "season": season,\n        "fixture_id": str(fixture_id),\n        "source_file": str(GOAL_EVENTS_FILE),\n        "available": bool(rows),\n        "total_goals": len(rows),\n        "home": home,\n        "away": away,\n    }\n'''
+    helper = '''\n\ndef fixture_goal_events(season, fixture_id):\n    """Return verified goal events for one canonical fixture."""\n    if not GOAL_EVENTS_FILE.is_file():\n        return {\n            "query_type": "fixture_goal_events",\n            "query_version": QUERY_VERSION,\n            "season": season,\n            "fixture_id": str(fixture_id),\n            "source_file": str(GOAL_EVENTS_FILE),\n            "available": False,\n            "home": [],\n            "away": [],\n        }\n\n    rows = [\n        row for row in _load_csv(GOAL_EVENTS_FILE)\n        if row.get("season") == str(season)\n        and str(row.get("fixture_id", "")) == str(fixture_id)\n    ]\n\n    rows = sorted(\n        rows,\n        key=lambda row: (\n            float(row.get("source_event_seconds") or 0),\n            int(row.get("source_event_id") or 0),\n        ),\n    )\n\n    home = []\n    away = []\n\n    for row in rows:\n        if row.get("identity_status") != "VERIFIED":\n            raise ValueError(\n                f"Refusing unverified goal event: "\n                f"{season}/{fixture_id}/{row.get('source_event_id')}"\n            )\n\n        item = {\n            "minute": row.get("source_event_time_label") or "",\n            "player": row.get("player_name") or row.get("source_scorer_name") or "",\n            "source_event_id": row.get("source_event_id") or "",\n            "source_match_id": row.get("source_match_id") or "",\n            "pulse_player_id": row.get("pulse_player_id") or "",\n            "archive_player_id": row.get("archive_player_id") or "",\n            "fpl_element": row.get("fpl_element") or "",\n            "identity_status": row.get("identity_status") or "",\n            "team": row.get("source_scorer_team") or "",\n        }\n\n        if row.get("source_scorer_team") == row.get("source_fixture_home"):\n            home.append(item)\n        elif row.get("source_scorer_team") == row.get("source_fixture_away"):\n            away.append(item)\n        else:\n            raise ValueError(\n                f"Goal event team cannot be reconciled to fixture sides: "\n                f"{season}/{fixture_id}/{row.get('source_event_id')}"\n            )\n\n    return {\n        "query_type": "fixture_goal_events",\n        "query_version": QUERY_VERSION,\n        "season": season,\n        "fixture_id": str(fixture_id),\n        "source_file": str(GOAL_EVENTS_FILE),\n        "available": bool(rows),\n        "total_goals": len(rows),\n        "home": home,\n        "away": away,\n    }\n'''
 
     if "def fixture_goal_events(season, fixture_id):" not in text:
         fixture_marker = '\ndef fixture_detail(season, fixture_id):\n'
@@ -69,7 +91,7 @@ def patch_query_api():
         raise RuntimeError("query_api.py anchor missing: fixture_detail return")
     text = text.replace(old, new, 1)
 
-    write(QUERY_API, text)
+    return text
 
 
 def patch_app():
@@ -84,46 +106,59 @@ def patch_app():
     if "def render_fixture_goal_lines(goal_events, side):" not in text:
         text = text.replace(old_import, old_import + marker, 1)
 
-    header_anchor = '    def kit_markup(team, side):\n'
-    if header_anchor not in text:
+    signature = '    def kit_markup(team, side):\n'
+    if signature not in text:
         raise RuntimeError("app_redesign.py anchor missing: kit_markup")
 
-    old_signature = '    def kit_markup(team, side):\n'
-    new_signature = '    goal_events = detail.get("goal_events", {})\n\n    def kit_markup(team, side):\n'
     if '    goal_events = detail.get("goal_events", {})\n\n    def kit_markup(team, side):\n' not in text:
-        text = text.replace(old_signature, new_signature, 1)
+        text = text.replace(
+            signature,
+            '    goal_events = detail.get("goal_events", {})\n\n' + signature,
+            1,
+        )
 
-    old_return = '            f"font-weight:820;line-height:1.05;\'>{team}</span>"\n'
-    new_return = '            f"font-weight:820;line-height:1.05;\'>{team}</span>"\n'
-    if old_return not in text:
-        raise RuntimeError("app_redesign.py anchor missing: team header span")
+    close_anchor = '            f"</div>"\n        )\n'
+    if close_anchor not in text:
+        raise RuntimeError("app_redesign.py anchor missing: kit markup close")
 
-    inject_before = '            f"</div>"\n        )\n'
-    replacement = '            + render_fixture_goal_lines(goal_events, side)\n            + f"</div>"\n        )\n'
-    if replacement not in text:
-        text = text.replace(inject_before, replacement, 1)
+    if '            + render_fixture_goal_lines(goal_events, side)\n            + f"</div>"\n        )\n' not in text:
+        text = text.replace(
+            close_anchor,
+            '            + render_fixture_goal_lines(goal_events, side)\n' + close_anchor,
+            1,
+        )
 
-    if text == read(APP):
-        raise RuntimeError("app_redesign.py was not changed; refusing a no-op patch")
+    return text
 
-    write(APP, text)
+
+def syntax_check(path, content):
+    try:
+        ast.parse(content, filename=str(path))
+    except SyntaxError as exc:
+        raise RuntimeError(f"Syntax check failed for {path}: {exc}") from exc
 
 
 def main():
     rows = validate_goal_csv()
-    fixture_keys = {(r["season"], r["fixture_id"]) for r in rows}
-    if len(fixture_keys) == 0:
-        raise RuntimeError("No canonical fixtures found in goal-event CSV")
+    new_query_api = patch_query_api()
+    new_app = patch_app()
 
-    patch_query_api()
-    patch_app()
+    syntax_check(QUERY_API, new_query_api)
+    syntax_check(APP, new_app)
+
+    backup(QUERY_API)
+    backup(APP)
+    atomic_write(QUERY_API, new_query_api)
+    atomic_write(APP, new_app)
 
     print(f"PATCHED: {QUERY_API}")
     print(f"PATCHED: {APP}")
     print(f"VERIFIED GOAL ROWS: {len(rows)}")
-    print(f"FIXTURES COVERED: {len(fixture_keys)}")
-    print("NON-DESTRUCTION: no fixture master or importer files touched")
-    print("NEXT: run the app and open the fixture landing page")
+    print("TARGET: 2016-17/8 / source match 855173 = 7 verified events")
+    print("NON-DESTRUCTION: fixture master and goal-event importer untouched")
+    print("BACKUPS: *.pre_goal_scorers.bak created before writes")
+    print("SYNTAX: query_api.py and app_redesign.py compile successfully")
+    print("NEXT: launch Streamlit and open fixture 2016-17:8")
 
 
 if __name__ == "__main__":
