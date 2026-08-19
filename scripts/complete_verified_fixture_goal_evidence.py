@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import shutil
 from collections import Counter
 from pathlib import Path
@@ -8,7 +9,28 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 GOALS = ROOT / "data" / "fixture_goal_events.csv"
 RECOVERY = ROOT / "data" / "raw" / "fixture_goal_events_secondary_recovery_2016_17.csv"
-STAGE = ROOT / "data" / "raw" / "fixture_goal_events_stage_report.csv"
+
+# The staged PulseLive source and its stage report are source-layer evidence,
+# not canonical FRL data. Prefer the known local upstream source workspace,
+# with an environment-variable override for portability.
+def discover_source_root() -> Path:
+    configured = os.environ.get("FRL_SOURCE_ROOT", "").strip()
+    if configured:
+        return Path(configured).expanduser().resolve()
+
+    candidates = [
+        ROOT.parent / "Premier-League-Stats" / "fpl_scraper" / "fpl_stats",
+        ROOT.parent / "Premier-League-Stats" / "fpl_scraper" / "fpl_stats".replace("/", os.sep),
+    ]
+    for candidate in candidates:
+        if (candidate / "data" / "raw" / "fixture_goal_events_stage_report.csv").is_file():
+            return candidate
+
+    return candidates[0]
+
+
+SOURCE_ROOT = discover_source_root()
+STAGE = SOURCE_ROOT / "data" / "raw" / "fixture_goal_events_stage_report.csv"
 AUDIT = ROOT / "data" / "fixture_goal_events_build_audit.csv"
 
 REQUIRED_RECOVERY = {
@@ -44,7 +66,11 @@ def main() -> None:
     if not RECOVERY.is_file():
         raise FileNotFoundError(RECOVERY)
     if not STAGE.is_file():
-        raise FileNotFoundError(STAGE)
+        raise FileNotFoundError(
+            f"Missing stage report: {STAGE}\n"
+            f"Resolved source root: {SOURCE_ROOT}\n"
+            "Set FRL_SOURCE_ROOT if your upstream source tree is elsewhere."
+        )
 
     current = load(GOALS)
     recovery = load(RECOVERY)
@@ -162,6 +188,8 @@ def main() -> None:
     print("============================================================")
     print("VERIFIED FIXTURE GOAL EVIDENCE COMPLETION")
     print("============================================================")
+    print(f"Source root:             {SOURCE_ROOT}")
+    print(f"Stage report:            {STAGE}")
     print(f"Existing canonical rows: {len(current)}")
     print(f"Verified recovery rows:  {len(recovery)}")
     print(f"Merged canonical rows:   {len(merged)}")
@@ -177,7 +205,7 @@ def main() -> None:
             print(f"INCOMPLETE {row[0]} expected={row[1]} actual={row[2]} status={row[3]}")
         raise SystemExit(1)
 
-    print("AUDIT PASSED: all 380 fixtures have complete verified goal evidence.")
+    print("AUDIT PASSED: all fixtures have complete verified goal evidence.")
 
 
 if __name__ == "__main__":
