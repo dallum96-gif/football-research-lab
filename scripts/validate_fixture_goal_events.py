@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unicodedata
 import re
+from collections import defaultdict
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -62,45 +63,80 @@ def normalize_name(value: str | None) -> str:
     return " ".join(text.split())
 
 
-def verified_event_player_index() -> dict[tuple[str, str, str], tuple[str, str, str]]:
-    """Bridge PulseLive event players through the FRL's authoritative identity audit.
+def fpl_players_by_name_team() -> dict[tuple[str, str, str], set[tuple[str, str]]]:
+    """Index FPL players using the authoritative FRL team resolver.
 
-    Namespace contract:
-      PulseLive event player ID != archive playerId != FPL element.
-
-    Team reconstruction and player matching are deliberately delegated to
-    player_identity_audit, which already converts FPL season-local team data
-    to verified persistent team codes before matching against the archive.
+    Do not trust the FPL file's numeric team_code here: FRL's canonical team
+    identity is reconstructed from the player's club name through query_lab.
     """
-    resolved: dict[tuple[str, str, str], tuple[str, str, str]] = {}
+    index: dict[tuple[str, str, str], set[tuple[str, str]]] = defaultdict(set)
 
     for season in player_identity_audit.SEASONS:
-        fpl_index = player_identity_audit.fpl_player_index(season)
-        source_index = player_identity_audit.source_player_index(season)
+        for row in player_research._load_season_rows(season):
+            element = player_research.seasonal_player_id(row)
+            player_name = player_research.display_player_name(row)
+            club_name = player_research._row_club(row)
 
-        for key, source_values in source_index.items():
-            name, persistent_team_code = key
-            fpl_values = fpl_index.get(key, set())
-
-            if len(source_values) != 1 or len(fpl_values) != 1:
+            if not element or not player_name or not club_name:
                 continue
 
-            archive_player_id, source_display = next(iter(source_values))
-            fpl_element, fpl_display = next(iter(fpl_values))
+            try:
+                team = query_lab.resolve_team(season, club_name)
+            except (ValueError, KeyError):
+                continue
 
-            resolved[(season, name, persistent_team_code)] = (
-                archive_player_id,
-                fpl_element,
-                fpl_display or source_display,
+            team_code = str(team["persistent_team_code"]).strip()
+            key = (season, normalize_name(player_name), team_code)
+            index[key].add((str(element).strip(), player_name.strip()))
+
+    return index
+
+
+def archive_players_by_name_team() -> dict[tuple[str, str, str], set[tuple[str, str]]]:
+    """Use the existing player identity audit's source-player namespace."""
+    index: dict[tuple[str, str, str], set[tuple[str, str]]] = defaultdict(set)
+
+    for season in player_identity_audit.SEASONS:
+        for (name_norm, team_code), values in player_identity_audit.source_player_index(season).items():
+            key = (season, name_norm, str(team_code).strip())
+            index[key].update(values)
+
+    return index
+
+
+def verified_event_player_index() -> dict[tuple[str, str, str], tuple[str, str, str]]:
+    """Bridge PulseLive event players without conflating ID namespaces."""
+    fpl = fpl_players_by_name_team()
+    archive = archive_players_by_name_team()
+    resolved: dict[tuple[str, str, str], tuple[str, str, str]] = {}
+
+    keys = set(fpl) & set(archive)
+    for season, name_norm, team_code in keys:
+        fpl_values = fpl[(season, name_norm, team_code)]
+        archive_values = archive[(season, name_norm, team_code)]
+
+        if len(fpl_values) != 1 or len(archive_values) != 1:
+            raise RuntimeError(
+                f"Authoritative player identity is ambiguous for "
+                f"{season}/{name_norm}/{team_code}: "
+                f"fpl={sorted(fpl_values)!r}, archive={sorted(archive_values)!r}"
             )
+
+        fpl_element, fpl_display = next(iter(fpl_values))
+        archive_player_id, archive_display = next(iter(archive_values))
+        resolved[(season, name_norm, team_code)] = (
+            archive_player_id,
+            fpl_element,
+            fpl_display or archive_display,
+        )
 
     return resolved
 
 
 def verified_team_index() -> dict[tuple[str, str], str]:
-    """Resolve team display/source names through the existing FRL team registry."""
+    """Resolve event team display names through the existing FRL team registry."""
     rows = query_lab.load_identity_registry()
-    index: dict[tuple[str, str], set[str]] = {}
+    index: dict[tuple[str, str], set[str]] = defaultdict(set)
 
     for row in rows:
         if row["mapping_status"] != "VERIFIED":
@@ -116,9 +152,8 @@ def verified_team_index() -> dict[tuple[str, str], str]:
             code,
         ):
             normalized = normalize_name(name)
-            if not normalized:
-                continue
-            index.setdefault((season, normalized), set()).add(code)
+            if normalized:
+                index[(season, normalized)].add(code)
 
     resolved: dict[tuple[str, str], str] = {}
     for key, values in index.items():
@@ -132,7 +167,6 @@ def verified_team_index() -> dict[tuple[str, str], str]:
 
 
 def resolve_fixture_source_map(identity_rows, fixtures):
-    """Resolve source match IDs once through the existing canonical mechanism."""
     source_map: dict[tuple[str, str], tuple[dict[str, str], tuple]] = {}
 
     for fixture in fixtures.values():
