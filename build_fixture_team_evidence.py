@@ -12,10 +12,11 @@ import csv
 import os
 from pathlib import Path
 
-from match_stats import PL_ROOT, fixture_source_match
+from match_stats import PL_ROOT as SOURCE_PL_ROOT, fixture_source_match
 from query_lab import load_identity_registry
 
 ROOT = Path(__file__).resolve().parent
+PL_ROOT = Path(SOURCE_PL_ROOT)
 FIXTURE_FILE = ROOT / "fixtures_master_corrected.csv"
 OUTPUT_FILE = ROOT / "data" / "fixture_team_evidence.csv"
 AUDIT_FILE = ROOT / "data" / "fixture_team_evidence_build_audit.csv"
@@ -68,7 +69,6 @@ def build(season_filter: str | None = None):
     for fixture in fixtures:
         season = fixture["season"]
         fixture_id = fixture["fixture_id"]
-        key = (season, fixture_id)
         try:
             resolved = fixture_source_match(fixture, identities)
             if resolved is None:
@@ -82,7 +82,7 @@ def build(season_filter: str | None = None):
                     raise ValueError(f"Duplicate fixture/team evidence key: {row_key}")
                 seen.add(row_key)
                 for field in row:
-                    if field not in {"_source_file"}:
+                    if field != "_source_file":
                         source_fields.add(field)
 
                 output = {
@@ -98,9 +98,8 @@ def build(season_filter: str | None = None):
                     "frl_source_file": row.get("_source_file", ""),
                 }
                 for field, value in row.items():
-                    if field == "_source_file":
-                        continue
-                    output[f"source_{field}"] = value
+                    if field != "_source_file":
+                        output[f"source_{field}"] = value
                 evidence.append(output)
 
             audit.append({"season": season, "fixture_id": fixture_id, "status": "RESOLVED", "source_match_id": match_id, "reason": ""})
