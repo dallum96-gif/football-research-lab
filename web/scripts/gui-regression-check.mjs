@@ -48,6 +48,36 @@ assert(
 );
 
 assert(
+  "Multi-season viewing control exists",
+  explorer.includes('aria-label="Fixture view"') &&
+    explorer.includes('value="multi">Multiple seasons</option>'),
+  "The single-season/multi-season exploration control is missing."
+);
+
+assert(
+  "Multi-season period controls exist",
+  explorer.includes('aria-label="From season"') &&
+    explorer.includes('aria-label="To season"') &&
+    explorer.includes('next.set("from",') &&
+    explorer.includes('next.set("to",'),
+  "Multi-season range selection is missing or not URL-backed."
+);
+
+assert(
+  "Multi-season identity matching is persistent-code based",
+  explorer.includes("persistent_team_code") &&
+    explorer.includes("option.persistent_team_code === selectedPersistentTeamCode"),
+  "Cross-season team selection must use verified persistent identity rather than display-name guessing."
+);
+
+assert(
+  "Unavailable seasons fail closed",
+  explorer.includes("excludedSeasons") &&
+    explorer.includes("No verified team identity is present"),
+  "The multi-season view must explicitly exclude unverified seasons rather than infer them."
+);
+
+assert(
   "Fixture navigation stays same-tab",
   explorer.includes('href={`/fixtures/${row.season}/${row.fixtureId}`}') &&
     !explorer.includes('target="_blank"'),
