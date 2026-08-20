@@ -272,15 +272,17 @@ export function FixtureExplorer() {
 
         <div className="frl-context-actions">
           <div className="frl-context-control frl-context-control-season">
-            <label htmlFor="fixture-season">Season</label>
+            <span>Season</span>
             <select
               id="fixture-season"
               value={season}
               onChange={(event) => updateContext("season", event.target.value)}
               disabled={contextLoading || !!error}
+              aria-label="Season"
             >
               {seasonOptions.map((value) => <option key={value}>{value}</option>)}
             </select>
+            <span className="frl-context-chevron" aria-hidden="true">⌄</span>
           </div>
 
           <div className="frl-record-chip" aria-label="Fixture record">
@@ -295,51 +297,46 @@ export function FixtureExplorer() {
 
       <div className="frl-rule" />
 
-      <section className="frl-explore-section" aria-label="Explore fixtures">
-        <div className="frl-explore-header">
-          <div>
-            <div className="frl-eyebrow">Explore</div>
-            <h2 className="frl-explore-title">Fixture view</h2>
-            <p>Refine the fixture population without changing the page context above.</p>
-          </div>
-          <div className="frl-explore-summary">
-            <strong>{loading ? "—" : filtered.length}</strong>
-            <span>{loading ? "Loading" : "fixtures shown"}</span>
-            {hasFilters && <button type="button" onClick={clearFilters}>Clear filters</button>}
-          </div>
+      <section className="frl-filter-bar" aria-label="Fixture exploration">
+        <div className="frl-filter-heading">
+          <span>Explore fixtures</span>
+          <strong>{hasFilters ? "Filtered view" : "All fixtures"}</strong>
         </div>
 
-        <div className="frl-explore-controls">
-          <div className="frl-explore-control">
-            <span>Opponent</span>
-            <select value={opponent} onChange={(event) => updateFilter("opponent", event.target.value)} disabled={loading || !!error}>
-              <option value="">All opponents</option>
-              {opponents.map((value) => <option key={value}>{value}</option>)}
-            </select>
-            <i aria-hidden="true">⌄</i>
-          </div>
+        <div className="frl-context-control">
+          <span>Opponent</span>
+          <select value={opponent} onChange={(event) => updateFilter("opponent", event.target.value)} disabled={loading || !!error} aria-label="Opponent">
+            <option value="">All opponents</option>
+            {opponents.map((value) => <option key={value}>{value}</option>)}
+          </select>
+          <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+        </div>
 
-          <div className="frl-explore-control">
-            <span>Venue</span>
-            <select value={venue} onChange={(event) => updateFilter("venue", event.target.value)} disabled={loading || !!error}>
-              <option value="">Home + Away</option>
-              <option>Home</option>
-              <option>Away</option>
-            </select>
-            <i aria-hidden="true">⌄</i>
-          </div>
+        <div className="frl-context-control">
+          <span>Venue</span>
+          <select value={venue} onChange={(event) => updateFilter("venue", event.target.value)} disabled={loading || !!error} aria-label="Venue">
+            <option value="">Home + Away</option>
+            <option>Home</option>
+            <option>Away</option>
+          </select>
+          <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+        </div>
 
-          <div className="frl-explore-control">
-            <span>Result</span>
-            <select value={resultFilter} onChange={(event) => updateFilter("result", event.target.value)} disabled={loading || !!error}>
-              <option value="">All results</option>
-              <option>W</option>
-              <option>D</option>
-              <option>L</option>
-              <option>UNPLAYED</option>
-            </select>
-            <i aria-hidden="true">⌄</i>
-          </div>
+        <div className="frl-context-control">
+          <span>Result</span>
+          <select value={resultFilter} onChange={(event) => updateFilter("result", event.target.value)} disabled={loading || !!error} aria-label="Result">
+            <option value="">All results</option>
+            <option>W</option>
+            <option>D</option>
+            <option>L</option>
+            <option>UNPLAYED</option>
+          </select>
+          <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+        </div>
+
+        <div className="frl-filter-summary">
+          <span>{loading ? "Loading research result…" : `${filtered.length} of ${rows.length} fixtures`}</span>
+          {hasFilters && <button type="button" onClick={clearFilters}>Clear</button>}
         </div>
       </section>
 
