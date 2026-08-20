@@ -118,6 +118,9 @@ Before doing substantive work, read:
 * `FRL_SOURCE_NORMALISATION_CONTRACT.md`
 * `FRL_SOURCE_BOUNDARY_CONTRACT.md`
 * `SESSION_START_PROTOCOL.md`
+* `FRL_MASTER_FRONTEND_MIGRATION_PLAN_V2.md` when doing frontend, GUI, visualisation or modelling-presentation architecture work
+* `FRL_RESEARCH_RESULT_CONTRACT_V1.md` when implementing analytical-result presentation or API contracts
+* `FRL_FRONTEND_MIGRATION_RISK_ADDENDUM_V1.md` and `FRL_FRONTEND_MIGRATION_NON_DESTRUCTION_ADDENDUM_V1.md` when changing frontend architecture
 
 Then inspect the relevant code and establish the current branch/state before doing anything.
 
@@ -126,6 +129,31 @@ Do not ask me to re-explain the project when the information can be recovered fr
 The fresh-session sequence is therefore:
 
 **read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source/discovery/normalisation/source-boundary contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+
+## Frontend migration recovery rule
+
+`FRL_MASTER_FRONTEND_MIGRATION_PLAN_V2.md` is now the authoritative frontend migration plan. It supersedes V1.
+
+The migration is a presentation/interaction architecture change, not a rewrite of trusted football data or research semantics.
+
+The live `gui/theme.py` implementation is authoritative for current GUI colour. The current site uses a warm light analytical canvas with warm white surfaces, near-black text, muted warm-grey metadata, orange-red primary accent, restrained olive/green secondary accent, subtle borders and a dark navigation sidebar. Older dark charcoal / blue-black application-canvas wording is superseded for current GUI work.
+
+The existing `GUI_DESIGN_CONTRACT.md` and `UI_DESIGN_SYSTEM.md` remain authoritative for typography, hierarchy, spacing, interaction character and visual restraint.
+
+The migration must preserve canonical identities and relationship semantics, particularly:
+
+```text
+Fixture        = (season, fixture_id)
+Player–Fixture = (season, fixture_id, canonical player identity)
+season-local team identity -> verified persistent club identity
+season-aware source player identity -> verified canonical player identity
+```
+
+The migration should build reusable Research Results so that the same trusted analytical result can drive tables, charts, comparisons, timelines, distributions, summaries and provenance views without changing semantics.
+
+Data visualisation and statistical-model presentation are first-class early migration capabilities. Plotly is an analytical tool where appropriate; bespoke React components should be used where custom interaction or research workflow requires them. Python remains the statistical/model engine behind the frontend API boundary.
+
+The migration must remain free/self-hostable and must preserve the existing same-tab navigation behaviour unless explicitly changed by a future product decision.
 
 ## Upstream source boundary
 
