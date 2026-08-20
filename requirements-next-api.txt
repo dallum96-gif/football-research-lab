@@ -1,0 +1,6 @@
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+pydantic==2.13.4
+
+# Pydantic 2.12+ is required for Python 3.14 support; older pins can fall back to a
+# local pydantic-core Rust build on Windows instead of using a compatible wheel.
