@@ -1,1 +1,0 @@
-Safety marker: the frontend migration plan was accidentally written to main while testing branch-safe repository writes. The authoritative migration plan belongs on feature/site-functionality-2026-08-19. This marker is retained only as a record of the safety correction.
