@@ -81,6 +81,13 @@ class TeamOption(BaseModel):
     local_team_id: str
 
 
+class TeamSeasonOption(BaseModel):
+    persistent_team_code: str
+    display_name: str
+    season: str
+    local_team_id: str
+
+
 app = FastAPI(title="Football Research Laboratory API", version="0.1.0")
 
 app.add_middleware(
@@ -91,7 +98,7 @@ app.add_middleware(
     ],
     allow_credentials=True,
     allow_methods=["GET"],
-    allow_headers=["*"],
+    allow_headers=["*"] ,
 )
 
 
@@ -172,6 +179,44 @@ def get_teams(season: str) -> list[TeamOption]:
         )
         for row in sorted(table["teams"], key=lambda item: item["team"].casefold())
     ]
+
+
+@app.get("/api/v1/team-seasons", response_model=list[TeamSeasonOption])
+def get_team_seasons(
+    persistent_team_code: str = Query(..., min_length=1),
+) -> list[TeamSeasonOption]:
+    """Return only seasons where the trusted identity registry contains this club code."""
+    try:
+        seasons = list(query_api.list_seasons())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Season list failed safely.") from exc
+
+    requested_code = persistent_team_code.strip()
+    if not requested_code:
+        raise HTTPException(status_code=400, detail="Persistent team code is required.")
+
+    available: list[TeamSeasonOption] = []
+    for season in seasons:
+        try:
+            options = get_teams(season)
+        except HTTPException:
+            continue
+        match = next(
+            (option for option in options if option.persistent_team_code == requested_code),
+            None,
+        )
+        if match is not None:
+            available.append(
+                TeamSeasonOption(
+                    persistent_team_code=requested_code,
+                    display_name=match.display_name,
+                    season=match.season,
+                    local_team_id=match.local_team_id,
+                )
+            )
+
+    available.sort(key=lambda item: item.season, reverse=True)
+    return available
 
 
 @app.get("/api/v1/fixtures/{season}", response_model=FixtureResearchResult)
