@@ -8,6 +8,8 @@ import {
   fetchSeasons,
   fetchTeams,
   type FixtureApiRow,
+  type FixtureResearchResult,
+  type TeamOption,
 } from "@/lib/api";
 
 type FixtureViewRow = {
@@ -24,6 +26,16 @@ type FixtureViewRow = {
 
 const DEFAULT_SEASON = "2025-26";
 const DEFAULT_TEAM = "Arsenal";
+
+type FixtureQuerySet = {
+  rows: FixtureViewRow[];
+  resultIds: string[];
+  descriptions: string[];
+  populations: string[];
+  provenances: string[];
+  includedSeasons: string[];
+  excludedSeasons: string[];
+};
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -45,7 +57,7 @@ function monthLabel(value: string) {
   });
 }
 
-function toViewRow(row: FixtureApiRow): FixtureViewRow {
+function toViewRow(row: FixtureApiRow, selectedTeam: string): FixtureViewRow {
   const score = row.home_score == null || row.away_score == null
     ? "—"
     : `${row.home_score}–${row.away_score}`;
@@ -55,12 +67,85 @@ function toViewRow(row: FixtureApiRow): FixtureViewRow {
     season: row.season,
     date: formatDate(row.kickoff_time),
     opponent: row.venue === "Home" ? row.away_team_name : row.home_team_name,
-    venue: row.venue ?? (row.home_team_name === DEFAULT_TEAM ? "Home" : "Away"),
+    venue: row.venue ?? (row.home_team_name === selectedTeam ? "Home" : "Away"),
     score,
     result: row.result ?? "UNPLAYED",
     kickoffTime: row.kickoff_time ?? "",
     gameweek: row.gameweek,
   };
+}
+
+function sortSeasonValue(a: string, b: string) {
+  return a.localeCompare(b);
+}
+
+function seasonRange(seasons: string[], from: string, to: string) {
+  if (!from || !to) return [];
+  const low = sortSeasonValue(from, to) <= 0 ? from : to;
+  const high = low === from ? to : from;
+  return seasons.filter((value) => value >= low && value <= high).sort((a, b) => a.localeCompare(b));
+}
+
+async function loadFixtureQuerySet(
+  seasonsToLoad: string[],
+  selectedPersistentTeamCode: string | null,
+  selectedTeam: string,
+  filters: { opponent: string; venue: string; result: string },
+  signal: AbortSignal,
+): Promise<FixtureQuerySet> {
+  const result: FixtureQuerySet = {
+    rows: [],
+    resultIds: [],
+    descriptions: [],
+    populations: [],
+    provenances: [],
+    includedSeasons: [],
+    excludedSeasons: [],
+  };
+
+  const perSeason = await Promise.all(
+    seasonsToLoad.map(async (targetSeason) => {
+      const options = await fetchTeams(targetSeason, signal);
+      const matchingTeam = selectedPersistentTeamCode
+        ? options.find((option) => option.persistent_team_code === selectedPersistentTeamCode)
+        : options.find((option) => option.display_name === selectedTeam);
+
+      if (!matchingTeam) {
+        return { targetSeason, excluded: true } as const;
+      }
+
+      const payload = await fetchFixtureResearchResult(
+        targetSeason,
+        matchingTeam.display_name,
+        signal,
+        filters,
+      );
+
+      return { targetSeason, matchingTeam, payload, excluded: false } as const;
+    }),
+  );
+
+  for (const item of perSeason) {
+    if (item.excluded) {
+      result.excludedSeasons.push(item.targetSeason);
+      continue;
+    }
+
+    result.includedSeasons.push(item.targetSeason);
+    result.rows.push(...item.payload.data.map((row) => toViewRow(row, item.matchingTeam.display_name)));
+    result.resultIds.push(item.payload.result_id);
+    result.descriptions.push(item.payload.description);
+    result.populations.push(item.payload.population.label);
+    result.provenances.push(`${item.payload.provenance.source} · ${item.payload.provenance.transformation_version}`);
+  }
+
+  result.rows.sort((a, b) => {
+    const time = a.kickoffTime.localeCompare(b.kickoffTime);
+    if (time !== 0) return time;
+    return `${a.season}-${a.fixtureId}`.localeCompare(`${b.season}-${b.fixtureId}`);
+  });
+
+  return result;
 }
 
 export function FixtureExplorer() {
@@ -73,14 +158,19 @@ export function FixtureExplorer() {
   const opponent = searchParams.get("opponent") ?? "";
   const venue = searchParams.get("venue") ?? "";
   const resultFilter = searchParams.get("result") ?? "";
+  const view = searchParams.get("view") === "multi" ? "multi" : "single";
+  const fromSeason = searchParams.get("from") ?? season;
+  const toSeason = searchParams.get("to") ?? season;
 
   const [seasons, setSeasons] = useState<string[]>([]);
-  const [teams, setTeams] = useState<string[]>([]);
+  const [teams, setTeams] = useState<TeamOption[]>([]);
   const [rows, setRows] = useState<FixtureViewRow[]>([]);
-  const [resultId, setResultId] = useState("");
+  const [resultIds, setResultIds] = useState<string[]>([]);
   const [description, setDescription] = useState("");
   const [populationLabel, setPopulationLabel] = useState("");
   const [provenance, setProvenance] = useState("");
+  const [includedSeasons, setIncludedSeasons] = useState<string[]>([]);
+  const [excludedSeasons, setExcludedSeasons] = useState<string[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [contextLoading, setContextLoading] = useState(true);
@@ -104,15 +194,18 @@ export function FixtureExplorer() {
 
     fetchTeams(season, controller.signal)
       .then((options) => {
-        const names = options.map((option) => option.display_name);
-        setTeams(names);
+        setTeams(options);
 
+        const names = options.map((option) => option.display_name);
         if (names.length && !names.includes(team)) {
           const next = new URLSearchParams(searchParams.toString());
           next.set("team", names[0]);
           next.delete("opponent");
           next.delete("venue");
           next.delete("result");
+          next.delete("view");
+          next.delete("from");
+          next.delete("to");
           router.replace(`${pathname}?${next.toString()}`, { scroll: false });
         }
       })
@@ -138,26 +231,68 @@ export function FixtureExplorer() {
       next.delete("opponent");
       next.delete("venue");
       next.delete("result");
+      next.delete("view");
+      next.delete("from");
+      next.delete("to");
       router.replace(`${pathname}?${next.toString()}`, { scroll: false });
     }
   }, [pathname, router, searchParams, season, seasons]);
 
   useEffect(() => {
+    if (!teams.length) return;
+
+    const selectedTeam = teams.find((option) => option.display_name === team);
+    const persistentCode = selectedTeam?.persistent_team_code ?? null;
+    if (!selectedTeam && team) return;
+
+    const selectedSeasons = view === "multi"
+      ? seasonRange(seasons, fromSeason, toSeason)
+      : [season];
+
+    if (!selectedSeasons.length) return;
+
     const controller = new AbortController();
     setLoading(true);
     setError("");
 
-    fetchFixtureResearchResult(season, team, controller.signal)
+    loadFixtureQuerySet(
+      selectedSeasons,
+      persistentCode,
+      team,
+      { opponent, venue, result: resultFilter },
+      controller.signal,
+    )
       .then((payload) => {
-        setRows(payload.data.map(toViewRow));
-        setResultId(payload.result_id);
-        setDescription(payload.description);
-        setPopulationLabel(payload.population.label);
-        setProvenance(`${payload.provenance.source} · ${payload.provenance.transformation_version}`);
+        if (!payload.includedSeasons.length) {
+          throw new Error("No verified fixture history is available for that period.");
+        }
+
+        setRows(payload.rows);
+        setResultIds(payload.resultIds);
+        setDescription(
+          view === "multi"
+            ? `Composed fixture view from ${payload.includedSeasons.length} validated seasonal Research Results.`
+            : payload.descriptions[0] ?? "",
+        );
+        setPopulationLabel(
+          view === "multi"
+            ? `${team} Premier League fixtures across ${payload.includedSeasons[0]} → ${payload.includedSeasons[payload.includedSeasons.length - 1]}`
+            : payload.populations[0] ?? "",
+        );
+        setProvenance(
+          view === "multi"
+            ? [...new Set(payload.provenances)].join(" · ")
+            : payload.provenances[0] ?? "",
+        );
+        setIncludedSeasons(payload.includedSeasons);
+        setExcludedSeasons(payload.excludedSeasons);
       })
       .catch((caught: unknown) => {
         if (caught instanceof DOMException && caught.name === "AbortError") return;
         setRows([]);
+        setResultIds([]);
+        setIncludedSeasons([]);
+        setExcludedSeasons([]);
         setError(caught instanceof Error ? caught.message : "Unable to load fixture research result.");
       })
       .finally(() => {
@@ -165,7 +300,7 @@ export function FixtureExplorer() {
       });
 
     return () => controller.abort();
-  }, [season, team]);
+  }, [fromSeason, opponent, resultFilter, season, seasons, team, teams, toSeason, venue, view]);
 
   const opponents = useMemo(
     () => [...new Set(rows.map((row) => row.opponent))].sort((a, b) => a.localeCompare(b)),
@@ -194,13 +329,13 @@ export function FixtureExplorer() {
   const grouped = useMemo(() => {
     const groups = new Map<string, FixtureViewRow[]>();
     for (const row of filtered) {
-      const group = row.kickoffTime ? monthLabel(row.kickoffTime) : "Fixtures";
+      const group = view === "multi" ? `${row.season} · ${monthLabel(row.kickoffTime)}` : row.kickoffTime ? monthLabel(row.kickoffTime) : "Fixtures";
       const list = groups.get(group) ?? [];
       list.push(row);
       groups.set(group, list);
     }
     return [...groups.entries()];
-  }, [filtered]);
+  }, [filtered, view]);
 
   function updateContext(key: "season" | "team", value: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -208,6 +343,11 @@ export function FixtureExplorer() {
     next.delete("opponent");
     next.delete("venue");
     next.delete("result");
+    if (key === "team") {
+      next.delete("view");
+      next.delete("from");
+      next.delete("to");
+    }
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
     if (key === "team") setTeamMenuOpen(false);
   }
@@ -220,16 +360,48 @@ export function FixtureExplorer() {
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
+  function updateView(value: string) {
+    const next = new URLSearchParams(searchParams.toString());
+    if (value === "multi") {
+      next.set("view", "multi");
+      next.set("from", fromSeason || season);
+      next.set("to", toSeason || season);
+    } else {
+      next.delete("view");
+      next.delete("from");
+      next.delete("to");
+    }
+    next.delete("opponent");
+    next.delete("venue");
+    next.delete("result");
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  }
+
+  function updateRange(key: "from" | "to", value: string) {
+    const next = new URLSearchParams(searchParams.toString());
+    next.set("view", "multi");
+    next.set(key, value);
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  }
+
   function clearFilters() {
     const next = new URLSearchParams();
     next.set("season", season);
     next.set("team", team);
+    if (view === "multi") {
+      next.set("view", "multi");
+      next.set("from", fromSeason);
+      next.set("to", toSeason);
+    }
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }
 
-  const teamOptions = teams.length ? teams : [team];
+  const teamOptions = teams.length ? teams.map((option) => option.display_name) : [team];
   const seasonOptions = seasons.length ? seasons : [season];
   const hasFilters = Boolean(opponent || venue || resultFilter);
+  const selectedTeamOption = teams.find((option) => option.display_name === team);
+  const rangeOptions = seasonOptions;
+  const range = view === "multi" ? seasonRange(seasons, fromSeason, toSeason) : [season];
 
   return (
     <>
@@ -300,8 +472,37 @@ export function FixtureExplorer() {
       <section className="frl-filter-bar" aria-label="Fixture exploration">
         <div className="frl-filter-heading">
           <span>Explore fixtures</span>
-          <strong>{hasFilters ? "Filtered view" : "All fixtures"}</strong>
+          <strong>{hasFilters ? "Filtered view" : view === "multi" ? `${range.length} seasons` : "All fixtures"}</strong>
         </div>
+
+        <div className="frl-context-control">
+          <span>View</span>
+          <select value={view} onChange={(event) => updateView(event.target.value)} disabled={loading || !!error} aria-label="Fixture view">
+            <option value="single">Single season</option>
+            <option value="multi">Multiple seasons</option>
+          </select>
+          <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+        </div>
+
+        {view === "multi" && (
+          <>
+            <div className="frl-context-control">
+              <span>From</span>
+              <select value={fromSeason} onChange={(event) => updateRange("from", event.target.value)} disabled={loading || !!error} aria-label="From season">
+                {rangeOptions.map((value) => <option key={value}>{value}</option>)}
+              </select>
+              <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+            </div>
+
+            <div className="frl-context-control">
+              <span>To</span>
+              <select value={toSeason} onChange={(event) => updateRange("to", event.target.value)} disabled={loading || !!error} aria-label="To season">
+                {rangeOptions.map((value) => <option key={value}>{value}</option>)}
+              </select>
+              <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+            </div>
+          </>
+        )}
 
         <div className="frl-context-control">
           <span>Opponent</span>
@@ -335,10 +536,16 @@ export function FixtureExplorer() {
         </div>
 
         <div className="frl-filter-summary">
-          <span>{loading ? "Loading research result…" : `${filtered.length} of ${rows.length} fixtures`}</span>
+          <span>{loading ? "Loading research result…" : `${filtered.length} fixtures`}</span>
           {hasFilters && <button type="button" onClick={clearFilters}>Clear</button>}
         </div>
       </section>
+
+      {excludedSeasons.length > 0 && !loading && (
+        <div className="frl-research-note">
+          <strong>Coverage note.</strong> No verified team identity is present for {excludedSeasons.length} selected season{excludedSeasons.length === 1 ? "" : "s"}; those seasons are excluded rather than inferred.
+        </div>
+      )}
 
       {error ? (
         <div className="frl-empty-state">
@@ -394,7 +601,9 @@ export function FixtureExplorer() {
         <br />
         <span>{populationLabel}</span>
         <br />
-        <span>Result: {resultId}</span>
+        <span>Validated seasonal results: {resultIds.length}</span>
+        <br />
+        <span>Included seasons: {includedSeasons.length ? includedSeasons.join(", ") : "—"}</span>
         <br />
         <span>Provenance: {provenance}</span>
       </div>
