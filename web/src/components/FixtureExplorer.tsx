@@ -84,6 +84,7 @@ export function FixtureExplorer() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [contextLoading, setContextLoading] = useState(true);
+  const [teamMenuOpen, setTeamMenuOpen] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -208,6 +209,7 @@ export function FixtureExplorer() {
     next.delete("venue");
     next.delete("result");
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+    if (key === "team") setTeamMenuOpen(false);
   }
 
   function updateFilter(key: string, value: string) {
@@ -235,44 +237,59 @@ export function FixtureExplorer() {
         <div className="frl-heading-copy">
           <div className="frl-eyebrow">Fixtures</div>
           <div className="frl-heading-row">
-            <h1 className="frl-title">{team}</h1>
-            <div className="frl-context-controls" aria-label="Fixture context">
-              <label className="frl-context-control">
-                <span>Team</span>
-                <select
-                  value={team}
-                  onChange={(event) => updateContext("team", event.target.value)}
-                  disabled={contextLoading || !!error}
-                  aria-label="Team"
-                >
-                  {teamOptions.map((value) => <option key={value}>{value}</option>)}
-                </select>
-                <span className="frl-context-chevron" aria-hidden="true">⌄</span>
-              </label>
-              <span className="frl-context-divider" aria-hidden="true">/</span>
-              <label className="frl-context-control frl-context-control-season">
-                <span>Season</span>
-                <select
-                  value={season}
-                  onChange={(event) => updateContext("season", event.target.value)}
-                  disabled={contextLoading || !!error}
-                  aria-label="Season"
-                >
-                  {seasonOptions.map((value) => <option key={value}>{value}</option>)}
-                </select>
-                <span className="frl-context-chevron" aria-hidden="true">⌄</span>
-              </label>
+            <div className="frl-team-title-control">
+              <button
+                type="button"
+                className={`frl-team-title-button${teamMenuOpen ? " is-open" : ""}`}
+                aria-label={`Change team from ${team}`}
+                aria-expanded={teamMenuOpen}
+                disabled={contextLoading || !!error}
+                onClick={() => setTeamMenuOpen((open) => !open)}
+              >
+                <h1 className="frl-title">{team}</h1>
+                <span className="frl-team-title-chevron" aria-hidden="true">⌄</span>
+              </button>
+
+              {teamMenuOpen && (
+                <div className="frl-team-menu" role="menu" aria-label="Choose team">
+                  {teamOptions.map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      role="menuitem"
+                      className={value === team ? "is-active" : ""}
+                      onClick={() => updateContext("team", value)}
+                    >
+                      {value}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <div className="frl-context">Premier League · fixture history</div>
         </div>
 
-        <div className="frl-record-chip" aria-label="Fixture record">
-          <strong>{filtered.length}</strong>
-          <span>matches</span>
-          <span className="frl-record-positive">{record.wins} W</span>
-          <span>{record.draws} D</span>
-          <span className="frl-record-negative">{record.losses} L</span>
+        <div className="frl-context-actions">
+          <div className="frl-context-control frl-context-control-season">
+            <label htmlFor="fixture-season">Season</label>
+            <select
+              id="fixture-season"
+              value={season}
+              onChange={(event) => updateContext("season", event.target.value)}
+              disabled={contextLoading || !!error}
+            >
+              {seasonOptions.map((value) => <option key={value}>{value}</option>)}
+            </select>
+          </div>
+
+          <div className="frl-record-chip" aria-label="Fixture record">
+            <strong>{filtered.length}</strong>
+            <span>matches</span>
+            <span className="frl-record-positive">{record.wins} W</span>
+            <span>{record.draws} D</span>
+            <span className="frl-record-negative">{record.losses} L</span>
+          </div>
         </div>
       </section>
 
