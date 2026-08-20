@@ -24,6 +24,12 @@ type FixtureViewRow = {
 
 const DEFAULT_SEASON = "2025-26";
 const DEFAULT_TEAM = "Arsenal";
+type ExploreView = "single" | "multi";
+
+function seasonKey(season: string) {
+  const match = season.match(/^(\d{4})/);
+  return match ? Number(match[1]) : 0;
+}
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -73,6 +79,9 @@ export function FixtureExplorer() {
   const opponent = searchParams.get("opponent") ?? "";
   const venue = searchParams.get("venue") ?? "";
   const resultFilter = searchParams.get("result") ?? "";
+  const view = (searchParams.get("view") as ExploreView | null) ?? "single";
+  const startSeason = searchParams.get("start") ?? season;
+  const endSeason = searchParams.get("end") ?? season;
 
   const [seasons, setSeasons] = useState<string[]>([]);
   const [teams, setTeams] = useState<string[]>([]);
@@ -85,6 +94,23 @@ export function FixtureExplorer() {
   const [loading, setLoading] = useState(true);
   const [contextLoading, setContextLoading] = useState(true);
   const [teamMenuOpen, setTeamMenuOpen] = useState(false);
+
+  const orderedSeasons = useMemo(
+    () => [...seasons].sort((a, b) => seasonKey(a) - seasonKey(b)),
+    [seasons],
+  );
+
+  const effectiveStartSeason = orderedSeasons.includes(startSeason) ? startSeason : season;
+  const effectiveEndSeason = orderedSeasons.includes(endSeason) ? endSeason : season;
+  const startKey = seasonKey(effectiveStartSeason);
+  const endKey = seasonKey(effectiveEndSeason);
+
+  const selectedSeasons = useMemo(() => {
+    if (view === "single") return [season];
+    const low = Math.min(startKey, endKey);
+    const high = Math.max(startKey, endKey);
+    return orderedSeasons.filter((value) => seasonKey(value) >= low && seasonKey(value) <= high);
+  }, [endKey, orderedSeasons, season, startKey, view]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -126,7 +152,7 @@ export function FixtureExplorer() {
       });
 
     return () => controller.abort();
-  }, [season, pathname, router, searchParams, team]);
+  }, [pathname, router, searchParams, season, team]);
 
   useEffect(() => {
     if (!seasons.length && season !== DEFAULT_SEASON) return;
@@ -147,13 +173,39 @@ export function FixtureExplorer() {
     setLoading(true);
     setError("");
 
-    fetchFixtureResearchResult(season, team, controller.signal)
-      .then((payload) => {
-        setRows(payload.data.map(toViewRow));
-        setResultId(payload.result_id);
-        setDescription(payload.description);
-        setPopulationLabel(payload.population.label);
-        setProvenance(`${payload.provenance.source} · ${payload.provenance.transformation_version}`);
+    Promise.allSettled(
+      selectedSeasons.map((selected) => fetchFixtureResearchResult(selected, team, controller.signal)),
+    )
+      .then((results) => {
+        const successful = results.flatMap((result) => result.status === "fulfilled" ? [result.value] : []);
+        const failedCount = results.length - successful.length;
+
+        if (!successful.length) {
+          throw new Error("No trusted fixture results were available for the selected period.");
+        }
+
+        setRows(successful.flatMap((payload) => payload.data.map(toViewRow)));
+
+        const scopeStart = selectedSeasons[0] ?? season;
+        const scopeEnd = selectedSeasons[selectedSeasons.length - 1] ?? season;
+        setResultId(
+          view === "single"
+            ? successful[0]?.result_id ?? ""
+            : `fixtures:${scopeStart}:${scopeEnd}:${team}:all:all:all`,
+        );
+        setDescription(
+          view === "single"
+            ? successful[0]?.description ?? ""
+            : `${team} fixtures across ${scopeStart} to ${scopeEnd}, composed from season-specific trusted fixture research results.`,
+        );
+        setPopulationLabel(
+          view === "single"
+            ? successful[0]?.population.label ?? ""
+            : `${team} Premier League fixtures across ${successful.length} available seasons in the selected period`,
+        );
+
+        const versions = [...new Set(successful.map((payload) => payload.provenance.transformation_version))];
+        setProvenance(`${successful[0].provenance.source} · ${versions.join(", ")}${failedCount ? ` · ${failedCount} unavailable season${failedCount === 1 ? "" : "s"}` : ""}`);
       })
       .catch((caught: unknown) => {
         if (caught instanceof DOMException && caught.name === "AbortError") return;
@@ -165,7 +217,7 @@ export function FixtureExplorer() {
       });
 
     return () => controller.abort();
-  }, [season, team]);
+  }, [season, selectedSeasons, team, view]);
 
   const opponents = useMemo(
     () => [...new Set(rows.map((row) => row.opponent))].sort((a, b) => a.localeCompare(b)),
@@ -194,13 +246,13 @@ export function FixtureExplorer() {
   const grouped = useMemo(() => {
     const groups = new Map<string, FixtureViewRow[]>();
     for (const row of filtered) {
-      const group = row.kickoffTime ? monthLabel(row.kickoffTime) : "Fixtures";
+      const group = view === "multi" ? row.season : row.kickoffTime ? monthLabel(row.kickoffTime) : "Fixtures";
       const list = groups.get(group) ?? [];
       list.push(row);
       groups.set(group, list);
     }
     return [...groups.entries()];
-  }, [filtered]);
+  }, [filtered, view]);
 
   function updateContext(key: "season" | "team", value: string) {
     const next = new URLSearchParams(searchParams.toString());
@@ -208,6 +260,10 @@ export function FixtureExplorer() {
     next.delete("opponent");
     next.delete("venue");
     next.delete("result");
+    if (key === "season" && view === "multi") {
+      next.set("end", value);
+      if (seasonKey(next.get("start") ?? value) > seasonKey(value)) next.set("start", value);
+    }
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
     if (key === "team") setTeamMenuOpen(false);
   }
@@ -220,10 +276,39 @@ export function FixtureExplorer() {
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
+  function updateExplore(key: "view" | "start" | "end", value: string) {
+    const next = new URLSearchParams(searchParams.toString());
+
+    if (key === "view") {
+      next.set("view", value);
+      next.set("start", value === "multi" ? effectiveStartSeason : season);
+      next.set("end", value === "multi" ? effectiveEndSeason : season);
+    } else {
+      next.set(key, value);
+      const nextStart = key === "start" ? value : next.get("start") ?? value;
+      const nextEnd = key === "end" ? value : next.get("end") ?? value;
+      if (seasonKey(nextStart) > seasonKey(nextEnd)) {
+        if (key === "start") next.set("end", value);
+        else next.set("start", value);
+      }
+      if (key === "end") next.set("season", value);
+    }
+
+    next.delete("opponent");
+    next.delete("venue");
+    next.delete("result");
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  }
+
   function clearFilters() {
     const next = new URLSearchParams();
     next.set("season", season);
     next.set("team", team);
+    if (view === "multi") {
+      next.set("view", "multi");
+      next.set("start", effectiveStartSeason);
+      next.set("end", effectiveEndSeason);
+    }
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }
 
@@ -253,13 +338,7 @@ export function FixtureExplorer() {
               {teamMenuOpen && (
                 <div className="frl-team-menu" role="menu" aria-label="Choose team">
                   {teamOptions.map((value) => (
-                    <button
-                      key={value}
-                      type="button"
-                      role="menuitem"
-                      className={value === team ? "is-active" : ""}
-                      onClick={() => updateContext("team", value)}
-                    >
+                    <button key={value} type="button" role="menuitem" className={value === team ? "is-active" : ""} onClick={() => updateContext("team", value)}>
                       {value}
                     </button>
                   ))}
@@ -273,13 +352,7 @@ export function FixtureExplorer() {
         <div className="frl-context-actions">
           <div className="frl-context-control frl-context-control-season">
             <span>Season</span>
-            <select
-              id="fixture-season"
-              value={season}
-              onChange={(event) => updateContext("season", event.target.value)}
-              disabled={contextLoading || !!error}
-              aria-label="Season"
-            >
+            <select value={season} onChange={(event) => updateContext("season", event.target.value)} disabled={contextLoading || !!error} aria-label="Season">
               {seasonOptions.map((value) => <option key={value}>{value}</option>)}
             </select>
             <span className="frl-context-chevron" aria-hidden="true">⌄</span>
@@ -300,8 +373,36 @@ export function FixtureExplorer() {
       <section className="frl-filter-bar" aria-label="Fixture exploration">
         <div className="frl-filter-heading">
           <span>Explore fixtures</span>
-          <strong>{hasFilters ? "Filtered view" : "All fixtures"}</strong>
+          <strong>{view === "multi" ? `${effectiveStartSeason} to ${effectiveEndSeason}` : hasFilters ? "Filtered view" : "All fixtures"}</strong>
         </div>
+
+        <div className="frl-context-control">
+          <span>View</span>
+          <select value={view} onChange={(event) => updateExplore("view", event.target.value)} aria-label="Fixture view">
+            <option value="single">Single season</option>
+            <option value="multi">Multiple seasons</option>
+          </select>
+          <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+        </div>
+
+        {view === "multi" && (
+          <>
+            <div className="frl-context-control">
+              <span>From</span>
+              <select value={effectiveStartSeason} onChange={(event) => updateExplore("start", event.target.value)} aria-label="Starting season">
+                {orderedSeasons.map((value) => <option key={value}>{value}</option>)}
+              </select>
+              <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+            </div>
+            <div className="frl-context-control">
+              <span>To</span>
+              <select value={effectiveEndSeason} onChange={(event) => updateExplore("end", event.target.value)} aria-label="Ending season">
+                {orderedSeasons.map((value) => <option key={value}>{value}</option>)}
+              </select>
+              <span className="frl-context-chevron" aria-hidden="true">⌄</span>
+            </div>
+          </>
+        )}
 
         <div className="frl-context-control">
           <span>Opponent</span>
@@ -366,19 +467,12 @@ export function FixtureExplorer() {
                 <span>Result</span>
               </div>
               {groupRows.map((row) => (
-                <Link
-                  className="frl-fixture-row"
-                  href={`/fixtures/${row.season}/${row.fixtureId}`}
-                  key={`${row.season}-${row.fixtureId}`}
-                >
+                <Link className="frl-fixture-row" href={`/fixtures/${row.season}/${row.fixtureId}`} key={`${row.season}-${row.fixtureId}`}>
                   <span className="frl-fixture-date">
                     {row.date}
                     {row.gameweek ? <small>GW {row.gameweek}</small> : null}
                   </span>
-                  <span className="frl-fixture-opponent">
-                    <i aria-hidden="true" />
-                    {row.opponent}
-                  </span>
+                  <span className="frl-fixture-opponent"><i aria-hidden="true" />{row.opponent}</span>
                   <span className="frl-fixture-venue">{row.venue}</span>
                   <span className="frl-fixture-score">{row.score}</span>
                   <span className={`frl-fixture-result frl-result-${row.result.toLowerCase()}`}>{row.result}</span>
