@@ -58,6 +58,77 @@ The same approved font family and typography system must be used across every wo
 - Entity interaction should prefer subtle text/link behaviour over large rectangular buttons.
 - The GUI must present research results; it must not define source precedence, identity mappings, metric formulas, temporal rules, leakage rules or fallback semantics.
 
+## Selector pattern
+
+Selectors are part of the FRL visual hierarchy, not generic form widgets placed on top of a page.
+
+The current Next.js Fixture Explorer establishes the selector precedent for future work:
+
+### Context selectors
+
+Selectors that define the identity/context of the current page should be integrated directly into the heading hierarchy.
+
+Pattern:
+
+```text
+FIXTURES
+
+Arsenal  ⌄                         Season  2025–26 ⌄
+Premier League · fixture history
+```
+
+Rules:
+
+- the primary entity name remains the dominant visual element;
+- the team selector should be expressed through a discrete chevron/action attached to the title rather than a duplicate visible team input;
+- the season selector remains a small, transparent, typographic control in the heading context area;
+- no surrounding card, pill, dark background or raised box around context selectors;
+- use quiet underline/border treatment only where necessary to communicate interactivity;
+- use the FRL muted text and orange-red accent sparingly for focus/active states;
+- preserve the existing FRL typography and spacing hierarchy.
+
+### Exploration selectors
+
+Selectors that refine a research population should sit inside a clearly purposeful analytical section below the page context.
+
+Pattern:
+
+```text
+EXPLORE
+Fixture view
+
+Opponent     All opponents  ⌄
+Venue        Home + Away    ⌄
+Result       All results    ⌄
+```
+
+Rules:
+
+- the section must communicate why the controls exist;
+- selectors should reuse the same transparent, typographic treatment established by the heading/Season control;
+- avoid generic bordered input boxes and dashboard-style control cards;
+- controls should feel like part of the text/layout hierarchy rather than standalone UI objects;
+- the section is the appropriate place to add progressive disclosure such as single-season vs multi-season viewing and compact time-range/comparison controls;
+- changing exploration controls must not change canonical entity identity semantics.
+
+### General rule
+
+When a new page needs a selector, first ask whether it is:
+
+```text
+context
+or
+exploration
+```
+
+Then use the corresponding FRL selector pattern rather than inventing a new control style.
+
+The final test is:
+
+> **Does the selector look like something the FRL naturally says, or like a generic browser widget that has been stuck onto the page?**
+
+If the latter, simplify it.
+
 ## Change protocol
 
 Before modifying an existing page:
@@ -254,16 +325,39 @@ Recommended hierarchy:
 ```text
 FIXTURES
 
-Manchester City
-Premier League · 2025–26
+Manchester City  ⌄
+Premier League · fixture history                         Season  2025–26 ⌄
 
-[Season] [Team]
+──────────────────────────────────────────────────────────────────
 
-38 matches
+EXPLORE
+Fixture view
+
+Opponent     All opponents  ⌄
+Venue        Home + Away    ⌄
+Result       All results    ⌄
+
+38 fixtures shown
 
 DATE         OPPONENT                 VENUE   SCORE   RESULT
 16 Aug       Wolverhampton            Away    0–4     W
 ```
+
+The heading's Team/Season controls establish page context. The Explore section is deliberately separate so additional analytical controls can be added without damaging the identity hierarchy.
+
+The initial Explore controls are:
+
+- opponent selection;
+- venue filter;
+- result filter.
+
+The intended next capabilities are:
+
+- single-season vs multi-season viewing;
+- compact time-range/comparison control;
+- comparison of a team against selected opponents across multiple seasons where the underlying Research Result supports it.
+
+These are progressive additions to Fixture Explorer, not reasons to overload the page header.
 
 Inside each row:
 
