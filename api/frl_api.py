@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, ConfigDict
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -74,6 +75,17 @@ class FixtureResearchResult(BaseModel):
 
 
 app = FastAPI(title="Football Research Laboratory API", version="0.1.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 
 
 def _normalise_int(value: str | int | None) -> int | None:
