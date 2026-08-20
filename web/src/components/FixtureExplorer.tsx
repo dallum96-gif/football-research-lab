@@ -227,6 +227,7 @@ export function FixtureExplorer() {
 
   const teamOptions = teams.length ? teams : [team];
   const seasonOptions = seasons.length ? seasons : [season];
+  const hasFilters = Boolean(opponent || venue || resultFilter);
 
   return (
     <>
@@ -236,29 +237,32 @@ export function FixtureExplorer() {
           <h1 className="frl-title">{team}</h1>
           <div className="frl-context">Premier League · {season}</div>
         </div>
+
         <div className="frl-context-actions">
-          <label>
-            <span>Team</span>
+          <div className="frl-context-control">
+            <label htmlFor="fixture-team">Team</label>
             <select
+              id="fixture-team"
               value={team}
               onChange={(event) => updateContext("team", event.target.value)}
               disabled={contextLoading || !!error}
-              aria-label="Team"
             >
               {teamOptions.map((value) => <option key={value}>{value}</option>)}
             </select>
-          </label>
-          <label>
-            <span>Season</span>
+          </div>
+
+          <div className="frl-context-control frl-context-control-season">
+            <label htmlFor="fixture-season">Season</label>
             <select
+              id="fixture-season"
               value={season}
               onChange={(event) => updateContext("season", event.target.value)}
               disabled={contextLoading || !!error}
-              aria-label="Season"
             >
               {seasonOptions.map((value) => <option key={value}>{value}</option>)}
             </select>
-          </label>
+          </div>
+
           <div className="frl-record-chip" aria-label="Fixture record">
             <strong>{filtered.length}</strong>
             <span>matches</span>
@@ -272,6 +276,11 @@ export function FixtureExplorer() {
       <div className="frl-rule" />
 
       <section className="frl-filter-bar" aria-label="Fixture filters">
+        <div className="frl-filter-heading">
+          <span>Explore</span>
+          <strong>{hasFilters ? "Filtered fixtures" : "All fixtures"}</strong>
+        </div>
+
         <label>
           <span>Opponent</span>
           <select value={opponent} onChange={(event) => updateFilter("opponent", event.target.value)} disabled={loading || !!error}>
@@ -279,6 +288,7 @@ export function FixtureExplorer() {
             {opponents.map((value) => <option key={value}>{value}</option>)}
           </select>
         </label>
+
         <label>
           <span>Venue</span>
           <select value={venue} onChange={(event) => updateFilter("venue", event.target.value)} disabled={loading || !!error}>
@@ -287,6 +297,7 @@ export function FixtureExplorer() {
             <option>Away</option>
           </select>
         </label>
+
         <label>
           <span>Result</span>
           <select value={resultFilter} onChange={(event) => updateFilter("result", event.target.value)} disabled={loading || !!error}>
@@ -297,10 +308,11 @@ export function FixtureExplorer() {
             <option>UNPLAYED</option>
           </select>
         </label>
+
         <div className="frl-filter-summary">
           <span>{loading ? "Loading research result…" : `${filtered.length} of ${rows.length} fixtures`}</span>
-          {(opponent || venue || resultFilter) && (
-            <button type="button" onClick={clearFilters}>Clear filters</button>
+          {hasFilters && (
+            <button type="button" onClick={clearFilters}>Clear</button>
           )}
         </div>
       </section>
@@ -314,12 +326,15 @@ export function FixtureExplorer() {
       ) : loading ? (
         <div className="frl-empty-state">Loading the validated fixture research result…</div>
       ) : grouped.length === 0 ? (
-        <div className="frl-empty-state">No fixtures match the selected filters.</div>
+        <div className="frl-empty-state">
+          <strong>No fixtures match those filters.</strong>
+          <button type="button" onClick={clearFilters}>Clear filters</button>
+        </div>
       ) : (
         <section className="frl-fixture-list" aria-label="Fixture results">
           {grouped.map(([group, groupRows]) => (
             <div className="frl-fixture-month" key={group}>
-              <div className="frl-month-heading">{group}</div>
+              <div className="frl-month-heading"><span />{group}</div>
               <div className="frl-fixture-header">
                 <span>Date</span>
                 <span>Opponent</span>
@@ -333,8 +348,14 @@ export function FixtureExplorer() {
                   href={`/fixtures/${row.season}/${row.fixtureId}`}
                   key={`${row.season}-${row.fixtureId}`}
                 >
-                  <span className="frl-fixture-date">{row.date}</span>
-                  <span className="frl-fixture-opponent">{row.opponent}</span>
+                  <span className="frl-fixture-date">
+                    {row.date}
+                    {row.gameweek ? <small>GW {row.gameweek}</small> : null}
+                  </span>
+                  <span className="frl-fixture-opponent">
+                    <i aria-hidden="true" />
+                    {row.opponent}
+                  </span>
                   <span className="frl-fixture-venue">{row.venue}</span>
                   <span className="frl-fixture-score">{row.score}</span>
                   <span className={`frl-fixture-result frl-result-${row.result.toLowerCase()}`}>{row.result}</span>
