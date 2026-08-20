@@ -1,0 +1,231 @@
+:root {
+  --frl-bg: #f5f1e8;
+  --frl-surface: #fffdf8;
+  --frl-surface-raised: #ebe6da;
+  --frl-border: rgba(24, 23, 20, 0.11);
+  --frl-border-strong: rgba(24, 23, 20, 0.20);
+  --frl-text: #171714;
+  --frl-muted: #68645c;
+  --frl-muted-soft: #989289;
+  --frl-accent: #e85d3f;
+  --frl-accent-bright: #f06d4e;
+  --frl-secondary: #9aaa42;
+  --frl-negative: #e85d3f;
+  --frl-warning: #c68a35;
+  --frl-sidebar: #1b1b18;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--frl-bg); }
+body {
+  margin: 0;
+  background: var(--frl-bg);
+  color: var(--frl-text);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+button, input, select { font: inherit; }
+
+a { color: inherit; }
+
+.frl-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+}
+
+.frl-sidebar {
+  background: var(--frl-sidebar);
+  color: #fffaf0;
+  min-height: 100vh;
+  padding: 1.35rem .9rem;
+  position: sticky;
+  top: 0;
+  align-self: start;
+}
+
+.frl-sidebar-brand {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  margin-bottom: 1.05rem;
+}
+
+.frl-sidebar-kicker {
+  color: #8f8a7f;
+  font-size: .56rem;
+  font-weight: 800;
+  letter-spacing: .13em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  margin: 0 0 .65rem;
+}
+
+.frl-sidebar-link {
+  display: block;
+  text-decoration: none;
+  color: #c9c6bc;
+  padding: .35rem .42rem;
+  border-radius: 5px;
+  font-size: .75rem;
+}
+
+.frl-sidebar-link:hover,
+.frl-sidebar-link[data-active="true"] {
+  color: #fffaf0;
+  background: rgba(232, 93, 63, .14);
+}
+
+.frl-main {
+  min-width: 0;
+  max-width: 1500px;
+  width: 100%;
+  padding: 1.35rem 1.55rem 3rem;
+}
+
+.frl-eyebrow {
+  color: var(--frl-accent);
+  font-size: .62rem;
+  font-weight: 800;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  margin-bottom: .35rem;
+}
+
+.frl-title {
+  font-size: clamp(2rem, 3.3vw, 3rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -.04em;
+  margin: 0;
+}
+
+.frl-context {
+  color: var(--frl-muted);
+  font-size: .86rem;
+  margin-top: .3rem;
+}
+
+.frl-rule {
+  height: 2px;
+  background: var(--frl-text);
+  margin: 1.7rem 0 1rem;
+  opacity: .9;
+}
+
+.frl-result-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.frl-panel {
+  background: var(--frl-surface);
+  border: 1px solid var(--frl-border);
+  border-radius: 9px;
+  padding: 1rem;
+}
+
+.frl-panel-title {
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: .7rem;
+}
+
+.frl-panel-subtitle {
+  color: var(--frl-muted);
+  font-size: .75rem;
+  line-height: 1.45;
+}
+
+.frl-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: .8rem;
+  font-size: .78rem;
+}
+
+.frl-table th {
+  text-align: left;
+  color: var(--frl-muted-soft);
+  font-size: .6rem;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  padding: .45rem .35rem;
+  border-bottom: 1px solid var(--frl-border-strong);
+}
+
+.frl-table td {
+  padding: .55rem .35rem;
+  border-bottom: 1px solid var(--frl-border);
+}
+
+.frl-table tr[data-selected="true"] td {
+  background: rgba(154, 170, 66, .08);
+}
+
+.frl-table button {
+  border: 0;
+  background: transparent;
+  color: var(--frl-text);
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 650;
+}
+
+.frl-table button:hover { color: var(--frl-accent); }
+
+.frl-meta-list {
+  display: grid;
+  gap: .65rem;
+  margin-top: .9rem;
+}
+
+.frl-meta-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: .8rem;
+  padding-bottom: .6rem;
+  border-bottom: 1px solid var(--frl-border);
+}
+
+.frl-meta-label {
+  color: var(--frl-muted-soft);
+  font-size: .61rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.frl-meta-value {
+  font-size: .76rem;
+  overflow-wrap: anywhere;
+}
+
+.frl-note {
+  margin-top: 1rem;
+  color: var(--frl-muted);
+  font-size: .72rem;
+  line-height: 1.5;
+}
+
+.frl-badge {
+  display: inline-block;
+  color: var(--frl-secondary);
+  font-size: .61rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 950px) {
+  .frl-shell { grid-template-columns: 1fr; }
+  .frl-sidebar { position: static; min-height: auto; }
+  .frl-result-grid { grid-template-columns: 1fr; }
+}
