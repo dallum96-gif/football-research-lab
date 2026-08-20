@@ -20,6 +20,13 @@ export type TeamOption = {
   local_team_id: string;
 };
 
+export type TeamSeasonOption = {
+  persistent_team_code: string;
+  display_name: string;
+  season: string;
+  local_team_id: string;
+};
+
 export type FixtureResearchResult = {
   result_id: string;
   title: string;
@@ -78,6 +85,14 @@ export function fetchSeasons(signal?: AbortSignal): Promise<{ seasons: string[] 
 
 export function fetchTeams(season: string, signal?: AbortSignal): Promise<TeamOption[]> {
   return getJson<TeamOption[]>(`/api/v1/teams/${encodeURIComponent(season)}`, signal);
+}
+
+export function fetchTeamSeasons(
+  persistentTeamCode: string,
+  signal?: AbortSignal,
+): Promise<TeamSeasonOption[]> {
+  const params = new URLSearchParams({ persistent_team_code: persistentTeamCode });
+  return getJson<TeamSeasonOption[]>(`/api/v1/team-seasons?${params.toString()}`, signal);
 }
 
 export async function fetchFixtureResearchResult(
