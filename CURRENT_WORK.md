@@ -1,48 +1,74 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 17 August 2026
+**Last updated:** 20 August 2026
 
 ## Active branch
 
-`design/player-filter-tiles`
+`feature/next-foundation-spike-2026-08-20`
 
-This remains the development line. `main` is the stable integration line.
+This is the current frontend-migration development line, branched from `feature/site-functionality-2026-08-19`. `main` remains the stable integration line.
 
 ## Current platform checkpoint
 
-The FRL data-platform work is deliberately additive and local-first.
+The FRL data-platform work remains deliberately additive and local-first.
 
-Validated:
+The trusted canonical entity, relationship, provenance and temporal contracts remain authoritative and unchanged by the frontend migration.
 
-- canonical relationship-integrity proof: green;
-- temporary Parquet/DuckDB analytical materialisation for `fixtures` and `team_fixtures`: green;
-- analytical/query-equivalence proof: prototype corrected after two test-environment issues; latest corrected CI run is being validated.
+## Frontend migration checkpoint
 
-The previous query-equivalence attempt failed in the prototype only: DuckDB attempted to import `pytz` while ordering an inferred timezone-aware timestamp. No canonical data, relationship mapping or GUI behaviour failed. The proof was corrected to order the stored timestamp representation directly.
+The project has formally moved to a **private-first, public-ready React + Next.js frontend migration** strategy.
 
-## Foundational visualisation principle
+Authoritative migration document:
 
-**Data visualisation is a first-class FRL research output.**
+- `FRL_MASTER_FRONTEND_MIGRATION_PLAN_V2.md`
 
-Charts, tables, comparisons, timelines and other visualisations must be generated from validated analytical/research outputs rather than maintaining separate presentation-specific truth.
+Current visual authority:
 
-Visualisations must inherit:
+- `gui/theme.py`
+- `GUI_DESIGN_CONTRACT.md`
+- `UI_DESIGN_SYSTEM.md`
 
-- the same population and filters;
-- the same temporal/as-of semantics;
-- the same provenance and source lineage;
-- the same uncertainty/limitations;
-- the same identity and relationship semantics;
-- the same reproducibility/version information where practical.
+The current live FRL visual system is the warm light analytical theme; the older dark main-canvas description is historical and must not be used as the basis for new UI work.
 
-The GUI remains governed by `GUI_DESIGN_CONTRACT.md` and `UI_DESIGN_SYSTEM.md`. Rich analytical visualisation must remain within that visual language rather than becoming generic dashboard clutter.
+## Next.js foundation spike
 
-The durable visualisation rule is recorded in `FRL_VISUALISATION_DATA_CONTRACT.md`.
+The first reversible migration spike is now present under `web/`.
 
-## Immediate next steps
+It currently proves:
 
-1. Confirm the corrected CSV-vs-DuckDB query-equivalence gate is green.
-2. Build the small reusable analytical query seam over the local Parquet representation without switching production consumers.
-3. Prove that the same research result object can feed both a table and at least one chart.
-4. Validate visualisation outputs against the GUI contract before any interface rollout.
-5. Only then consider expanding Parquet materialisation to more datasets or considering object storage.
+- Next.js + React application structure;
+- current FRL light-theme tokens;
+- typed Research Result contract;
+- one Research Result driving both a table and an interactive Plotly chart;
+- canonical fixture references retaining `(season, fixtureId)` context;
+- a typed frontend API boundary that leaves business logic in Python.
+
+The spike intentionally uses static demo data and does **not** replace Streamlit, `query_api.py`, `query_lab.py` or the trusted canonical data layer.
+
+## Validation still required locally
+
+Because the repository connector cannot execute the user's Node environment, the next local validation must prove:
+
+1. `npm install` completes in `web/`;
+2. `npm run typecheck` passes;
+3. `npm run build` passes;
+4. the demo page renders;
+5. selecting a chart point changes the exact table/detail selection;
+6. the current FRL colour system and typography are visually faithful;
+7. the production API adapter can later connect to the existing Python research/query seam without duplicating business logic.
+
+The existing Python 26/26 research regression baseline and project-health gate remain mandatory for substantive backend/data changes. This frontend spike is presentation-only and must not modify those research semantics.
+
+## Deployment direction
+
+The FRL is **private-first, public-ready**:
+
+```text
+local
+  ↓
+private shared (initially ~3 invited users beyond the owner)
+  ↓
+public when explicitly approved
+```
+
+Stable, shareable entity and Research Result URLs are part of the long-term frontend contract. Going public should be an access/deployment decision, not a future rewrite of route or research architecture.
