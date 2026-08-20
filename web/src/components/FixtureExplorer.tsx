@@ -1,20 +1,106 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { demoResearchResult, fixtureRowsFromResult, type FixtureRow } from "@/lib/research-result";
+import { fetchFixtureResearchResult, type FixtureApiRow } from "@/lib/api";
+
+type FixtureViewRow = {
+  fixtureId: string;
+  season: string;
+  date: string;
+  opponent: string;
+  venue: "Home" | "Away";
+  score: string;
+  result: "W" | "D" | "L" | "UNPLAYED";
+  kickoffTime: string;
+  gameweek: number | null;
+};
+
+const DEFAULT_SEASON = "2025-26";
+const DEFAULT_TEAM = "Arsenal";
+
+function formatDate(value: string | null) {
+  if (!value) return "—";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value.slice(0, 10);
+  return parsed.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
+function monthLabel(value: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return "Fixtures";
+  return parsed.toLocaleDateString("en-GB", {
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function toViewRow(row: FixtureApiRow): FixtureViewRow {
+  const score = row.home_score == null || row.away_score == null
+    ? "—"
+    : `${row.home_score}–${row.away_score}`;
+
+  return {
+    fixtureId: row.fixture_id,
+    season: row.season,
+    date: formatDate(row.kickoff_time),
+    opponent: row.venue === "Home" ? row.away_team_name : row.home_team_name,
+    venue: row.venue ?? (row.home_team_name === DEFAULT_TEAM ? "Home" : "Away"),
+    score,
+    result: row.result ?? "UNPLAYED",
+    kickoffTime: row.kickoff_time ?? "",
+    gameweek: row.gameweek,
+  };
+}
 
 export function FixtureExplorer() {
-  const result = useMemo(() => demoResearchResult(), []);
-  const rows = useMemo(() => fixtureRowsFromResult(result), [result]);
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
+  const season = searchParams.get("season") ?? DEFAULT_SEASON;
+  const team = searchParams.get("team") ?? DEFAULT_TEAM;
   const opponent = searchParams.get("opponent") ?? "";
   const venue = searchParams.get("venue") ?? "";
   const resultFilter = searchParams.get("result") ?? "";
+
+  const [rows, setRows] = useState<FixtureViewRow[]>([]);
+  const [resultId, setResultId] = useState("");
+  const [description, setDescription] = useState("");
+  const [populationLabel, setPopulationLabel] = useState("");
+  const [provenance, setProvenance] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError("");
+
+    fetchFixtureResearchResult(season, team, controller.signal)
+      .then((payload) => {
+        setRows(payload.data.map(toViewRow));
+        setResultId(payload.result_id);
+        setDescription(payload.description);
+        setPopulationLabel(payload.population.label);
+        setProvenance(`${payload.provenance.source} · ${payload.provenance.transformation_version}`);
+      })
+      .catch((caught: unknown) => {
+        if (caught instanceof DOMException && caught.name === "AbortError") return;
+        setRows([]);
+        setError(caught instanceof Error ? caught.message : "Unable to load fixture research result.");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [season, team]);
 
   const opponents = useMemo(
     () => [...new Set(rows.map((row) => row.opponent))].sort((a, b) => a.localeCompare(b)),
@@ -41,9 +127,9 @@ export function FixtureExplorer() {
   );
 
   const grouped = useMemo(() => {
-    const groups = new Map<string, FixtureRow[]>();
+    const groups = new Map<string, FixtureViewRow[]>();
     for (const row of filtered) {
-      const group = row.date.split(" ").slice(-1)[0] || "Fixtures";
+      const group = row.kickoffTime ? monthLabel(row.kickoffTime) : "Fixtures";
       const list = groups.get(group) ?? [];
       list.push(row);
       groups.set(group, list);
@@ -53,6 +139,7 @@ export function FixtureExplorer() {
 
   function updateFilter(key: string, value: string) {
     const next = new URLSearchParams(searchParams.toString());
+    if (key === "season" && !value) return;
     if (value) next.set(key, value);
     else next.delete(key);
     const query = next.toString();
@@ -60,7 +147,10 @@ export function FixtureExplorer() {
   }
 
   function clearFilters() {
-    router.replace(pathname, { scroll: false });
+    const next = new URLSearchParams();
+    next.set("season", season);
+    next.set("team", team);
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }
 
   return (
@@ -68,14 +158,14 @@ export function FixtureExplorer() {
       <section className="frl-page-heading">
         <div>
           <div className="frl-eyebrow">Fixtures</div>
-          <h1 className="frl-title">Arsenal</h1>
-          <div className="frl-context">Premier League · {result.scope.season}</div>
+          <h1 className="frl-title">{team}</h1>
+          <div className="frl-context">Premier League · {season}</div>
         </div>
         <div className="frl-context-actions">
           <label>
             <span>Season</span>
-            <select defaultValue={result.scope.season} disabled aria-label="Season">
-              <option>{result.scope.season}</option>
+            <select value={season} onChange={(event) => updateFilter("season", event.target.value)} aria-label="Season">
+              <option>{season}</option>
             </select>
           </label>
           <div className="frl-record-chip" aria-label="Fixture record">
@@ -93,14 +183,14 @@ export function FixtureExplorer() {
       <section className="frl-filter-bar" aria-label="Fixture filters">
         <label>
           <span>Opponent</span>
-          <select value={opponent} onChange={(event) => updateFilter("opponent", event.target.value)}>
+          <select value={opponent} onChange={(event) => updateFilter("opponent", event.target.value)} disabled={loading || !!error}>
             <option value="">All opponents</option>
             {opponents.map((value) => <option key={value}>{value}</option>)}
           </select>
         </label>
         <label>
           <span>Venue</span>
-          <select value={venue} onChange={(event) => updateFilter("venue", event.target.value)}>
+          <select value={venue} onChange={(event) => updateFilter("venue", event.target.value)} disabled={loading || !!error}>
             <option value="">All venues</option>
             <option>Home</option>
             <option>Away</option>
@@ -108,22 +198,31 @@ export function FixtureExplorer() {
         </label>
         <label>
           <span>Result</span>
-          <select value={resultFilter} onChange={(event) => updateFilter("result", event.target.value)}>
+          <select value={resultFilter} onChange={(event) => updateFilter("result", event.target.value)} disabled={loading || !!error}>
             <option value="">All results</option>
             <option>W</option>
             <option>D</option>
             <option>L</option>
+            <option>UNPLAYED</option>
           </select>
         </label>
         <div className="frl-filter-summary">
-          <span>{filtered.length} of {rows.length} fixtures</span>
+          <span>{loading ? "Loading research result…" : `${filtered.length} of ${rows.length} fixtures`}</span>
           {(opponent || venue || resultFilter) && (
             <button type="button" onClick={clearFilters}>Clear filters</button>
           )}
         </div>
       </section>
 
-      {grouped.length === 0 ? (
+      {error ? (
+        <div className="frl-empty-state">
+          <strong>Fixture research result unavailable.</strong>
+          <div>{error}</div>
+          <small>The page has failed closed rather than falling back to fabricated or stale fixture data.</small>
+        </div>
+      ) : loading ? (
+        <div className="frl-empty-state">Loading the validated fixture research result…</div>
+      ) : grouped.length === 0 ? (
         <div className="frl-empty-state">No fixtures match the selected filters.</div>
       ) : (
         <section className="frl-fixture-list" aria-label="Fixture results">
@@ -140,8 +239,8 @@ export function FixtureExplorer() {
               {groupRows.map((row) => (
                 <Link
                   className="frl-fixture-row"
-                  href={`/fixtures/${result.scope.season}/${row.fixtureId}`}
-                  key={`${result.scope.season}-${row.fixtureId}`}
+                  href={`/fixtures/${row.season}/${row.fixtureId}`}
+                  key={`${row.season}-${row.fixtureId}`}
                 >
                   <span className="frl-fixture-date">{row.date}</span>
                   <span className="frl-fixture-opponent">{row.opponent}</span>
@@ -156,7 +255,13 @@ export function FixtureExplorer() {
       )}
 
       <div className="frl-research-note">
-        <strong>Research result.</strong> This workspace currently demonstrates the presentation contract using the foundation-spike result object. The production version will receive the validated fixture result from the Python research/query layer without changing the interaction model.
+        <strong>Research result.</strong> {description}
+        <br />
+        <span>{populationLabel}</span>
+        <br />
+        <span>Result: {resultId}</span>
+        <br />
+        <span>Provenance: {provenance}</span>
       </div>
     </>
   );
