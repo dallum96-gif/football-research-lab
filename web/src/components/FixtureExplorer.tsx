@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { fetchFixtureResearchResult, type FixtureApiRow } from "@/lib/api";
+import {
+  fetchFixtureResearchResult,
+  fetchSeasons,
+  fetchTeams,
+  type FixtureApiRow,
+} from "@/lib/api";
 
 type FixtureViewRow = {
   fixtureId: string;
@@ -69,6 +74,8 @@ export function FixtureExplorer() {
   const venue = searchParams.get("venue") ?? "";
   const resultFilter = searchParams.get("result") ?? "";
 
+  const [seasons, setSeasons] = useState<string[]>([]);
+  const [teams, setTeams] = useState<string[]>([]);
   const [rows, setRows] = useState<FixtureViewRow[]>([]);
   const [resultId, setResultId] = useState("");
   const [description, setDescription] = useState("");
@@ -76,6 +83,63 @@ export function FixtureExplorer() {
   const [provenance, setProvenance] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [contextLoading, setContextLoading] = useState(true);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchSeasons(controller.signal)
+      .then((payload) => setSeasons(payload.seasons))
+      .catch((caught: unknown) => {
+        if (caught instanceof DOMException && caught.name === "AbortError") return;
+        setError(caught instanceof Error ? caught.message : "Unable to load seasons.");
+      });
+
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setContextLoading(true);
+
+    fetchTeams(season, controller.signal)
+      .then((options) => {
+        const names = options.map((option) => option.display_name);
+        setTeams(names);
+
+        if (names.length && !names.includes(team)) {
+          const next = new URLSearchParams(searchParams.toString());
+          next.set("team", names[0]);
+          next.delete("opponent");
+          next.delete("venue");
+          next.delete("result");
+          router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+        }
+      })
+      .catch((caught: unknown) => {
+        if (caught instanceof DOMException && caught.name === "AbortError") return;
+        setError(caught instanceof Error ? caught.message : "Unable to load teams.");
+        setTeams([]);
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setContextLoading(false);
+      });
+
+    return () => controller.abort();
+  }, [season, pathname, router, searchParams, team]);
+
+  useEffect(() => {
+    if (!seasons.length && season !== DEFAULT_SEASON) return;
+    if (seasons.length && !seasons.includes(season)) {
+      const fallback = seasons.includes(DEFAULT_SEASON) ? DEFAULT_SEASON : seasons[0];
+      const next = new URLSearchParams(searchParams.toString());
+      next.set("season", fallback);
+      next.set("team", DEFAULT_TEAM);
+      next.delete("opponent");
+      next.delete("venue");
+      next.delete("result");
+      router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+    }
+  }, [pathname, router, searchParams, season, seasons]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -137,9 +201,17 @@ export function FixtureExplorer() {
     return [...groups.entries()];
   }, [filtered]);
 
+  function updateContext(key: "season" | "team", value: string) {
+    const next = new URLSearchParams(searchParams.toString());
+    next.set(key, value);
+    next.delete("opponent");
+    next.delete("venue");
+    next.delete("result");
+    router.replace(`${pathname}?${next.toString()}`, { scroll: false });
+  }
+
   function updateFilter(key: string, value: string) {
     const next = new URLSearchParams(searchParams.toString());
-    if (key === "season" && !value) return;
     if (value) next.set(key, value);
     else next.delete(key);
     const query = next.toString();
@@ -153,6 +225,9 @@ export function FixtureExplorer() {
     router.replace(`${pathname}?${next.toString()}`, { scroll: false });
   }
 
+  const teamOptions = teams.length ? teams : [team];
+  const seasonOptions = seasons.length ? seasons : [season];
+
   return (
     <>
       <section className="frl-page-heading">
@@ -163,9 +238,25 @@ export function FixtureExplorer() {
         </div>
         <div className="frl-context-actions">
           <label>
+            <span>Team</span>
+            <select
+              value={team}
+              onChange={(event) => updateContext("team", event.target.value)}
+              disabled={contextLoading || !!error}
+              aria-label="Team"
+            >
+              {teamOptions.map((value) => <option key={value}>{value}</option>)}
+            </select>
+          </label>
+          <label>
             <span>Season</span>
-            <select value={season} onChange={(event) => updateFilter("season", event.target.value)} aria-label="Season">
-              <option>{season}</option>
+            <select
+              value={season}
+              onChange={(event) => updateContext("season", event.target.value)}
+              disabled={contextLoading || !!error}
+              aria-label="Season"
+            >
+              {seasonOptions.map((value) => <option key={value}>{value}</option>)}
             </select>
           </label>
           <div className="frl-record-chip" aria-label="Fixture record">
