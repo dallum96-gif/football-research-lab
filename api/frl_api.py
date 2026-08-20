@@ -74,6 +74,13 @@ class FixtureResearchResult(BaseModel):
     limitations: list[str]
 
 
+class TeamOption(BaseModel):
+    persistent_team_code: str | None = None
+    display_name: str
+    season: str
+    local_team_id: str
+
+
 app = FastAPI(title="Football Research Laboratory API", version="0.1.0")
 
 app.add_middleware(
@@ -135,6 +142,36 @@ def _row_for_api(row: dict, team_filter: str | None) -> FixtureResultRow:
 @app.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "football-research-lab-api"}
+
+
+@app.get("/api/v1/seasons")
+def get_seasons() -> dict[str, list[str]]:
+    try:
+        seasons = list(query_api.list_seasons())
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Season list failed safely.") from exc
+
+    return {"seasons": sorted(seasons, reverse=True)}
+
+
+@app.get("/api/v1/teams/{season}", response_model=list[TeamOption])
+def get_teams(season: str) -> list[TeamOption]:
+    try:
+        table = query_api.league_table(season)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Team list failed safely.") from exc
+
+    return [
+        TeamOption(
+            persistent_team_code=row.get("persistent_team_code") or None,
+            display_name=str(row["team"]),
+            season=season,
+            local_team_id=str(row["team_id"]),
+        )
+        for row in sorted(table["teams"], key=lambda item: item["team"].casefold())
+    ]
 
 
 @app.get("/api/v1/fixtures/{season}", response_model=FixtureResearchResult)
