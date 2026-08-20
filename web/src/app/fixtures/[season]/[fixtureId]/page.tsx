@@ -1,3 +1,5 @@
+import { AppShell } from "@/components/AppShell";
+
 type FixtureDetailProps = {
   params: Promise<{
     season: string;
@@ -9,12 +11,10 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
   const { season, fixtureId } = await params;
 
   return (
-    <main className="frl-main">
+    <AppShell>
       <div className="frl-eyebrow">Fixture</div>
       <h1 className="frl-title">Fixture Landing</h1>
-      <div className="frl-context">
-        Canonical fixture reference: {season} / {fixtureId}
-      </div>
+      <div className="frl-context">Canonical fixture reference: {season} / {fixtureId}</div>
       <div className="frl-rule" />
       <section className="frl-panel">
         <div className="frl-panel-title">Next migration step</div>
@@ -23,6 +23,6 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
           the same canonical fixture identity and Research Result contracts.
         </p>
       </section>
-    </main>
+    </AppShell>
   );
 }
