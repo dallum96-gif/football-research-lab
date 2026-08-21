@@ -5,26 +5,42 @@ promote identities, mutate canonical data, or write research outputs.
 """
 from __future__ import annotations
 
-from pathlib import Path
+from functools import lru_cache
+
 import player_identity_audit
 import source_family_adapters as adapters
+from player_match_stats import source_player_id
 
 SEASONS = tuple(player_identity_audit.SEASONS)
 
 
+@lru_cache(maxsize=None)
+def _player_relationship_report(season: str) -> dict:
+    return player_identity_audit.audit_season(season)
+
+
+@lru_cache(maxsize=None)
+def _fpl_team_context_status(season: str) -> str:
+    """Classify whether the exposed FPL source permits team-aware matching."""
+    saw_row = False
+    saw_context = False
+    for row in player_identity_audit.player_research._load_season_rows(season):
+        saw_row = True
+        if str(row.get("team") or row.get("team_code") or row.get("_club") or "").strip():
+            saw_context = True
+            break
+    if not saw_row or not saw_context:
+        return "UNAVAILABLE_SOURCE_TEAM_CONTEXT"
+    return "TESTABLE"
+
+
 def classify_player_relationship(season: str) -> dict:
-    report = player_identity_audit.audit_season(season)
-    # For the first four seasons the FPL source rows have no usable team
-    # context; this makes the identity relationship unavailable rather than
-    # unresolved. Later seasons have usable team context and can be evaluated.
-    team_context = any(
-        str(row.get("team") or row.get("team_code") or player_identity_audit.normalize_name(str(row.get("_club") or "").strip()))
-        for row in player_identity_audit.player_research._load_season_rows(season)
-    ) if hasattr(player_identity_audit, "player_research") else False
-    status = "TESTABLE" if team_context else "UNAVAILABLE_SOURCE_TEAM_CONTEXT"
+    report = _player_relationship_report(season)
+    status = _fpl_team_context_status(season)
     return {"status": status, **report}
 
 
+@lru_cache(maxsize=None)
 def fixture_gap(season: str) -> dict:
     fixtures = adapters.season_fixtures(season)
     missing = []
@@ -34,16 +50,22 @@ def fixture_gap(season: str) -> dict:
             adapters.resolve_source_match(season, fid)
         except ValueError:
             missing.append(fid)
-    return {"canonical_fixtures": len(fixtures), "missing_source_matches": missing}
+    return {"canonical_fixtures": len(fixtures), "missing_source_matches": tuple(missing)}
 
 
+@lru_cache(maxsize=None)
 def player_id_overlap(season: str) -> dict:
-    pm = {str(r.get("playerId") or r.get("pl_code") or r.get("player_id") or "").strip()
-          for r in adapters.player_match_source_rows_for_season(season)
-          if str(r.get("playerId") or r.get("pl_code") or r.get("player_id") or "").strip()}
-    ps = {str(r.get("playerId") or "").strip()
-          for r in adapters.player_season_source_rows(season)
-          if str(r.get("playerId") or "").strip()}
+    pm = set()
+    for row in adapters.player_match_source_rows_for_season(season):
+        pid = source_player_id(row)
+        if pid:
+            pm.add(pid)
+
+    ps = {
+        str(r.get("playerId") or "").strip()
+        for r in adapters.player_season_source_rows(season)
+        if str(r.get("playerId") or "").strip()
+    }
     return {
         "player_match_source_ids": len(pm),
         "player_season_source_ids": len(ps),
@@ -86,12 +108,13 @@ def print_report(results: dict) -> None:
         print(f"    candidates={p['fpl_candidates']} source={p['source_candidates']} exact={p['exact']} missing={p['missing']} ambiguous={p['ambiguous']}")
         print(f"  fixture source gaps: {len(f['missing_source_matches'])}")
         if f["missing_source_matches"]:
-            print(f"    fixture_ids={f['missing_source_matches'][:10]}")
+            print(f"    fixture_ids={list(f['missing_source_matches'])[:10]}")
         print(f"  player-match vs player-season IDs: overlap={o['direct_id_overlap']} match_only={o['player_match_only']} season_only={o['player_season_only']}")
         print()
     print("INTERPRETATION")
     print("- UNAVAILABLE_SOURCE_TEAM_CONTEXT means the relationship is not testable from the exposed FPL schema.")
     print("- TESTABLE relationships are classified as exact, missing, or ambiguous; none are promoted automatically.")
+    print("- Player-match IDs use the repository's canonical source_player_id() resolver.")
     print("- Fixture gaps and player-ID overlap are independent relationship checks.")
     print("No files were written or modified.")
     print("=" * 120)
