@@ -15,6 +15,7 @@ Identity classes are evidence-driven: exact, missing, ambiguous, or unavailable.
 from __future__ import annotations
 
 from collections import defaultdict
+from pathlib import Path
 
 import player_identity_audit
 import query_lab
@@ -59,13 +60,19 @@ def fixture_relationship(season: str) -> dict:
 def team_relationship(season: str, registry: dict) -> dict:
     rows = registry.get(season, [])
     verified = [r for r in rows if r.get("mapping_status") == "VERIFIED"]
-    persistent = {str(r.get("persistent_team_code") or "").strip() for r in verified if r.get("persistent_team_code")}
+    persistent = {
+        str(r.get("persistent_team_code") or "").strip()
+        for r in verified
+        if r.get("persistent_team_code")
+    }
 
     source_team_ids = set()
-    root = adapters.PL_ROOT
+    root = Path(adapters.PL_ROOT)
     # The source team-match adapter exposes the season's source rows without
     # requiring a canonical fixture lookup for this coverage audit.
     expected = f"{season}_events_stats.csv"
+    if not root.is_dir():
+        raise FileNotFoundError(f"Approved upstream source not found: {root}")
     for club_dir in root.iterdir():
         if not club_dir.is_dir() or club_dir.name.startswith("_"):
             continue
@@ -102,7 +109,12 @@ def player_relationship(season: str) -> dict:
 def player_source_overlap(season: str) -> dict:
     player_match_ids = set()
     for row in adapters.player_match_source_rows_for_season(season):
-        pid = str(row.get("playerId") or row.get("pl_code") or row.get("player_id") or "").strip()
+        pid = str(
+            row.get("playerId")
+            or row.get("pl_code")
+            or row.get("player_id")
+            or ""
+        ).strip()
         if pid:
             player_match_ids.add(pid)
 
