@@ -2,15 +2,6 @@
 
 This layer is intentionally evidence-first. It exposes source-native fields for
 research without silently turning them into canonical FRL concepts.
-
-Design constraints:
-- source identifiers remain source-local;
-- fields must exist in the requested season before values are returned;
-- fixture-scoped team/player-match access must pass the existing verified bridge;
-- player-season/squad access remains source-native until identity promotion;
-- result objects retain field, family, season and source identity context;
-- no temporal/as-of claim is made unless the caller supplies one through a
-  future availability-aware layer.
 """
 from __future__ import annotations
 
@@ -26,6 +17,7 @@ from source_family_adapters import (
     team_match_source_fields,
     team_match_source_rows,
 )
+from source_field_catalog import build_catalog
 from source_field_registry import fields_for_family
 
 FAMILIES = ("team_match", "player_match", "player_season", "squad")
@@ -45,24 +37,14 @@ def available_fields(family: str, season: str) -> tuple[str, ...]:
 
 def field_catalog(family: str | None = None, season: str | None = None) -> tuple[dict, ...]:
     families = (family,) if family else FAMILIES
-    output = []
-    for selected in families:
-        registry = {spec.source_field: spec for spec in fields_for_family(selected)}
-        source_fields = set(available_fields(selected, season)) if season else set(registry)
-        for field in sorted(source_fields | set(registry)):
-            spec = registry.get(field)
-            output.append({
-                "family": selected,
-                "source_field": field,
-                "registry_status": spec.semantic_status if spec else "UNCATALOGUED",
-                "frl_field": spec.frl_field if spec else None,
-                "notes": spec.notes if spec else "Field discovered in source; semantic review pending.",
-                "present_in_season": field in source_fields if season else None,
-            })
-    return tuple(output)
+    if season:
+        return tuple(build_catalog(seasons=(season,), families=families))
+    return tuple(build_catalog(families=families))
 
 
 def _require_field(family: str, season: str, field: str) -> None:
+    if family not in FAMILIES:
+        raise ValueError(f"Unknown source family: {family}")
     if field not in set(available_fields(family, season)):
         raise ValueError(
             f"Source field '{field}' is unavailable in {family} for {season}."
@@ -76,7 +58,6 @@ def fixture_field_values(
     *,
     team_id: str | None = None,
 ) -> dict:
-    """Return both sides of one canonical fixture for a team-match field."""
     _require_field("team_match", season, field)
     home, away = team_match_source_rows(season, fixture_id)
     values = []
@@ -103,7 +84,6 @@ def player_match_field_values(
     *,
     player_id: str | None = None,
 ) -> dict:
-    """Return player-match values for one canonical fixture."""
     _require_field("player_match", season, field)
     values = []
     for row in player_match_source_rows(season, fixture_id):
@@ -128,7 +108,6 @@ def player_season_field_values(
     *,
     player_id: str | None = None,
 ) -> dict:
-    """Return source-native player-season values for a season."""
     _require_field("player_season", season, field)
     values = []
     for row in player_season_source_rows(season):
@@ -151,7 +130,6 @@ def squad_field_values(
     *,
     player_id: str | None = None,
 ) -> dict:
-    """Return source-native squad metadata for a season."""
     _require_field("squad", season, field)
     values = []
     for row in squad_source_rows(season):
@@ -173,9 +151,8 @@ def top_player_season_field(
     *,
     limit: int = 10,
 ) -> dict:
-    """Rank numeric player-season source fields without inventing a new metric."""
-    rows = player_season_source_rows(season)
     _require_field("player_season", season, field)
+    rows = player_season_source_rows(season)
     totals: defaultdict[str, float] = defaultdict(float)
     labels: dict[str, str] = {}
     for row in rows:
@@ -210,7 +187,15 @@ def top_player_season_field(
 
 
 def _result(family: str, season: str, field: str, values: list[dict]) -> dict:
-    spec = next(
+    catalog_row = next(
+        (
+            item
+            for item in build_catalog(seasons=(season,), families=(family,))
+            if item["source_field"] == field
+        ),
+        None,
+    )
+    registry = next(
         (item for item in fields_for_family(family) if item.source_field == field),
         None,
     )
@@ -219,8 +204,9 @@ def _result(family: str, season: str, field: str, values: list[dict]) -> dict:
         "family": family,
         "season": season,
         "field": field,
-        "registry_status": spec.semantic_status if spec else "UNCATALOGUED",
-        "frl_field": spec.frl_field if spec else None,
+        "registry_status": registry.semantic_status if registry else "UNCATALOGUED",
+        "frl_field": registry.frl_field if registry else None,
+        "coverage": catalog_row,
         "source_rows": len(values),
         "results": values,
         "temporal_note": "Source retrieval does not by itself establish historical availability time.",
