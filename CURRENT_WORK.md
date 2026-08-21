@@ -1,6 +1,6 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 20 August 2026
+**Last updated:** 21 August 2026
 
 ## Active branch
 
@@ -13,22 +13,6 @@ This is the current frontend-migration development line, branched from `feature/
 The FRL data-platform work remains deliberately additive and local-first.
 
 The trusted canonical entity, relationship, provenance and temporal contracts remain authoritative and unchanged by the frontend migration.
-
-## Frontend migration checkpoint
-
-The project has formally moved to a **private-first, public-ready React + Next.js frontend migration** strategy.
-
-Authoritative migration document:
-
-- `FRL_MASTER_FRONTEND_MIGRATION_PLAN_V2.md`
-
-Current visual authority:
-
-- `gui/theme.py`
-- `GUI_DESIGN_CONTRACT.md`
-- `UI_DESIGN_SYSTEM.md`
-
-The current live FRL visual system is the warm light analytical theme; the older dark main-canvas description is historical and must not be used as the basis for new UI work.
 
 ## Next.js foundation + Fixture Explorer checkpoint
 
@@ -50,100 +34,183 @@ The frontend must continue to consume research/query results rather than duplica
 
 ### Validated backend seam
 
-FastAPI currently exposes:
+FastAPI exposes:
 
 - `GET /health`
 - `GET /api/v1/seasons`
 - `GET /api/v1/teams/{season}`
+- `GET /api/v1/team-seasons?persistent_team_code=...`
 - `GET /api/v1/fixtures/{season}?team=...`
 
 The fixture endpoint delegates to the existing trusted `query_api.fixtures()` implementation.
 
-The returned Research Result includes, where applicable:
+The fixture Research Result carries result data, population/sample size, active filters, temporal/competition scope, canonical fixture references as `(season, fixture_id)`, provenance, methodology and explicit limitations.
 
-- result data;
-- population/sample size;
-- active filters;
-- season/competition scope;
-- canonical fixture references as `(season, fixture_id)`;
-- provenance and transformation/query version;
-- methodology notes;
-- explicit limitations.
+The endpoint does not assert historical information-availability snapshots. The frontend must not infer those semantics independently.
 
-The current endpoint does **not** assert historical information-availability snapshots. The frontend must not infer those semantics independently.
+## Fixture Explorer current behaviour
 
-### Fixture Explorer current behaviour
+The migrated `/fixtures` workspace now has the following durable interaction model:
 
-The Next workspace now supports:
+```text
+Team   = research subject
+Season = temporal scope
+View   = presentation / analytical mode
+```
 
-- real Team + Season context loaded from FastAPI;
-- Team chosen from the selected season's trusted team list;
-- Season as URL-backed context;
-- Team as URL-backed context;
-- opponent filter;
-- venue filter;
-- result filter;
-- canonical fixture links `/fixtures/{season}/{fixtureId}`;
-- grouped chronological fixture rows;
-- W/D/L record summary;
+Supported/implemented behaviour includes:
+
+- real Team + Season context from FastAPI;
+- URL-backed Team and Season state;
+- opponent filtering;
+- venue filtering;
+- result filtering;
+- `All fixtures` / `Single season` / `Multiple seasons` view modes;
+- club-scoped multi-season reconstruction using verified persistent team identity;
+- an `All teams` global fixture scope at the API level;
+- an `All seasons` temporal scope at the API/UI state level;
+- chronological month grouping;
+- canonical fixture deep-links at `/fixtures/{season}/{fixtureId}`;
+- opponent entity/context links;
+- score as the vehicle to the canonical fixture landing / match report;
+- scorer display sourced from the trusted player-fixture evidence path;
 - fail-closed loading/error behaviour;
 - Research Result provenance/summary information.
 
-Current visual treatment:
+### Scorer provenance
 
-- large team name remains the primary identity heading;
-- a discrete chevron beside the team name opens the team selector;
-- the team heading itself has no surrounding box, pill, border or background treatment;
-- Season remains integrated in the page-heading area using the same quiet selector language;
-- lower exploration controls live in a dedicated `Explore` / `Fixture view` section;
-- lower selectors use the same transparent, typographic, underline + chevron language as the Season selector;
-- fixture rows dominate the page and use restrained hover/interaction states.
-
-The approved selector precedent is now:
+Scorer enrichment is not inferred from scorelines. The verified chain is:
 
 ```text
-Context selector
-  → integrated into heading
-  → transparent / typographic / subtle underline / discrete chevron
-
-Exploration selector
-  → integrated into a purposeful research section
-  → same visual language
-  → no generic boxed form controls
+Fixture (season, fixture_id)
+      ↓
+source fixture_code bridge
+      ↓
+season player rows with goals_scored
+      ↓
+query_lab fixture scorer enrichment
+      ↓
+query_api.fixtures()
+      ↓
+FastAPI Research Result
+      ↓
+Fixture Explorer
 ```
 
-This is a reusable FRL GUI pattern and should be preferred across future Next workspaces.
+Fixture 9 in 2025-26 was directly verified as fixture code `2561903` with Riccardo Calafiori scoring 1 goal.
 
-## Fixture Explorer — next planned capability
+The player key is carried for future identity-aware navigation, but player navigation must wait for canonical player-identity resolution rather than treating the source key itself as canonical.
 
-The `Explore fixtures` section is deliberately the structural home for richer fixture analysis without disturbing the clean header context.
+### Global fixture semantics
 
-Planned progression:
+For a selected club, preserve the normal table semantics:
 
-1. current opponent/venue/result filters — **implemented**;
-2. single-season vs multi-season viewing — **next**;
-3. opponent comparison across a selected period — **next-stage extension**;
-4. venue/result filtering retained across the selected population — **preserve**;
-5. compact time-range/comparison control — **later**;
-6. deeper cross-time/team/opponent analysis belongs in Team Research / Research Result surfaces rather than turning Fixture Explorer into a general modelling workspace.
+```text
+Date | Opponent | Venue | Score | Scorers | Result
+```
 
-Do not move or overload the existing header Season selector merely to add these capabilities. The header establishes page context; the `Explore` section provides deeper research controls.
+with W/D/L in Result.
 
-## Validation / recovery procedure
+For `All teams`, the neutral table semantics are:
+
+```text
+Date | Fixture | Venue | Score | Scorers | Outcome
+```
+
+where Outcome is calculated from the raw home/away scores as `Home win`, `Draw` or `Away win`. The compact UI may render `H win`, `Draw`, `A win` while keeping the full meaning available as metadata/title.
+
+The table now uses six desktop grid columns so the Scorers and Outcome columns remain aligned with the header and do not disturb the established row geometry.
+
+### Visual authority / GUI contract
+
+The current visual treatment is an approved baseline and must not be casually redesigned:
+
+- warm light analytical canvas with dark navigation sidebar;
+- large team name as identity heading;
+- discrete chevron beside team name;
+- no card/pill/border/opaque background behind the team heading;
+- Season integrated beside the heading using the same quiet selector language;
+- lower Explore controls use transparent/typographic/underline/discrete-chevron treatment;
+- fixture rows retain their existing sizing, spacing, typography and subtle hover treatment;
+- new functionality should fit inside this visual language rather than add UI chrome.
+
+### Stadium / ground
+
+Stadium name is intentionally parked. `fixtures_master_corrected.csv` currently contains no trusted stadium/ground/venue-name field. Do not invent or infer stadium names, and do not introduce an alternative football-data provider solely to fill this gap while the current source-boundary contract remains active.
+
+## Hydration / reliability lessons
+
+The migrated page previously produced a React hydration warning because initial server/client `disabled` attributes differed. Initial `loading` and `contextLoading` state was made deterministic (`false`). Preserve deterministic first render in future changes.
+
+The team fallback was also changed so the deliberate `team=""` All teams state is not treated as an invalid team and reset to Arsenal.
+
+## Current GUI regression practice
+
+Any new GUI feature must be checked against the existing behaviour, not merely checked for whether the new feature itself renders.
+
+Minimum frontend gate:
+
+```powershell
+npm run typecheck
+npm run gui-regression
+npm run build
+```
+
+API changes should additionally validate:
+
+```powershell
+Invoke-RestMethod http://127.0.0.1:8000/health
+```
+
+and the relevant endpoint.
+
+Research/data/backend semantic changes still require the established 26/26 research tests and project-health gate.
+
+## Validation state at session handoff
+
+Validated during the 20–21 August session:
+
+- FastAPI Arsenal fixture Research Result works.
+- FastAPI global fixture query works as `fixtures:2025-26:all-teams:all:all:all`.
+- `query_lab` scorer enrichment works directly.
+- `query_api.fixtures()` carries scorer enrichment.
+- `npm run typecheck` passed repeatedly after incremental frontend fixes.
+- fixture-row navigation was separated so Opponent and Score are semantic interaction targets without wrapping the whole row in a link.
+- desktop six-column fixture grid was corrected after the scorer column was introduced.
+
+After the final All teams/All seasons UI edits, rerun the complete frontend gate before treating the session as fully closed:
+
+```powershell
+npm run typecheck
+npm run gui-regression
+npm run build
+```
+
+Then verify:
+
+```text
+Arsenal + 2025-26
+Arsenal + All seasons
+All teams + 2025-26
+All teams + All seasons
+```
+
+## Recovery / non-destruction procedure
 
 For fresh-session recovery:
 
-1. read the Master Prompt and authoritative project documents;
-2. establish the active branch and repository state;
-3. inspect the current Next/API files before patching;
-4. make changes against the exact current GitHub file SHA;
-5. never blindly replay an old patch against `web/src/components/FixtureExplorer.tsx` or `web/src/app/globals.css`;
-6. sync only the surgical files required for the change;
-7. locally validate `npm run typecheck` and `npm run build` for frontend changes;
-8. locally validate FastAPI health/API responses when API changes are involved;
-9. backend/data/research semantic changes still require the established 26/26 and project-health gates.
+1. Read the Master Prompt and authoritative project documents.
+2. Read `CURRENT_WORK.md` and `SESSION_CHECKPOINT_2026-08-21_FIXTURE_EXPLORER.md`.
+3. Establish the active branch and repository state.
+4. Inspect the exact current Next/API/CSS files before patching.
+5. Never blindly replay an old patch against `web/src/components/FixtureExplorer.tsx`, `web/src/lib/api.ts`, `api/frl_api.py` or `web/src/app/globals.css`.
+6. Prefer the smallest possible change surface.
+7. Validate old behaviour as well as new behaviour.
+8. Preserve canonical fixture identity, persistent team identity, player identity, Player–Fixture grain, Team–Fixture relationships, provenance and temporal semantics.
 
-### Local development processes
+Repository documentation is durable project memory; conversation is working context.
+
+## Local development processes
 
 ```text
 FastAPI → 127.0.0.1:8000
@@ -162,25 +229,8 @@ cd C:\Users\dlall\football_database\football-research-lab\web
 npm run dev
 ```
 
-Validation examples:
-
-```powershell
-Invoke-RestMethod http://127.0.0.1:8000/health
-Invoke-RestMethod "http://127.0.0.1:8000/api/v1/fixtures/2025-26?team=Arsenal"
-```
-
-Python 3.14 is currently in use locally. The Next API dependency set therefore requires a Pydantic version with Python 3.14 support; the current repository pin is `pydantic==2.13.4`.
+Python 3.14 is currently in use locally. The current Pydantic pin is `pydantic==2.13.4`.
 
 ## Deployment direction
 
-The FRL is **private-first, public-ready**:
-
-```text
-local
-  ↓
-private shared (initially ~3 invited users beyond the owner)
-  ↓
-public when explicitly approved
-```
-
-Stable, shareable entity and Research Result URLs are part of the long-term frontend contract. Going public should be an access/deployment decision, not a future rewrite of route or research architecture.
+The FRL remains **private-first, public-ready**. Stable, shareable entity and Research Result URLs remain part of the long-term frontend contract.
