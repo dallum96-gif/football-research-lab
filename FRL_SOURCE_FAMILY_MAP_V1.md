@@ -31,7 +31,7 @@ The presence of a source field does not require a UI representation. Conversely,
 | Team-match events | team × match | PL / PulseLive `events_stats` | `fixture_source_match()` via verified identities + UTC kickoff | Broad source evidence already preservable | Use `source_family_adapters.team_match_source_rows()` for reusable access |
 | Player-match | player × match | PL / PulseLive `players_match_stats` | canonical fixture → source match → source player ID | Broad evidence builder exists; curated metrics exist too | Use common adapter; expand metric registry only when needed |
 | Player-season | player × season | PL / PulseLive `players_stats` | source player ID + source team context | Broad evidence builder exists | Use common adapter and retain source-native fields |
-| Squad/player metadata | player × roster/season | PL / PulseLive `squad` | source player ID → FRL player identity when verified | Available upstream; not fully promoted | Add reusable source adapter + identity validation |
+| Squad/player metadata | player × roster/season | PL / PulseLive `squad` | source player ID → FRL player identity when verified | Available upstream; reusable adapter now added | Validate source→FRL player identity bridge before promotion |
 | Live match | match/event/lineup/stats/commentary | current PulseLive SDP | source match ID only until reconciliation | New live evidence path | `pulselive_live.py`; no direct canonical writes |
 
 ## 2. Existing bridges that must remain authoritative
@@ -74,6 +74,10 @@ Provides a common access layer over the existing verified bridges:
 
 These functions preserve source-native records and keep FRL relationship fields separate.
 
+### `player_metadata_source.py`
+
+Provides reusable access to `squad` source rows and fields and groups records by source player ID. It deliberately does not promote metadata into the FRL player identity registry until identity reconciliation is verified.
+
 ### `pulselive_live.py`
 
 Provides a thin current-SDP evidence adapter for:
@@ -108,21 +112,21 @@ A source-backed field must not overwrite the core fixture identity or corrected 
 
 ## 5. What is genuinely still missing
 
-### A. General player-season access
+### A. Player identity reconciliation for squad metadata
 
-The raw player-season source exists and an evidence builder exists, but a reusable query-safe adapter is needed for arbitrary source fields without creating one-off code per metric.
+The source adapter now exists. The remaining task is to validate the source player ID → FRL player identity bridge for squad metadata across historical seasons and fail closed on conflicts.
 
-### B. General squad/player-metadata access
+### B. Rich player-match metric registry
 
-The source contains preferred foot, nationality, DOB, height, weight, join date, loan status and source position. A reusable adapter and verified player identity bridge are needed before promotion into the FRL player layer.
+The source contains substantially more player-match fields than the current curated metric registry. The common adapter preserves all source fields; the next step is an explicit field registry marking each field as retained, exposed, derived, restricted, or unknown.
 
-### C. Fixture-level source metadata
+### C. Fixture-level source metadata execution
 
 The source contains ground, attendance and half-time state. The enrichment path now exists, but full historical execution and validation still need to be run locally against the complete fixture master.
 
-### D. Rich player-match metric registry
+### D. Historical field-coverage reports
 
-The source contains substantially more player-match fields than the current curated metric registry. The common adapter preserves all source fields; the next step is an explicit field registry marking each field as retained, exposed, derived, restricted, or unknown.
+The FRL needs machine-readable coverage by season for team-match, player-match, player-season and squad families so absence is distinguishable from “not currently surfaced”.
 
 ### E. Live-to-canonical promotion
 
@@ -162,7 +166,7 @@ A source family may be promoted into a canonical FRL representation only after:
 ## 8. Immediate implementation order
 
 1. Run the fixture metadata enrichment against the full canonical fixture master and inspect the audit.
-2. Add a player-metadata adapter for `squad` and connect it to the player identity registry without promoting fields to canonical GUI state.
+2. Validate the squad player-ID → FRL identity bridge.
 3. Extend the player-match metric registry from the complete source schema rather than adding fields opportunistically.
 4. Add historical field-coverage reports for team-match, player-match, player-season and squad families.
 5. Build the live snapshot/cache layer on top of `pulselive_live.py`.
