@@ -18,6 +18,8 @@ FRL identity / fixture key
         ↓
 broad reusable adapter
         ↓
+empirical field catalog + semantic registry
+        ↓
 selected analytical/query/UI consumers
 ```
 
@@ -110,21 +112,25 @@ The enrichment is additive and produces `identity/data_quality/fixture_source_me
 
 A source-backed field must not overwrite the core fixture identity or corrected kickoff semantics. The existing correction/provenance mechanism remains authoritative for canonical historical interpretation.
 
-## 5. Source-field registry and coverage
+## 5. Source-field registry, empirical catalog and coverage
 
-`source_field_registry.py` is the machine-readable catalogue of the known source-native field universe. It deliberately separates **field existence** from analytical/UI status.
+`source_field_registry.py` is the machine-readable **semantic registry** of source-native fields that the FRL has reviewed. Its status vocabulary deliberately separates preservation, reusable access and semantic promotion.
 
-Allowed semantic states are:
+`source_field_catalog.py` is the empirical layer. It scans the approved source families and records:
 
-- `retained` — preserve source value for future research;
-- `exposed` — reusable FRL adapter access exists;
-- `derived` — derive rather than copy;
-- `restricted` — additional semantic/licensing/identity review required;
-- `unknown` — discovered but not yet semantically assessed.
+- source family;
+- source field;
+- registry status;
+- optional FRL semantic field;
+- first/last observed season;
+- number of seasons present;
+- coverage class.
 
-`audit_source_field_coverage.py` produces `data/source_field_coverage.csv`, reporting for each season/family whether a registered field is present and whether the source contains fields that are not yet catalogued.
+An empirical field may therefore become **searchable before it becomes semantically promoted**. Unknown fields remain `UNCATALOGUED` rather than being silently mapped to a similarly named FRL concept.
 
-This is deliberately read-only with respect to canonical data.
+`research_field_query.py` consumes the catalog and exposes source-native variables for research while preserving source IDs, fixture/player context, coverage metadata and the temporal warning that retrieval time is not historical availability time.
+
+This is the intended path toward a broad natural-language research interface: **discover the variable first, understand its semantics and coverage, then query it**.
 
 ## 6. What is genuinely still missing
 
@@ -132,9 +138,9 @@ This is deliberately read-only with respect to canonical data.
 
 The source adapter now exists. The remaining task is to validate the source player ID → FRL player identity bridge for squad metadata across historical seasons and fail closed on conflicts.
 
-### B. Full player-match semantic registry
+### B. Full semantic classification of the broad field universe
 
-The source contains substantially more player-match fields than the current curated metric registry. The common adapter preserves all source fields; the field registry now establishes a home for those fields. The next step is to classify the complete source schema rather than adding metrics opportunistically.
+The empirical catalog can expose uncatalogued variables. The next task is to review the stable/high-value fields and add defensible FRL mappings, definitions, units and notes without creating false equivalence.
 
 ### C. Fixture-level source metadata execution
 
@@ -142,7 +148,7 @@ The source contains ground, attendance and half-time state. The enrichment path 
 
 ### D. Historical field-coverage results
 
-The coverage audit code now exists. It needs to be executed against the available local source workspace, including any source seasons beyond the current ten-season canonical FRL scope, so true source coverage is distinguished from FRL coverage.
+The coverage audit has been executed against the current ten-season source workspace. Further runs should be made when additional upstream seasons are available so true source coverage remains distinct from FRL coverage.
 
 ### E. Live-to-canonical promotion
 
@@ -183,7 +189,7 @@ A source family may be promoted into a canonical FRL representation only after:
 
 1. Run the fixture metadata enrichment against the full canonical fixture master and inspect the audit.
 2. Validate the squad player-ID → FRL identity bridge.
-3. Execute the source-field coverage audit across all available source seasons/families.
-4. Classify the complete player-match and team-match field universe in the registry.
-5. Build the live snapshot/cache layer on top of `pulselive_live.py`.
+3. Continue semantic classification of the broad field universe, prioritising stable 10/10 variables and documenting coverage.
+4. Build the live snapshot/cache layer on top of `pulselive_live.py`.
+5. Add availability-aware historical querying before using broad variables in predictive research.
 6. Only then wire selected variables and live states into the website.
