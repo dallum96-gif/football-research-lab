@@ -36,10 +36,35 @@ def available_fields(family: str, season: str) -> tuple[str, ...]:
 
 
 def field_catalog(family: str | None = None, season: str | None = None) -> tuple[dict, ...]:
+    """Return the semantic registry plus empirically discovered fields.
+
+    When a season is supplied, the season's observed source fields are always
+    included even when tests or upstream inspection provide a field that is not
+    yet present in the semantic catalogue. Those fields are explicitly marked
+    ``UNCATALOGUED`` rather than promoted into FRL concepts.
+    """
     families = (family,) if family else FAMILIES
+    rows = list(build_catalog(seasons=(season,), families=families)) if season else list(
+        build_catalog(families=families)
+    )
+
     if season:
-        return tuple(build_catalog(seasons=(season,), families=families))
-    return tuple(build_catalog(families=families))
+        existing = {(row["family"], row["source_field"]) for row in rows}
+        for selected in families:
+            for field in sorted(available_fields(selected, season)):
+                key = (selected, field)
+                if key in existing:
+                    continue
+                rows.append({
+                    "family": selected,
+                    "source_field": field,
+                    "registry_status": "UNCATALOGUED",
+                    "frl_field": None,
+                    "notes": "Field observed in requested season but not yet in the empirical catalogue; semantic review pending.",
+                    "present_in_season": True,
+                })
+
+    return tuple(sorted(rows, key=lambda row: (row["family"], row["source_field"])))
 
 
 def _require_field(family: str, season: str, field: str) -> None:
