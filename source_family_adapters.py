@@ -11,7 +11,6 @@ from __future__ import annotations
 import csv
 from functools import lru_cache
 from pathlib import Path
-from typing import Iterable
 
 from match_stats import PL_ROOT, fixture_source_match
 from query_lab import load_identity_registry
@@ -64,6 +63,10 @@ def canonical_fixture(season: str, fixture_id: str) -> dict[str, str] | None:
     return None
 
 
+def season_fixtures(season: str) -> tuple[dict[str, str], ...]:
+    return tuple(row for row in _fixture_rows() if row.get("season") == season)
+
+
 def resolve_source_match(season: str, fixture_id: str) -> dict:
     fixture = canonical_fixture(season, fixture_id)
     if fixture is None:
@@ -99,8 +102,6 @@ def fixture_metadata(season: str, fixture_id: str) -> dict:
         "away_source_result": away.get("result"),
         "source_kickoff": home.get("kickoff") or away.get("kickoff"),
     }
-
-    # Source consistency is useful evidence even when the UI never renders it.
     metadata["metadata_consistent"] = (
         home.get("ground") in (None, "", away.get("ground"))
         and home.get("attendance") in (None, "", away.get("attendance"))
@@ -112,6 +113,25 @@ def team_match_source_rows(season: str, fixture_id: str) -> tuple[dict, dict]:
     """Return the complete native events_stats rows for both fixture sides."""
     resolved = resolve_source_match(season, fixture_id)
     return resolved["home"], resolved["away"]
+
+
+def team_match_source_rows_for_season(season: str) -> tuple[dict, ...]:
+    """Return source team-match rows reconciled to canonical fixtures."""
+    rows: list[dict] = []
+    for fixture in season_fixtures(season):
+        try:
+            home, away = team_match_source_rows(season, fixture["fixture_id"])
+        except ValueError:
+            continue
+        for venue, source_row in (("home", home), ("away", away)):
+            item = dict(source_row)
+            item["frl_season"] = season
+            item["frl_fixture_id"] = str(fixture["fixture_id"])
+            item["frl_venue"] = venue
+            item["frl_home_team_id"] = fixture.get("home_team_id", "")
+            item["frl_away_team_id"] = fixture.get("away_team_id", "")
+            rows.append(item)
+    return tuple(rows)
 
 
 def team_match_source_fields(season: str) -> tuple[str, ...]:
@@ -138,6 +158,24 @@ def player_match_source_rows(season: str, fixture_id: str) -> tuple[dict, ...]:
     if fixture is None:
         raise ValueError(f"Canonical fixture not found: {season}/{fixture_id}")
     return tuple(fixture_player_match_rows(fixture))
+
+
+def player_match_source_rows_for_season(season: str) -> tuple[dict, ...]:
+    """Return complete player-match records with canonical fixture context."""
+    records: list[dict] = []
+    for fixture in season_fixtures(season):
+        try:
+            rows = player_match_source_rows(season, fixture["fixture_id"])
+        except ValueError:
+            continue
+        for row in rows:
+            item = dict(row)
+            item["frl_season"] = season
+            item["frl_fixture_id"] = str(fixture["fixture_id"])
+            item["frl_home_team_id"] = fixture.get("home_team_id", "")
+            item["frl_away_team_id"] = fixture.get("away_team_id", "")
+            records.append(item)
+    return tuple(records)
 
 
 def player_match_source_fields(season: str) -> tuple[str, ...]:
@@ -199,7 +237,6 @@ def player_season_source_fields(season: str) -> tuple[str, ...]:
 
 
 def source_field_inventory(season: str) -> dict[str, tuple[str, ...]]:
-    """Return a machine-readable field inventory for the three broad families."""
     return {
         "fixture_team_match": team_match_source_fields(season),
         "player_match": player_match_source_fields(season),
