@@ -110,23 +110,39 @@ The enrichment is additive and produces `identity/data_quality/fixture_source_me
 
 A source-backed field must not overwrite the core fixture identity or corrected kickoff semantics. The existing correction/provenance mechanism remains authoritative for canonical historical interpretation.
 
-## 5. What is genuinely still missing
+## 5. Source-field registry and coverage
+
+`source_field_registry.py` is the machine-readable catalogue of the known source-native field universe. It deliberately separates **field existence** from analytical/UI status.
+
+Allowed semantic states are:
+
+- `retained` — preserve source value for future research;
+- `exposed` — reusable FRL adapter access exists;
+- `derived` — derive rather than copy;
+- `restricted` — additional semantic/licensing/identity review required;
+- `unknown` — discovered but not yet semantically assessed.
+
+`audit_source_field_coverage.py` produces `data/source_field_coverage.csv`, reporting for each season/family whether a registered field is present and whether the source contains fields that are not yet catalogued.
+
+This is deliberately read-only with respect to canonical data.
+
+## 6. What is genuinely still missing
 
 ### A. Player identity reconciliation for squad metadata
 
 The source adapter now exists. The remaining task is to validate the source player ID → FRL player identity bridge for squad metadata across historical seasons and fail closed on conflicts.
 
-### B. Rich player-match metric registry
+### B. Full player-match semantic registry
 
-The source contains substantially more player-match fields than the current curated metric registry. The common adapter preserves all source fields; the next step is an explicit field registry marking each field as retained, exposed, derived, restricted, or unknown.
+The source contains substantially more player-match fields than the current curated metric registry. The common adapter preserves all source fields; the field registry now establishes a home for those fields. The next step is to classify the complete source schema rather than adding metrics opportunistically.
 
 ### C. Fixture-level source metadata execution
 
 The source contains ground, attendance and half-time state. The enrichment path now exists, but full historical execution and validation still need to be run locally against the complete fixture master.
 
-### D. Historical field-coverage reports
+### D. Historical field-coverage results
 
-The FRL needs machine-readable coverage by season for team-match, player-match, player-season and squad families so absence is distinguishable from “not currently surfaced”.
+The coverage audit code now exists. It needs to be executed against the available local source workspace, including any source seasons beyond the current ten-season canonical FRL scope, so true source coverage is distinguished from FRL coverage.
 
 ### E. Live-to-canonical promotion
 
@@ -136,7 +152,7 @@ The current live adapter can retrieve evidence but does not yet persist timestam
 
 Live requests need endpoint-specific polling intervals, shared caching, backoff on 429/5xx, and a request-budget guard. The reported 300 requests/60 seconds limit is treated as a source constraint to design around, not as a guarantee that every endpoint shares identical behaviour.
 
-## 6. Storage direction
+## 7. Storage direction
 
 ### Source evidence
 
@@ -150,7 +166,7 @@ Prefer Parquet/DuckDB for repeated analytical scans once a dataset reaches a sca
 
 Canonical CSV remains valid for stable, reviewable FRL artefacts such as the fixture master. Adding useful verified columns is acceptable even when no current UI surface consumes them.
 
-## 7. Promotion rule
+## 8. Promotion rule
 
 A source family may be promoted into a canonical FRL representation only after:
 
@@ -163,11 +179,11 @@ A source family may be promoted into a canonical FRL representation only after:
 - downstream outputs can be reconciled with the current trusted layer;
 - storage and update behaviour are reproducible.
 
-## 8. Immediate implementation order
+## 9. Immediate implementation order
 
 1. Run the fixture metadata enrichment against the full canonical fixture master and inspect the audit.
 2. Validate the squad player-ID → FRL identity bridge.
-3. Extend the player-match metric registry from the complete source schema rather than adding fields opportunistically.
-4. Add historical field-coverage reports for team-match, player-match, player-season and squad families.
+3. Execute the source-field coverage audit across all available source seasons/families.
+4. Classify the complete player-match and team-match field universe in the registry.
 5. Build the live snapshot/cache layer on top of `pulselive_live.py`.
 6. Only then wire selected variables and live states into the website.
