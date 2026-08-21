@@ -322,6 +322,31 @@ The current architecture prioritises:
 
 Do not add infrastructure merely because it is technically interesting. Add it when it materially improves scalability, reproducibility, provenance, reliability or future research capability.
 
+## Fixture Explorer durable handoff — 21 August 2026
+
+Before modifying the migrated Fixture Explorer, read:
+
+`SESSION_CHECKPOINT_2026-08-21_FIXTURE_EXPLORER.md`
+
+This checkpoint records the detailed current state and should be treated as the immediate session recovery document alongside `CURRENT_WORK.md`.
+
+Durable rules established during the 20–21 August session:
+
+- **Team = research subject; Season = temporal scope; View = presentation/analytical mode.**
+- `All teams` is a genuine fixture-universe scope, not a fake club identity.
+- `All seasons` uses the verified FRL season list.
+- Club-scoped multi-season viewing must use verified persistent team identity rather than display-name continuity or provider-local numeric coincidence.
+- `Fixture = (season, fixture_id)` remains the canonical fixture identity; `fixture_code` is only a source/provider bridge.
+- Opponent is a semantic entity/context interaction; Score is the vehicle to the canonical fixture landing / match report.
+- Scorer display must reuse existing player-fixture evidence via `fixture_code` and `goals_scored`; scorers must never be inferred from the final scoreline.
+- The current fixture source has no trusted stadium/ground-name field; stadium display is parked rather than fabricated.
+- The existing fixture-row sizing, typography, spacing and hover treatment are an approved visual baseline.
+- Header/context selectors and lower Explore selectors must use the approved restrained transparent/typographic/underline/chevron pattern.
+- New fixture-table fields must preserve shared header/row grid geometry; do not solve alignment problems with one-off visual hacks.
+- Hydration-safe deterministic first render is required.
+- After frontend changes, run `npm run typecheck`, `npm run gui-regression`, and `npm run build`; API changes additionally require `/health` and the relevant endpoint checks.
+- When local and GitHub files diverge, inspect the exact current file before patching. Never replay an old patch body blindly.
+
 ## Working philosophy
 
 Build the house in stages, but keep the long-term shape of the house in mind.
