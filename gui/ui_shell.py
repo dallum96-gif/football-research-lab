@@ -89,8 +89,8 @@ def _render_analysis_hub():
     )
 
 
-def _sidebar_navigation_html(grouped, selected: str) -> str:
-    parts = [
+def _render_sidebar_navigation(grouped, selected: str) -> None:
+    st.sidebar.markdown(
         """
         <style>
         section[data-testid="stSidebar"] .block-container{font-family:"Source Sans",sans-serif!important}
@@ -98,43 +98,49 @@ def _sidebar_navigation_html(grouped, selected: str) -> str:
         .frl-sidebar-brand{margin:0 0 24px;color:#fffaf0;font-size:11px;font-weight:800;letter-spacing:.105em;line-height:1.2;text-transform:uppercase}
         .frl-sidebar-section{margin:21px 0 8px;color:#8f8a7f;font-size:9px;font-weight:800;letter-spacing:.145em;line-height:1.15;text-align:left;text-transform:uppercase}
         .frl-sidebar-section:first-of-type{margin-top:0}
-        .frl-sidebar-links{display:flex;flex-direction:column;gap:3px;width:100%}
-        .frl-sidebar-link{display:flex;width:100%;height:29px;box-sizing:border-box;align-items:center;gap:9px;margin:0;padding:4px 8px 4px 9px;border-left:2px solid transparent;border-radius:0 5px 5px 0;background:transparent;color:#c9c6bc!important;text-decoration:none!important;font-family:"Source Sans",sans-serif;font-size:13px;font-weight:600;line-height:1.1;transition:background .12s ease,color .12s ease,border-color .12s ease}
-        .frl-sidebar-link:hover{background:rgba(255,255,255,.055);color:#fffaf0!important}
-        .frl-sidebar-link.is-active{background:rgba(255,255,255,.065);border-left-color:#e85d3f;color:#f06d4e!important;font-weight:700}
-        .frl-sidebar-icon{width:18px;flex:0 0 18px;display:inline-flex;align-items:center;justify-content:center;color:inherit;font-family:"Material Symbols Rounded","Material Symbols Outlined",sans-serif;font-size:18px;line-height:1;font-variation-settings:"FILL" 0,"wght" 520,"GRAD" 0,"opsz" 20}
-        .frl-sidebar-label{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left}
+        section[data-testid="stSidebar"] .frl-nav-button{display:flex!important;justify-content:flex-start!important;text-align:left!important}
+        section[data-testid="stSidebar"] .frl-nav-button button{display:flex!important;justify-content:flex-start!important;align-items:center!important;width:100%!important;min-height:29px!important;height:29px!important;margin:0!important;padding:4px 8px 4px 9px!important;border-left:2px solid transparent!important;border-radius:0 5px 5px 0!important;box-shadow:none!important;font-family:"Source Sans",sans-serif!important;font-size:13px!important;font-weight:600!important;line-height:1.1!important;text-align:left!important;transition:background .12s ease,color .12s ease,border-color .12s ease!important}
+        section[data-testid="stSidebar"] .frl-nav-button button:hover{background:rgba(255,255,255,.055)!important;color:#fffaf0!important}
+        section[data-testid="stSidebar"] .frl-nav-button-active button{background:rgba(255,255,255,.065)!important;border-left-color:#e85d3f!important;color:#f06d4e!important;font-weight:700!important}
         </style>
         <div class="frl-sidebar-shell">
           <div class="frl-sidebar-brand">FOOTBALL RESEARCH LABORATORY</div>
-        """
-    ]
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
     for section in SECTION_ORDER:
         items = grouped[section]
         if not items:
             continue
-        parts.append(f'<div class="frl-sidebar-section">{html.escape(section)}</div>')
-        parts.append('<div class="frl-sidebar-links">')
+
+        st.sidebar.markdown(
+            f'<div class="frl-sidebar-section">{html.escape(section)}</div>',
+            unsafe_allow_html=True,
+        )
+
         for item in items:
-            label = html.escape(item.label)
-            key = html.escape(item.key, quote=True)
-            icon = html.escape(ICONS.get(item.key, "circle"), quote=True)
-            active = " is-active" if selected == item.key else ""
-            parts.append(
-                f'<a class="frl-sidebar-link{active}" href="?workspace={key}" aria-label="{label}">'
-                f'<span class="frl-sidebar-icon">{icon}</span>'
-                f'<span class="frl-sidebar-label">{label}</span>'
-                "</a>"
-            )
-        parts.append("</div>")
-    parts.append("</div>")
-    return "".join(parts)
+            icon = ICONS.get(item.key, "circle")
+            label = f":material/{icon}: {item.label}"
+            wrapper_class = "frl-nav-button frl-nav-button-active" if selected == item.key else "frl-nav-button"
+            st.sidebar.markdown(f'<div class="{wrapper_class}">', unsafe_allow_html=True)
+            if st.sidebar.button(
+                label,
+                key=f"frl_sidebar_nav_{item.key}",
+                width="stretch",
+                type="secondary",
+            ):
+                st.session_state["frl_workspace"] = item.key
+                st.query_params["workspace"] = item.key
+                st.rerun()
+            st.sidebar.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_workspace_sidebar(active_key):
     grouped = navigation_by_section()
     selected = current_workspace(active_key)
-    st.sidebar.markdown(_sidebar_navigation_html(grouped, selected), unsafe_allow_html=True)
+    _render_sidebar_navigation(grouped, selected)
 
     if selected in TEAM_VIEW_TARGETS or selected == "teams":
         if selected in TEAM_VIEW_TARGETS:
