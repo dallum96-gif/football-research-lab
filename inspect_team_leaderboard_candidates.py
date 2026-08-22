@@ -13,7 +13,7 @@ def run() -> list[dict[str, str]]:
     candidates: set[str] = set()
     with CLASS.open("r", encoding="utf-8-sig", newline="") as fh:
         for row in csv.DictReader(fh):
-            if row.get("candidate_family") == "ANALYTICAL_CANDIDATE" or row.get("status") == "ANALYTICAL_CANDIDATE":
+            if row.get("category") == "ANALYTICAL_CANDIDATE":
                 candidates.add(row.get("field_name", ""))
 
     out: list[dict[str, str]] = []
