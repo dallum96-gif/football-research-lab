@@ -1,8 +1,8 @@
 """Read-only all-season relationship integrity audit for the FRL source families.
 
-The matrix reports the relationship state at the same contract boundary used by
-production adapters. It keeps identity, observation, and source availability
-separate and never promotes an inferred join.
+The matrix reports relationship state at the same contract boundary used by
+production adapters. Identity, observation, and source availability stay
+separate and no inferred join is promoted.
 """
 from __future__ import annotations
 
@@ -10,6 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import player_identity_audit
+import player_research
 import query_lab
 import source_family_adapters as adapters
 from player_match_stats import source_player_id
@@ -27,28 +28,6 @@ def team_registry_by_season():
         if season:
             out[season].append(row)
     return out
-
-
-def fixture_relationship(season: str) -> dict:
-    fixtures = adapters.season_fixtures(season)
-    resolved = 0
-    missing = 0
-    source_ids = set()
-    for fixture in fixtures:
-        fid = str(fixture.get("fixture_id") or "").strip()
-        try:
-            result = adapters.resolve_source_match(season, fid)
-        except ValueError:
-            missing += 1
-            continue
-        resolved += 1
-        source_ids.add(result["source_match_id"])
-    return {
-        "canonical_fixtures": len(fixtures),
-        "resolved_source_matches": resolved,
-        "missing_source_matches": missing,
-        "unique_source_match_ids": len(source_ids),
-    }
 
 
 def team_relationship(season: str, registry: dict) -> dict:
@@ -87,40 +66,74 @@ def team_relationship(season: str, registry: dict) -> dict:
     }
 
 
+def fixture_relationship(season: str) -> dict:
+    fixtures = adapters.season_fixtures(season)
+    resolved = 0
+    missing = 0
+    source_ids = set()
+    for fixture in fixtures:
+        fid = str(fixture.get("fixture_id") or "").strip()
+        try:
+            result = adapters.resolve_source_match(season, fid)
+        except ValueError:
+            missing += 1
+            continue
+        resolved += 1
+        source_ids.add(result["source_match_id"])
+    return {
+        "canonical_fixtures": len(fixtures),
+        "resolved_source_matches": resolved,
+        "missing_source_matches": missing,
+        "unique_source_match_ids": len(source_ids),
+    }
+
+
 def player_relationship(season: str) -> dict:
-    """Report FPL->FRL player relationship using the enforced contract."""
+    """Classify the FPL->FRL player relationship using the shared contract."""
+    raw_rows = player_research._load_season_rows(season)
+    unique_elements = {
+        str(player_research.seasonal_player_id(row) or "").strip()
+        for row in raw_rows
+        if str(player_research.seasonal_player_id(row) or "").strip()
+    }
+
     audit = player_identity_audit.audit_season(season)
-    fpl_rows = audit["fpl_candidates"]
-    verified = 0
-    unresolved = 0
-    ambiguous = 0
-    unavailable = 0
+    registry_available = any(
+        row.get("season") == season
+        for row in query_lab.load_identity_registry()
+    )
 
-    # The identity adapter is cached; evaluate each seasonal FPL element once.
-    elements = set()
-    for row in fpl_rows:
-        element = str(row.get("element") or row.get("fpl_element") or "").strip()
-        if element:
-            elements.add(element)
+    if not registry_available:
+        return {
+            "fpl_elements": len(unique_elements),
+            "verified": 0,
+            "unresolved": 0,
+            "ambiguous": 0,
+            "unavailable": len(unique_elements),
+        }
 
-    for element in elements:
+    # In a testable season, use the contract-enforced resolver for registry
+    # entries and keep unresolved/ambiguous audit candidates outside identity.
+    statuses = {"VERIFIED": 0, "UNRESOLVED": 0, "AMBIGUOUS": 0, "UNAVAILABLE": 0}
+    for element in unique_elements:
         result = resolve_fpl_player_identity(season, element)
-        status = result["relationship_status"]
-        if status == "VERIFIED":
-            verified += 1
-        elif status == "UNRESOLVED":
-            unresolved += 1
-        elif status == "AMBIGUOUS":
-            ambiguous += 1
-        elif status == "UNAVAILABLE":
-            unavailable += 1
+        statuses[result["relationship_status"]] += 1
+
+    # The legacy diagnostic remains useful as a cross-check: candidates not
+    # represented in the registry should remain unresolved, never promoted.
+    known = statuses["VERIFIED"] + statuses["UNRESOLVED"] + statuses["AMBIGUOUS"]
+    if known < len(unique_elements):
+        statuses["UNRESOLVED"] += len(unique_elements) - known
 
     return {
-        "fpl_elements": len(elements),
-        "verified": verified,
-        "unresolved": unresolved,
-        "ambiguous": ambiguous,
-        "unavailable": unavailable,
+        "fpl_elements": len(unique_elements),
+        "verified": statuses["VERIFIED"],
+        "unresolved": statuses["UNRESOLVED"],
+        "ambiguous": statuses["AMBIGUOUS"],
+        "unavailable": statuses["UNAVAILABLE"],
+        "diagnostic_exact": len(audit["exact"]),
+        "diagnostic_missing": len(audit["missing"]),
+        "diagnostic_ambiguous": len(audit["ambiguous"]),
     }
 
 
@@ -200,7 +213,7 @@ def print_report(results: dict) -> None:
     print("- UNRESOLVED and AMBIGUOUS relationships remain outside canonical identity.")
     print("- Player-match absence is observational and is not treated as player-identity failure.")
     print("- Field-count differences are source availability/schema differences, not identity failures.")
-    print("- Direct player ID overlap is reported as namespace diagnostics, not as an identity decision.")
+    print("- Direct player ID overlap is reported as a namespace diagnostic, not an identity decision.")
     print()
     print("No files were written or modified.")
     print("=" * 120)
