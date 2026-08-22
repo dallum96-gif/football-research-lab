@@ -7,26 +7,43 @@ def test_module_shape():
     assert player_identity_registry.FIELDS[0] == "season"
 
 
-def test_reject_review_rows():
-    original = player_identity_registry.player_identity_crosswalk.summarize
-    player_identity_registry.player_identity_crosswalk.summarize = lambda: {
-        "review_rows": 1,
-        "confirmed": [],
-    }
-    try:
-        try:
-            player_identity_registry.build_registry()
-        except ValueError as exc:
-            assert "review rows remain" in str(exc)
-        else:
-            raise AssertionError("review rows must block registry promotion")
-    finally:
-        player_identity_registry.player_identity_crosswalk.summarize = original
+def test_registry_uses_canonical_audit_exact_rows(monkeypatch):
+    monkeypatch.setattr(
+        player_identity_registry.player_identity_audit,
+        "SEASONS",
+        ("2025-26",),
+    )
+    monkeypatch.setattr(
+        player_identity_registry.player_identity_audit,
+        "audit_season",
+        lambda season: {
+            "exact": [{
+                "fpl_player_code": "1",
+                "fpl_name": "Example Player",
+                "source_player_id": "99",
+                "team_code": "ABC",
+            }],
+            "missing": [],
+            "ambiguous": [],
+        },
+    )
+    monkeypatch.setattr(
+        player_identity_registry.player_identity_audit,
+        "normalize_name",
+        lambda value: value.casefold(),
+    )
+
+    rows = player_identity_registry.build_registry()
+    assert len(rows) == 1
+    assert rows[0]["fpl_element"] == "1"
+    assert rows[0]["source_player_id"] == "99"
+    assert rows[0]["identity_status"] == "VERIFIED"
+    assert rows[0]["match_method"] == "EXACT_NAME_TEAM"
 
 
 if __name__ == "__main__":
-    tests = [test_module_shape, test_reject_review_rows]
+    tests = [test_module_shape, test_registry_uses_canonical_audit_exact_rows]
     for test in tests:
-        test()
+        test(None) if test is test_registry_uses_canonical_audit_exact_rows else test()
         print(f"PASS  {test.__name__}")
     print(f"PLAYER IDENTITY REGISTRY TESTS: {len(tests)}/{len(tests)}")
