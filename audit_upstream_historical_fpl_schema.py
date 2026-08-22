@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 import io
 import json
+import urllib.error
 import urllib.request
 from pathlib import Path
 
@@ -17,21 +18,31 @@ OUTPUT = ROOT / "data" / "upstream_historical_fpl_schema_audit.csv"
 
 API_BASE = "https://api.github.com/repos/imadeddine-belkat/Premier-League-Stats/contents/"
 RAW_BASE = "https://raw.githubusercontent.com/imadeddine-belkat/Premier-League-Stats/main/"
-MERGED_DIRS = (
+# Verified against the upstream repository topology:
+# - historical merged player schemas live under _merged/players
+# - global historical fixture schemas live under fpl_stats/fixtures
+# There is no _merged/teams schema directory; team folders contain fixtures
+# and player outputs rather than a separate team-stat CSV schema.
+SCHEMA_DIRS = (
     ("player", "fpl_scraper/fpl_stats/_merged/players"),
-    ("team", "fpl_scraper/fpl_stats/_merged/teams"),
-    ("fixture", "fpl_scraper/fpl_stats/_merged/fixtures"),
+    ("fixture", "fpl_scraper/fpl_stats/fixtures"),
 )
 
 
 def fetch_json(url: str) -> object:
-    request = urllib.request.Request(url, headers={"User-Agent": "FRL-historical-schema-audit"})
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "FRL-historical-schema-audit"},
+    )
     with urllib.request.urlopen(request, timeout=30) as response:
         return json.load(response)
 
 
 def fetch_header(raw_url: str) -> list[str]:
-    request = urllib.request.Request(raw_url, headers={"User-Agent": "FRL-historical-schema-audit"})
+    request = urllib.request.Request(
+        raw_url,
+        headers={"User-Agent": "FRL-historical-schema-audit"},
+    )
     with urllib.request.urlopen(request, timeout=60) as response:
         buf = bytearray()
         while True:
@@ -41,6 +52,8 @@ def fetch_header(raw_url: str) -> list[str]:
             buf.extend(chunk)
             if b"\n" in buf:
                 break
+    if not buf:
+        return []
     line = bytes(buf).splitlines()[0].decode("utf-8-sig")
     return next(csv.reader(io.StringIO(line)))
 
@@ -52,8 +65,13 @@ def terminal_name(field_name: str) -> str:
 
 def discover_files() -> list[dict[str, str]]:
     out: list[dict[str, str]] = []
-    for grain, directory in MERGED_DIRS:
-        payload = fetch_json(API_BASE + directory)
+    for grain, directory in SCHEMA_DIRS:
+        try:
+            payload = fetch_json(API_BASE + directory)
+        except urllib.error.HTTPError as exc:
+            # Optional surface missing: record it in the console but continue.
+            print(f"WARNING: historical schema directory unavailable: {directory} ({exc.code})")
+            continue
         if not isinstance(payload, list):
             continue
         for item in payload:
@@ -79,10 +97,14 @@ def load_queue(path: Path = QUEUE) -> list[dict[str, str]]:
 
 def audit(queue: list[dict[str, str]], files: list[dict[str, str]]) -> list[dict[str, str]]:
     header_cache: dict[str, list[str]] = {}
-    rows: list[dict[str, str]] = []
     for file in files:
-        header_cache[file["raw_url"]] = fetch_header(file["raw_url"])
+        try:
+            header_cache[file["raw_url"]] = fetch_header(file["raw_url"])
+        except urllib.error.HTTPError as exc:
+            print(f"WARNING: historical CSV unavailable: {file['path']} ({exc.code})")
+            header_cache[file["raw_url"]] = []
 
+    rows: list[dict[str, str]] = []
     for row in queue:
         if row.get("source_surface") != "fpl":
             continue
@@ -110,7 +132,15 @@ def run() -> int:
     files = discover_files()
     rows = audit(queue, files)
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    columns = ["field_name", "terminal_field", "historical_grains", "historical_season_files", "historical_presence", "review_status", "resolution"]
+    columns = [
+        "field_name",
+        "terminal_field",
+        "historical_grains",
+        "historical_season_files",
+        "historical_presence",
+        "review_status",
+        "resolution",
+    ]
     with OUTPUT.open("w", encoding="utf-8-sig", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=columns)
         writer.writeheader()
