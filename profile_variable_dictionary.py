@@ -22,20 +22,13 @@ def _dictionary_index(path: Path = DICTIONARY) -> dict[tuple[str, str, str, str]
     if not path.exists():
         return {}
     rows = load_rows(path)
-    return {
-        tuple(row.get(key, "") for key in JOIN_KEYS): row
-        for row in rows
-    }
+    return {tuple(row.get(key, "") for key in JOIN_KEYS): row for row in rows}
 
 
-def _enrich_decomposed_rows(
-    rows: list[dict[str, str]],
-    dictionary_path: Path = DICTIONARY,
-) -> list[dict[str, str]]:
+def _enrich_decomposed_rows(rows: list[dict[str, str]], dictionary_path: Path = DICTIONARY) -> list[dict[str, str]]:
     """Enrich a decomposed master file with dictionary metadata when available."""
     if not rows or "decomposed_grain" not in rows[0]:
         return rows
-
     index = _dictionary_index(dictionary_path)
     enriched: list[dict[str, str]] = []
     for row in rows:
@@ -49,30 +42,28 @@ def _enrich_decomposed_rows(
 
 
 def profile(rows: list[dict[str, str]]) -> dict[str, Counter[str]]:
+    """Profile rows using resolved grain when available; never hide missing metadata."""
     return {
-        "grain": Counter(r.get("profile_grain", r.get("grain", "")) for r in rows),
-        "original_grain": Counter(r.get("grain", "") for r in rows),
-        "resource": Counter(r.get("resource", "") for r in rows),
-        "category": Counter(r.get("navigation_category", "") or "UNAVAILABLE_FOR_INPUT" for r in rows),
-        "semantic": Counter(r.get("semantic_status", "") or "UNAVAILABLE_FOR_INPUT" for r in rows),
-        "source_surface": Counter(r.get("source_surface", "") for r in rows),
+        "grain": Counter(
+            (r.get("profile_grain") or r.get("decomposed_grain") or r.get("grain") or "").strip()
+            for r in rows
+        ),
+        "original_grain": Counter((r.get("grain") or "").strip() for r in rows),
+        "resource": Counter((r.get("resource") or "").strip() for r in rows),
+        "category": Counter((r.get("navigation_category") or "").strip() or "UNAVAILABLE_FOR_INPUT" for r in rows),
+        "semantic": Counter((r.get("semantic_status") or "").strip() or "UNAVAILABLE_FOR_INPUT" for r in rows),
+        "source_surface": Counter((r.get("source_surface") or "").strip() for r in rows),
     }
 
 
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=Path, default=INPUT)
-    parser.add_argument(
-        "--dictionary",
-        type=Path,
-        default=DICTIONARY,
-        help="Dictionary used to enrich decomposed master-universe rows.",
-    )
+    parser.add_argument("--dictionary", type=Path, default=DICTIONARY)
     args = parser.parse_args()
 
     rows = _enrich_decomposed_rows(load_rows(args.input), args.dictionary)
     p = profile(rows)
-
     print("FRL VARIABLE DICTIONARY PROFILE")
     print("=" * 90)
     print(f"Variables: {len(rows)}")
