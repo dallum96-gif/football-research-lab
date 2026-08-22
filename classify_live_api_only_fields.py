@@ -33,29 +33,49 @@ def family(endpoint: str) -> str:
     return "UNCLASSIFIED_REVIEW"
 
 
-def run() -> list[dict[str,str]]:
-    rows=[]
+def run() -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
     with INPUT.open("r", encoding="utf-8-sig", newline="") as fh:
         for r in csv.DictReader(fh):
             if r.get("state") != "LIVE_ONLY":
                 continue
             endpoint = r.get("resource_or_grain", "")
-            rows.append({**r, "candidate_family": family(endpoint), "review_status":"OPEN"})
+            rows.append({
+                **r,
+                "candidate_family": family(endpoint),
+                "review_status": "OPEN",
+            })
+
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    # Preserve all evidence columns from the crosswalk, then append classification metadata.
+    base_columns = ["resource_or_grain", "field_name", "state"]
+    extra_columns = sorted({
+        key
+        for row in rows
+        for key in row
+        if key not in base_columns and key not in {"candidate_family", "review_status"}
+    })
+    cols = base_columns + extra_columns + ["candidate_family", "review_status"]
     with OUTPUT.open("w", encoding="utf-8-sig", newline="") as fh:
-        cols=["resource_or_grain","field_name","state","candidate_family","review_status"]
-        w=csv.DictWriter(fh, fieldnames=cols); w.writeheader(); w.writerows(rows)
+        writer = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(rows)
     return rows
 
+
 if __name__ == "__main__":
-    rows=run()
-    c=Counter(r["candidate_family"] for r in rows)
+    rows = run()
+    c = Counter(r["candidate_family"] for r in rows)
     print("FRL LIVE-ONLY API FIELD CLASSIFICATION")
-    print("="*90)
+    print("=" * 90)
     print(f"LIVE_ONLY fields inspected: {len(rows)}")
-    for k,v in c.most_common(): print(f"  {v:4d}  {k}")
-    by=defaultdict(int)
-    for r in rows: by[(r['resource_or_grain'],r['candidate_family'])]+=1
+    for k, v in c.most_common():
+        print(f"  {v:4d}  {k}")
+    by = defaultdict(int)
+    for r in rows:
+        by[(r["resource_or_grain"], r["candidate_family"])] += 1
     print("\nBY ENDPOINT")
-    for (e,f),n in sorted(by.items(), key=lambda x:(-x[1],x[0])): print(f"  {n:4d}  {e:28s}  {f}")
+    for (endpoint, fam), n in sorted(by.items(), key=lambda x: (-x[1], x[0])):
+        print(f"  {n:4d}  {endpoint:28s}  {fam}")
     print(f"\nOutput: {OUTPUT}")
     print("Candidate family only; no semantic/canonical promotion.")
