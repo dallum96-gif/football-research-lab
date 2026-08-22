@@ -110,6 +110,8 @@ Before doing substantive work, read:
 * `FRL_DATA_HIERARCHY_RELATIONSHIP_CONTRACT.md`
 * `FRL_RELATIONSHIP_INTEGRITY_CONTRACT.md`
 * `FRL_DATA_PLATFORM_ARCHITECTURE_V1.md`
+* `FRL_SOURCE_ARCHIVE_AND_DATABASE_DECISION_V1.md`
+* `FRL_NEXT_SESSIONS_PLAN_V1.md`
 * `FRL_DATA_RESIDENCY_LINEAGE_INVENTORY_V1.md`
 * `FRL_ANALYTICAL_DATA_LAYOUT_V1.md`
 * `FRL_VISUALISATION_DATA_CONTRACT.md`
@@ -128,7 +130,7 @@ Do not ask me to re-explain the project when the information can be recovered fr
 
 The fresh-session sequence is therefore:
 
-**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source/discovery/normalisation/source-boundary contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run 26/26 → run project health → only then start substantive work.**
+**read orientation → read current work → read the governing vision/data/architecture/relationship/residency/layout/visualisation/source/discovery/normalisation/source-boundary/archive/database/roadmap contracts → establish repo/branch state → inspect working/archived/local mechanisms where needed → run the relevant validation gates → only then start substantive work.**
 
 ## Frontend migration recovery rule
 
@@ -244,7 +246,7 @@ Preserve source observations and derivation logic separately. Do not silently ov
 
 The FRL should be treated as a connected football evidence system with a data platform underneath the UI.
 
-Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation, discovery, normalisation, source-boundary and player-metadata source documents named above before making architecture changes.
+Read the governing hierarchy, relationship, platform, residency, analytical-layout, visualisation, discovery, normalisation, source-boundary, source-archive and database documents named above before making architecture changes.
 
 The guiding principle is:
 
@@ -311,16 +313,41 @@ Distinguish between:
 The current architecture prioritises:
 
 1. trustworthy canonical football entities and relationships;
-2. rich retained source evidence;
+2. rich retained source evidence and permanent local raw-source preservation;
 3. temporal/historical reconstruction;
 4. interconnected player/team/fixture research and scouting views;
-5. reusable analytical/query services;
-6. rich data visualisation and comparison capabilities;
-7. future combined metrics and research querying;
-8. future replaceable mathematical/statistical models;
-9. only then explicit market/betting applications.
+5. a durable local analytical/data-store layer behind the research engine;
+6. a genuinely navigable football database UI;
+7. reusable analytical/query services and rich data visualisation;
+8. future combined metrics and research querying;
+9. future replaceable mathematical/statistical models;
+10. only then explicit market/betting applications.
+
+The navigable database UI and research laboratory are complementary goals. The UI should let users browse the same verified graph used by research queries: seasons, teams, players, player-seasons, fixtures, match observations and provenance.
 
 Do not add infrastructure merely because it is technically interesting. Add it when it materially improves scalability, reproducibility, provenance, reliability or future research capability.
+
+## Immediate roadmap
+
+The current multi-session roadmap is authoritative in `FRL_NEXT_SESSIONS_PLAN_V1.md`.
+
+The working sequence is:
+
+1. finish source-field semantic review and conservative promotion;
+2. consolidate relationship and provenance contracts;
+3. formalise the immutable local source-archive contract;
+4. design the local database / analytical store around the proven relationship graph;
+5. implement the local store and prove it can be rebuilt from the preserved source archive;
+6. move research/query workloads only after equivalence validation;
+7. build the navigable football database UI;
+8. build structured and natural-language research interfaces and visualisation;
+9. expand into modelling and evaluation only after the evidence/data platform is stable.
+
+Standing rule:
+
+> **Do not build a higher layer to compensate for an unproven lower layer.**
+
+Storage technology is replaceable; source evidence, relationships, provenance and research semantics are not.
 
 ## Working philosophy
 
