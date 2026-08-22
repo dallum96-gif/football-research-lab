@@ -19,7 +19,12 @@ from player_match_stats import (
     source_player_id,
     classify_participation,
 )
-from relationship_enforcement import evaluate_identity, require_verified
+from player_identity_registry import build_registry as build_player_identity_registry
+from relationship_enforcement import (
+    evaluate_identity,
+    require_verified,
+    classify_observation,
+)
 
 ROOT = Path(__file__).resolve().parent
 FIXTURE_FILE = ROOT / "fixtures_master_corrected.csv"
@@ -49,6 +54,11 @@ def _number(value: object):
 @lru_cache(maxsize=1)
 def _identity_rows() -> tuple[dict, ...]:
     return tuple(load_identity_registry())
+
+
+@lru_cache(maxsize=1)
+def _player_identity_rows() -> tuple[dict[str, str], ...]:
+    return tuple(build_player_identity_registry())
 
 
 @lru_cache(maxsize=1)
@@ -207,11 +217,20 @@ def player_match_source_fields(season: str) -> tuple[str, ...]:
 
 
 def player_match_records(season: str, fixture_id: str) -> tuple[dict, ...]:
+    """Return player-match observations with verified fixture context.
+
+    Player identity is not inferred from the observation itself. Consumers must
+    resolve an FRL player identity separately before treating the observation as
+    belonging to that identity.
+    """
+    resolved_fixture = resolve_source_match(season, fixture_id)
     rows = []
     for row in player_match_source_rows(season, fixture_id):
         item = dict(row)
         item["frl_source_player_id"] = source_player_id(row) or ""
         item["frl_participation_status"] = classify_participation(row)
+        item["relationship_contract"] = "canonical_fixture_to_source_match"
+        item["relationship_status"] = resolved_fixture["relationship_status"]
         rows.append(item)
     return tuple(rows)
 
@@ -222,7 +241,7 @@ def player_season_source_rows(season: str) -> tuple[dict, ...]:
     root = Path(PL_ROOT)
     expected = f"{season}_players_stats.csv"
     if not root.is_dir():
-        raise FileNotFoundError(f"Approved upstream source not found: {root}")
+        raise FileNotFoundError(f"Approved upstream source root not found: {root}")
 
     for club_dir in sorted(root.iterdir()):
         if not club_dir.is_dir() or club_dir.name.startswith("_"):
@@ -251,4 +270,77 @@ def source_field_inventory(season: str) -> dict[str, tuple[str, ...]]:
         "fixture_team_match": team_match_source_fields(season),
         "player_match": player_match_source_fields(season),
         "player_season": player_season_source_fields(season),
+    }
+
+
+def resolve_fpl_player_identity(season: str, fpl_element: str) -> dict:
+    """Return the verified FPL->FRL player identity decision for one season."""
+    matches = [
+        row for row in _player_identity_rows()
+        if row.get("season") == season
+        and str(row.get("fpl_element", "")).strip() == str(fpl_element).strip()
+    ]
+    decision = evaluate_identity(
+        "fpl_player_to_frl_player_identity",
+        source_context_available=bool(matches) or bool(_player_identity_rows()),
+        candidates=matches,
+    )
+    if not decision.verified:
+        return {
+            "season": season,
+            "fpl_element": str(fpl_element),
+            **decision_dict(decision),
+        }
+    row = dict(matches[0])
+    row.update(decision_dict(decision))
+    row["frl_player_source_id"] = row.get("source_player_id", "")
+    return row
+
+
+def source_player_season_identity(season: str, source_player_id_value: str) -> dict:
+    """Resolve a source player ID to exactly one player-season row."""
+    candidates = [
+        row for row in player_season_source_rows(season)
+        if str(row.get("playerId", "")).strip() == str(source_player_id_value).strip()
+    ]
+    decision = evaluate_identity(
+        "source_player_identity_to_player_season",
+        source_context_available=True,
+        candidates=candidates,
+    )
+    result = {
+        "season": season,
+        "source_player_id": str(source_player_id_value),
+        **decision_dict(decision),
+    }
+    if decision.verified:
+        result["player_season"] = dict(candidates[0])
+    return result
+
+
+def player_match_observation_status(
+    season: str,
+    fixture_id: str,
+    source_player_id_value: str,
+    *,
+    player_identity_verified: bool = True,
+) -> dict:
+    """Classify a player-match observation without treating absence as identity failure."""
+    resolve_source_match(season, fixture_id)
+    rows = [
+        row for row in player_match_source_rows(season, fixture_id)
+        if str(source_player_id(row) or "").strip() == str(source_player_id_value).strip()
+    ]
+    status = classify_observation(
+        identity_verified=player_identity_verified,
+        fixture_verified=True,
+        observation_present=bool(rows),
+    )
+    return {
+        "season": season,
+        "fixture_id": str(fixture_id),
+        "source_player_id": str(source_player_id_value),
+        "relationship_contract": "player_identity_to_player_match_observations",
+        "relationship_status": status,
+        "observation_present": bool(rows),
     }
