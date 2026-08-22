@@ -25,7 +25,8 @@ DERIVABLE = {
 def collect_local_fields() -> set[str]:
     fields: set[str] = set()
     for path in ROOT.rglob("*.csv"):
-        if "data\" in str(path) or "data/" in str(path):
+        path_text = str(path).replace("\\", "/")
+        if "/data/" in path_text:
             if path.name.startswith("live_") or path.name.startswith("new_team_"):
                 continue
         try:
