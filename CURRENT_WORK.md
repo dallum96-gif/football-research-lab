@@ -1,48 +1,82 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 17 August 2026
+**Last updated:** 22 August 2026
 
 ## Active branch
 
-`design/player-filter-tiles`
+`feat/source-family-adapters-2026-08-21`
 
-This remains the development line. `main` is the stable integration line.
+This is the active source/data-platform development line. `main` remains the stable integration line.
 
 ## Current platform checkpoint
 
-The FRL data-platform work is deliberately additive and local-first.
+The FRL data-platform work remains deliberately additive and local-first.
 
-Validated:
+Validated during the current source/relationship phase:
 
-- canonical relationship-integrity proof: green;
-- temporary Parquet/DuckDB analytical materialisation for `fixtures` and `team_fixtures`: green;
-- analytical/query-equivalence proof: prototype corrected after two test-environment issues; latest corrected CI run is being validated.
+- source-family adapters are covered by targeted tests;
+- relationship contracts and enforcement are green;
+- fixture relationship enforcement is green;
+- player identity/relationship enforcement is green;
+- all-season relationship matrix is using the shared contract layer;
+- canonical player identity reconciliation is fail-closed;
+- source-field universe audit covers 10 seasons and 4 source families;
+- semantic review queue and conservative priority ranking are in place;
+- current searchable source-field universe contains 447 distinct fields;
+- 93 are currently exposed, 19 retained, and 335 awaiting semantic review;
+- the current ambiguity audit is read-only and does not promote unresolved identities.
 
-The previous query-equivalence attempt failed in the prototype only: DuckDB attempted to import `pytz` while ordering an inferred timezone-aware timestamp. No canonical data, relationship mapping or GUI behaviour failed. The proof was corrected to order the stored timestamp representation directly.
+The known 2019–20 Manchester City v Arsenal fixture anomaly remains a known source/data-state warning and must not be “fixed” by inventing data.
 
-## Foundational visualisation principle
+## New durable architecture decisions
 
-**Data visualisation is a first-class FRL research output.**
+Read:
 
-Charts, tables, comparisons, timelines and other visualisations must be generated from validated analytical/research outputs rather than maintaining separate presentation-specific truth.
+- `FRL_SOURCE_ARCHIVE_AND_DATABASE_DECISION_V1.md`
+- `FRL_NEXT_SESSIONS_PLAN_V1.md`
 
-Visualisations must inherit:
+Key decisions:
 
-- the same population and filters;
-- the same temporal/as-of semantics;
-- the same provenance and source lineage;
-- the same uncertainty/limitations;
-- the same identity and relationship semantics;
-- the same reproducibility/version information where practical.
+1. Preserve an immutable local copy of exactly what FRL receives from the approved upstream source.
+2. CSVs remain useful portable source artefacts and recovery evidence; they are not a competing canonical truth.
+3. The application should not call the external API on each refresh. It should query a local/future shared data store.
+4. Storage technology is replaceable; source evidence, relationships, provenance and research semantics are not.
+5. The source-family adapters, relationship contracts and identity pathways already established must remain intact through any storage migration.
+6. FRL is both a navigable football database and a research laboratory. The database UI and research interface should traverse the same verified relationship graph.
 
-The GUI remains governed by `GUI_DESIGN_CONTRACT.md` and `UI_DESIGN_SYSTEM.md`. Rich analytical visualisation must remain within that visual language rather than becoming generic dashboard clutter.
+## Source-field review checkpoint
 
-The durable visualisation rule is recorded in `FRL_VISUALISATION_DATA_CONTRACT.md`.
+The next immediate research/data task is semantic review of uncatalogued source fields.
 
-## Immediate next steps
+The current review universe is:
 
-1. Confirm the corrected CSV-vs-DuckDB query-equivalence gate is green.
-2. Build the small reusable analytical query seam over the local Parquet representation without switching production consumers.
-3. Prove that the same research result object can feed both a table and at least one chart.
-4. Validate visualisation outputs against the GUI contract before any interface rollout.
-5. Only then consider expanding Parquet materialisation to more datasets or considering object storage.
+- 447 distinct source-native fields;
+- 335 uncatalogued;
+- 309 core-decade;
+- 14 long-run;
+- 7 intermittent;
+- 5 single-season.
+
+Promotion is evidence-led. A field name alone is not sufficient to mark a field as semantically understood.
+
+## Multi-session roadmap
+
+1. **Source-field semantic review** — establish field meanings, coverage, units, missingness and stability; promote only defensible fields.
+2. **Relationship/provenance consolidation** — make the full fixture/team/player/player-season/player-match/source-field graph explicit and fail-closed.
+3. **Raw-source archive specification** — formalise the immutable local source-copy and provenance contract.
+4. **Database / analytical-store design** — design around the proven relationship graph rather than current queries.
+5. **Local data-store implementation** — build a reversible local store and prove it can be rebuilt from the source archive.
+6. **Database equivalence** — move research/query workloads only after results match the trusted current paths.
+7. **Navigable football database UI** — seasons, teams, players, player-seasons, fixtures, match observations and provenance.
+8. **Research interface + visualisation** — structured queries first, natural language later; one trusted result object should drive tables/charts/comparisons.
+9. **Modelling/evaluation** — only after the evidence/data platform is stable.
+
+Standing rule:
+
+> **Do not build a higher layer to compensate for an unproven lower layer.**
+
+## Current analytical representation direction
+
+The existing architectural direction remains Parquet + DuckDB as the first local analytical representation, subject to equivalence testing. This does not replace or remove the permanent raw-source archive requirement.
+
+Existing CSV-backed query paths remain active until a replacement has passed equivalence and non-destruction gates.
