@@ -93,6 +93,8 @@ def field_available(field: str, season_fields: tuple[str, ...] | list[str] | set
 def decision_dict(decision: RelationshipDecision) -> dict[str, object]:
     return {
         "relationship_contract": decision.contract,
+        "relationship_status": decision.status,
+        # Backward-compatible alias for existing diagnostics.
         "identity_status": decision.status,
         "candidate_count": decision.candidate_count,
         "source_context_available": decision.source_context_available,
