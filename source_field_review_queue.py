@@ -42,6 +42,11 @@ def build_review_queue() -> tuple[dict, ...]:
     return tuple(sorted(rows, key=lambda row: row["review_priority"]))
 
 
+# Backwards-compatible public name used by the full-universe audit.
+def build_queue() -> tuple[dict, ...]:
+    return build_review_queue()
+
+
 def summary() -> dict:
     queue = build_review_queue()
     return {
