@@ -1,8 +1,8 @@
 """Resolve structurally-unmapped FPL variables from the upstream variable registry.
 
 This is a structural reconciliation only. It does not promote semantic meaning or
-create canonical identities. Exact field-name matches against the upstream registry
-are used to recover the source dataset grain (player/team/fixture/etc.).
+create canonical identities. Exact source-field matches recover the source dataset
+grain; JSON dot-paths are normalised to their terminal field name for comparison.
 """
 from __future__ import annotations
 
@@ -21,33 +21,40 @@ def load_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(fh))
 
 
+def terminal_name(field_name: str) -> str:
+    text = str(field_name or "").replace("[]", "")
+    return text.split(".")[-1]
+
+
 def resolve(queue_rows: list[dict[str, str]], upstream_rows: list[dict[str, str]]) -> list[dict[str, str]]:
     exact: dict[tuple[str, str], list[dict[str, str]]] = {}
     for row in upstream_rows:
         if row.get("source_family") != "FPL API":
             continue
-        key = (row.get("variable", ""), row.get("dataset_grain", ""))
+        variable = terminal_name(row.get("variable", ""))
+        grain = row.get("dataset_grain", "")
+        key = (variable, grain)
         exact.setdefault(key, []).append(row)
 
     out: list[dict[str, str]] = []
     for row in queue_rows:
         if row.get("source_surface") != "fpl":
             continue
-        field = row.get("field_name", "")
+        field = terminal_name(row.get("field_name", ""))
         candidates = [u for (variable, _grain), rows in exact.items() if variable == field for u in rows]
         grains = sorted({c.get("dataset_grain", "") for c in candidates if c.get("dataset_grain")})
         if len(grains) == 1:
             resolved_grain = grains[0]
             status = "STRUCTURALLY_RESOLVED"
-            basis = "exact field-name match in FPL upstream variable registry"
+            basis = "terminal field-name match in FPL upstream variable registry"
         elif len(grains) > 1:
             resolved_grain = "UNMAPPED_REVIEW"
             status = "AMBIGUOUS_UPSTREAM_GRAIN"
-            basis = "exact field-name match exists at multiple upstream grains"
+            basis = "terminal field-name match exists at multiple upstream grains"
         else:
             resolved_grain = "UNMAPPED_REVIEW"
             status = "NO_UPSTREAM_REGISTRY_MATCH"
-            basis = "no exact field-name match in FPL upstream variable registry"
+            basis = "no terminal field-name match in FPL upstream variable registry"
 
         base = dict(row)
         base.update({
