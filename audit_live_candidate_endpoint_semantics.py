@@ -10,7 +10,7 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-INPUT = ROOT / "data" / "live_only_candidate_semantics_audit.csv"
+INPUT = ROOT / "data" / "live_only_analytical_candidate_evidence.csv"
 OUTPUT = ROOT / "data" / "live_candidate_endpoint_semantics.csv"
 
 
@@ -18,19 +18,18 @@ def run() -> list[dict[str, str]]:
     rows: list[dict[str, str]] = []
     with INPUT.open("r", encoding="utf-8-sig", newline="") as fh:
         for r in csv.DictReader(fh):
-            # The upstream summary artifact uses `structure`, not `field_type`.
-            if r.get("structure") == "SCALAR":
-                rows.append(dict(r))
+            rows.append(dict(r))
 
     by_field: dict[str, list[dict[str, str]]] = defaultdict(list)
     for row in rows:
-        by_field[row.get("field_name", "")].append(row)
+        if row.get("field_type") in {"int", "float", "str", "bool", "NoneType"}:
+            by_field[row.get("field_name", "")].append(row)
 
     out: list[dict[str, str]] = []
     for field, observations in sorted(by_field.items()):
-        endpoints = sorted({e.strip() for o in observations for e in o.get("endpoints", "").split(" | ") if e.strip()})
-        paths = sorted({p.strip() for o in observations for p in o.get("exact_paths", "").split(" | ") if p.strip()})
-        samples = sorted({s.strip() for o in observations for s in o.get("samples", "").split(" | ") if s.strip()})
+        endpoints = sorted({o.get("endpoint_name", "") for o in observations if o.get("endpoint_name")})
+        paths = sorted({o.get("field_path", "") for o in observations if o.get("field_path")})
+        samples = sorted({o.get("sample", "") for o in observations if o.get("sample")})
         out.append({
             "field_name": field,
             "endpoint_count": str(len(endpoints)),
