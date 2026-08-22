@@ -32,41 +32,39 @@ def main() -> int:
 
     raw_counts = Counter(r["resolution_status"] for r in all_raw)
     context_counts = Counter(r["resolution_status"] for r in ambiguous_resolved)
-    layer_counts = Counter(r["source_layer_state"] for r in recon)
 
     all_fields = {r["field_name"] for r in all_raw}
     ambiguous_fields = {r["field_name"] for r in ambiguous}
-    resolved_context_fields = {r["field_name"] for r in ambiguous_resolved if r["resolution_status"] == "STRUCTURALLY_RESOLVED"}
+    expected_ambiguous = {r["field_name"] for r in all_raw if r["resolution_status"] == "AMBIGUOUS_RAW_FPL_GRAIN"}
+    context_resolved_fields = {r["field_name"] for r in ambiguous_resolved if r["resolution_status"] == "STRUCTURALLY_RESOLVED"}
+    context_ambiguous_fields = {r["field_name"] for r in ambiguous_resolved if r["resolution_status"] == "AMBIGUOUS_RESOURCE_CONTEXT"}
+    historical_only_fields = {r["field_name"] for r in recon if r["source_layer_state"] == "HISTORICAL_PUBLISHED_ONLY"}
     neither_fields = {r["field_name"] for r in recon if r["source_layer_state"] == "NEITHER"}
     game_config_fields = {r["field_name"] for r in game_config}
 
     errors: list[str] = []
-
-    expected_ambiguous = {r["field_name"] for r in all_raw if r["resolution_status"] == "AMBIGUOUS_RAW_FPL_GRAIN"}
     if ambiguous_fields != expected_ambiguous:
-        errors.append(
-            f"ambiguity queue mismatch: audit={len(ambiguous_fields)} expected={len(expected_ambiguous)}"
-        )
-
-    if not resolved_context_fields.issubset(expected_ambiguous):
-        errors.append("resource-context resolution contains fields outside current ambiguity queue")
-
+        errors.append(f"ambiguity queue mismatch: audit={len(ambiguous_fields)} expected={len(expected_ambiguous)}")
+    if not context_resolved_fields.issubset(expected_ambiguous):
+        errors.append("resource-context resolved fields are outside current ambiguity queue")
+    if not context_ambiguous_fields.issubset(expected_ambiguous):
+        errors.append("resource-context unresolved fields are outside current ambiguity queue")
+    if context_resolved_fields & context_ambiguous_fields:
+        errors.append("resource-context resolved/unresolved sets overlap")
+    if not historical_only_fields.issubset(all_fields):
+        errors.append("historical-only fields are outside current all-raw universe")
     if not neither_fields.issubset(all_fields):
         errors.append("reconciliation contains fields outside current all-raw universe")
-
     if not game_config_fields.issubset(neither_fields):
         errors.append("game_config inspection contains fields outside current NEITHER layer")
 
-    structural_closed = (
+    closed = (
         raw_counts.get("STRUCTURALLY_RESOLVED", 0)
-        + context_counts.get("STRUCTURALLY_RESOLVED", 0)
+        + len(context_resolved_fields)
+        + len(historical_only_fields)
         + len(game_config_fields)
     )
-    unresolved_after_context = (
-        raw_counts.get("NOT_FOUND_IN_ALL_CAPTURED_RAW_FPL", 0)
-        - len(neither_fields)
-        + context_counts.get("AMBIGUOUS_RESOURCE_CONTEXT", 0)
-    )
+    outstanding = len(context_ambiguous_fields) + (len(neither_fields) - len(game_config_fields))
 
     print("FRL FPL STRUCTURAL CLOSURE VALIDATOR")
     print("=" * 80)
@@ -74,17 +72,20 @@ def main() -> int:
     print(f"All-raw resolved: {raw_counts.get('STRUCTURALLY_RESOLVED', 0)}")
     print(f"All-raw ambiguous: {raw_counts.get('AMBIGUOUS_RAW_FPL_GRAIN', 0)}")
     print(f"All-raw not found: {raw_counts.get('NOT_FOUND_IN_ALL_CAPTURED_RAW_FPL', 0)}")
-    print(f"Context-resolved: {context_counts.get('STRUCTURALLY_RESOLVED', 0)}")
-    print(f"Context-ambiguous: {context_counts.get('AMBIGUOUS_RESOURCE_CONTEXT', 0)}")
+    print(f"Context-resolved: {len(context_resolved_fields)}")
+    print(f"Context-ambiguous: {len(context_ambiguous_fields)}")
+    print(f"Historical-published-only: {len(historical_only_fields)}")
     print(f"NEITHER-layer fields: {len(neither_fields)}")
     print(f"game_config fields: {len(game_config_fields)}")
     print(f"Bootstrap triage rows: {len(bootstrap)}")
     print(f"Layer reconciliation rows: {len(recon)}")
+    print(f"Closed/resolved partition: {closed}")
+    print(f"Outstanding structural frontier: {outstanding}")
 
-    if unresolved_after_context != len(neither_fields) - len(game_config_fields):
-        errors.append(
-            "unresolved algebra mismatch: derived remaining unresolved count does not equal non-game_config NEITHER fields"
-        )
+    if len(recon) != len(all_raw):
+        errors.append(f"layer reconciliation cardinality mismatch: reconciliation={len(recon)} all_raw={len(all_raw)}")
+    if closed + outstanding != len(all_fields):
+        errors.append(f"partition mismatch: closed={closed} outstanding={outstanding} total={len(all_fields)}")
 
     if errors:
         print("STATUS: FAIL")
