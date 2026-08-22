@@ -40,19 +40,22 @@ def keys_from_csv(path: Path) -> tuple[list[str], int]:
         return [], 0
 
 
-def keys_from_json(path: Path) -> list[str]:
+def keys_from_json(path: Path) -> tuple[list[str], int]:
     try:
         obj = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
-        return []
+        return [], 0
+
     if isinstance(obj, dict):
         for value in obj.values():
             if isinstance(value, list) and value and isinstance(value[0], dict):
-                return list(value[0].keys())
-        return list(obj.keys())[:100]
+                return list(value[0].keys()), len(value)
+        return list(obj.keys())[:100], len(obj)
+
     if isinstance(obj, list) and obj and isinstance(obj[0], dict):
-        return list(obj[0].keys())
-    return []
+        return list(obj[0].keys()), len(obj)
+
+    return [], 0
 
 
 def identity_like(cols: list[str]) -> list[str]:
