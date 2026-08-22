@@ -80,33 +80,42 @@ def _tokens(name: str) -> set[str]:
     return {t for t in spaced.split() if t}
 
 
+def _row_value(row, key: str):
+    """Read either the historical dict queue rows or an object-like row."""
+    if isinstance(row, dict):
+        return row[key]
+    return getattr(row, key)
+
+
 def classify(row) -> ReviewRow:
-    field = row.source_field
+    field = _row_value(row, "source_field")
+    family = _row_value(row, "family")
+    coverage_class = _row_value(row, "coverage_class")
     tokens = _tokens(field)
 
     if tokens & STRUCTURAL_TERMS and not (tokens & RESEARCH_TERMS):
         return ReviewRow(
-            row.family, field, row.coverage_class,
+            family, field, coverage_class,
             "STRUCTURAL_OR_METADATA",
             "field appears to describe identity/context/metadata rather than a research metric",
         )
 
     if len(tokens & COMPOSITE_TERMS) >= 1 or any(x in field.lower() for x in ("attempt", "excl", "including", "second")):
         return ReviewRow(
-            row.family, field, row.coverage_class,
+            family, field, coverage_class,
             "NEEDS_SEMANTIC_REVIEW",
             "composite/contextual naming; source definition should be verified rather than inferred",
         )
 
     if tokens & RESEARCH_TERMS:
         return ReviewRow(
-            row.family, field, row.coverage_class,
+            family, field, coverage_class,
             "LIKELY_DIRECT_METRIC",
             "research-relevant source-native metric name; still requires source-level semantic confirmation",
         )
 
     return ReviewRow(
-        row.family, field, row.coverage_class,
+        family, field, coverage_class,
         "NEEDS_SEMANTIC_REVIEW",
         "field semantics cannot be established safely from name/coverage alone",
     )
