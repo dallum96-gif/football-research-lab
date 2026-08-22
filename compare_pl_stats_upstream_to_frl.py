@@ -9,9 +9,9 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-UPSTREAM = ROOT / "frl-source-audit" / "data" / "upstream_pl_stats_variable_universe.csv"
-FRL_LOCAL = ROOT / "frl-source-audit" / "data" / "master_variable_universe.csv"
-OUTPUT = ROOT / "frl-source-audit" / "data" / "pl_stats_vs_frl_catalog.csv"
+UPSTREAM = ROOT / "data" / "upstream_pl_stats_variable_universe.csv"
+FRL_LOCAL = ROOT / "data" / "master_variable_universe.csv"
+OUTPUT = ROOT / "data" / "pl_stats_vs_frl_catalog.csv"
 
 
 def load_upstream(path: Path = UPSTREAM) -> set[tuple[str, str]]:
