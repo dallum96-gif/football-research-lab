@@ -7,6 +7,7 @@ are used to recover the source dataset grain (player/team/fixture/etc.).
 from __future__ import annotations
 
 import csv
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -75,9 +76,22 @@ def run(queue_path: Path = QUEUE, upstream_path: Path = UPSTREAM, output_path: P
 
 
 if __name__ == "__main__":
-    count = run()
+    rows = resolve(load_csv(QUEUE), load_csv(UPSTREAM))
+    if not rows:
+        raise ValueError("No unresolved FPL rows found in queue.")
+    OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    columns = list(rows[0].keys())
+    with OUTPUT.open("w", encoding="utf-8-sig", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=columns)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    counts = Counter(row["resolution_status"] for row in rows)
     print("FRL UNMAPPED FPL STRUCTURAL RESOLUTION")
     print("=" * 80)
-    print(f"FPL unresolved rows inspected: {count}")
+    print(f"FPL unresolved rows inspected: {len(rows)}")
+    print(f"  STRUCTURALLY_RESOLVED      {counts['STRUCTURALLY_RESOLVED']}")
+    print(f"  AMBIGUOUS_UPSTREAM_GRAIN   {counts['AMBIGUOUS_UPSTREAM_GRAIN']}")
+    print(f"  NO_UPSTREAM_REGISTRY_MATCH {counts['NO_UPSTREAM_REGISTRY_MATCH']}")
     print(f"Output: {OUTPUT}")
     print("Exact upstream registry evidence only; no semantic/canonical promotion.")
