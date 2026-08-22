@@ -7,8 +7,8 @@ promotion is performed.
 from __future__ import annotations
 
 import csv
-from pathlib import Path
 from collections import Counter
+from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 INPUT = ROOT / "data" / "ambiguous_fpl_variable_audit.csv"
@@ -34,15 +34,15 @@ def grain_from_evidence(resource: str, field_path: str) -> str:
         if path.startswith("fixtures"):
             return "player_match"
         return "player"
-    if resource == "bootstrap-static":
+    if resource in {"bootstrap-static", "bootstrap-static.json"}:
         root = path.replace("[]", "").split(".", 1)[0]
         return {
             "elements": "player",
             "teams": "team",
-            "events": "gameweek",
+            "events": "event",
             "element_types": "position_type",
             "phases": "phase",
-            "chips": "gameweek",
+            "chips": "event",
             "game_settings": "game_settings",
             "game_config": "game_config",
             "scoring": "scoring_rules",
