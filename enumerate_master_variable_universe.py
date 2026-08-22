@@ -42,6 +42,22 @@ def flatten_keys(value: Any, prefix: str = "") -> list[tuple[str, str]]:
     return rows
 
 
+def _json_resource(path: Path, json_root: Path) -> tuple[str, str]:
+    """Normalize sample paths to source/resource families, not sample IDs."""
+    relative = path.relative_to(json_root)
+    parts = relative.parts
+    if len(parts) >= 2:
+        source = parts[0]
+        family = parts[1]
+        # e.g. pulselive/match-855174/snapshot.json -> pulselive/match
+        if "-" in family and family.split("-", 1)[0] in {
+            "match", "event", "player", "team", "season", "element"
+        }:
+            family = family.split("-", 1)[0]
+        return source, family
+    return "local_json", path.parent.name
+
+
 def read_upstream_candidates() -> list[dict[str, str]]:
     if not UPSTREAM_CSV.exists():
         return []
@@ -70,9 +86,10 @@ def read_json_samples(json_root: Path) -> list[dict[str, str]]:
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except Exception as exc:  # pragma: no cover - discovery tooling should fail soft
+            source, resource = _json_resource(path, json_root)
             rows.append({
-                "source_surface": "local_json",
-                "resource": path.parent.name,
+                "source_surface": source,
+                "resource": resource,
                 "grain": "unknown",
                 "field_name": "",
                 "field_type": "",
@@ -80,10 +97,10 @@ def read_json_samples(json_root: Path) -> list[dict[str, str]]:
                 "notes": f"{path}: {exc}",
             })
             continue
-        resource = path.parent.name
+        source, resource = _json_resource(path, json_root)
         for field_name, field_type in flatten_keys(payload):
             rows.append({
-                "source_surface": "local_json",
+                "source_surface": source,
                 "resource": resource,
                 "grain": "sample_payload",
                 "field_name": field_name,
