@@ -34,6 +34,12 @@ def infer_context(field_name: str, resource: str, grain: str, note: str) -> tupl
     text = " ".join((field_name, resource, grain, note)).lower()
     path = field_name.lower()
 
+    # Preserve an already-established FRL grain before using weaker resource-level
+    # heuristics. A source/resource label such as "team_match" must not overwrite
+    # the grain already established by the source inventory.
+    if grain and grain != "sample_payload":
+        return grain, "pre-existing specific grain"
+
     # Strongest evidence: explicit nested object/path markers.
     for marker, grain_name in GRAIN_BY_CONTEXT.items():
         if f".{marker}." in path or path.startswith(f"{marker}.") or f"/{marker}/" in path:
@@ -53,10 +59,6 @@ def infer_context(field_name: str, resource: str, grain: str, note: str) -> tupl
         if any(token in text for token in ("fixture", "match")):
             return "team_match", "field/context indicates team-fixture observation"
         return "team", "field/context indicates team entity"
-
-    # Do not guess. Preserve the prior label where it is already specific.
-    if grain and grain != "sample_payload":
-        return grain, "pre-existing specific grain"
 
     return "UNMAPPED_REVIEW", "insufficient structural evidence"
 
