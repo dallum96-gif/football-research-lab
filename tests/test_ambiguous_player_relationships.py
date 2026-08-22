@@ -26,8 +26,3 @@ def test_report_is_read_only_and_preserves_ambiguity(monkeypatch):
     assert len(rows) == 1
     assert rows[0]["source_ids"] == ("10", "11")
     assert rows[0]["source_names"] == ("Example Player", "Example Player B")
-
-
-if __name__ == "__main__":
-    test_report_is_read_only_and_preserves_ambiguity(lambda: None)
-    print("PASS  test_report_is_read_only_and_preserves_ambiguity")
