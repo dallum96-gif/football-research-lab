@@ -6,15 +6,12 @@ and name-based research relevance. Human/contract review remains required.
 """
 from __future__ import annotations
 
-from collections import Counter
-
 from source_field_review_queue import build_review_queue
 
 HIGH_VALUE_TERMS = (
     "expected",
     "progressive",
     "accurate",
-    "successful",
     "totalpass",
     "accuratepass",
     "cross",
@@ -48,6 +45,8 @@ LOW_PRIORITY_TERMS = (
     "attendance",
 )
 
+NEGATIVE_PREFIXES = ("un", "in")
+
 
 def _score(row: dict) -> tuple[int, list[str]]:
     field = row["source_field"].casefold()
@@ -78,15 +77,30 @@ def _score(row: dict) -> tuple[int, list[str]]:
         score += 10
         reasons.append("team research family")
 
-    matched_high = [term for term in HIGH_VALUE_TERMS if term in field]
+    matched_high = []
+    for term in HIGH_VALUE_TERMS:
+        if term not in field:
+            continue
+        if term in {"successful"} and any(field.startswith(prefix + term) for prefix in NEGATIVE_PREFIXES):
+            continue
+        if term == "successful" and f"unsuccessful" in field:
+            continue
+        matched_high.append(term)
+
     if matched_high:
         score += min(30, 6 * len(matched_high))
         reasons.append("research-relevant name: " + ", ".join(matched_high[:4]))
 
-    matched_low = [term for term in LOW_PRIORITY_TERMS if field == term or field.endswith(term)]
+    matched_low = [
+        term for term in LOW_PRIORITY_TERMS
+        if field == term or field.endswith(term)
+    ]
     if matched_low:
         score -= 10
         reasons.append("identity/metadata-style name")
+
+    if "unsuccessful" in field:
+        reasons.append("negative outcome/reverse-polarity term")
 
     score += min(seasons_present, 10)
     return score, reasons
