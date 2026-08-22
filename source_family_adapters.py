@@ -19,6 +19,7 @@ from player_match_stats import (
     source_player_id,
     classify_participation,
 )
+from relationship_enforcement import evaluate_identity, require_verified
 
 ROOT = Path(__file__).resolve().parent
 FIXTURE_FILE = ROOT / "fixtures_master_corrected.csv"
@@ -77,12 +78,21 @@ def resolve_source_match(season: str, fixture_id: str) -> dict:
         raise ValueError(f"No verified source match for {season}/{fixture_id}")
 
     match_id, home_row, away_row = resolved
+    decision = evaluate_identity(
+        "canonical_fixture_to_source_match",
+        source_context_available=True,
+        candidates=({"source_match_id": str(match_id)},),
+    )
+    require_verified(decision)
+
     return {
         "season": season,
         "fixture_id": str(fixture_id),
         "source_match_id": str(match_id),
         "home": dict(home_row),
         "away": dict(away_row),
+        "relationship_contract": decision.contract,
+        "relationship_status": decision.status,
     }
 
 
