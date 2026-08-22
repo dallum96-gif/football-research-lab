@@ -1,16 +1,8 @@
 """Read-only all-season relationship integrity audit for the FRL source families.
 
-This audit is deliberately broader than any one source/schema anomaly. It reports,
-for every available season:
-
-- canonical fixture -> source match resolution
-- canonical team-season -> source team coverage
-- FPL -> source player-match identity classification
-- source player-match ID -> player-season ID overlap
-- source field availability by family
-
-Nothing is promoted into canonical identity and nothing is written to data files.
-Identity classes are evidence-driven: exact, missing, ambiguous, or unavailable.
+The matrix reports the relationship state at the same contract boundary used by
+production adapters. It keeps identity, observation, and source availability
+separate and never promotes an inferred join.
 """
 from __future__ import annotations
 
@@ -20,6 +12,8 @@ from pathlib import Path
 import player_identity_audit
 import query_lab
 import source_family_adapters as adapters
+from player_match_stats import source_player_id
+from player_relationship_adapters import resolve_fpl_player_identity
 
 
 SEASONS = tuple(player_identity_audit.SEASONS)
@@ -68,8 +62,6 @@ def team_relationship(season: str, registry: dict) -> dict:
 
     source_team_ids = set()
     root = Path(adapters.PL_ROOT)
-    # The source team-match adapter exposes the season's source rows without
-    # requiring a canonical fixture lookup for this coverage audit.
     expected = f"{season}_events_stats.csv"
     if not root.is_dir():
         raise FileNotFoundError(f"Approved upstream source not found: {root}")
@@ -96,33 +88,55 @@ def team_relationship(season: str, registry: dict) -> dict:
 
 
 def player_relationship(season: str) -> dict:
-    report = player_identity_audit.audit_season(season)
+    """Report FPL->FRL player relationship using the enforced contract."""
+    audit = player_identity_audit.audit_season(season)
+    fpl_rows = audit["fpl_candidates"]
+    verified = 0
+    unresolved = 0
+    ambiguous = 0
+    unavailable = 0
+
+    # The identity adapter is cached; evaluate each seasonal FPL element once.
+    elements = set()
+    for row in fpl_rows:
+        element = str(row.get("element") or row.get("fpl_element") or "").strip()
+        if element:
+            elements.add(element)
+
+    for element in elements:
+        result = resolve_fpl_player_identity(season, element)
+        status = result["relationship_status"]
+        if status == "VERIFIED":
+            verified += 1
+        elif status == "UNRESOLVED":
+            unresolved += 1
+        elif status == "AMBIGUOUS":
+            ambiguous += 1
+        elif status == "UNAVAILABLE":
+            unavailable += 1
+
     return {
-        "fpl_candidates": report["fpl_candidates"],
-        "source_player_candidates": report["source_candidates"],
-        "exact_1_to_1": len(report["exact"]),
-        "missing": len(report["missing"]),
-        "ambiguous": len(report["ambiguous"]),
+        "fpl_elements": len(elements),
+        "verified": verified,
+        "unresolved": unresolved,
+        "ambiguous": ambiguous,
+        "unavailable": unavailable,
     }
 
 
 def player_source_overlap(season: str) -> dict:
+    """Compare source namespaces using the canonical player-ID resolver."""
     player_match_ids = set()
     for row in adapters.player_match_source_rows_for_season(season):
-        pid = str(
-            row.get("playerId")
-            or row.get("pl_code")
-            or row.get("player_id")
-            or ""
-        ).strip()
+        pid = str(source_player_id(row) or "").strip()
         if pid:
             player_match_ids.add(pid)
 
-    player_season_ids = set()
-    for row in adapters.player_season_source_rows(season):
-        pid = str(row.get("playerId") or "").strip()
-        if pid:
-            player_season_ids.add(pid)
+    player_season_ids = {
+        str(row.get("playerId") or "").strip()
+        for row in adapters.player_season_source_rows(season)
+        if str(row.get("playerId") or "").strip()
+    }
 
     return {
         "player_match_source_ids": len(player_match_ids),
@@ -160,7 +174,8 @@ def print_report(results: dict) -> None:
     print()
     print(
         "season     fixtures resolved/missing   teams verified/source   "
-        "players exact/missing/ambig   player-id overlap   fields team/player/player-season"
+        "FPL->player verified/unresolved/ambig/unavail   player-id overlap   "
+        "fields team/player/player-season"
     )
     print("-" * 120)
     for season, r in results.items():
@@ -173,17 +188,19 @@ def print_report(results: dict) -> None:
             f"{season}  "
             f"{f['resolved_source_matches']:4}/{f['missing_source_matches']:<4}               "
             f"{t['verified_team_rows']:3}/{t['source_team_ids']:<3}               "
-            f"{p['exact_1_to_1']:4}/{p['missing']:<4}/{p['ambiguous']:<3}              "
+            f"{p['verified']:4}/{p['unresolved']:<4}/{p['ambiguous']:<3}/{p['unavailable']:<3}                    "
             f"{o['direct_id_overlap']:4}/{o['player_match_only']:<3}/{o['player_season_only']:<3}       "
             f"{c['fixture_team_match']:3}/{c['player_match']:3}/{c['player_season']:3}"
         )
 
     print()
     print("RELATIONSHIP INTERPRETATION")
-    print("- Exact 1:1 player matches are evidence-backed only.")
-    print("- Missing and ambiguous relationships remain unresolved; they are not promoted.")
+    print("- VERIFIED means the shared relationship contract accepted exactly one deterministic identity candidate.")
+    print("- UNAVAILABLE means the required evidence is not exposed by the source for that season; it is not a failed identity.")
+    print("- UNRESOLVED and AMBIGUOUS relationships remain outside canonical identity.")
+    print("- Player-match absence is observational and is not treated as player-identity failure.")
     print("- Field-count differences are source availability/schema differences, not identity failures.")
-    print("- Direct player ID overlap is reported independently from FPL identity resolution.")
+    print("- Direct player ID overlap is reported as namespace diagnostics, not as an identity decision.")
     print()
     print("No files were written or modified.")
     print("=" * 120)
