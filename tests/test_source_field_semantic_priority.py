@@ -27,6 +27,14 @@ def test_priority_prefers_core_research_fields(monkeypatch):
     assert rows[0]["review_priority_score"] > rows[1]["review_priority_score"]
 
 
-def test_priority_does_not_promote_fields():
-    rows = priority.build_priority_queue.__wrapped__ if hasattr(priority.build_priority_queue, "__wrapped__") else None
-    assert rows is None or callable(rows)
+def test_negative_polarity_does_not_get_positive_success_signal():
+    score, reasons = priority._score({
+        "family": "player_match",
+        "source_field": "unsuccessfulCrossesOpenPlay",
+        "coverage_class": "CORE_DECADE",
+        "seasons_present": 10,
+        "registry_status": "UNCATALOGUED",
+    })
+    assert "research-relevant name: cross" in "; ".join(reasons)
+    assert "successful" not in "; ".join(reasons)
+    assert "negative outcome/reverse-polarity term" in reasons
