@@ -23,7 +23,9 @@ Validated during the current source/relationship phase:
 - source-field universe audit covers 10 seasons and 4 source families;
 - semantic review queue and conservative priority ranking are in place;
 - current searchable source-field universe contains 447 distinct fields;
-- 93 are currently exposed, 19 retained, and 335 awaiting semantic review;
+- 93 are currently exposed, 19 retained, and 325 remain in semantic review after the first promotion batch;
+- all 325 currently uncatalogued fields have now received a read-only semantic triage and source-value evidence audit;
+- a presentation-oriented taxonomy now assigns every uncatalogued field to a navigation category without changing registry status;
 - the current ambiguity audit is read-only and does not promote unresolved identities.
 
 The known 2019–20 Manchester City v Arsenal fixture anomaly remains a known source/data-state warning and must not be “fixed” by inventing data.
@@ -43,21 +45,45 @@ Key decisions:
 4. Storage technology is replaceable; source evidence, relationships, provenance and research semantics are not.
 5. The source-family adapters, relationship contracts and identity pathways already established must remain intact through any storage migration.
 6. FRL is both a navigable football database and a research laboratory. The database UI and research interface should traverse the same verified relationship graph.
+7. FRL should preserve a very broad source-variable universe and manage complexity through taxonomy, search, filters, grouping and presentation rather than unnecessary data exclusion.
 
 ## Source-field review checkpoint
 
-The next immediate research/data task is semantic review of uncatalogued source fields.
+The source-field review has moved from simple discovery into a two-track process:
 
-The current review universe is:
+### Semantic evidence track
 
-- 447 distinct source-native fields;
-- 335 uncatalogued;
-- 309 core-decade;
-- 14 long-run;
-- 7 intermittent;
-- 5 single-season.
+- all 325 currently uncatalogued fields have been reviewed for observed coverage;
+- source-value evidence confirms all 325 are present in the approved local source archive;
+- 75 were identified by conservative name/family triage as likely direct metrics;
+- the remainder remain in semantic review because names alone do not establish exact provider definitions;
+- no field is promoted merely because it appears to be obvious from its name.
 
-Promotion is evidence-led. A field name alone is not sufficient to mark a field as semantically understood.
+### Navigation taxonomy track
+
+`source_field_taxonomy.py` provides a presentation-oriented first taxonomy inspired by the intended FRL product direction:
+
+- Identity & Context
+- Playing Time
+- Shooting & Finishing
+- Chance Creation
+- Passing & Distribution
+- Crossing & Set Pieces
+- Dribbling & Carrying
+- Possession & Ball Security
+- Duels & Aerials
+- Defending
+- Goalkeeping
+- Discipline
+- Team Attack
+- Team Defence
+- Tactical & Match Context
+- Physical & Tracking
+- Unclassified Review
+
+The taxonomy is deliberately independent of semantic promotion. A field can be navigable/categorised without being considered semantically approved, canonical, model-eligible or UI-visible.
+
+The product direction is to build an extensive variable universe and make it feel manageable through grouping and filtering, combining the information depth of Football Manager-style search, the statistical taxonomy of FBref-style presentation and the approachable player/profile feel of modern football apps.
 
 ## Multi-session roadmap
 
@@ -67,7 +93,7 @@ Promotion is evidence-led. A field name alone is not sufficient to mark a field 
 4. **Database / analytical-store design** — design around the proven relationship graph rather than current queries.
 5. **Local data-store implementation** — build a reversible local store and prove it can be rebuilt from the source archive.
 6. **Database equivalence** — move research/query workloads only after results match the trusted current paths.
-7. **Navigable football database UI** — seasons, teams, players, player-seasons, fixtures, match observations and provenance.
+7. **Navigable football database UI** — seasons, teams, players, player-seasons, fixtures, match observations and provenance; expose the broad variable universe through taxonomy and advanced filtering rather than a flat wall of fields.
 8. **Research interface + visualisation** — structured queries first, natural language later; one trusted result object should drive tables/charts/comparisons.
 9. **Modelling/evaluation** — only after the evidence/data platform is stable.
 
