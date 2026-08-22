@@ -53,30 +53,46 @@ def _tokens(name: str) -> set[str]:
 def classify_field(family: str, field: str) -> tuple[str, str | None]:
     tokens = _tokens(field)
 
-    # Explicit exceptions where the metric's domain is clearer than generic
-    # token ordering would suggest.
+    # Explicit field-level exceptions for names that contain generic tokens
+    # whose domain is nevertheless clear from the source metric name.
+    explicit = {
+        "substitute.1": ("Playing Time", None),
+        "penaltyConceded": ("Discipline", None),
+        "penaltyFaced": ("Discipline", None),
+        "penaltiesConceded": ("Discipline", None),
+        "penaltyMiss": ("Shooting & Finishing", None),
+        "penaltyWon": ("Chance Creation", None),
+        "redCardsAgainst": ("Team Defence", None),
+        "redCardsFor": ("Team Defence", None),
+        "ptsDroppedWinningPos": ("Team Attack", None),
+        "ptsGainedLosingPos": ("Team Attack", None),
+        "subsMade": ("Playing Time", None),
+        "subsGoals": ("Team Attack", None),
+    }
+    if field in explicit:
+        return explicit[field]
+
     if tokens & {"season", "nationality", "country", "slug", "id", "code", "name"}:
         return "Identity & Context", None
 
-    if tokens & {"appearance", "appearances", "starts", "minutes", "minute", "timeplayed", "substitute", "gamesplayed"}:
+    if tokens & {"appearance", "appearances", "starts", "minutes", "minute", "timeplayed", "substitute", "gamesplayed", "subs"}:
         return "Playing Time", None
 
     if tokens & {"sprint", "sprinting", "jogging", "running", "walking", "distance", "meters", "metres", "physical"}:
         return "Physical & Tracking", None
 
-    # Goalkeeper-specific events should remain grouped together even when the
-    # field also contains generic words such as goal, shot or penalty.
     if tokens & {
         "save", "saves", "saved", "smother", "punch", "punches", "keeper",
         "goalkeeper", "distribution", "claim", "catches", "catch", "diving",
-        "goalsprevented", "savedshotsfrominsidethebox", "penaltysave",
-        "penaltiesfac ed".replace(" ", ""), "penaltiesfaced", "savesfrompenalty",
+        "goalsprevented", "savedshotsfrominsidethebox", "penaltysave", "savesfrompenalty",
+        "putthroughblockeddistribution", "putthroughblockeddistributionwon",
     }:
         return "Goalkeeping", None
 
     if tokens & {
         "yellow", "red", "card", "foul", "fouls", "fouled", "handball", "handballs",
-        "penaltyconceded", "penaltiesconceded", "secondyellow", "straightredcards",
+        "penaltyconceded", "penaltiesconceded", "penaltyfaced", "penaltiesfaced",
+        "secondyellow", "straightredcards",
     }:
         return "Discipline", None
 
@@ -98,7 +114,7 @@ def classify_field(family: str, field: str) -> tuple[str, str | None]:
     if tokens & {"cross", "corner", "freekick", "setpiece", "setplay", "deadball", "throwin", "launch", "longball"}:
         return "Crossing & Set Pieces", None
 
-    if tokens & {"assist", "chance", "keypass", "attassist", "bigchance", "throughball", "openthrough", "penaltywon"}:
+    if tokens & {"assist", "chance", "keypass", "attassist", "bigchance", "throughball", "openthrough"}:
         return "Chance Creation", None
 
     if tokens & {"pass", "passes", "passing", "backward", "forward", "accurate", "chipped", "fwdpass", "zonepass", "shortpass", "longpass", "oppositionhalf", "ownhalf"}:
