@@ -19,8 +19,14 @@ def load_rows(path: Path = INPUT) -> list[dict[str, str]]:
         return list(csv.DictReader(fh))
 
 
-def _split_values(value: str) -> list[str]:
-    return [v.strip() for v in value.split(";") if v.strip()]
+def _split_values(value: str, separators: tuple[str, ...] = (";", "|")) -> list[str]:
+    values = [value]
+    for sep in separators:
+        expanded: list[str] = []
+        for current in values:
+            expanded.extend(current.split(sep))
+        values = expanded
+    return [v.strip() for v in values if v.strip()]
 
 
 def summarise(rows: list[dict[str, str]]) -> list[dict[str, str]]:
@@ -31,8 +37,10 @@ def summarise(rows: list[dict[str, str]]) -> list[dict[str, str]]:
         field = row.get("field_name", "")
         bucket = groups.setdefault(field, {"grains": set(), "resources": set(), "paths": set()})
         bucket["grains"].update(_split_values(row.get("upstream_matches", "")))
-        bucket["resources"].update(_split_values(row.get("matched_resources", "")))
-        bucket["paths"].update(_split_values(row.get("matched_paths", "")))
+        bucket["paths"].update(_split_values(row.get("evidence_paths", "")))
+        for path in _split_values(row.get("evidence_paths", "")):
+            if ":" in path:
+                bucket["resources"].add(path.split(":", 1)[0])
 
     output: list[dict[str, str]] = []
     for field in sorted(groups):
