@@ -136,6 +136,18 @@ PLAYER_SEASON_FIELDS = {
     "interceptions": "exposed",
     "tacklesWon": "exposed",
     "touches": "exposed",
+    # Conservative first promotion batch: decade-wide source-native fields
+    # whose semantics are sufficiently explicit for reusable FRL access.
+    "aerialDuels": "exposed",
+    "aerialDuelsLost": "exposed",
+    "aerialDuelsWon": "exposed",
+    "blockedShots": "exposed",
+    "expectedGoalsFreekick": "exposed",
+    "expectedGoalsOnTarget": "exposed",
+    "expectedGoalsOnTargetConceded": "exposed",
+    "shotsBlockedInBox": "exposed",
+    "shotsBlockedOutsideBox": "exposed",
+    "shotsOnTargetIncGoals": "exposed",
 }
 
 SQUAD_FIELDS = {
