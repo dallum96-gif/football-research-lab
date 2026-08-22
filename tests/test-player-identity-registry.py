@@ -39,11 +39,3 @@ def test_registry_uses_canonical_audit_exact_rows(monkeypatch):
     assert rows[0]["source_player_id"] == "99"
     assert rows[0]["identity_status"] == "VERIFIED"
     assert rows[0]["match_method"] == "EXACT_NAME_TEAM"
-
-
-if __name__ == "__main__":
-    tests = [test_module_shape, test_registry_uses_canonical_audit_exact_rows]
-    for test in tests:
-        test(None) if test is test_registry_uses_canonical_audit_exact_rows else test()
-        print(f"PASS  {test.__name__}")
-    print(f"PLAYER IDENTITY REGISTRY TESTS: {len(tests)}/{len(tests)}")
