@@ -26,7 +26,7 @@ def terminal_name(field_name: str) -> str:
 
 
 def normalise_path(value: str) -> str:
-    return value.replace("[]", "[]").strip()
+    return value.strip()
 
 
 def walk(value: Any, path: str = "") -> list[tuple[str, str, str]]:
@@ -90,7 +90,7 @@ def candidate_grains(family: str, path: str) -> set[str]:
     return grains
 
 
-def build_occurrences(root: Path) -> tuple[dict[str, list[dict[str, str]]], dict[str, list[dict[str, str]]]]:
+def _build_occurrence_maps(root: Path) -> tuple[dict[str, list[dict[str, str]]], dict[str, list[dict[str, str]]]]:
     by_terminal: dict[str, list[dict[str, str]]] = {}
     by_path: dict[str, list[dict[str, str]]] = {}
     for path in sorted(root.rglob("*.json")):
@@ -117,7 +117,17 @@ def build_occurrences(root: Path) -> tuple[dict[str, list[dict[str, str]]], dict
     return by_terminal, by_path
 
 
-def resolve(queue_rows: list[dict[str, str]], by_terminal: dict[str, list[dict[str, str]]], by_path: dict[str, list[dict[str, str]]]) -> list[dict[str, str]]:
+def build_occurrences(root: Path) -> dict[str, list[dict[str, str]]]:
+    """Backward-compatible public helper returning terminal-name occurrences."""
+    by_terminal, _ = _build_occurrence_maps(root)
+    return by_terminal
+
+
+def resolve(
+    queue_rows: list[dict[str, str]],
+    by_terminal: dict[str, list[dict[str, str]]],
+    by_path: dict[str, list[dict[str, str]]] | None = None,
+) -> list[dict[str, str]]:
     out: list[dict[str, str]] = []
     for row in queue_rows:
         if row.get("source_surface") != "fpl":
@@ -125,48 +135,39 @@ def resolve(queue_rows: list[dict[str, str]], by_terminal: dict[str, list[dict[s
 
         field_path = normalise_path(row.get("field_name", ""))
         terminal = terminal_name(field_path)
-        # Prefer exact structural path evidence. This is the key distinction
-        # between e.g. fixtures[].id and elements[].id.
-        exact_matches = by_path.get(field_path, [])
         terminal_matches = by_terminal.get(terminal, [])
+        exact_matches = (by_path or {}).get(field_path, [])
+        if not exact_matches:
+            exact_matches = [m for m in terminal_matches if m.get("field_path") == field_path]
 
+        base = dict(row)
         if exact_matches:
-            grains = sorted({
-                candidate_grain
-                for candidate_grain in {
-                    g for match in terminal_matches
-                    if match.get("resource") == exact_matches[0].get("resource")
-                    for g in [match.get("grain", "")]
-                    if g
-                }
-            })
-            # When the exact path belongs to a single resource family, use the
-            # family-specific candidate grain rather than terminal-name collisions.
-            resource = exact_matches[0].get("resource", "")
-            family_matches = [m for m in terminal_matches if m.get("resource") == resource]
+            resources = sorted({m.get("resource", "") for m in exact_matches if m.get("resource")})
+            family_matches = [
+                m for m in terminal_matches
+                if m.get("resource") in resources and m.get("field_path") == field_path
+            ]
             grains = sorted({m.get("grain", "") for m in family_matches if m.get("grain")})
-            base = dict(row)
             if len(grains) == 1:
                 base.update({
                     "resolved_grain": grains[0],
                     "resolution_status": "STRUCTURALLY_RESOLVED",
                     "resolution_basis": "exact JSON field path observed in captured raw FPL payload",
                     "upstream_matches": ";".join(grains),
-                    "evidence_paths": " | ".join(sorted({resource + ":" + m["field_path"] for m in family_matches})),
+                    "evidence_paths": " | ".join(sorted({m["resource"] + ":" + m["field_path"] for m in family_matches})),
                 })
             else:
                 base.update({
                     "resolved_grain": "UNMAPPED_REVIEW",
                     "resolution_status": "AMBIGUOUS_RAW_FPL_GRAIN",
-                    "resolution_basis": "exact JSON path observed, but its resource family still maps to multiple grains",
+                    "resolution_basis": "exact JSON path observed, but captured evidence still maps to multiple grains",
                     "upstream_matches": ";".join(grains),
-                    "evidence_paths": " | ".join(sorted({resource + ":" + m["field_path"] for m in family_matches})),
+                    "evidence_paths": " | ".join(sorted({m["resource"] + ":" + m["field_path"] for m in family_matches})),
                 })
             out.append(base)
             continue
 
         grains = sorted({m.get("grain", "") for m in terminal_matches if m.get("grain")})
-        base = dict(row)
         if len(grains) == 1:
             base.update({
                 "resolved_grain": grains[0],
@@ -199,7 +200,7 @@ def run() -> int:
     queue = load_csv(QUEUE)
     if not RAW_ROOT.exists():
         raise FileNotFoundError(f"Raw FPL archive not found: {RAW_ROOT}")
-    by_terminal, by_path = build_occurrences(RAW_ROOT)
+    by_terminal, by_path = _build_occurrence_maps(RAW_ROOT)
     rows = resolve(queue, by_terminal, by_path)
     if not rows:
         raise ValueError("No unresolved FPL rows found")
