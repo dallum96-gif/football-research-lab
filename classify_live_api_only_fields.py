@@ -1,5 +1,6 @@
 """Classify live-API-only fields into evidence families without semantic promotion."""
 from __future__ import annotations
+
 import csv
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -39,16 +40,16 @@ def run() -> list[dict[str, str]]:
         for r in csv.DictReader(fh):
             if r.get("state") != "LIVE_ONLY":
                 continue
-            endpoint = r.get("resource_or_grain", "")
+            endpoints = [x.strip() for x in (r.get("live_endpoints", "").split(" | ")) if x.strip()]
+            candidate_families = sorted({family(endpoint) for endpoint in endpoints})
             rows.append({
                 **r,
-                "candidate_family": family(endpoint),
+                "candidate_family": ";".join(candidate_families) if candidate_families else "UNCLASSIFIED_REVIEW",
                 "review_status": "OPEN",
             })
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    # Preserve all evidence columns from the crosswalk, then append classification metadata.
-    base_columns = ["resource_or_grain", "field_name", "state"]
+    base_columns = ["field_name", "state", "live_endpoints", "historical_grains"]
     extra_columns = sorted({
         key
         for row in rows
@@ -73,7 +74,8 @@ if __name__ == "__main__":
         print(f"  {v:4d}  {k}")
     by = defaultdict(int)
     for r in rows:
-        by[(r["resource_or_grain"], r["candidate_family"])] += 1
+        for endpoint in [x.strip() for x in r["live_endpoints"].split(" | ") if x.strip()]:
+            by[(endpoint, r["candidate_family"])] += 1
     print("\nBY ENDPOINT")
     for (endpoint, fam), n in sorted(by.items(), key=lambda x: (-x[1], x[0])):
         print(f"  {n:4d}  {endpoint:28s}  {fam}")
