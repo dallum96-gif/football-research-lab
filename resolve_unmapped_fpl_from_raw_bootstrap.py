@@ -48,11 +48,25 @@ def bootstrap_field_presence(payload: dict) -> dict[str, set[str]]:
     return out
 
 
+def _field_leaf(field_name: str) -> str:
+    """Return the terminal native key from an enumerator dot-path."""
+    parts = [part for part in field_name.replace("[]", "").split(".") if part]
+    return parts[-1] if parts else field_name.strip()
+
+
+def _explicit_object_grains(field_name: str) -> list[str]:
+    """Recover object grain from explicit top-level path markers when present."""
+    parts = [part for part in field_name.replace("[]", "").split(".") if part]
+    grains: list[str] = []
+    for prefix, grain in OBJECT_GRAINS.items():
+        if prefix in parts[:-1]:
+            grains.append(grain)
+    return sorted(set(grains))
+
+
 def resolve(queue_rows: list[dict[str, str]], payload: dict) -> list[dict[str, str]]:
     presence = bootstrap_field_presence(payload)
 
-    # Explicit field -> object-family occurrences. A field is structurally
-    # resolved only when the captured payload shows it in exactly one family.
     occurrences: dict[str, set[str]] = {}
     for grain, fields in presence.items():
         for field in fields:
@@ -63,32 +77,46 @@ def resolve(queue_rows: list[dict[str, str]], payload: dict) -> list[dict[str, s
         if row.get("source_surface") != "fpl":
             continue
 
-        field = row.get("field_name", "")
-        grains = sorted(occurrences.get(field, set()))
-        base = dict(row)
+        field_path = row.get("field_name", "")
+        leaf = _field_leaf(field_path)
+        explicit_grains = _explicit_object_grains(field_path)
+        grains = sorted(occurrences.get(leaf, set()))
 
+        # An explicit bootstrap object path is stronger evidence than a bare
+        # terminal-name match. Keep only that object's grain when the leaf is
+        # actually observed there.
+        if explicit_grains:
+            explicit_present = [
+                grain for grain in explicit_grains
+                if leaf in presence.get(grain, set())
+            ]
+            if len(explicit_present) == 1:
+                grains = explicit_present
+            elif explicit_present:
+                grains = sorted(set(explicit_present))
+
+        base = dict(row)
         if len(grains) == 1:
             base.update({
                 "resolved_grain": grains[0],
                 "resolution_status": "STRUCTURALLY_RESOLVED",
-                "resolution_basis": "exact field-name occurrence in captured raw FPL bootstrap object family",
+                "resolution_basis": "exact terminal field observed in captured raw FPL bootstrap object family",
                 "upstream_matches": ";".join(grains),
             })
         elif len(grains) > 1:
             base.update({
                 "resolved_grain": "UNMAPPED_REVIEW",
                 "resolution_status": "AMBIGUOUS_RAW_BOOTSTRAP_GRAIN",
-                "resolution_basis": "exact field-name occurs in multiple captured bootstrap object families",
+                "resolution_basis": "terminal field occurs in multiple captured bootstrap object families",
                 "upstream_matches": ";".join(grains),
             })
         else:
             base.update({
                 "resolved_grain": "UNMAPPED_REVIEW",
                 "resolution_status": "NOT_FOUND_IN_RAW_BOOTSTRAP",
-                "resolution_basis": "field not observed in captured raw bootstrap object families",
+                "resolution_basis": "field path/terminal field not observed in captured raw bootstrap object families",
                 "upstream_matches": "",
             })
-
         out.append(base)
 
     return out
