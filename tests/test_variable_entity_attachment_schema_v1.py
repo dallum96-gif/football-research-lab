@@ -1,4 +1,11 @@
-from materialize_variable_entity_attachment_schema_v1 import _player_match, _player_season, _team_match, _variable_map
+from materialize_variable_entity_attachment_schema_v1 import _player_match, _player_season, _status, _team_match, _variable_map
+
+
+def test_status_vocabulary_is_normalized():
+    assert _status("VERIFIED_SOURCE_MATCH_ROUTE") == "VERIFIED"
+    assert _status("AMBIGUOUS_OR_MISSING") == "REVIEW"
+    assert _status("SOURCE_NATIVE_ONLY") == "UNRESOLVED"
+    assert _status("NOT_APPLICABLE") == "NOT_APPLICABLE"
 
 
 def test_player_match_schema_preserves_independent_edges():
@@ -52,10 +59,25 @@ def test_team_match_schema_has_fixture_and_team_edges():
             "source_team_id": "14",
             "fixture_attachment_status": "VERIFIED_SOURCE_MATCH_ROUTE",
             "team_attachment_status": "VERIFIED",
-            "home_team_attachment_status": "VERIFIED",
-            "home_team_attachment_entity_id": "ts-home",
+            "home_team_attachment_status": "NOT_APPLICABLE",
+            "away_team_attachment_status": "NOT_APPLICABLE",
         }
     ])
     row = rows[0]
+    assert row["fixture_attachment_status"] == "VERIFIED"
     assert row["fixture_entity_id"] == "f2"
     assert row["team_attachment_status"] == "VERIFIED"
+
+
+def test_player_season_schema_keeps_fixture_not_applicable():
+    rows = _player_season([
+        {
+            "observation_id": "ps-1",
+            "season": "2025-26",
+            "source_player_id": "p1",
+            "player_attachment_status": "SOURCE_NATIVE_ONLY",
+        }
+    ])
+    row = rows[0]
+    assert row["fixture_attachment_status"] == "NOT_APPLICABLE"
+    assert row["player_attachment_status"] == "UNRESOLVED"
