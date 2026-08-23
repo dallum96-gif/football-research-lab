@@ -1,4 +1,4 @@
-"""Additive adapter for the external player-match evidence source.
+﻿"""Additive adapter for the external player-match evidence source.
 
 The canonical FPL player dataset and fixture master remain authoritative.
 This module reuses the existing verified fixture/team identity mechanism and

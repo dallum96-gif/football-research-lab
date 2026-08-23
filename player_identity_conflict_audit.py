@@ -1,4 +1,4 @@
-"""Read-only audit of FPL element -> source playerId conflicts.
+﻿"""Read-only audit of FPL element -> source playerId conflicts.
 
 This deliberately does not promote or write identity mappings. It recomputes
 exact normalized-name + verified-team candidates and reports any season-local
