@@ -2,14 +2,18 @@ from __future__ import annotations
 
 from collections import Counter
 
-from player_match_stats import player_match_source_rows_for_season, available_seasons
-from source_family_adapters import source_player_season_identity
+from player_match_stats import available_seasons
+from source_family_adapters import player_match_source_rows_for_season, player_season_source_rows
+
+
+def source_id(row):
+    return str(row.get("playerId") or row.get("pl_code") or row.get("player_id") or "").strip()
 
 
 def main() -> None:
-    print("=" * 96)
+    print("=" * 104)
     print("FRL SOURCE PLAYER -> PLAYER-SEASON IDENTITY BRIDGE AUDIT")
-    print("=" * 96)
+    print("=" * 104)
     print("Existing source_player_identity_to_player_season contract only; no promotion.")
     print()
 
@@ -18,39 +22,52 @@ def main() -> None:
     totals = Counter()
 
     for season in available_seasons():
-        rows = player_match_source_rows_for_season(season)
-        ids = sorted({str(row.get("playerId") or row.get("pl_code") or "").strip() for row in rows if str(row.get("playerId") or row.get("pl_code") or "").strip()})
-        verified = 0
-        ambiguous = 0
-        unresolved = 0
+        match_rows = player_match_source_rows_for_season(season)
+        observed = Counter(source_id(row) for row in match_rows if source_id(row))
+        season_rows = player_season_source_rows(season)
 
-        for pid in ids:
-            result = source_player_season_identity(season, pid)
-            decision = str(result.get("relationship_status") or result.get("status") or "UNKNOWN").upper()
-            if result.get("verified") is True or "VERIFIED" in decision:
-                verified += 1
-            elif "AMBIG" in decision:
-                ambiguous += 1
-            else:
-                unresolved += 1
+        by_id = Counter(source_id(row) for row in season_rows if source_id(row))
 
-        obs = len(rows)
-        total_obs += obs
-        total_ids += len(ids)
-        totals.update({"verified": verified, "ambiguous": ambiguous, "unresolved": unresolved})
+        verified_ids = {sid for sid, count in by_id.items() if count == 1}
+        ambiguous_ids = {sid for sid, count in by_id.items() if count > 1}
 
-        print(f"{season}: observations={obs:,} source_player_ids={len(ids):,} verified={verified:,} ambiguous={ambiguous:,} unresolved={unresolved:,}")
+        verified_obs = sum(observed[sid] for sid in observed if sid in verified_ids)
+        ambiguous_obs = sum(observed[sid] for sid in observed if sid in ambiguous_ids)
+        unresolved_obs = sum(observed[sid] for sid in observed if sid not in verified_ids and sid not in ambiguous_ids)
+
+        total_obs += sum(observed.values())
+        total_ids += len(observed)
+        totals.update({
+            "verified_ids": len(observed & verified_ids),
+            "ambiguous_ids": len(observed & ambiguous_ids),
+            "unresolved_ids": len(observed - verified_ids - ambiguous_ids),
+            "verified_obs": verified_obs,
+            "ambiguous_obs": ambiguous_obs,
+            "unresolved_obs": unresolved_obs,
+        })
+
+        print(
+            f"{season}: observations={sum(observed.values()):,} "
+            f"source_player_ids={len(observed):,} "
+            f"verified_ids={len(observed & verified_ids):,} "
+            f"ambiguous_ids={len(observed & ambiguous_ids):,} "
+            f"unresolved_ids={len(observed - verified_ids - ambiguous_ids):,} "
+            f"verified_observations={verified_obs:,}"
+        )
 
     print()
     print("TOTAL")
     print(f"  Player-match observations: {total_obs:,}")
     print(f"  Unique source player IDs scanned: {total_ids:,}")
-    print(f"  Source Player -> Player-Season VERIFIED: {totals['verified']:,}")
-    print(f"  AMBIGUOUS: {totals['ambiguous']:,}")
-    print(f"  UNRESOLVED: {totals['unresolved']:,}")
+    print(f"  Source Player -> Player-Season VERIFIED IDs: {totals['verified_ids']:,}")
+    print(f"  Source Player -> Player-Season AMBIGUOUS IDs: {totals['ambiguous_ids']:,}")
+    print(f"  Source Player -> Player-Season UNRESOLVED IDs: {totals['unresolved_ids']:,}")
+    print(f"  Observations with verified Player-Season: {totals['verified_obs']:,}")
+    print(f"  Observations with ambiguous Player-Season: {totals['ambiguous_obs']:,}")
+    print(f"  Observations without Player-Season route: {totals['unresolved_obs']:,}")
     print()
     print("No files were written or modified.")
-    print("=" * 96)
+    print("=" * 104)
 
 
 if __name__ == "__main__":
