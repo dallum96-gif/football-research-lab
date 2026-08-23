@@ -17,11 +17,14 @@ source_root = Path(os.environ["FRL_PL_ROOT"]).resolve()
 if not source_root.is_dir():
     raise FileNotFoundError(f"Source archive not found: {source_root}")
 
-# Patch the existing hard-coded local source root before modules that import
-# the value are loaded. No application source code is modified.
+# Patch every module that copies the hard-coded local source root before the
+# common adapter layer imports those modules. No application source code is
+# modified; this is CI-only path redirection.
 import match_stats  # noqa: E402
+import player_match_stats  # noqa: E402
 
 match_stats.PL_ROOT = str(source_root)
+player_match_stats.PL_ROOT = source_root
 
 import player_identity_audit  # noqa: E402
 
