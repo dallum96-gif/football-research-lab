@@ -1,95 +1,141 @@
 """Read-only audit of the documented source playerId == FPL player_code relationship."""
 from __future__ import annotations
 
-import json
-from collections import Counter, defaultdict
+import csv
+from collections import defaultdict
 from pathlib import Path
 
+TARGET_SEASONS = tuple(f"{year}-{str(year + 1)[-2:]}" for year in range(2016, 2026))
 
-def source_rows_by_season(source_root: Path) -> dict[str, list[dict]]:
-    out: dict[str, list[dict]] = {}
+
+def pl_observation_stats(source_root: Path, season: str):
     pl_root = source_root / "pl_stats"
-    seasons = []
-    for p in sorted(pl_root.rglob("*_players_match_stats.csv")):
-        name = p.name
-        if name.endswith("_players_match_stats.csv"):
-            seasons.append(name[: -len("_players_match_stats.csv")])
-    for season in sorted(set(seasons)):
-        rows: list[dict] = []
-        for path in sorted(pl_root.rglob(f"{season}_players_match_stats.csv")):
-            import csv
-            with path.open("r", encoding="utf-8-sig", newline="") as f:
-                rows.extend(csv.DictReader(f))
-        out[season] = rows
-    return out
+    observed_ids: set[str] = set()
+    observations = 0
+    matched_name_variants: dict[str, set[str]] = defaultdict(set)
+
+    for path in sorted(pl_root.rglob(f"{season}_players_match_stats.csv")):
+        with path.open("r", encoding="utf-8-sig", newline="") as f:
+            for row in csv.DictReader(f):
+                sid = str(
+                    row.get("playerId") or row.get("player_id") or row.get("pl_code") or ""
+                ).strip()
+                if not sid:
+                    continue
+                observations += 1
+                observed_ids.add(sid)
+                name = str(
+                    row.get("playerName") or row.get("player_name") or row.get("name") or ""
+                ).strip()
+                if name:
+                    matched_name_variants[sid].add(name)
+
+    return observations, observed_ids, matched_name_variants
+
+
+def fpl_player_codes(source_root: Path, season: str):
+    path = source_root / "fpl_scraper" / "fpl_stats" / "_merged" / "players" / f"{season}_all_players_gw.csv"
+    codes: set[str] = set()
+    names_by_code: dict[str, set[str]] = defaultdict(set)
+    if not path.exists():
+        return codes, names_by_code
+
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        for row in csv.DictReader(f):
+            code = str(row.get("player_code") or "").strip()
+            if not code:
+                continue
+            codes.add(code)
+            name = str(
+                row.get("second_name")
+                or row.get("first_name")
+                or row.get("web_name")
+                or row.get("name")
+                or ""
+            ).strip()
+            if name:
+                names_by_code[code].add(name)
+    return codes, names_by_code
 
 
 def main() -> None:
     root = Path(__file__).resolve().parent / "source"
-    index_path = root / "fpl_scraper" / "fpl_stats" / "_index" / "_players_index.json"
-    index = json.loads(index_path.read_text(encoding="utf-8"))
 
-    # index key is documented as the same numeric Opta/PulseLive player code.
-    code_to_seasons: dict[str, set[str]] = defaultdict(set)
-    code_to_names: dict[str, set[str]] = defaultdict(set)
-    for code, season_rows in index.items():
-        code_s = str(code).strip()
-        for season, meta in season_rows.items():
-            code_to_seasons[code_s].add(str(season))
-            name = str(meta.get("name") or "").strip()
-            if name:
-                code_to_names[code_s].add(name)
-
-    rows_by_season = source_rows_by_season(root)
     total_obs = 0
     matched_obs = 0
     unmatched_obs = 0
-    unique_codes = set()
-    match_by_season = Counter()
-    unmatched_by_season = Counter()
-    details: dict[str, dict] = {}
-
-    for season, rows in rows_by_season.items():
-        season_total = 0
-        season_match = 0
-        for row in rows:
-            sid = str(row.get("playerId") or row.get("player_id") or row.get("pl_code") or "").strip()
-            if not sid:
-                continue
-            season_total += 1
-            total_obs += 1
-            unique_codes.add(sid)
-            if sid in code_to_seasons:
-                season_match += 1
-                matched_obs += 1
-            else:
-                unmatched_obs += 1
-        match_by_season[season] = season_match
-        unmatched_by_season[season] = season_total - season_match
-        details[season] = {"observations": season_total, "matched": season_match, "unmatched": season_total - season_match}
-
-    matched_codes = {sid for sid in unique_codes if sid in code_to_seasons}
-    stable_matched_codes = {
-        sid for sid in matched_codes
-        if len(code_to_names[sid]) == 1
-    }
+    observed_codes: set[str] = set()
+    matched_codes: set[str] = set()
+    stable_matched_codes: set[str] = set()
 
     print("=" * 104)
-    print("FRL DIRECT SOURCE PLAYER ID -> FPL PLAYER_CODE AUDIT")
+    print("FRL DIRECT SOURCE PLAYER ID -> SEASONAL FPL PLAYER_CODE AUDIT")
     print("=" * 104)
     print("Upstream-documented numeric relationship only; no promotion.")
     print()
-    for season in sorted(details):
-        d = details[season]
-        print(f"{season}: observations={d['observations']:,} matched={d['matched']:,} unmatched={d['unmatched']:,}")
+
+    for season in TARGET_SEASONS:
+        observations, source_ids, source_names = pl_observation_stats(root, season)
+        codes, fpl_names = fpl_player_codes(root, season)
+
+        matched = source_ids & codes
+        unmatched = source_ids - codes
+        total_obs += observations
+        matched_obs += sum(
+            1
+            for path in sorted((root / "pl_stats").rglob(f"{season}_players_match_stats.csv"))
+            for row in csv.DictReader(path.open("r", encoding="utf-8-sig", newline=""))
+            if str(row.get("playerId") or row.get("player_id") or row.get("pl_code") or "").strip() in matched
+        )
+        unmatched_obs += observations - (matched_obs - sum(
+            1
+            for s in TARGET_SEASONS
+            if s != season
+        )) if False else 0
+
+        # Re-count only the current season's observation matches/unmatches cleanly.
+        season_match_obs = 0
+        for path in sorted((root / "pl_stats").rglob(f"{season}_players_match_stats.csv")):
+            with path.open("r", encoding="utf-8-sig", newline="") as f:
+                for row in csv.DictReader(f):
+                    sid = str(row.get("playerId") or row.get("player_id") or row.get("pl_code") or "").strip()
+                    if sid in matched:
+                        season_match_obs += 1
+        season_unmatched_obs = observations - season_match_obs
+        # Replace the temporary accumulation above with the exact season values.
+        matched_obs -= season_match_obs if False else 0
+        # The loop uses exact season counts below; aggregate separately.
+        observed_codes.update(source_ids)
+        matched_codes.update(matched)
+        stable_matched_codes.update(
+            sid for sid in matched
+            if len(source_names.get(sid, set())) == 1
+            and len(fpl_names.get(sid, set())) == 1
+        )
+
+        print(
+            f"{season}: observations={observations:,} "
+            f"source_ids={len(source_ids):,} fpl_codes={len(codes):,} "
+            f"matched_ids={len(matched):,} unmatched_ids={len(unmatched):,} "
+            f"matched_observations={season_match_obs:,} unmatched_observations={season_unmatched_obs:,}"
+        )
+
+        # Rebuild aggregate observation totals accurately after the print.
+        if season == TARGET_SEASONS[0]:
+            exact_matched_obs = season_match_obs
+            exact_unmatched_obs = season_unmatched_obs
+        else:
+            exact_matched_obs += season_match_obs
+            exact_unmatched_obs += season_unmatched_obs
+
     print()
     print("TOTAL")
     print(f"  Player-match observations:        {total_obs:,}")
-    print(f"  Matched to FPL player_code:       {matched_obs:,}")
-    print(f"  Unmatched:                         {unmatched_obs:,}")
-    print(f"  Unique source player IDs:         {len(unique_codes):,}")
-    print(f"  Unique IDs found in FPL index:    {len(matched_codes):,}")
-    print(f"  Stable-name IDs in FPL index:     {len(stable_matched_codes):,}")
+    print(f"  Matched by same-season player_code:{exact_matched_obs:,}")
+    print(f"  Unmatched observations:            {exact_unmatched_obs:,}")
+    print(f"  Unique source player IDs:          {len(observed_codes):,}")
+    print(f"  Unique IDs with same-season FPL code:{len(matched_codes):,}")
+    print(f"  Stable-name matched IDs:           {len(stable_matched_codes):,}")
     print()
     print("No identities were promoted. No files were written or modified.")
     print("=" * 104)
