@@ -1,0 +1,13 @@
+﻿field_name,endpoint,path,type,sample,review_status
+assistPlayerId,match_events,awayTeam.goals[].assistPlayerId,str,'111317',OPEN
+assistPlayerId,match_events,homeTeam.goals[].assistPlayerId,str,'243016',OPEN
+goalType,match_events,awayTeam.goals[].goalType,str,'Goal',OPEN
+goalType,match_events,homeTeam.goals[].goalType,str,'Goal',OPEN
+crossingAccuracy,team_leaderboard,data[].stats.crossingAccuracy,float,26.82,OPEN
+passingAccuracy,team_leaderboard,data[].stats.passingAccuracy,float,88.51,OPEN
+passingPercentOppHalf,team_leaderboard,data[].stats.passingPercentOppHalf,float,85.92,OPEN
+tackleSuccess,team_leaderboard,data[].stats.tackleSuccess,float,61.06,OPEN
+goalsFromInsideBox,team_stats,stats.goalsFromInsideBox,int,0,OPEN
+goalsFromOutsideBox,team_stats,stats.goalsFromOutsideBox,int,0,OPEN
+ownGoalsConceded,team_stats,stats.ownGoalsConceded,float,47.0,OPEN
+totalSuccessfulPassesExclCrossesAndCorners,team_stats,stats.totalSuccessfulPassesExclCrossesAndCorners,int,0,OPEN

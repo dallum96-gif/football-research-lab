@@ -1,0 +1,332 @@
+{
+  "status": 200,
+  "payload": [
+    {
+      "name": "Arsenal",
+      "id": "3",
+      "stadium": "Emirates Stadium",
+      "website": "https://www.arsenal.com/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Aston Villa",
+      "id": "7",
+      "stadium": "Villa Park",
+      "website": "https://www.avfc.co.uk/?utm_source=premier-league-web&utm_medium=referral&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website?utm_source=premier-league-web"
+    },
+    {
+      "name": "Barnsley",
+      "id": "37",
+      "stadium": "Oakwell",
+      "website": "https://www.barnsleyfc.co.uk/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Birmingham City",
+      "id": "41",
+      "stadium": "St. Andrew's Trillion Trophy Stadium",
+      "website": "https://www.bcfc.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Blackburn Rovers",
+      "id": "5",
+      "stadium": "Ewood Park",
+      "website": "https://www.rovers.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Blackpool",
+      "id": "92",
+      "stadium": "Bloomfield Road",
+      "website": "https://www.blackpoolfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Bolton Wanderers",
+      "id": "30",
+      "stadium": "Toughsheet Community Stadium",
+      "website": "https://www.bwfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Bournemouth",
+      "id": "91",
+      "stadium": "Vitality Stadium",
+      "website": "https://www.afcb.co.uk/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Bradford City",
+      "id": "55",
+      "stadium": "Valley Parade",
+      "website": "https://www.bradfordcityafc.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Brentford",
+      "id": "94",
+      "stadium": "Gtech Community Stadium",
+      "website": "https://www.brentfordfc.com/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Brighton and Hove Albion",
+      "id": "36",
+      "stadium": "American Express Stadium",
+      "website": "https://www.brightonandhovealbion.com/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Burnley",
+      "id": "90",
+      "stadium": "Turf Moor",
+      "website": "https://www.burnleyfootballclub.com/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Cardiff City",
+      "id": "97",
+      "stadium": "Cardiff City Stadium",
+      "website": "https://www.cardiffcityfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Charlton Athletic",
+      "id": "33",
+      "stadium": "The Valley",
+      "website": "https://www.charltonafc.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Chelsea",
+      "id": "8",
+      "stadium": "Stamford Bridge",
+      "website": "https://www.chelseafc.com/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Coventry City",
+      "id": "9",
+      "stadium": "Highfield Road",
+      "website": "https://www.ccfc.co.uk/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Crystal Palace",
+      "id": "31",
+      "stadium": "Selhurst Park",
+      "website": "https://www.cpfc.co.uk/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Derby County",
+      "id": "24",
+      "stadium": "Pride Park Stadium",
+      "website": "https://www.dcfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Everton",
+      "id": "11",
+      "stadium": "Hill Dickinson Stadium",
+      "website": "https://www.evertonfc.com/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Fulham",
+      "id": "54",
+      "stadium": "Craven Cottage",
+      "website": "https://www.fulhamfc.com/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Huddersfield Town",
+      "id": "38",
+      "stadium": "John Smith's Stadium",
+      "website": "https://www.htafc.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Hull City",
+      "id": "88",
+      "stadium": "KCOM Stadium",
+      "website": "https://www.wearehullcity.co.uk/utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Ipswich Town",
+      "id": "40",
+      "stadium": "Portman Road",
+      "website": "https://www.itfc.co.uk/utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Leeds United",
+      "id": "2",
+      "stadium": "Elland Road",
+      "website": "https://www.leedsunited.com/utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Leicester City",
+      "id": "13",
+      "stadium": "King Power Stadium",
+      "website": "https://www.lcfc.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Liverpool",
+      "id": "14",
+      "stadium": "Anfield",
+      "website": "https://www.liverpoolfc.com/utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Luton Town",
+      "id": "102",
+      "stadium": "Kenilworth Road",
+      "website": "https://www.lutontown.co.uk/utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Manchester City",
+      "id": "43",
+      "stadium": "Etihad Stadium",
+      "website": "https://www.mancity.com/utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Manchester United",
+      "id": "1",
+      "stadium": "Old Trafford",
+      "website": "https://www.manutd.com/utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Middlesbrough",
+      "id": "25",
+      "stadium": "Riverside Stadium",
+      "website": "https://www.mfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Newcastle United",
+      "id": "4",
+      "stadium": "St. Jame's Park",
+      "website": "https://www.newcastleunited.com/en/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Norwich City",
+      "id": "45",
+      "stadium": "Carrow Road",
+      "website": "https://www.canaries.co.uk/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Nottingham Forest",
+      "id": "17",
+      "stadium": "The City Ground",
+      "website": "https://www.nottinghamforest.co.uk/https://www.newcastleunited.com/en/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Oldham Athletic",
+      "id": "105",
+      "stadium": "Boundary Park",
+      "website": "https://www.oldhamathletic.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Portsmouth",
+      "id": "47",
+      "stadium": "Fratton Park",
+      "website": "https://www.portsmouthfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Queens Park Rangers",
+      "id": "52",
+      "stadium": "MATRADE Loftus Road Stadium",
+      "website": "https://www.qpr.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Reading",
+      "id": "108",
+      "stadium": "Madejski Stadium",
+      "website": "https://www.readingfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Sheffield United",
+      "id": "49",
+      "stadium": "Bramall Lane",
+      "website": "https://www.sufc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Sheffield Wednesday",
+      "id": "19",
+      "stadium": "Hillsborough",
+      "website": "https://www.swfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Southampton",
+      "id": "20",
+      "stadium": "St Mary's Stadium",
+      "website": "https://www.southamptonfc.com/en?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Stoke City",
+      "id": "110",
+      "stadium": "Britannia Stadium",
+      "website": "https://www.stokecityfc.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Sunderland",
+      "id": "56",
+      "stadium": "Stadium of Light",
+      "website": "https://www.safc.com/https://www.newcastleunited.com/en/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Swansea City",
+      "id": "80",
+      "stadium": "Liberty Stadium",
+      "website": "https://www.swanseacity.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Swindon Town",
+      "id": "46",
+      "stadium": "County Ground",
+      "website": "https://www.swindontownfc.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Tottenham Hotspur",
+      "id": "6",
+      "stadium": "Tottenham Hotspur Stadium",
+      "website": "https://www.tottenhamhotspur.com/https://www.newcastleunited.com/en/?utm_source=premier-league-web&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-website&utm_content=club-website"
+    },
+    {
+      "name": "Watford",
+      "id": "57",
+      "stadium": "Vicarage Road",
+      "website": "https://www.watfordfc.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "West Bromwich Albion",
+      "id": "35",
+      "stadium": "The Hawthorns",
+      "website": "https://www.wba.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "West Ham United",
+      "id": "21",
+      "stadium": "London Stadium",
+      "website": "https://www.whufc.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Wigan Athletic",
+      "id": "111",
+      "stadium": "DW Stadium",
+      "website": "https://wiganathletic.com/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Wimbledon",
+      "id": "1736",
+      "stadium": "Selhurst Park",
+      "website": "https://www.afcwimbledon.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    },
+    {
+      "name": "Wolverhampton Wanderers",
+      "id": "39",
+      "stadium": "Molineux Stadium",
+      "website": "https://www.wolves.co.uk/?utm_source=premier-league&utm_medium=referral&utm_campaign=pl-referral-always-on&utm_term=club-listing&utm_content=website"
+    }
+  ],
+  "headers": {
+    "content-type": "application/json",
+    "content-length": "14482",
+    "connection": "close",
+    "last-modified": "Thu, 13 Aug 2026 13:14:56 GMT",
+    "x-amz-server-side-encryption": "AES256",
+    "x-amz-version-id": "gZS8u8mallwkTeb1F40YFD57slsSCWPG",
+    "accept-ranges": "bytes",
+    "server": "AmazonS3",
+    "date": "Sat, 22 Aug 2026 21:29:11 GMT",
+    "etag": "\"0e38ef3794e703b9570c44c56ffcf886\"",
+    "x-cache": "Hit from cloudfront",
+    "via": "1.1 0cb6cf0b33005c7af47b375aeefa82bc.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P4",
+    "x-amz-cf-id": "sJAaCQk5rN2_AAHaQa9CJKWtgnsCwF_aH_ZXSH46xDcB2hnuYWM50A==",
+    "age": "1873",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "vary": "Origin"
+  }
+}

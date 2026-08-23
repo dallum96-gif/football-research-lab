@@ -1,0 +1,4 @@
+﻿field_name,source_surface,resource,decomposition_basis,universe_resource,universe_source_surface,universe_grain,structural_class,canonical_entity_status,reason
+,fpl,bootstrap-static.json,insufficient structural evidence,,,,FPL_BOOTSTRAP_STRUCTURAL_METADATA,REVIEW_REQUIRED,"Structural FPL context may explain the variable's parent object, but no canonical player/fixture/club identity route is inferred by this audit."
+,fpl,element,insufficient structural evidence,,,,FPL_ELEMENT_STRUCTURAL_METADATA,REVIEW_REQUIRED,"Structural FPL context may explain the variable's parent object, but no canonical player/fixture/club identity route is inferred by this audit."
+,local_json,raw_upstream,insufficient structural evidence,,,,LOCAL_SOURCE_METADATA_REVIEW,REVIEW_REQUIRED,"Structural FPL context may explain the variable's parent object, but no canonical player/fixture/club identity route is inferred by this audit."

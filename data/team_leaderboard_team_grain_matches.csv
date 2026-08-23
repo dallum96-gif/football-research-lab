@@ -1,0 +1,8 @@
+﻿field_name,family,frl_grains,frl_dictionary_path,review_status
+expectedAssists,Review,player_match | player_season | team_match,,OPEN
+expectedGoals,Finishing & Goals,player_match | player_season | team_match,,OPEN
+expectedGoalsFreekick,Finishing & Goals,player_season | team_match,,OPEN
+expectedGoalsOnTarget,Finishing & Goals,player_match | player_season | team_match,,OPEN
+expectedGoalsOnTargetConceded,Finishing & Goals,player_season | team_match,,OPEN
+possessionPercentage,Possession,team_match,,OPEN
+touchesInOppBox,Shooting,team_match,,OPEN

@@ -1,0 +1,29 @@
+﻿file,row_sample_count,key_column,season_columns,distinct_values_sample,registry_local_team_id_matches,registry_persistent_team_code_matches,registry_season_local_team_pairs
+fixtures_master.csv,3800,season,season,10,0,0,10
+fixtures_master.csv,3800,home_team_id,season,20,3800,2280,200
+fixtures_master.csv,3800,away_team_id,season,20,3800,2280,200
+fixtures_master_corrected.csv,3800,season,season,10,0,0,10
+fixtures_master_corrected.csv,3800,home_team_id,season,20,3800,2280,200
+fixtures_master_corrected.csv,3800,away_team_id,season,20,3800,2280,200
+fixtures_master_old_schema.csv,3420,season,season,9,0,0,9
+fixtures_master_old_schema.csv,3420,home_team_id,season,20,3420,2052,180
+fixtures_master_old_schema.csv,3420,away_team_id,season,20,3420,2052,180
+player_identity_registry.csv,1786,season,season,6,0,0,6
+player_identity_registry.csv,1786,team_code,season,32,1010,1774,78
+features\historical_match_state_v1.csv,3800,season,season,10,0,0,10
+features\historical_match_state_v1.csv,3800,home_team_id,season,20,3800,2280,200
+features\historical_match_state_v1.csv,3800,away_team_id,season,20,3800,2280,200
+features\historical_match_state_v2.csv,3800,season,season,10,0,0,10
+features\historical_match_state_v2.csv,3800,home_team_id,season,20,3800,2280,200
+features\historical_match_state_v2.csv,3800,away_team_id,season,20,3800,2280,200
+identity\team_seasons.csv,200,team_season_id,team_season_id | season,200,0,0,200
+identity\team_seasons.csv,200,season,team_season_id | season,10,0,0,200
+identity\team_seasons.csv,200,club_id,team_season_id | season,34,100,200,200
+identity\team_seasons.csv,200,persistent_team_code,team_season_id | season,34,100,200,200
+identity\team_seasons.csv,200,local_team_id,team_season_id | season,20,200,120,200
+identity\data_quality\fixture_corrections.csv,1,season,season,1,0,0,1
+identity\data_quality\fixture_corrections.csv,1,home_team_id,season,1,1,1,1
+identity\data_quality\fixture_corrections.csv,1,away_team_id,season,1,1,1,1
+identity\data_quality\missing_fixture_results.csv,1,season,season,1,0,0,1
+identity\data_quality\missing_fixture_results.csv,1,home_team_id,season,1,1,1,1
+identity\data_quality\missing_fixture_results.csv,1,away_team_id,season,1,1,1,1

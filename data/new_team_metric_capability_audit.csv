@@ -1,0 +1,10 @@
+﻿field_name,status,reason
+goalConversion,NEW_SOURCE_CAPABILITY,No exact native field found in scanned local CSV headers.
+ownGoalsAccrued,NEW_SOURCE_CAPABILITY,No exact native field found in scanned local CSV headers.
+pointsDroppedFromWinningPositions,NEW_SOURCE_CAPABILITY,No exact native field found in scanned local CSV headers.
+pointsGainedFromLosingPositions,NEW_SOURCE_CAPABILITY,No exact native field found in scanned local CSV headers.
+shotsOnConcededInsideBox,NEW_SOURCE_CAPABILITY,No exact native field found in scanned local CSV headers.
+shotsOnConcededOutsideBox,NEW_SOURCE_CAPABILITY,No exact native field found in scanned local CSV headers.
+successfulOpenPlayPasses,NEW_SOURCE_CAPABILITY,No exact native field found in scanned local CSV headers.
+totalShotsConceded,REVIEW,"Potentially derivable, but dependency fields are not all present in local headers."
+unsuccessfulPassesOppositionHalf,NEW_SOURCE_CAPABILITY,No exact native field found in scanned local CSV headers.

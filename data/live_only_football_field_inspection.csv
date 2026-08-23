@@ -1,0 +1,74 @@
+﻿field_name,state,live_endpoints,historical_grains,candidate_family,review_status,candidate_role
+_limit,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+_next,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+_prev,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+abbr,LIVE_ONLY,competition_teams | match_detail | matches | season_teams | standings | team_leaderboard | team_stats,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+assistPlayerId,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+awayTeam,LIVE_ONLY,match_detail | match_events | matches,,FOOTBALL_RESEARCH,OPEN,REVIEW
+away_team,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN,REVIEW
+cards,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+clock,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,REVIEW
+comment,LIVE_ONLY,match_commentary,,FOOTBALL_RESEARCH,OPEN,REVIEW
+competition,LIVE_ONLY,match_detail | matches | standings,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,IDENTITY_CONTEXT
+competitionId,LIVE_ONLY,match_detail | matches | player_directory | player_season_info | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,IDENTITY_CONTEXT
+country,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,IDENTITY_CONTEXT
+crossingAccuracy,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+currentTeam,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+data,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+demonym,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+formation,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+goalConversion,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+goalType,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+goalsFromInsideBox,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+goalsFromOutsideBox,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+halfTimeScore,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+homeTeam,LIVE_ONLY,match_detail | match_events | matches,,FOOTBALL_RESEARCH,OPEN,REVIEW
+home_team,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN,REVIEW
+id,LIVE_ONLY,broadcast_match_events | competition | competition_teams | match_detail | match_events | match_lineups | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | standings | team_leaderboard | team_squad | team_stats,,CONTENT_MEDIA;FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,IDENTITY_CONTEXT
+index,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN,REVIEW
+isCaptain,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN,REVIEW
+kickoffTimezone,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,REVIEW
+kickoffTimezoneString,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,REVIEW
+knownName,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN,REVIEW
+lineup,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+managers,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN,REVIEW
+matchWeek,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,REVIEW
+name,LIVE_ONLY,broadcast_match_events | competition | competition_teams | match_detail | match_events | match_officials | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_structure | season_teams | standings | team_leaderboard | team_squad | team_stats,,CONTENT_MEDIA;FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,IDENTITY_CONTEXT
+ownGoalsAccrued,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+ownGoalsConceded,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+pagination,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+passingAccuracy,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+passingPercentOppHalf,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+period,LIVE_ONLY,match_detail | match_events | matches,,FOOTBALL_RESEARCH,OPEN,REVIEW
+phase,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,REVIEW
+player,LIVE_ONLY,player_season_stats,,FOOTBALL_RESEARCH,OPEN,RESEARCH_CONTEXT
+playerMetadata,LIVE_ONLY,player_leaderboard,,FOOTBALL_RESEARCH,OPEN,REVIEW
+playerOffId,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN,IDENTITY_CONTEXT
+playerOnId,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN,IDENTITY_CONTEXT
+players,LIVE_ONLY,match_lineups | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+pointsDroppedFromWinningPositions,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+pointsGainedFromLosingPositions,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+redCards,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+resultType,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+score,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+seasonId,LIVE_ONLY,match_detail | player_directory | player_season_info | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,IDENTITY_CONTEXT
+seasonInfo,LIVE_ONLY,match_detail,,FOOTBALL_RESEARCH,OPEN,REVIEW
+shirtNum,LIVE_ONLY,match_lineups | player_directory | player_season_info | season_awards | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+shootingAccuracy,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN,REVIEW
+shortName,LIVE_ONLY,competition_teams | match_detail | match_events | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | standings | team_leaderboard | team_squad | team_stats,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,REVIEW
+shotsOnConcededInsideBox,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+shotsOnConcededOutsideBox,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+stats,LIVE_ONLY,player_leaderboard | player_season_stats | team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+subs,LIVE_ONLY,match_events | match_lineups,,FOOTBALL_RESEARCH,OPEN,REVIEW
+successfulOpenPlayPasses,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+tackleSuccess,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+team1,LIVE_ONLY,match_commentary,,FOOTBALL_RESEARCH,OPEN,REVIEW
+team2,LIVE_ONLY,match_commentary,,FOOTBALL_RESEARCH,OPEN,REVIEW
+teamId,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN,IDENTITY_CONTEXT
+teamMetadata,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN,REVIEW
+time,LIVE_ONLY,match_commentary | match_events,,FOOTBALL_RESEARCH,OPEN,RESEARCH_CONTEXT
+timestamp,LIVE_ONLY,match_commentary | match_events,,FOOTBALL_RESEARCH,OPEN,REVIEW
+totalShotsConceded,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+totalSuccessfulPassesExclCrossesAndCorners,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE
+type,LIVE_ONLY,broadcast_match_events | match_commentary | match_events | match_lineups | match_officials | season_awards | season_structure,,CONTENT_MEDIA;FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN,IDENTITY_CONTEXT
+unsuccessfulPassesOppositionHalf,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN,ANALYTICAL_CANDIDATE

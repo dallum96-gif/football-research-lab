@@ -1,0 +1,526 @@
+﻿field_name,state,live_endpoints,historical_grains
+_limit,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,
+_next,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,
+_prev,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,
+abbr,LIVE_ONLY,competition_teams | match_detail | matches | season_teams | standings | team_leaderboard | team_stats,
+abbreviation,LIVE_ONLY,broadcast_match_events,
+accurateBackZonePass,HISTORICAL_ONLY,,team_match
+accurateChippedPass,HISTORICAL_ONLY,,team_match
+accurateCornersIntobox,HISTORICAL_ONLY,,team_match
+accurateCross,HISTORICAL_ONLY,,player_match | team_match
+accurateCrossNocorner,HISTORICAL_ONLY,,team_match
+accurateFlickOn,HISTORICAL_ONLY,,team_match
+accurateFreekickCross,HISTORICAL_ONLY,,team_match
+accurateFwdZonePass,HISTORICAL_ONLY,,team_match
+accurateGoalKicks,HISTORICAL_ONLY,,team_match
+accurateKeeperSweeper,HISTORICAL_ONLY,,player_match | team_match
+accurateKeeperThrows,HISTORICAL_ONLY,,team_match
+accurateLaunches,HISTORICAL_ONLY,,team_match
+accurateLayoffs,HISTORICAL_ONLY,,team_match
+accurateLongBalls,HISTORICAL_ONLY,,player_match | team_match
+accurateOppositionHalfPasses,HISTORICAL_ONLY,,player_match
+accurateOwnHalfPasses,HISTORICAL_ONLY,,player_match
+accuratePass,HISTORICAL_ONLY,,player_match | team_match
+accuratePullBack,HISTORICAL_ONLY,,team_match
+accurateThroughBall,HISTORICAL_ONLY,,team_match
+accurateThrows,HISTORICAL_ONLY,,team_match
+aerialDuels,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+aerialDuelsLost,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+aerialDuelsWon,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+aerialLost,HISTORICAL_ONLY,,player_match | team_match
+aerialWon,HISTORICAL_ONLY,,player_match | team_match
+age,HISTORICAL_ONLY,,squad
+appearances,BOTH,player_leaderboard | player_season_stats,player_season
+area,LIVE_ONLY,broadcast_match_events,
+areas,LIVE_ONLY,broadcast_match_events,
+aspectRatio,LIVE_ONLY,broadcast_match_events,
+assistPlayerId,LIVE_ONLY,match_events,
+attAssistOpenplay,HISTORICAL_ONLY,,team_match
+attAssistSetplay,HISTORICAL_ONLY,,team_match
+attCorner,HISTORICAL_ONLY,,team_match
+attFastbreak,HISTORICAL_ONLY,,team_match
+attFreekickGoal,HISTORICAL_ONLY,,team_match
+attFreekickMiss,HISTORICAL_ONLY,,team_match
+attFreekickPost,HISTORICAL_ONLY,,team_match
+attFreekickTarget,HISTORICAL_ONLY,,team_match
+attFreekickTotal,HISTORICAL_ONLY,,team_match
+attIboxOwnGoal,HISTORICAL_ONLY,,team_match
+attLgCentre,HISTORICAL_ONLY,,team_match
+attLgLeft,HISTORICAL_ONLY,,team_match
+attObxdLeft,HISTORICAL_ONLY,,team_match
+attObxdRight,HISTORICAL_ONLY,,team_match
+attOneOnOne,HISTORICAL_ONLY,,team_match
+attOpenplay,HISTORICAL_ONLY,,team_match
+attPenGoal,HISTORICAL_ONLY,,team_match
+attPenMiss,HISTORICAL_ONLY,,team_match
+attPenPost,HISTORICAL_ONLY,,team_match
+attPenTarget,HISTORICAL_ONLY,,team_match
+attPostHigh,HISTORICAL_ONLY,,team_match
+attPostLeft,HISTORICAL_ONLY,,team_match
+attPostRight,HISTORICAL_ONLY,,team_match
+attSetpiece,HISTORICAL_ONLY,,team_match
+attemptedTackleFoul,HISTORICAL_ONLY,,team_match
+attemptsConcededIbox,HISTORICAL_ONLY,,team_match
+attemptsConcededObox,HISTORICAL_ONLY,,team_match
+attemptsFromSetPieces,BOTH,team_leaderboard | team_stats,player_season
+attemptsIbox,HISTORICAL_ONLY,,team_match
+attemptsObox,HISTORICAL_ONLY,,team_match
+attendance,BOTH,match_detail | matches,team_match
+away,LIVE_ONLY,standings,
+awayGoals,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+awayTeam,LIVE_ONLY,match_detail | match_events | matches,
+away_team,LIVE_ONLY,match_lineups,
+backwardPass,HISTORICAL_ONLY,,team_match
+backwardPasses,BOTH,player_leaderboard | player_season_stats,player_season
+ballCarriesCount,HISTORICAL_ONLY,,player_match
+ballRecovery,HISTORICAL_ONLY,,player_match | team_match
+bigChanceCreated,HISTORICAL_ONLY,,player_match | team_match
+bigChanceMissed,HISTORICAL_ONLY,,player_match | team_match
+bigChanceScored,HISTORICAL_ONLY,,team_match
+birth,LIVE_ONLY,player_season_info | season_awards | team_squad,
+birthCountry,HISTORICAL_ONLY,,squad
+birthDate,HISTORICAL_ONLY,,squad
+blockedCross,HISTORICAL_ONLY,,team_match
+blockedPass,HISTORICAL_ONLY,,team_match
+blockedScoringAtt,HISTORICAL_ONLY,,team_match
+blockedScoringAttempt,HISTORICAL_ONLY,,player_match
+blockedShots,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+blocks,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+broadcaster,LIVE_ONLY,broadcast_match_events,
+broadcasters,LIVE_ONLY,broadcast_match_events,
+capacity,LIVE_ONLY,season_teams,
+cards,LIVE_ONLY,match_events,
+career,LIVE_ONLY,season_awards,
+catches,BOTH,team_leaderboard | team_stats,player_season
+challengeLost,HISTORICAL_ONLY,,player_match | team_match
+channelTypes,LIVE_ONLY,broadcast_match_events,
+channels,LIVE_ONLY,broadcast_match_events,
+city,LIVE_ONLY,competition_teams | season_teams,
+cleanSheets,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+clearanceOffLine,HISTORICAL_ONLY,,player_match | team_match
+clearancesOffTheLine,BOTH,team_leaderboard | team_stats,player_season
+clock,LIVE_ONLY,match_detail | matches,
+code,LIVE_ONLY,competition | standings,
+comment,LIVE_ONLY,match_commentary,
+competition,LIVE_ONLY,match_detail | matches | standings,
+competitionId,LIVE_ONLY,match_detail | matches | player_directory | player_season_info | team_squad,
+content,LIVE_ONLY,broadcast_match_events | player_profile_content,
+contentReference,LIVE_ONLY,broadcast_match_events,
+contentiousDecision,HISTORICAL_ONLY,,team_match
+cornerTaken,HISTORICAL_ONLY,,team_match
+cornersTakenInclShortCorners,BOTH,team_leaderboard | team_stats,player_season
+cornersWon,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+country,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | team_squad,
+countryOfBirth,LIVE_ONLY,player_season_info | season_awards | team_squad,
+crossNotClaimed,HISTORICAL_ONLY,,player_match
+crosses18yard,HISTORICAL_ONLY,,team_match
+crosses18yardplus,HISTORICAL_ONLY,,team_match
+crossesNotClaimed,HISTORICAL_ONLY,,player_season
+crossingAccuracy,LIVE_ONLY,team_leaderboard,
+currentPhase,LIVE_ONLY,season_structure,
+currentTeam,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards,
+customAttributes,LIVE_ONLY,broadcast_match_events,
+data,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,
+date,LIVE_ONLY,season_awards,
+dates,LIVE_ONLY,player_season_info | season_awards | team_squad,
+deductions,LIVE_ONLY,standings,
+defenderGoals,HISTORICAL_ONLY,,team_match
+demonym,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | team_squad,
+description,LIVE_ONLY,broadcast_match_events,
+display,LIVE_ONLY,player_season_info | season_awards | team_squad,
+displayName,HISTORICAL_ONLY,,squad
+dispossessed,HISTORICAL_ONLY,,player_match | team_match
+divingSave,HISTORICAL_ONLY,,team_match
+drawn,LIVE_ONLY,standings,
+drops,BOTH,team_leaderboard | team_stats,player_season
+duelLost,HISTORICAL_ONLY,,player_match | team_match
+duelWon,HISTORICAL_ONLY,,player_match | team_match
+duels,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+duelsLost,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+duelsWon,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+effectiveBlockedCross,HISTORICAL_ONLY,,team_match
+effectiveClearance,HISTORICAL_ONLY,,team_match
+effectiveHeadClearance,HISTORICAL_ONLY,,team_match
+endDateTime,LIVE_ONLY,broadcast_match_events,
+entries,LIVE_ONLY,standings,
+errorLeadToAGoal,HISTORICAL_ONLY,,player_match
+errorLeadToAShot,HISTORICAL_ONLY,,player_match
+errorLeadToGoal,HISTORICAL_ONLY,,team_match
+errorLeadToShot,HISTORICAL_ONLY,,team_match
+expectedAssists,BOTH,team_leaderboard | team_stats,player_match | player_season | team_match
+expectedGoals,BOTH,team_leaderboard | team_stats,player_match | player_season | team_match
+expectedGoalsFreekick,BOTH,team_leaderboard | team_stats,player_season | team_match
+expectedGoalsOnTarget,BOTH,team_leaderboard | team_stats,player_match | player_season | team_match
+expectedGoalsOnTargetConceded,BOTH,team_leaderboard | team_stats,player_season | team_match
+fiftyFifty,BOTH,team_stats,player_season | team_match
+finalThirdEntries,HISTORICAL_ONLY,,team_match
+first,LIVE_ONLY,player_season_info | season_awards | team_squad,
+firstName,BOTH,match_lineups | match_officials | player_basic | player_directory | player_leaderboard | player_season_stats,squad
+firstPremierLeagueFixtureId,LIVE_ONLY,season_awards,
+fkFoulLost,HISTORICAL_ONLY,,team_match
+fkFoulWon,HISTORICAL_ONLY,,team_match
+formation,LIVE_ONLY,match_lineups,
+forwardGoals,HISTORICAL_ONLY,,team_match
+forwardPasses,BOTH,player_leaderboard | player_season_stats,player_season
+foulAttemptedTackle,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+foulThrowIn,HISTORICAL_ONLY,,team_match
+foulWonPenalty,BOTH,team_leaderboard | team_stats,player_season
+fouledFinalThird,HISTORICAL_ONLY,,team_match
+fouls,HISTORICAL_ONLY,,player_match
+freekickCross,HISTORICAL_ONLY,,team_match
+freekickTotal,BOTH,team_leaderboard | team_stats,player_season | team_match
+fwdPass,HISTORICAL_ONLY,,team_match
+gamesPlayed,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+gameweek,HISTORICAL_ONLY,,player_match | team_match
+gkSuccessfulDistribution,BOTH,team_leaderboard | team_stats,player_season
+gkUnsuccessfulDistribution,BOTH,team_leaderboard | team_stats,player_season
+goalAssist,HISTORICAL_ONLY,,player_match | team_match
+goalAssistDeadball,HISTORICAL_ONLY,,team_match
+goalAssistIntentional,HISTORICAL_ONLY,,team_match
+goalAssistOpenplay,HISTORICAL_ONLY,,team_match
+goalAssistSetplay,HISTORICAL_ONLY,,team_match
+goalAssists,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+goalConversion,LIVE_ONLY,team_leaderboard | team_stats,
+goalFastbreak,HISTORICAL_ONLY,,team_match
+goalKicks,BOTH,team_leaderboard | team_stats,player_season | team_match
+goalType,LIVE_ONLY,match_events,
+goalkeeperSmother,HISTORICAL_ONLY,,player_season
+goals,BOTH,match_events | player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_match | player_season
+goalsAgainst,BOTH,standings,team_match
+goalsConceded,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+goalsConcededInsideBox,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+goalsConcededOutsideBox,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+goalsFor,BOTH,standings,team_match
+goalsFromInsideBox,LIVE_ONLY,team_stats,
+goalsFromOutsideBox,LIVE_ONLY,team_stats,
+goalsOpenplay,HISTORICAL_ONLY,,team_match
+goalsPrevented,HISTORICAL_ONLY,,player_match
+goodHighClaim,HISTORICAL_ONLY,,player_match | team_match
+ground,BOTH,match_detail | matches,team_match
+groundDuels,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+groundDuelsLost,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+groundDuelsWon,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+groups,LIVE_ONLY,season_structure,
+halfTimeAgainst,HISTORICAL_ONLY,,team_match
+halfTimeFor,HISTORICAL_ONLY,,team_match
+halfTimeScore,LIVE_ONLY,match_detail | matches,
+handBall,HISTORICAL_ONLY,,team_match
+handballsConceded,BOTH,team_leaderboard | team_stats,player_season
+headClearance,HISTORICAL_ONLY,,team_match
+headedGoals,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+height,LIVE_ONLY,broadcast_match_events | player_season_info | season_awards | team_squad,
+height_cm,HISTORICAL_ONLY,,squad
+hitWoodwork,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_match | player_season | team_match
+home,LIVE_ONLY,standings,
+homeGoals,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+homeTeam,LIVE_ONLY,match_detail | match_events | matches,
+home_team,LIVE_ONLY,match_lineups,
+iboxBlocked,BOTH,team_leaderboard | team_stats,player_season
+iboxTarget,BOTH,team_leaderboard | team_stats,player_season
+id,LIVE_ONLY,broadcast_match_events | competition | competition_teams | match_detail | match_events | match_lineups | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | standings | team_leaderboard | team_squad | team_stats,
+index,LIVE_ONLY,team_stats,
+info,LIVE_ONLY,broadcast_match_events,
+interception,HISTORICAL_ONLY,,team_match
+interceptionWon,HISTORICAL_ONLY,,player_match | team_match
+interceptions,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+interceptionsInBox,HISTORICAL_ONLY,,team_match
+isCaptain,LIVE_ONLY,match_lineups,
+isoCode,BOTH,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | team_squad,squad
+joinDate,HISTORICAL_ONLY,,squad
+joinedClub,LIVE_ONLY,player_season_info | season_awards | team_squad,
+keeperGoals,HISTORICAL_ONLY,,team_match
+keeperThrows,HISTORICAL_ONLY,,team_match
+keyPass,HISTORICAL_ONLY,,player_match
+keyPassesAttemptAssists,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+kickoff,BOTH,match_detail | matches,team_match
+kickoffTimezone,LIVE_ONLY,match_detail | matches,
+kickoffTimezoneString,LIVE_ONLY,match_detail | matches,
+knownName,LIVE_ONLY,match_lineups,
+last,LIVE_ONLY,player_season_info | season_awards | team_squad,
+lastManTackle,HISTORICAL_ONLY,,player_match
+lastName,BOTH,match_lineups | match_officials | player_basic | player_directory | player_leaderboard | player_season_stats,squad
+lastPlayerTackle,BOTH,team_leaderboard | team_stats,player_season
+leftFootGoals,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+leftsidePass,HISTORICAL_ONLY,,team_match
+leftsidePasses,BOTH,player_leaderboard | player_season_stats,player_season
+lineup,LIVE_ONLY,match_lineups,
+link,LIVE_ONLY,broadcast_match_events,
+live,LIVE_ONLY,standings,
+loan,LIVE_ONLY,player_directory | player_season_info | season_awards | team_squad,
+logo,LIVE_ONLY,broadcast_match_events,
+longPassOwnToOpp,HISTORICAL_ONLY,,team_match
+longPassOwnToOppSuccess,HISTORICAL_ONLY,,team_match
+lost,LIVE_ONLY,standings,
+lostCorners,HISTORICAL_ONLY,,team_match
+manager_awards,LIVE_ONLY,season_awards,
+managers,LIVE_ONLY,match_lineups,
+matchId,BOTH,match_detail | match_officials | matches,player_match | team_match
+matchOfficials,LIVE_ONLY,match_officials,
+matchWeek,LIVE_ONLY,match_detail | matches,
+matchweek,LIVE_ONLY,current_gameweek_config | standings,
+mediaType,LIVE_ONLY,broadcast_match_events,
+metersCoveredHighSpeedRunningKm,HISTORICAL_ONLY,,player_match
+metersCoveredJoggingKm,HISTORICAL_ONLY,,player_match
+metersCoveredRunningKm,HISTORICAL_ONLY,,player_match
+metersCoveredSprintingKm,HISTORICAL_ONLY,,player_match
+metersCoveredWalkingKm,HISTORICAL_ONLY,,player_match
+midfielderGoals,HISTORICAL_ONLY,,team_match
+minutesPlayed,HISTORICAL_ONLY,,player_match
+name,LIVE_ONLY,broadcast_match_events | competition | competition_teams | match_detail | match_events | match_officials | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_structure | season_teams | standings | team_leaderboard | team_squad | team_stats,
+nationality,HISTORICAL_ONLY,,player_season | squad
+numEntries,LIVE_ONLY,broadcast_match_events | player_profile_content,
+numPages,LIVE_ONLY,broadcast_match_events | player_profile_content,
+oboxBlocked,BOTH,team_leaderboard | team_stats,player_season
+oboxTarget,BOTH,team_leaderboard | team_stats,player_season
+official,LIVE_ONLY,match_officials,
+offsides,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+offtargetAttAssist,HISTORICAL_ONLY,,team_match
+onLoan,HISTORICAL_ONLY,,squad
+onTargetScoringAttempt,HISTORICAL_ONLY,,player_match
+ontargetAttAssist,HISTORICAL_ONLY,,team_match
+ontargetScoringAtt,HISTORICAL_ONLY,,team_match
+openPlayPass,HISTORICAL_ONLY,,team_match
+openPlayPasses,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+opponent,HISTORICAL_ONLY,,team_match
+opponent_id,HISTORICAL_ONLY,,team_match
+orientation,LIVE_ONLY,broadcast_match_events,
+original,LIVE_ONLY,broadcast_match_events,
+otherGoals,BOTH,team_stats,player_season
+outfielderBlock,HISTORICAL_ONLY,,player_match | team_match
+overall,LIVE_ONLY,standings,
+overrun,HISTORICAL_ONLY,,team_match
+overruns,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+ownGoalScored,HISTORICAL_ONLY,,player_season
+ownGoals,HISTORICAL_ONLY,,player_match | team_match
+ownGoalsAccrued,LIVE_ONLY,team_leaderboard | team_stats,
+ownGoalsConceded,LIVE_ONLY,team_stats,
+page,LIVE_ONLY,broadcast_match_events | player_profile_content,
+pageInfo,LIVE_ONLY,broadcast_match_events | player_profile_content,
+pageSize,LIVE_ONLY,broadcast_match_events | player_profile_content,
+pagination,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,
+passesLeft,HISTORICAL_ONLY,,team_match
+passesRight,HISTORICAL_ONLY,,team_match
+passingAccuracy,LIVE_ONLY,team_leaderboard,
+passingPercentOppHalf,LIVE_ONLY,team_leaderboard,
+penAreaEntries,HISTORICAL_ONLY,,team_match
+penGoalsConceded,HISTORICAL_ONLY,,team_match
+penaltiesConceded,BOTH,team_leaderboard | team_stats,player_season
+penaltiesFaced,HISTORICAL_ONLY,,player_season
+penaltiesSaved,BOTH,team_leaderboard | team_stats,player_season
+penaltiesTaken,BOTH,player_leaderboard | player_season_stats | team_stats,player_season
+penaltyConceded,HISTORICAL_ONLY,,player_match | team_match
+penaltyFaced,HISTORICAL_ONLY,,player_match | team_match
+penaltyGoals,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+penaltyGoalsConceded,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+penaltyMiss,HISTORICAL_ONLY,,player_match
+penaltySave,HISTORICAL_ONLY,,player_match | team_match
+penaltyWon,HISTORICAL_ONLY,,player_match | team_match
+period,LIVE_ONLY,match_detail | match_events | matches,
+phase,LIVE_ONLY,match_detail | matches,
+pl_code,HISTORICAL_ONLY,,player_match
+played,LIVE_ONLY,standings,
+player,LIVE_ONLY,player_season_stats,
+playerId,BOTH,match_events | player_directory | player_season_info,player_match | player_season | squad
+playerMetadata,LIVE_ONLY,player_leaderboard,
+playerName,HISTORICAL_ONLY,,player_match | player_season
+playerOffId,LIVE_ONLY,match_events,
+playerOnId,LIVE_ONLY,match_events,
+player_awards,LIVE_ONLY,season_awards,
+players,LIVE_ONLY,match_lineups | team_squad,
+points,LIVE_ONLY,standings,
+pointsDroppedFromWinningPositions,LIVE_ONLY,team_leaderboard | team_stats,
+pointsGainedFromLosingPositions,LIVE_ONLY,team_leaderboard | team_stats,
+position,BOTH,match_lineups | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | standings | team_squad,player_match | player_season | squad
+positionX,LIVE_ONLY,broadcast_match_events,
+positionY,LIVE_ONLY,broadcast_match_events,
+possLostAll,HISTORICAL_ONLY,,team_match
+possLostCtrl,HISTORICAL_ONLY,,team_match
+possWonAtt3rd,HISTORICAL_ONLY,,team_match
+possWonDef3rd,HISTORICAL_ONLY,,team_match
+possWonMid3rd,HISTORICAL_ONLY,,team_match
+possessionLostCtrl,HISTORICAL_ONLY,,player_match
+possessionPercentage,BOTH,team_leaderboard,team_match
+postScoringAtt,HISTORICAL_ONLY,,team_match
+preferredFoot,BOTH,player_directory | player_season_info | season_awards | team_squad,squad
+progressiveBallCarriesCount,HISTORICAL_ONLY,,player_match
+providerId,LIVE_ONLY,broadcast_match_events,
+ptsDroppedWinningPos,HISTORICAL_ONLY,,team_match
+ptsGainedLosingPos,HISTORICAL_ONLY,,team_match
+punches,HISTORICAL_ONLY,,player_match | player_season | team_match
+putThrough,HISTORICAL_ONLY,,team_match
+putthroughBlockedDistribution,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+putthroughBlockedDistributionWon,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+rating,HISTORICAL_ONLY,,player_match
+recoveries,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+redCard,HISTORICAL_ONLY,,team_match
+redCards,LIVE_ONLY,match_detail | matches,
+redCards2ndYellow,HISTORICAL_ONLY,,player_season
+redCardsAgainst,HISTORICAL_ONLY,,team_match
+redCardsFor,HISTORICAL_ONLY,,team_match
+reference,LIVE_ONLY,broadcast_match_events,
+restrictedCountries,LIVE_ONLY,broadcast_match_events,
+restrictedRegions,LIVE_ONLY,broadcast_match_events,
+result,HISTORICAL_ONLY,,team_match
+resultType,LIVE_ONLY,match_detail | matches,
+rightFootGoals,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+rightsidePass,HISTORICAL_ONLY,,team_match
+rightsidePasses,BOTH,player_leaderboard | player_season_stats,player_season
+role,LIVE_ONLY,season_awards,
+savedIbox,HISTORICAL_ONLY,,team_match
+savedObox,HISTORICAL_ONLY,,team_match
+savedShotsFromInsideTheBox,HISTORICAL_ONLY,,player_match
+saves,HISTORICAL_ONLY,,player_match | team_match
+savesFromPenalty,BOTH,team_stats,player_season
+savesMade,HISTORICAL_ONLY,,player_season
+savesMadeCaught,HISTORICAL_ONLY,,player_season
+savesMadeFromInsideBox,HISTORICAL_ONLY,,player_season
+savesMadeFromOutsideBox,HISTORICAL_ONLY,,player_season
+savesMadeParried,HISTORICAL_ONLY,,player_season
+score,LIVE_ONLY,match_detail | matches,
+season,BOTH,matches | standings | team_leaderboard,player_match | player_season
+seasonId,LIVE_ONLY,match_detail | player_directory | player_season_info | team_squad,
+seasonInfo,LIVE_ONLY,match_detail,
+seasons,LIVE_ONLY,competition_teams,
+seasonsAtCurrentTeam,LIVE_ONLY,season_awards,
+seasonsInPremierLeague,LIVE_ONLY,season_awards,
+secondGoalAssists,HISTORICAL_ONLY,,player_season
+secondYellow,HISTORICAL_ONLY,,team_match
+setPiecesGoals,BOTH,team_stats,player_season
+shieldBallOop,HISTORICAL_ONLY,,team_match
+shirtNum,LIVE_ONLY,match_lineups | player_directory | player_season_info | season_awards | team_squad,
+shirtNumber,HISTORICAL_ONLY,,squad
+shootingAccuracy,LIVE_ONLY,team_leaderboard,
+shortName,LIVE_ONLY,competition_teams | match_detail | match_events | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | standings | team_leaderboard | team_squad | team_stats,
+shotFastbreak,HISTORICAL_ONLY,,team_match
+shotOffTarget,HISTORICAL_ONLY,,player_match | team_match
+shotsBlockedInBox,BOTH,player_season_stats,player_season
+shotsBlockedOutsideBox,BOTH,player_season_stats,player_season
+shotsOffTargetIncWoodwork,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+shotsOnConcededInsideBox,LIVE_ONLY,team_leaderboard | team_stats,
+shotsOnConcededOutsideBox,LIVE_ONLY,team_leaderboard | team_stats,
+shotsOnTargetInBox,BOTH,player_season_stats,player_season
+shotsOnTargetIncGoals,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+shotsOnTargetOutsideBox,BOTH,player_season_stats,player_season
+sixYardBlock,HISTORICAL_ONLY,,team_match
+slug,HISTORICAL_ONLY,,player_match
+stadium,LIVE_ONLY,competition_teams | season_teams,
+startDateTime,LIVE_ONLY,broadcast_match_events,
+startingPosition,LIVE_ONLY,standings,
+starts,BOTH,player_leaderboard | player_season_stats,player_season
+stats,LIVE_ONLY,player_leaderboard | player_season_stats | team_leaderboard | team_stats,
+straightRedCards,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+structure,LIVE_ONLY,season_structure,
+subs,LIVE_ONLY,match_events | match_lineups,
+subsGoals,HISTORICAL_ONLY,,team_match
+subsMade,HISTORICAL_ONLY,,team_match
+substitute,HISTORICAL_ONLY,,player_match
+substitute.1,HISTORICAL_ONLY,,player_match
+substituteOff,BOTH,player_leaderboard | player_season_stats,player_season
+substituteOn,BOTH,player_leaderboard | player_season_stats,player_season
+successfulCornersIntoBox,BOTH,team_leaderboard | team_stats,player_season
+successfulCrossesAndCorners,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+successfulCrossesOpenPlay,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+successfulDribbles,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+successfulFiftyFifty,BOTH,team_stats,player_season | team_match
+successfulFinalThirdPasses,HISTORICAL_ONLY,,team_match
+successfulLaunches,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+successfulLayoffs,BOTH,player_leaderboard | player_season_stats | team_leaderboard,player_season
+successfulLongPasses,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+successfulOpenPlayPass,HISTORICAL_ONLY,,team_match
+successfulOpenPlayPasses,LIVE_ONLY,team_leaderboard | team_stats,
+successfulPassesOppositionHalf,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+successfulPassesOwnHalf,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+successfulPutThrough,HISTORICAL_ONLY,,team_match
+successfulShortPasses,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+tables,LIVE_ONLY,standings,
+tackleSuccess,LIVE_ONLY,team_leaderboard,
+tacklesLost,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+tacklesWon,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+team,BOTH,standings | team_squad | team_stats,player_match | team_match
+team1,LIVE_ONLY,match_commentary,
+team2,LIVE_ONLY,match_commentary,
+teamId,LIVE_ONLY,match_lineups,
+teamMetadata,LIVE_ONLY,team_leaderboard,
+team_id,HISTORICAL_ONLY,,player_match | player_season | team_match
+team_name,HISTORICAL_ONLY,,player_season
+throughBalls,BOTH,player_leaderboard | player_season_stats,player_season
+throwInsToOppositionPlayer,BOTH,team_leaderboard | team_stats,player_season
+throwInsToOwnPlayer,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+time,LIVE_ONLY,match_commentary | match_events,
+timePlayed,BOTH,player_leaderboard | player_season_stats,player_season
+timesTackled,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+timestamp,LIVE_ONLY,match_commentary | match_events,
+timezone,LIVE_ONLY,broadcast_match_events,
+totalAttAssist,HISTORICAL_ONLY,,team_match
+totalBackZonePass,HISTORICAL_ONLY,,team_match
+totalBallCarriesDistance,HISTORICAL_ONLY,,player_match
+totalChippedPass,HISTORICAL_ONLY,,team_match
+totalClearance,HISTORICAL_ONLY,,player_match | team_match
+totalClearances,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+totalContest,HISTORICAL_ONLY,,player_match | team_match
+totalCornersIntobox,HISTORICAL_ONLY,,team_match
+totalCross,HISTORICAL_ONLY,,player_match | team_match
+totalCrossNocorner,HISTORICAL_ONLY,,team_match
+totalDistance,HISTORICAL_ONLY,,team_match
+totalFastbreak,HISTORICAL_ONLY,,team_match
+totalFinalThirdPasses,HISTORICAL_ONLY,,team_match
+totalFlickOn,HISTORICAL_ONLY,,team_match
+totalFoulsConceded,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+totalFoulsWon,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+totalFwdZonePass,HISTORICAL_ONLY,,team_match
+totalHighClaim,HISTORICAL_ONLY,,team_match
+totalKeeperSweeper,HISTORICAL_ONLY,,player_match | team_match
+totalLaunches,HISTORICAL_ONLY,,team_match
+totalLayoffs,HISTORICAL_ONLY,,team_match
+totalLongBalls,HISTORICAL_ONLY,,player_match | team_match
+totalLossesOfPossession,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+totalOffside,HISTORICAL_ONLY,,player_match | team_match
+totalOppositionHalfPasses,HISTORICAL_ONLY,,player_match
+totalOwnHalfPasses,HISTORICAL_ONLY,,player_match
+totalPass,HISTORICAL_ONLY,,player_match | team_match
+totalPasses,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+totalProgression,HISTORICAL_ONLY,,player_match
+totalProgressiveBallCarriesDistance,HISTORICAL_ONLY,,player_match
+totalPullBack,HISTORICAL_ONLY,,team_match
+totalRedCard,HISTORICAL_ONLY,,team_match
+totalRedCards,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+totalScoringAtt,HISTORICAL_ONLY,,team_match
+totalShots,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_match | player_season
+totalShotsConceded,LIVE_ONLY,team_leaderboard | team_stats,
+totalSuccessfulPassesExclCrossesAndCorners,LIVE_ONLY,team_stats,
+totalTackle,HISTORICAL_ONLY,,player_match | team_match
+totalTackles,BOTH,player_leaderboard | player_season_stats,player_season
+totalThroughBall,HISTORICAL_ONLY,,team_match
+totalThrows,HISTORICAL_ONLY,,team_match
+totalTouchesInOppositionBox,BOTH,player_leaderboard | player_season_stats,player_season
+totalUnsuccessfulPassesExclCrossesAndCorners,BOTH,player_leaderboard | player_season_stats | team_stats,player_season
+totalYelCard,HISTORICAL_ONLY,,team_match
+touches,BOTH,player_leaderboard | player_season_stats,player_match | player_season | team_match
+touchesInOppBox,BOTH,team_leaderboard | team_stats,team_match
+type,LIVE_ONLY,broadcast_match_events | match_commentary | match_events | match_lineups | match_officials | season_awards | season_structure,
+unsuccessfulCornersIntoBox,BOTH,team_leaderboard | team_stats,player_season
+unsuccessfulCrossesAndCorners,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+unsuccessfulCrossesOpenPlay,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+unsuccessfulDribbles,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+unsuccessfulLaunches,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+unsuccessfulLayoffs,BOTH,player_leaderboard | player_season_stats | team_leaderboard,player_season
+unsuccessfulLongPasses,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+unsuccessfulPassesOppositionHalf,LIVE_ONLY,team_leaderboard | team_stats,
+unsuccessfulPassesOwnHalf,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+unsuccessfulShortPasses,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season
+unsuccessfulTouch,HISTORICAL_ONLY,,player_match | team_match
+url,LIVE_ONLY,broadcast_match_events,
+uuid,LIVE_ONLY,broadcast_match_events,
+value,LIVE_ONLY,broadcast_match_events,
+venue,HISTORICAL_ONLY,,player_match | team_match
+wasFouled,HISTORICAL_ONLY,,player_match
+weight,LIVE_ONLY,player_season_info | season_awards | team_squad,
+weight_kg,HISTORICAL_ONLY,,squad
+width,LIVE_ONLY,broadcast_match_events,
+winningGoal,BOTH,player_leaderboard | player_season_stats,player_season | team_match
+won,LIVE_ONLY,standings,
+wonContest,HISTORICAL_ONLY,,player_match | team_match
+wonCorners,HISTORICAL_ONLY,,team_match
+wonTackle,HISTORICAL_ONLY,,player_match | team_match
+yellowCard,HISTORICAL_ONLY,,team_match
+yellowCards,BOTH,player_leaderboard | player_season_stats | team_leaderboard | team_stats,player_season

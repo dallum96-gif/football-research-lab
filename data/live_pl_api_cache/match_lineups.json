@@ -1,0 +1,475 @@
+{
+  "status": 200,
+  "payload": {
+    "home_team": {
+      "players": [
+        {
+          "firstName": "Alisson Ramsés",
+          "lastName": "Becker",
+          "shirtNum": "1",
+          "isCaptain": false,
+          "id": "116535",
+          "position": "Goalkeeper",
+          "knownName": "Alisson Becker"
+        },
+        {
+          "firstName": "Virgil",
+          "lastName": "van Dijk",
+          "shirtNum": "4",
+          "isCaptain": true,
+          "id": "97032",
+          "position": "Defender"
+        },
+        {
+          "firstName": "Ibrahima",
+          "lastName": "Konaté",
+          "shirtNum": "5",
+          "isCaptain": false,
+          "id": "204716",
+          "position": "Defender"
+        },
+        {
+          "firstName": "Milos",
+          "lastName": "Kerkez",
+          "shirtNum": "6",
+          "isCaptain": false,
+          "id": "544877",
+          "position": "Defender"
+        },
+        {
+          "firstName": "Florian",
+          "lastName": "Wirtz",
+          "shirtNum": "7",
+          "isCaptain": false,
+          "id": "494595",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Dominik",
+          "lastName": "Szoboszlai",
+          "shirtNum": "8",
+          "isCaptain": false,
+          "id": "424876",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Alexis",
+          "lastName": "Mac Allister",
+          "shirtNum": "10",
+          "isCaptain": false,
+          "id": "243016",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Mohamed",
+          "lastName": "Salah Hamed Mahrous Ghaly",
+          "shirtNum": "11",
+          "isCaptain": false,
+          "id": "118748",
+          "position": "Midfielder",
+          "knownName": "Mohamed Salah"
+        },
+        {
+          "firstName": "Cody",
+          "lastName": "Gakpo",
+          "shirtNum": "18",
+          "isCaptain": false,
+          "id": "243298",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Hugo",
+          "lastName": "Ekitiké",
+          "shirtNum": "22",
+          "isCaptain": false,
+          "id": "510663",
+          "position": "Forward"
+        },
+        {
+          "firstName": "Jeremie",
+          "lastName": "Frimpong",
+          "shirtNum": "30",
+          "isCaptain": false,
+          "id": "216094",
+          "position": "Defender"
+        },
+        {
+          "firstName": "Giorgi",
+          "lastName": "Mamardashvili",
+          "subPosition": "Goalkeeper",
+          "shirtNum": "25",
+          "isCaptain": false,
+          "id": "449027",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Joe",
+          "lastName": "Gomez",
+          "subPosition": "Defender",
+          "shirtNum": "2",
+          "isCaptain": false,
+          "id": "171287",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Wataru",
+          "lastName": "Endo",
+          "subPosition": "Midfielder",
+          "shirtNum": "3",
+          "isCaptain": false,
+          "id": "158983",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Federico",
+          "lastName": "Chiesa",
+          "subPosition": "Forward",
+          "shirtNum": "14",
+          "isCaptain": false,
+          "id": "223541",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Curtis",
+          "lastName": "Jones",
+          "subPosition": "Midfielder",
+          "shirtNum": "17",
+          "isCaptain": false,
+          "id": "206915",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Harvey",
+          "lastName": "Elliott",
+          "subPosition": "Midfielder",
+          "shirtNum": "19",
+          "isCaptain": false,
+          "id": "444884",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Andy",
+          "lastName": "Robertson",
+          "subPosition": "Defender",
+          "shirtNum": "26",
+          "isCaptain": false,
+          "id": "122798",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Trey",
+          "lastName": "Nyoni",
+          "subPosition": "Midfielder",
+          "shirtNum": "42",
+          "isCaptain": false,
+          "id": "591386",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Rio",
+          "lastName": "Ngumoha",
+          "subPosition": "Forward",
+          "shirtNum": "73",
+          "isCaptain": false,
+          "id": "611922",
+          "position": "Substitute"
+        }
+      ],
+      "teamId": "14",
+      "formation": {
+        "subs": [
+          "449027",
+          "171287",
+          "158983",
+          "223541",
+          "206915",
+          "444884",
+          "122798",
+          "591386",
+          "611922"
+        ],
+        "teamId": "14",
+        "lineup": [
+          [
+            "116535"
+          ],
+          [
+            "216094",
+            "204716",
+            "97032",
+            "544877"
+          ],
+          [
+            "424876",
+            "243016"
+          ],
+          [
+            "118748",
+            "494595",
+            "243298"
+          ],
+          [
+            "510663"
+          ]
+        ],
+        "formation": "4-2-3-1"
+      },
+      "managers": [
+        {
+          "firstName": "Arne",
+          "lastName": "Slot",
+          "id": "52174",
+          "type": "Manager"
+        }
+      ]
+    },
+    "away_team": {
+      "players": [
+        {
+          "firstName": "Djordje",
+          "lastName": "Petrovic",
+          "shirtNum": "1",
+          "isCaptain": false,
+          "id": "457569",
+          "position": "Goalkeeper"
+        },
+        {
+          "firstName": "Adrien",
+          "lastName": "Truffert",
+          "shirtNum": "3",
+          "isCaptain": false,
+          "id": "494521",
+          "position": "Defender"
+        },
+        {
+          "firstName": "Marcos",
+          "lastName": "Senesi",
+          "shirtNum": "5",
+          "isCaptain": false,
+          "id": "221466",
+          "position": "Defender"
+        },
+        {
+          "firstName": "David",
+          "lastName": "Brooks",
+          "shirtNum": "7",
+          "isCaptain": false,
+          "id": "111317",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Alex",
+          "lastName": "Scott",
+          "shirtNum": "8",
+          "isCaptain": false,
+          "id": "503139",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Francisco Evanilson",
+          "lastName": "de Lima Barbosa",
+          "shirtNum": "9",
+          "isCaptain": false,
+          "id": "444102",
+          "position": "Forward",
+          "knownName": "Evanilson"
+        },
+        {
+          "firstName": "Tyler",
+          "lastName": "Adams",
+          "shirtNum": "12",
+          "isCaptain": false,
+          "id": "200785",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Adam",
+          "lastName": "Smith",
+          "shirtNum": "15",
+          "isCaptain": true,
+          "id": "54469",
+          "position": "Defender"
+        },
+        {
+          "firstName": "Marcus",
+          "lastName": "Tavernier",
+          "shirtNum": "16",
+          "isCaptain": false,
+          "id": "201658",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Bafodé",
+          "lastName": "Diakité",
+          "shirtNum": "18",
+          "isCaptain": false,
+          "id": "242882",
+          "position": "Defender"
+        },
+        {
+          "firstName": "Antoine",
+          "lastName": "Semenyo",
+          "shirtNum": "24",
+          "isCaptain": false,
+          "id": "437730",
+          "position": "Midfielder"
+        },
+        {
+          "firstName": "Will",
+          "lastName": "Dennis",
+          "subPosition": "Goalkeeper",
+          "shirtNum": "40",
+          "isCaptain": false,
+          "id": "444172",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Julián",
+          "lastName": "Araujo",
+          "subPosition": "Defender",
+          "shirtNum": "2",
+          "isCaptain": false,
+          "id": "436893",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Julio",
+          "lastName": "Soler",
+          "subPosition": "Defender",
+          "shirtNum": "20",
+          "isCaptain": false,
+          "id": "575901",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Junior",
+          "lastName": "Kroupi",
+          "subPosition": "Forward",
+          "shirtNum": "22",
+          "isCaptain": false,
+          "id": "560262",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "James",
+          "lastName": "Hill",
+          "subPosition": "Defender",
+          "shirtNum": "23",
+          "isCaptain": false,
+          "id": "463981",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Hamed",
+          "lastName": "Traoré",
+          "subPosition": "Midfielder",
+          "shirtNum": "25",
+          "isCaptain": false,
+          "id": "424044",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Philip",
+          "lastName": "Billing",
+          "subPosition": "Midfielder",
+          "shirtNum": "29",
+          "isCaptain": false,
+          "id": "168991",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Ben",
+          "lastName": "Winterburn",
+          "subPosition": "Midfielder",
+          "shirtNum": "47",
+          "isCaptain": false,
+          "id": "606775",
+          "position": "Substitute"
+        },
+        {
+          "firstName": "Remy",
+          "lastName": "Rees-Dottin",
+          "subPosition": "Forward",
+          "shirtNum": "50",
+          "isCaptain": false,
+          "id": "606774",
+          "position": "Substitute"
+        }
+      ],
+      "teamId": "91",
+      "formation": {
+        "subs": [
+          "444172",
+          "436893",
+          "575901",
+          "560262",
+          "463981",
+          "424044",
+          "168991",
+          "606775",
+          "606774"
+        ],
+        "teamId": "91",
+        "lineup": [
+          [
+            "457569"
+          ],
+          [
+            "54469",
+            "242882",
+            "221466",
+            "494521"
+          ],
+          [
+            "200785"
+          ],
+          [
+            "437730",
+            "503139",
+            "201658",
+            "111317"
+          ],
+          [
+            "444102"
+          ]
+        ],
+        "formation": "4-1-4-1"
+      },
+      "managers": [
+        {
+          "firstName": "Andoni",
+          "lastName": "Iraola",
+          "id": "50428",
+          "type": "Manager"
+        }
+      ]
+    }
+  },
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v3/matches/{id}/lineups",
+    "cache-control": "max-age=10, stale-while-revalidate=600, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:03 GMT",
+    "x-cache-status": "MISS",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "292",
+    "x-ratelimit-reset": "57",
+    "x-request-id": "c9ad02de-3ede-42e7-8bc6-c2fafa1da9c1",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 0fc5036a5953ba6a03b112d18da2a0b4.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "kVvW7cTwiiSWopsAhyXDjR0L_K2aaSBKHDKCMEFR6fArU7AJsNw4vQ==",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

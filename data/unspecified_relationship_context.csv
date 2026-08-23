@@ -1,0 +1,193 @@
+﻿field_name,source_surface,resource,grain,source_identity_required,context_class,basis
+playerId,FRL_LOCAL_CSV,player_match,player_match,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+position,FRL_LOCAL_CSV,player_match,player_match,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+nationality,FRL_LOCAL_CSV,player_season,player_season,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+playerId,FRL_LOCAL_CSV,player_season,player_season,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+position,FRL_LOCAL_CSV,player_season,player_season,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+age,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+birthCountry,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+birthDate,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+displayName,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+firstName,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+height_cm,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+isoCode,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+joinDate,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+lastName,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+nationality,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+onLoan,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+playerId,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+position,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+preferredFoot,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+shirtNumber,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+weight_kg,FRL_LOCAL_CSV,squad,squad,FALSE,FRL_LOCAL_CSV_REVIEW,Local FRL evidence; inspect existing relationship/identity contract before any promotion.
+chips[].overrides.element_types,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_stats,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_stats[].label,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_stats[].name,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].element_count,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].id,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].plural_name,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].plural_name_short,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].singular_name,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].singular_name_short,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].squad_max_play,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].squad_max_select,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].squad_min_play,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].squad_min_select,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].squad_select,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].sub_positions_locked,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+element_types[].ui_shirt_specific,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].assists,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].birth_date,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].bonus,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].bps,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].can_select,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].can_transact,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].chance_of_playing_next_round,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].chance_of_playing_this_round,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].clean_sheets,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].clean_sheets_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].clearances_blocks_interceptions,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].code,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].corners_and_indirect_freekicks_order,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].corners_and_indirect_freekicks_text,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].cost_change_event,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].cost_change_event_fall,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].cost_change_start,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].cost_change_start_fall,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].creativity,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].creativity_rank,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].creativity_rank_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].defensive_contribution,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].defensive_contribution_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].direct_freekicks_order,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].direct_freekicks_text,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].dreamteam_count,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].element_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].ep_next,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].ep_this,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].event_points,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].expected_assists,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].expected_assists_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].expected_goal_involvements,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].expected_goal_involvements_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].expected_goals,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].expected_goals_conceded,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].expected_goals_conceded_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].expected_goals_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].first_name,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].form,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].form_rank,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].form_rank_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].goals_conceded,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].goals_conceded_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].goals_scored,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].has_temporary_code,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].ict_index,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].ict_index_rank,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].ict_index_rank_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].in_dreamteam,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].influence,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].influence_rank,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].influence_rank_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].known_name,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].minutes,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].news,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].news_added,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].now_cost,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].now_cost_rank,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].now_cost_rank_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].opta_code,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].own_goals,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].penalties_missed,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].penalties_order,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].penalties_saved,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].penalties_text,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].photo,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].points_per_game,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].points_per_game_rank,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].points_per_game_rank_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].price_change_calibrating,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].price_change_hourly_rate,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].price_change_locked_until,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].price_change_percent,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].price_change_projections,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].price_change_projections[].likelihood,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].price_change_projections[].offset,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].price_change_projections[].projected_percent,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].recoveries,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].red_cards,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].region,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].removed,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].saves,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].saves_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].scout_news_link,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].scout_risks,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].second_name,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].selected_by_percent,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].selected_rank,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].selected_rank_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].special,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].squad_number,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].starts,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].starts_per_90,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].status,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].tackles,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].team,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].team_code,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].team_join_date,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].threat,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].threat_rank,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].threat_rank_type,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].total_points,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].transfers_in,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].transfers_in_event,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].transfers_out,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].transfers_out_event,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].value_form,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].value_season,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].web_name,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+elements[].yellow_cards,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+events[].overrides.element_types,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+events[].top_element,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+events[].top_element_info,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+events[].top_element_info.id,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+events[].top_element_info.points,fpl,bootstrap-static.json,player_match,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+game_config.rules.element_sell_at_purchase_price,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+game_config.rules.squad_team_limit,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+game_settings.element_sell_at_purchase_price,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+game_settings.squad_team_limit,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].code,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].draw,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].form,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].id,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].link_url,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].loss,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].name,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].played,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].points,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].position,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].pulse_id,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].short_name,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].strength,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].strength_attack_away,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].strength_attack_home,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].strength_defence_away,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].strength_defence_home,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].strength_overall_away,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].strength_overall_home,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].team_division,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].unavailable,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+teams[].win,fpl,bootstrap-static.json,team,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+total_players,fpl,bootstrap-static.json,player,FALSE,FPL_BOOTSTRAP_CONTEXT,Bootstrap-static structural/configuration context; entity identity should not be inferred from grain alone.
+fixtures[].team_a,fpl,element,team_match,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.
+fixtures[].team_a_score,fpl,element,team_match,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.
+fixtures[].team_h,fpl,element,team_match,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.
+fixtures[].team_h_score,fpl,element,team_match,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.
+history[].element,fpl,element,player,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.
+history[].opponent_team,fpl,element,team,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.
+history[].team_a_score,fpl,element,team,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.
+history[].team_h_score,fpl,element,team,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.
+history_past[].element_code,fpl,element,player,FALSE,FPL_ELEMENT_CONTEXT,Element resource context; inspect player/fixture-bearing paths before deciding canonical attachment.

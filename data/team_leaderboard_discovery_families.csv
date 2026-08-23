@@ -1,0 +1,64 @@
+﻿field_name,family,field_type,sample_values
+cornersTakenInclShortCorners,Corners,,247.0
+cornersWon,Corners,,247.0
+crossingAccuracy,Crossing & Set Pieces,,26.82
+successfulCornersIntoBox,Crossing & Set Pieces,,70.0
+successfulCrossesAndCorners,Crossing & Set Pieces,,166.0
+successfulCrossesOpenPlay,Crossing & Set Pieces,,91.0
+unsuccessfulCornersIntoBox,Crossing & Set Pieces,,131.0
+unsuccessfulCrossesAndCorners,Crossing & Set Pieces,,453.0
+unsuccessfulCrossesOpenPlay,Crossing & Set Pieces,,302.0
+blocks,Defending,,105.0
+clearancesOffTheLine,Defending,,3.0
+interceptions,Defending,,302.0
+penaltiesConceded,Defending,,2.0
+tackleSuccess,Defending,,61.06
+tacklesLost,Defending,,213.0
+tacklesWon,Defending,,334.0
+offsides,Discipline & Offside,,44.0
+successfulDribbles,Dribbling,,409.0
+unsuccessfulDribbles,Dribbling,,415.0
+aerialDuels,Duels & Aerials,,854.0
+aerialDuelsLost,Duels & Aerials,,363.0
+aerialDuelsWon,Duels & Aerials,,491.0
+duels,Duels & Aerials,,3556.0
+duelsLost,Duels & Aerials,,1699.0
+duelsWon,Duels & Aerials,,1857.0
+cleanSheets,Finishing & Goals,,16.0
+expectedGoals,Finishing & Goals,,71.2605
+expectedGoalsFreekick,Finishing & Goals,,0.7338
+expectedGoalsOnTarget,Finishing & Goals,,68.1275
+expectedGoalsOnTargetConceded,Finishing & Goals,,43.3074
+goals,Finishing & Goals,,77.0
+goalsConceded,Finishing & Goals,,35.0
+goalsConcededInsideBox,Finishing & Goals,,28.0
+goalsConcededOutsideBox,Finishing & Goals,,7.0
+penaltyGoals,Finishing & Goals,,3.0
+penaltyGoalsConceded,Finishing & Goals,,1.0
+pointsDroppedFromWinningPositions,Finishing & Goals,,20.0
+pointsGainedFromLosingPositions,Finishing & Goals,,5.0
+shotsOnTargetIncGoals,Finishing & Goals,,205.0
+openPlayPasses,Passing & Territory,,21496.0
+successfulLaunches,Passing & Territory,,106.0
+successfulLayoffs,Passing & Territory,,421.0
+successfulLongPasses,Passing & Territory,,737.0
+successfulOpenPlayPasses,Passing & Territory,,19028.0
+successfulPassesOppositionHalf,Passing & Territory,,11502.0
+successfulPassesOwnHalf,Passing & Territory,,8440.0
+successfulShortPasses,Passing & Territory,,19039.0
+unsuccessfulLaunches,Passing & Territory,,358.0
+unsuccessfulLayoffs,Passing & Territory,,26.0
+unsuccessfulLongPasses,Passing & Territory,,727.0
+unsuccessfulPassesOppositionHalf,Passing & Territory,,2310.0
+unsuccessfulPassesOwnHalf,Passing & Territory,,709.0
+unsuccessfulShortPasses,Passing & Territory,,1839.0
+possessionPercentage,Possession,,60.4
+expectedAssists,Review,,49.9934
+gamesPlayed,Review,,38.0
+penaltiesSaved,Review,,1.0
+attemptsFromSetPieces,Shooting,,13.0
+blockedShots,Shooting,,174.0
+shotsOffTargetIncWoodwork,Shooting,,215.0
+shotsOnConcededInsideBox,Shooting,,97.0
+shotsOnConcededOutsideBox,Shooting,,30.0
+touchesInOppBox,Shooting,,1409.0

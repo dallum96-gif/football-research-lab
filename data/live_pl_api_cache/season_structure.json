@@ -1,0 +1,41 @@
+{
+  "status": 200,
+  "payload": {
+    "currentPhase": "1",
+    "structure": [
+      {
+        "type": "L",
+        "groups": null,
+        "name": null
+      }
+    ]
+  },
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v1/competitions/{cid}/seasons/{sid}/structure",
+    "cache-control": "max-age=30, stale-while-revalidate=600, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:09 GMT",
+    "x-cache-status": "HIT",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "277",
+    "x-ratelimit-reset": "51",
+    "x-request-id": "232b4cce-6fb2-4d03-9e9d-e8dcd2342c66",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 cfd6d6d02d8bde7d2c6bb1711228fd78.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "6rx_6V_XE__nU-1wD7jBrWxSpuFNrGTa2P5DyJEjqAfAAhmatgNCeA==",
+    "age": "12",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

@@ -1,0 +1,4 @@
+﻿current_grain_status,source_surface,resource,decomposition_basis,variable_count,sample_variables
+unmapped_review,fpl,bootstrap-static.json,insufficient structural evidence,199,chips | chips[].chip_type | chips[].id | chips[].name | chips[].number | chips[].overrides | chips[].overrides.pick_multiplier | chips[].overrides.rules | chips[].overrides.scoring | chips[].start_event | chips[].stop_event | events
+unmapped_review,fpl,element,insufficient structural evidence,80,fixtures | fixtures[].code | fixtures[].difficulty | fixtures[].event | fixtures[].event_name | fixtures[].finished | fixtures[].id | fixtures[].is_home | fixtures[].kickoff_time | fixtures[].minutes | fixtures[].provisional_start_time | history
+unmapped_review,local_json,raw_upstream,insufficient structural evidence,6,captured_at | note | sources | sources.fpl | sources.pulselive | tool

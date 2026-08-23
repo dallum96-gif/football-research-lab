@@ -1,0 +1,50 @@
+﻿field_name,family,field_type,sample_values,live_endpoints,semantic_decision,frl_exact_dictionary_name_match,capability_status
+cornersWon,Crossing & Set Pieces,,23.0,,,TRUE,REVIEW
+blockedShots,Defending,,24.0,,,TRUE,REVIEW
+blocks,Defending,,1.0,,,TRUE,REVIEW
+interceptions,Defending,,5.0,,,TRUE,REVIEW
+tacklesLost,Defending,,6.0,,,TRUE,REVIEW
+tacklesWon,Defending,,9.0,,,TRUE,REVIEW
+offsides,Discipline & Offside,,5.0,,,TRUE,REVIEW
+aerialDuels,Duels & Aerials,,118.0,,,TRUE,REVIEW
+aerialDuelsLost,Duels & Aerials,,45.0,,,TRUE,REVIEW
+aerialDuelsWon,Duels & Aerials,,73.0,,,TRUE,REVIEW
+duels,Duels & Aerials,,241.0,,,TRUE,REVIEW
+duelsLost,Duels & Aerials,,111.0,,,TRUE,REVIEW
+duelsWon,Duels & Aerials,,130.0,,,TRUE,REVIEW
+goals,Finishing & Goals,,27.0,,,TRUE,REVIEW
+goalsConceded,Finishing & Goals,,32.0,,,TRUE,REVIEW
+goalsConcededInsideBox,Finishing & Goals,,25.0,,,TRUE,REVIEW
+goalsConcededOutsideBox,Finishing & Goals,,7.0,,,TRUE,REVIEW
+penaltiesTaken,Finishing & Goals,,4.0,,,TRUE,REVIEW
+penaltyGoals,Finishing & Goals,,3.0,,,TRUE,REVIEW
+penaltyGoalsConceded,Finishing & Goals,,1.0,,,TRUE,REVIEW
+shotsBlockedInBox,Finishing & Goals,,20.0,,,TRUE,REVIEW
+shotsBlockedOutsideBox,Finishing & Goals,,4.0,,,TRUE,REVIEW
+shotsOffTargetIncWoodwork,Finishing & Goals,,43.0,,,TRUE,REVIEW
+shotsOnTargetInBox,Finishing & Goals,,30.0,,,TRUE,REVIEW
+shotsOnTargetIncGoals,Finishing & Goals,,59.0,,,TRUE,REVIEW
+shotsOnTargetOutsideBox,Finishing & Goals,,2.0,,,TRUE,REVIEW
+openPlayPasses,Passing & Territory,,369.0,,,TRUE,REVIEW
+appearances,Possession & Involvement,,35.0,,,TRUE,REVIEW
+gamesPlayed,Possession & Involvement,,35.0,,,TRUE,REVIEW
+starts,Possession & Involvement,,34.0,,,TRUE,REVIEW
+touches,Possession & Involvement,,778.0,,,TRUE,REVIEW
+cleanSheets,Review,,8.0,,,TRUE,REVIEW
+successfulCrossesAndCorners,Review,,1.0,,,TRUE,REVIEW
+successfulCrossesOpenPlay,Review,,1.0,,,TRUE,REVIEW
+successfulDribbles,Review,,17.0,,,TRUE,REVIEW
+successfulLaunches,Review,,1.0,,,TRUE,REVIEW
+successfulLayoffs,Review,,33.0,,,TRUE,REVIEW
+successfulLongPasses,Review,,4.0,,,TRUE,REVIEW
+successfulPassesOppositionHalf,Review,,161.0,,,TRUE,REVIEW
+successfulPassesOwnHalf,Review,,92.0,,,TRUE,REVIEW
+successfulShortPasses,Review,,248.0,,,TRUE,REVIEW
+unsuccessfulCrossesAndCorners,Review,,2.0,,,TRUE,REVIEW
+unsuccessfulCrossesOpenPlay,Review,,2.0,,,TRUE,REVIEW
+unsuccessfulDribbles,Review,,15.0,,,TRUE,REVIEW
+unsuccessfulLaunches,Review,,4.0,,,TRUE,REVIEW
+unsuccessfulLayoffs,Review,,10.0,,,TRUE,REVIEW
+unsuccessfulLongPasses,Review,,10.0,,,TRUE,REVIEW
+unsuccessfulPassesOwnHalf,Review,,27.0,,,TRUE,REVIEW
+unsuccessfulShortPasses,Review,,122.0,,,TRUE,REVIEW

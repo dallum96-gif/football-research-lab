@@ -1,0 +1,152 @@
+﻿field_name,state,live_endpoints,historical_grains,candidate_family,review_status
+_limit,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+_next,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+_prev,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+abbr,LIVE_ONLY,competition_teams | match_detail | matches | season_teams | standings | team_leaderboard | team_stats,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+abbreviation,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+area,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+areas,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+aspectRatio,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+assistPlayerId,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN
+away,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+awayTeam,LIVE_ONLY,match_detail | match_events | matches,,FOOTBALL_RESEARCH,OPEN
+away_team,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN
+birth,LIVE_ONLY,player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+broadcaster,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+broadcasters,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+capacity,LIVE_ONLY,season_teams,,IDENTITY_CONTEXT,OPEN
+cards,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN
+career,LIVE_ONLY,season_awards,,IDENTITY_CONTEXT,OPEN
+channelTypes,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+channels,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+city,LIVE_ONLY,competition_teams | season_teams,,IDENTITY_CONTEXT,OPEN
+clock,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+code,LIVE_ONLY,competition | standings,,IDENTITY_CONTEXT,OPEN
+comment,LIVE_ONLY,match_commentary,,FOOTBALL_RESEARCH,OPEN
+competition,LIVE_ONLY,match_detail | matches | standings,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+competitionId,LIVE_ONLY,match_detail | matches | player_directory | player_season_info | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+content,LIVE_ONLY,broadcast_match_events | player_profile_content,,CONTENT_MEDIA,OPEN
+contentReference,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+country,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+countryOfBirth,LIVE_ONLY,player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+crossingAccuracy,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN
+currentPhase,LIVE_ONLY,season_structure,,IDENTITY_CONTEXT,OPEN
+currentTeam,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+customAttributes,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+data,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+date,LIVE_ONLY,season_awards,,IDENTITY_CONTEXT,OPEN
+dates,LIVE_ONLY,player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+deductions,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+demonym,LIVE_ONLY,player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+description,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+display,LIVE_ONLY,player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+drawn,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+endDateTime,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+entries,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+first,LIVE_ONLY,player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+firstPremierLeagueFixtureId,LIVE_ONLY,season_awards,,IDENTITY_CONTEXT,OPEN
+formation,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN
+goalConversion,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+goalType,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN
+goalsFromInsideBox,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN
+goalsFromOutsideBox,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN
+groups,LIVE_ONLY,season_structure,,IDENTITY_CONTEXT,OPEN
+halfTimeScore,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+height,LIVE_ONLY,broadcast_match_events | player_season_info | season_awards | team_squad,,CONTENT_MEDIA;IDENTITY_CONTEXT,OPEN
+home,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+homeTeam,LIVE_ONLY,match_detail | match_events | matches,,FOOTBALL_RESEARCH,OPEN
+home_team,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN
+id,LIVE_ONLY,broadcast_match_events | competition | competition_teams | match_detail | match_events | match_lineups | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | standings | team_leaderboard | team_squad | team_stats,,CONTENT_MEDIA;FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+index,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN
+info,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+isCaptain,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN
+joinedClub,LIVE_ONLY,player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+kickoffTimezone,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+kickoffTimezoneString,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+knownName,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN
+last,LIVE_ONLY,player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+lineup,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN
+link,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+live,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+loan,LIVE_ONLY,player_directory | player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+logo,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+lost,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+manager_awards,LIVE_ONLY,season_awards,,IDENTITY_CONTEXT,OPEN
+managers,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN
+matchOfficials,LIVE_ONLY,match_officials,,IDENTITY_CONTEXT,OPEN
+matchWeek,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+matchweek,LIVE_ONLY,current_gameweek_config | standings,,CONFIGURATION;IDENTITY_CONTEXT,OPEN
+mediaType,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+name,LIVE_ONLY,broadcast_match_events | competition | competition_teams | match_detail | match_events | match_officials | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_structure | season_teams | standings | team_leaderboard | team_squad | team_stats,,CONTENT_MEDIA;FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+numEntries,LIVE_ONLY,broadcast_match_events | player_profile_content,,CONTENT_MEDIA,OPEN
+numPages,LIVE_ONLY,broadcast_match_events | player_profile_content,,CONTENT_MEDIA,OPEN
+official,LIVE_ONLY,match_officials,,IDENTITY_CONTEXT,OPEN
+orientation,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+original,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+overall,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+ownGoalsAccrued,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+ownGoalsConceded,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN
+page,LIVE_ONLY,broadcast_match_events | player_profile_content,,CONTENT_MEDIA,OPEN
+pageInfo,LIVE_ONLY,broadcast_match_events | player_profile_content,,CONTENT_MEDIA,OPEN
+pageSize,LIVE_ONLY,broadcast_match_events | player_profile_content,,CONTENT_MEDIA,OPEN
+pagination,LIVE_ONLY,competition_teams | match_commentary | matches | player_directory | player_leaderboard | season_teams | team_leaderboard,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+passingAccuracy,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN
+passingPercentOppHalf,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN
+period,LIVE_ONLY,match_detail | match_events | matches,,FOOTBALL_RESEARCH,OPEN
+phase,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+played,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+player,LIVE_ONLY,player_season_stats,,FOOTBALL_RESEARCH,OPEN
+playerMetadata,LIVE_ONLY,player_leaderboard,,FOOTBALL_RESEARCH,OPEN
+playerOffId,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN
+playerOnId,LIVE_ONLY,match_events,,FOOTBALL_RESEARCH,OPEN
+player_awards,LIVE_ONLY,season_awards,,IDENTITY_CONTEXT,OPEN
+players,LIVE_ONLY,match_lineups | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+points,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+pointsDroppedFromWinningPositions,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+pointsGainedFromLosingPositions,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+positionX,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+positionY,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+providerId,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+redCards,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+reference,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+restrictedCountries,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+restrictedRegions,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+resultType,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+role,LIVE_ONLY,season_awards,,IDENTITY_CONTEXT,OPEN
+score,LIVE_ONLY,match_detail | matches,,FOOTBALL_RESEARCH,OPEN
+seasonId,LIVE_ONLY,match_detail | player_directory | player_season_info | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+seasonInfo,LIVE_ONLY,match_detail,,FOOTBALL_RESEARCH,OPEN
+seasons,LIVE_ONLY,competition_teams,,IDENTITY_CONTEXT,OPEN
+seasonsAtCurrentTeam,LIVE_ONLY,season_awards,,IDENTITY_CONTEXT,OPEN
+seasonsInPremierLeague,LIVE_ONLY,season_awards,,IDENTITY_CONTEXT,OPEN
+shirtNum,LIVE_ONLY,match_lineups | player_directory | player_season_info | season_awards | team_squad,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+shootingAccuracy,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN
+shortName,LIVE_ONLY,competition_teams | match_detail | match_events | matches | player_basic | player_directory | player_leaderboard | player_season_info | player_season_stats | season_awards | season_teams | standings | team_leaderboard | team_squad | team_stats,,FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+shotsOnConcededInsideBox,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+shotsOnConcededOutsideBox,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+stadium,LIVE_ONLY,competition_teams | season_teams,,IDENTITY_CONTEXT,OPEN
+startDateTime,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+startingPosition,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+stats,LIVE_ONLY,player_leaderboard | player_season_stats | team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+structure,LIVE_ONLY,season_structure,,IDENTITY_CONTEXT,OPEN
+subs,LIVE_ONLY,match_events | match_lineups,,FOOTBALL_RESEARCH,OPEN
+successfulOpenPlayPasses,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+tables,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN
+tackleSuccess,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN
+team1,LIVE_ONLY,match_commentary,,FOOTBALL_RESEARCH,OPEN
+team2,LIVE_ONLY,match_commentary,,FOOTBALL_RESEARCH,OPEN
+teamId,LIVE_ONLY,match_lineups,,FOOTBALL_RESEARCH,OPEN
+teamMetadata,LIVE_ONLY,team_leaderboard,,FOOTBALL_RESEARCH,OPEN
+time,LIVE_ONLY,match_commentary | match_events,,FOOTBALL_RESEARCH,OPEN
+timestamp,LIVE_ONLY,match_commentary | match_events,,FOOTBALL_RESEARCH,OPEN
+timezone,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+totalShotsConceded,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+totalSuccessfulPassesExclCrossesAndCorners,LIVE_ONLY,team_stats,,FOOTBALL_RESEARCH,OPEN
+type,LIVE_ONLY,broadcast_match_events | match_commentary | match_events | match_lineups | match_officials | season_awards | season_structure,,CONTENT_MEDIA;FOOTBALL_RESEARCH;IDENTITY_CONTEXT,OPEN
+unsuccessfulPassesOppositionHalf,LIVE_ONLY,team_leaderboard | team_stats,,FOOTBALL_RESEARCH,OPEN
+url,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+uuid,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+value,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+weight,LIVE_ONLY,player_season_info | season_awards | team_squad,,IDENTITY_CONTEXT,OPEN
+width,LIVE_ONLY,broadcast_match_events,,CONTENT_MEDIA,OPEN
+won,LIVE_ONLY,standings,,IDENTITY_CONTEXT,OPEN

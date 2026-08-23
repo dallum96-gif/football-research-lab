@@ -1,0 +1,5 @@
+﻿grain,candidate_key,status,unique_keys,nonblank_rows,duplicate_keys,max_frequency
+team_match,fixture_id,FIXTURE_ID_CANDIDATE,380,3800,380,10
+team_match,source_match_id,SOURCE_MATCH_ID_CANDIDATE,3800,3800,0,1
+team_match,fixture_id+season,FIXTURE_SEASON_COMPOSITE,3800,3800,0,1
+team_match,source_match_id+season,SOURCE_MATCH_SEASON_COMPOSITE,3800,3800,0,1

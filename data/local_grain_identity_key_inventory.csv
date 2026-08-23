@@ -1,0 +1,97 @@
+﻿file,resource_hints,rows_or_objects,identity_like_columns,column_count
+fixtures_master.csv,,3800,away_team_id | fixture_code | fixture_id | home_team_id | season,9
+fixtures_master_corrected.csv,,3800,away_team_id | fixture_code | fixture_id | home_team_id | season,9
+fixtures_master_old_schema.csv,,3420,away_team_id | fixture_id | home_team_id | season,8
+player_identity_registry.csv,player_season,1786,confidence | evidence_basis | identity_status | match_method | season | source_player_id | team_code,9
+data\fixture_match_stats.csv,,3800,away_core_offsides | fixture_id | home_core_offsides | season | source_match_id,57
+data\player_season_capability_map.csv,player_season,49,frl_exact_dictionary_name_match,8
+data\player_season_live_universe_classification.csv,player_season,207,source_endpoints,6
+data\team_leaderboard_capability_map.csv,team_match,63,source_surface,8
+data\team_leaderboard_capability_map_v2.csv,team_match,63,fixture_semantic_status | prior_team_season_delta | source_grain | source_relationship_status | team_grain_status,10
+data\team_leaderboard_fixture_semantic_audit.csv,team_match,48,fixture_columns_found | fixture_concept_pattern | fixture_concept_status,8
+data\team_leaderboard_overlap_grain_semantics.csv,team_match,63,frl_source_surfaces,8
+data\team_leaderboard_source_relationships_full.csv,team_match,9,source_file,6
+data\team_season_capability_delta.csv,team_match,63,team_grain_decision | team_season_delta,8
+data\upstream_pl_stats_schema_by_season.csv,,6559,season | source_surface,6
+features\historical_match_state_v1.csv,,3800,away_last5_away_matches | away_last5_matches | away_matches_prior | away_team_id | fixture_code | fixture_completed | fixture_id | home_last5_home_matches | home_last5_matches | home_matches_prior | home_team_id | season,49
+features\historical_match_state_v2.csv,,3800,away_last5_away_fixture_ids | away_last5_away_matches | away_last5_fixture_ids | away_last5_matches | away_matches_prior | away_team_id | fixture_code | fixture_completed | fixture_id | home_last5_fixture_ids | home_last5_home_fixture_ids | home_last5_home_matches | home_last5_matches | home_matches_prior | home_team_id | season,57
+fixtures\2025-26_all_fixtures.csv,,380,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+fixtures\2026-27_all_fixtures.csv,,380,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+identity\team_seasons.csv,team_match,200,canonical_name | club_id | local_team_id | mapping_source | persistent_team_code | season | source_name | team_season_id,9
+identity\team_seasons_provenance.csv,team_match,10,season | source,4
+_merged\players\2016-17_all_players_gw.csv,player_season,23679,fixture | id | offside | opponent_team | team_a_score | team_h_score,56
+_merged\players\2019-20_all_players_gw.csv,player_season,22560,fixture | opponent_team | team_a_score | team_h_score,33
+_merged\players\2020-21_all_players_gw.csv,player_season,25447,fixture | opponent_team | team | team_a_score | team_h_score,36
+_merged\players\2021-22_all_players_gw.csv,player_season,26505,fixture | opponent_team | team | team_a_score | team_h_score,41
+_merged\players\2022-23_all_players_gw.csv,player_season,26505,fixture | opponent_team | team | team_a_score | team_h_score,41
+_merged\players\2023-24_all_players_gw.csv,player_season,29725,fixture | opponent_team | team | team_a_score | team_h_score,41
+_merged\players\2024-25_all_players_gw.csv,player_season,27605,fixture | opponent_team | team | team_a_score | team_h_score,49
+_merged\players\2025-26_all_players_gw.csv,player_season,29747,fixture_code | player_code | team_code,40
+teams\Wolves_39\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Wolves_39\players\2025-26_all_players_gw.csv,player_season,1489,fixture_code | player_code | team_code,40
+teams\West_Ham_21\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\West_Ham_21\players\2025-26_all_players_gw.csv,player_season,1403,fixture_code | player_code | team_code,40
+teams\Sunderland_56\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Sunderland_56\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Sunderland_56\players\2025-26_all_players_gw.csv,player_season,1804,fixture_code | player_code | team_code,40
+teams\Spurs_6\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Spurs_6\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Spurs_6\players\2025-26_all_players_gw.csv,player_season,1565,fixture_code | player_code | team_code,40
+teams\Nottm_Forest_17\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Nottm_Forest_17\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Nottm_Forest_17\players\2025-26_all_players_gw.csv,player_season,1428,fixture_code | player_code | team_code,40
+teams\Newcastle_4\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Newcastle_4\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Newcastle_4\players\2025-26_all_players_gw.csv,player_season,1435,fixture_code | player_code | team_code,40
+teams\Man_Utd_1\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Man_Utd_1\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Man_Utd_1\players\2025-26_all_players_gw.csv,player_season,1574,fixture_code | player_code | team_code,40
+teams\Man_City_43\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Man_City_43\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Man_City_43\players\2025-26_all_players_gw.csv,player_season,1378,fixture_code | player_code | team_code,40
+teams\Liverpool_14\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Liverpool_14\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Liverpool_14\players\2025-26_all_players_gw.csv,player_season,1391,fixture_code | player_code | team_code,40
+teams\Leeds_2\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Leeds_2\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Leeds_2\players\2025-26_all_players_gw.csv,player_season,1349,fixture_code | player_code | team_code,40
+teams\Ipswich_Town_40\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Hull_City_88\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Fulham_54\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Fulham_54\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Fulham_54\players\2025-26_all_players_gw.csv,player_season,1134,fixture_code | player_code | team_code,40
+teams\Everton_11\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Everton_11\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Everton_11\players\2025-26_all_players_gw.csv,player_season,1381,fixture_code | player_code | team_code,40
+teams\Crystal_Palace_31\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Crystal_Palace_31\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Crystal_Palace_31\players\2025-26_all_players_gw.csv,player_season,1572,fixture_code | player_code | team_code,40
+teams\Coventry_City_9\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Chelsea_8\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Chelsea_8\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Chelsea_8\players\2025-26_all_players_gw.csv,player_season,1335,fixture_code | player_code | team_code,40
+teams\Burnley_90\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Burnley_90\players\2025-26_all_players_gw.csv,player_season,1642,fixture_code | player_code | team_code,40
+teams\Brighton_36\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Brighton_36\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Brighton_36\players\2025-26_all_players_gw.csv,player_season,1724,fixture_code | player_code | team_code,40
+teams\Brentford_94\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Brentford_94\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Brentford_94\players\2025-26_all_players_gw.csv,player_season,1500,fixture_code | player_code | team_code,40
+teams\Bournemouth_91\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Bournemouth_91\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Bournemouth_91\players\2025-26_all_players_gw.csv,player_season,1582,fixture_code | player_code | team_code,40
+teams\Aston_Villa_7\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Aston_Villa_7\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Aston_Villa_7\players\2025-26_all_players_gw.csv,player_season,1713,fixture_code | player_code | team_code,40
+teams\Arsenal_3\fixtures\2025-26_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Arsenal_3\fixtures\2026-27_fixtures.csv,,38,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+teams\Arsenal_3\players\2025-26_all_players_gw.csv,player_season,1348,fixture_code | player_code | team_code,40
+raw_upstream\fpl\fixtures.json,,380,code | id | pulse_id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,17
+players\fixtures\2025-26_all_fixtures.csv,,380,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+players\fixtures\2026-27_all_fixtures.csv,,380,code | id | team_a | team_a_difficulty | team_a_score | team_h | team_h_difficulty | team_h_score,15
+identity\data_quality\fixture_corrections.csv,,1,away_team_id | fixture_id | home_team_id | season | source | source_reference,13
+identity\data_quality\missing_fixture_results.csv,,1,away_team_id | away_team_name | fixture_code | fixture_id | home_team_id | home_team_name | season,11
+data\live_pl_api_cache\match_stats.json,,2,side | teamId,3
+data\live_pl_api_cache\player_career.json,player_season,31,currentTeam | id,11
+data\live_pl_api_cache\team_form.json,team_match,5,awayTeam | competitionId | homeTeam | matchId | matchWeek | seasonId | seasonInfo,17

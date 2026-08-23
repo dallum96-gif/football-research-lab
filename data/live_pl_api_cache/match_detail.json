@@ -1,0 +1,68 @@
+{
+  "status": 200,
+  "payload": {
+    "phase": "1",
+    "kickoffTimezone": "BST",
+    "competitionId": "8",
+    "period": "FullTime",
+    "matchWeek": 1,
+    "kickoff": "2025-08-15 20:00:00",
+    "awayTeam": {
+      "score": 2,
+      "name": "Bournemouth",
+      "id": "91",
+      "halfTimeScore": 0,
+      "shortName": "Bournemouth",
+      "abbr": "BOU",
+      "redCards": 0
+    },
+    "seasonInfo": {
+      "name": "Season 2025/2026",
+      "id": "2025"
+    },
+    "competition": "Premier League",
+    "clock": "97",
+    "kickoffTimezoneString": "Europe/London",
+    "seasonId": "2025",
+    "homeTeam": {
+      "score": 4,
+      "name": "Liverpool",
+      "id": "14",
+      "halfTimeScore": 1,
+      "shortName": "Liverpool",
+      "abbr": "LIV",
+      "redCards": 0
+    },
+    "ground": "Anfield, Liverpool",
+    "resultType": "NormalResult",
+    "matchId": "2561895",
+    "attendance": 60315
+  },
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v2/matches/{id}",
+    "cache-control": "max-age=5, stale-while-revalidate=120, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:02 GMT",
+    "x-cache-status": "MISS",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "294",
+    "x-ratelimit-reset": "58",
+    "x-request-id": "55b2ef36-ac11-94eb-8a70-b308b5a221ca",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 9f542e15440a31bd62d618848e2633fc.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "XzOqLIUD7AJz78E_4xLvC-IP4gaS54SKuLcP-LbW7Qr9fFNoFwe59Q==",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

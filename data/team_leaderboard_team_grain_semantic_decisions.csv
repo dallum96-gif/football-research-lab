@@ -1,0 +1,8 @@
+﻿field_name,live_family,frl_grains,decision,reason
+expectedAssists,Review,player_match | player_season | team_match,TEAM_MATCH_NOT_EQUIVALENT,"FRL representation is Team–Fixture, while live discovery is Team–Season. Aggregation semantics differ."
+expectedGoals,Finishing & Goals,player_match | player_season | team_match,TEAM_MATCH_NOT_EQUIVALENT,"FRL representation is Team–Fixture, while live discovery is Team–Season. Aggregation semantics differ."
+expectedGoalsFreekick,Finishing & Goals,player_season | team_match,TEAM_MATCH_NOT_EQUIVALENT,"FRL representation is Team–Fixture, while live discovery is Team–Season. Aggregation semantics differ."
+expectedGoalsOnTarget,Finishing & Goals,player_match | player_season | team_match,TEAM_MATCH_NOT_EQUIVALENT,"FRL representation is Team–Fixture, while live discovery is Team–Season. Aggregation semantics differ."
+expectedGoalsOnTargetConceded,Finishing & Goals,player_season | team_match,TEAM_MATCH_NOT_EQUIVALENT,"FRL representation is Team–Fixture, while live discovery is Team–Season. Aggregation semantics differ."
+possessionPercentage,Possession,team_match,TEAM_MATCH_NOT_EQUIVALENT,"FRL representation is Team–Fixture, while live discovery is Team–Season. Aggregation semantics differ."
+touchesInOppBox,Shooting,team_match,TEAM_MATCH_NOT_EQUIVALENT,"FRL representation is Team–Fixture, while live discovery is Team–Season. Aggregation semantics differ."

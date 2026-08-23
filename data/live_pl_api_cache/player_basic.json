@@ -1,0 +1,48 @@
+{
+  "status": 200,
+  "payload": {
+    "currentTeam": {
+      "name": "Manchester City",
+      "id": "43",
+      "shortName": "Man City"
+    },
+    "firstName": "Erling",
+    "lastName": "Haaland",
+    "country": {
+      "isoCode": "NO",
+      "country": "Norway",
+      "demonym": "Norwegian"
+    },
+    "name": "Erling Haaland",
+    "id": "223094",
+    "position": "Forward"
+  },
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v1/players/{pid}/basic",
+    "cache-control": "max-age=30, stale-while-revalidate=600, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:05 GMT",
+    "x-cache-status": "HIT",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "284",
+    "x-ratelimit-reset": "55",
+    "x-request-id": "c1efaf10-ca92-4f8b-9562-674d933974ef",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 a00ac5fbe4bc6581e06a8b7ac073f618.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "ADsuYQymsssW7ApGgg77YYMJTr--eop6RYKVI4JKCOhUBTkmtsxtkA==",
+    "age": "8",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

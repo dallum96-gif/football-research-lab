@@ -1,0 +1,10 @@
+﻿source_file,relationship,status,observed,derived,difference
+C:\Users\dlall\football_database\frl-source-audit\data\live_pl_api_cache\team_leaderboard.json,duels,EXACT,3556.0,3556.0,0.0
+C:\Users\dlall\football_database\frl-source-audit\data\live_pl_api_cache\team_stats.json,duels,EXACT,89039.0,89039.0,0.0
+SUMMARY,duels,SUMMARY tested=2 exact=2 violated=0 untestable=0,,,
+C:\Users\dlall\football_database\frl-source-audit\data\live_pl_api_cache\team_leaderboard.json,goalsConceded,EXACT,35.0,35.0,0.0
+C:\Users\dlall\football_database\frl-source-audit\data\live_pl_api_cache\team_stats.json,goalsConceded,EXACT,1329.0,1329.0,0.0
+SUMMARY,goalsConceded,SUMMARY tested=2 exact=2 violated=0 untestable=0,,,
+C:\Users\dlall\football_database\frl-source-audit\data\live_pl_api_cache\team_leaderboard.json,aerialDuels,EXACT,854.0,854.0,0.0
+C:\Users\dlall\football_database\frl-source-audit\data\live_pl_api_cache\team_stats.json,aerialDuels,EXACT,21202.0,21202.0,0.0
+SUMMARY,aerialDuels,SUMMARY tested=2 exact=2 violated=0 untestable=0,,,

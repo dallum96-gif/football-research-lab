@@ -1,0 +1,186 @@
+{
+  "status": 200,
+  "payload": {
+    "awayTeam": {
+      "cards": [
+        {
+          "period": "FirstHalf",
+          "time": "14",
+          "type": "Yellow",
+          "playerId": "111317",
+          "timestamp": "20250815T201459+0100"
+        },
+        {
+          "period": "SecondHalf",
+          "time": "81",
+          "type": "Yellow",
+          "playerId": "444102",
+          "timestamp": "20250815T214052+0100"
+        }
+      ],
+      "subs": [
+        {
+          "period": "SecondHalf",
+          "playerOnId": "424044",
+          "playerOffId": "503139",
+          "time": "74",
+          "timestamp": "20250815T213348+0100"
+        },
+        {
+          "period": "SecondHalf",
+          "playerOnId": "606775",
+          "playerOffId": "111317",
+          "time": "84",
+          "timestamp": "20250815T214344+0100"
+        },
+        {
+          "period": "SecondHalf",
+          "playerOnId": "463981",
+          "playerOffId": "54469",
+          "time": "90",
+          "timestamp": "20250815T215004+0100"
+        },
+        {
+          "period": "SecondHalf",
+          "playerOnId": "560262",
+          "playerOffId": "200785",
+          "time": "91",
+          "timestamp": "20250815T215016+0100"
+        }
+      ],
+      "name": "Bournemouth",
+      "id": "91",
+      "shortName": "Bournemouth",
+      "goals": [
+        {
+          "goalType": "Goal",
+          "period": "SecondHalf",
+          "assistPlayerId": "111317",
+          "time": "64",
+          "playerId": "437730",
+          "timestamp": "20250815T212313+0100"
+        },
+        {
+          "goalType": "Goal",
+          "period": "SecondHalf",
+          "assistPlayerId": "424044",
+          "time": "76",
+          "playerId": "437730",
+          "timestamp": "20250815T213602+0100"
+        }
+      ]
+    },
+    "homeTeam": {
+      "cards": [
+        {
+          "period": "FirstHalf",
+          "time": "43",
+          "type": "Yellow",
+          "playerId": "544877",
+          "timestamp": "20250815T204327+0100"
+        }
+      ],
+      "subs": [
+        {
+          "period": "SecondHalf",
+          "playerOnId": "158983",
+          "playerOffId": "216094",
+          "time": "60",
+          "timestamp": "20250815T211947+0100"
+        },
+        {
+          "period": "SecondHalf",
+          "playerOnId": "122798",
+          "playerOffId": "544877",
+          "time": "60",
+          "timestamp": "20250815T211954+0100"
+        },
+        {
+          "period": "SecondHalf",
+          "playerOnId": "171287",
+          "playerOffId": "510663",
+          "time": "72",
+          "timestamp": "20250815T213133+0100"
+        },
+        {
+          "period": "SecondHalf",
+          "playerOnId": "206915",
+          "playerOffId": "243016",
+          "time": "72",
+          "timestamp": "20250815T213138+0100"
+        },
+        {
+          "period": "SecondHalf",
+          "playerOnId": "223541",
+          "playerOffId": "494595",
+          "time": "82",
+          "timestamp": "20250815T214117+0100"
+        }
+      ],
+      "name": "Liverpool",
+      "id": "14",
+      "shortName": "Liverpool",
+      "goals": [
+        {
+          "goalType": "Goal",
+          "period": "FirstHalf",
+          "assistPlayerId": "243016",
+          "time": "37",
+          "playerId": "510663",
+          "timestamp": "20250815T203720+0100"
+        },
+        {
+          "goalType": "Goal",
+          "period": "SecondHalf",
+          "assistPlayerId": "510663",
+          "time": "49",
+          "playerId": "243298",
+          "timestamp": "20250815T210829+0100"
+        },
+        {
+          "goalType": "Goal",
+          "period": "SecondHalf",
+          "assistPlayerId": null,
+          "time": "88",
+          "playerId": "223541",
+          "timestamp": "20250815T214752+0100"
+        },
+        {
+          "goalType": "Goal",
+          "period": "SecondHalf",
+          "assistPlayerId": "158983",
+          "time": "94",
+          "playerId": "118748",
+          "timestamp": "20250815T215358+0100"
+        }
+      ]
+    }
+  },
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v1/matches/{id}/events",
+    "cache-control": "max-age=5, stale-while-revalidate=120, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:02 GMT",
+    "x-cache-status": "MISS",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "293",
+    "x-ratelimit-reset": "58",
+    "x-request-id": "825cc875-197a-4592-96e0-bf6df7cf6840",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 9217f52f502ad5d150d3fc20ec1e8a8e.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "Bm4a3Axwx3yY1Qj3_2snn3KERmfm9Sehl9e-1JaSP3naR9N-A_-Wlw==",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

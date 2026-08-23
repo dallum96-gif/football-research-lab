@@ -1,0 +1,6 @@
+﻿grain,source_key_candidate,registry,registry_values_present,potential_key_overlap,canonical_assignment
+team_match,fixture_id,fixtures_master,380,PRESENT,NOT_PERFORMED
+team_match,source_match_id,fixture_match_stats,3800,PRESENT,NOT_PERFORMED
+squad,team_id/code-like,team_seasons,42,PRESENT,NOT_PERFORMED
+player_season,source_player_id,player_registry,0,NONE,NOT_PERFORMED
+player_season,team_code,player_registry,0,NONE,NOT_PERFORMED

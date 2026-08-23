@@ -1,0 +1,63 @@
+{
+  "status": 200,
+  "payload": {
+    "currentTeam": {
+      "loan": 0,
+      "name": "Manchester City",
+      "id": "43",
+      "shortName": "Man City"
+    },
+    "country": {
+      "isoCode": "NO",
+      "country": "Norway",
+      "demonym": "Norwegian"
+    },
+    "countryOfBirth": "England",
+    "name": {
+      "last": "Haaland",
+      "display": "Erling Haaland",
+      "first": "Erling"
+    },
+    "shirtNum": 9,
+    "weight": 94,
+    "dates": {
+      "joinedClub": "2022-07-01",
+      "birth": "2000-07-21"
+    },
+    "id": {
+      "competitionId": "8",
+      "seasonId": "2025",
+      "playerId": "223094"
+    },
+    "position": "Forward",
+    "preferredFoot": "Left",
+    "height": 195
+  },
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v1/competitions/{cid}/seasons/{sid}/playerinfo/{pid}",
+    "cache-control": "max-age=30, stale-while-revalidate=600, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:07 GMT",
+    "x-cache-status": "MISS",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "281",
+    "x-ratelimit-reset": "53",
+    "x-request-id": "d1036bc3-cdb0-4bab-91cd-8ed8f739d775",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 e187c1f80e3549732a3311d52d11fb3e.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "N0Mk6FpTUYteIWucDAzVs6m48iWfM6y2PGQwvou-WW-XSV4VFyR_qg==",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

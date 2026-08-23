@@ -1,0 +1,222 @@
+{
+  "status": 200,
+  "payload": [
+    {
+      "phase": "1",
+      "kickoffTimezone": "BST",
+      "competitionId": "8",
+      "period": "FullTime",
+      "matchWeek": 38,
+      "kickoff": "2026-05-24 16:00:00",
+      "awayTeam": {
+        "score": 1,
+        "name": "Brentford",
+        "id": "94",
+        "halfTimeScore": 0,
+        "shortName": "Brentford",
+        "abbr": "BRE",
+        "redCards": 0
+      },
+      "seasonInfo": {
+        "name": "Season 2025/2026",
+        "id": "2025"
+      },
+      "competition": "Premier League",
+      "clock": "101",
+      "kickoffTimezoneString": "Europe/London",
+      "seasonId": "2025",
+      "homeTeam": {
+        "score": 1,
+        "name": "Liverpool",
+        "id": "14",
+        "halfTimeScore": 0,
+        "shortName": "Liverpool",
+        "abbr": "LIV",
+        "redCards": 0
+      },
+      "ground": "Anfield, Liverpool",
+      "resultType": "NormalResult",
+      "matchId": "2562269",
+      "attendance": 60325
+    },
+    {
+      "phase": "1",
+      "kickoffTimezone": "BST",
+      "competitionId": "8",
+      "period": "FullTime",
+      "matchWeek": 37,
+      "kickoff": "2026-05-15 20:00:00",
+      "awayTeam": {
+        "score": 2,
+        "name": "Liverpool",
+        "id": "14",
+        "halfTimeScore": 0,
+        "shortName": "Liverpool",
+        "abbr": "LIV",
+        "redCards": 0
+      },
+      "seasonInfo": {
+        "name": "Season 2025/2026",
+        "id": "2025"
+      },
+      "competition": "Premier League",
+      "clock": "99",
+      "kickoffTimezoneString": "Europe/London",
+      "seasonId": "2025",
+      "homeTeam": {
+        "score": 4,
+        "name": "Aston Villa",
+        "id": "7",
+        "halfTimeScore": 1,
+        "shortName": "Aston Villa",
+        "abbr": "AVL",
+        "redCards": 0
+      },
+      "ground": "Villa Park, Birmingham",
+      "resultType": "NormalResult",
+      "matchId": "2562257",
+      "attendance": 43033
+    },
+    {
+      "phase": "1",
+      "kickoffTimezone": "BST",
+      "competitionId": "8",
+      "period": "FullTime",
+      "matchWeek": 36,
+      "kickoff": "2026-05-09 12:30:00",
+      "awayTeam": {
+        "score": 1,
+        "name": "Chelsea",
+        "id": "8",
+        "halfTimeScore": 1,
+        "shortName": "Chelsea",
+        "abbr": "CHE",
+        "redCards": 0
+      },
+      "seasonInfo": {
+        "name": "Season 2025/2026",
+        "id": "2025"
+      },
+      "competition": "Premier League",
+      "clock": "98",
+      "kickoffTimezoneString": "Europe/London",
+      "seasonId": "2025",
+      "homeTeam": {
+        "score": 1,
+        "name": "Liverpool",
+        "id": "14",
+        "halfTimeScore": 1,
+        "shortName": "Liverpool",
+        "abbr": "LIV",
+        "redCards": 0
+      },
+      "ground": "Anfield, Liverpool",
+      "resultType": "NormalResult",
+      "matchId": "2562249",
+      "attendance": 60429
+    },
+    {
+      "phase": "1",
+      "kickoffTimezone": "BST",
+      "competitionId": "8",
+      "period": "FullTime",
+      "matchWeek": 35,
+      "kickoff": "2026-05-03 15:30:00",
+      "awayTeam": {
+        "score": 2,
+        "name": "Liverpool",
+        "id": "14",
+        "halfTimeScore": 0,
+        "shortName": "Liverpool",
+        "abbr": "LIV",
+        "redCards": 0
+      },
+      "seasonInfo": {
+        "name": "Season 2025/2026",
+        "id": "2025"
+      },
+      "competition": "Premier League",
+      "clock": "96",
+      "kickoffTimezoneString": "Europe/London",
+      "seasonId": "2025",
+      "homeTeam": {
+        "score": 3,
+        "name": "Manchester United",
+        "id": "1",
+        "halfTimeScore": 2,
+        "shortName": "Man Utd",
+        "abbr": "MUN",
+        "redCards": 0
+      },
+      "ground": "Old Trafford, Manchester",
+      "resultType": "NormalResult",
+      "matchId": "2562242",
+      "attendance": 74027
+    },
+    {
+      "phase": "1",
+      "kickoffTimezone": "BST",
+      "competitionId": "8",
+      "period": "FullTime",
+      "matchWeek": 34,
+      "kickoff": "2026-04-25 15:00:00",
+      "awayTeam": {
+        "score": 1,
+        "name": "Crystal Palace",
+        "id": "31",
+        "halfTimeScore": 0,
+        "shortName": "Crystal Palace",
+        "abbr": "CRY",
+        "redCards": 0
+      },
+      "seasonInfo": {
+        "name": "Season 2025/2026",
+        "id": "2025"
+      },
+      "competition": "Premier League",
+      "clock": "98",
+      "kickoffTimezoneString": "Europe/London",
+      "seasonId": "2025",
+      "homeTeam": {
+        "score": 3,
+        "name": "Liverpool",
+        "id": "14",
+        "halfTimeScore": 2,
+        "shortName": "Liverpool",
+        "abbr": "LIV",
+        "redCards": 0
+      },
+      "ground": "Anfield, Liverpool",
+      "resultType": "NormalResult",
+      "matchId": "2562230",
+      "attendance": 60314
+    }
+  ],
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v1/competitions/{cid}/seasons/{sid}/teams/{tid}/form",
+    "cache-control": "max-age=60, stale-while-revalidate=600, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:04 GMT",
+    "x-cache-status": "MISS",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "287",
+    "x-ratelimit-reset": "56",
+    "x-request-id": "4688c375-a93f-4605-b918-8e43fb67830e",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 13331a20aa50678eab1ed81d7f6dd5fa.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "0QA61Q_FWpBN4HmXw-k2LvnTYe6vHguzERFIEfi3LhAi-uN5fPxCFg==",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

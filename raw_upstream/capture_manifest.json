@@ -1,0 +1,9 @@
+{
+  "captured_at": "2026-08-22T19:25:40.852306+00:00",
+  "tool": "capture_upstream_schema_samples.py",
+  "sources": {
+    "fpl": "https://fantasy.premierleague.com/api",
+    "pulselive": "existing repository pulselive_live.py adapter"
+  },
+  "note": "Raw schema samples only; not canonical FRL data."
+}

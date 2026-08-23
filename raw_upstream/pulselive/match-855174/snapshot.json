@@ -1,0 +1,1171 @@
+{
+  "source": "Premier League / PulseLive SDP",
+  "source_match_id": "855174",
+  "retrieved_at": "2026-08-22T19:25:43.489712+00:00",
+  "resources": {
+    "match": {
+      "endpoint": "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v2/matches/855174",
+      "retrieved_at": "2026-08-22T19:25:42.981162+00:00",
+      "payload": {
+        "phase": "1",
+        "kickoffTimezone": "BST",
+        "competitionId": "8",
+        "period": "FullTime",
+        "matchWeek": 1,
+        "kickoff": "2016-08-13 15:00:00",
+        "awayTeam": {
+          "score": 1,
+          "name": "Swansea City",
+          "id": "80",
+          "halfTimeScore": 0,
+          "shortName": "Swansea",
+          "abbr": "SWA",
+          "redCards": 0
+        },
+        "seasonInfo": {
+          "name": "Season 2016/2017",
+          "id": "2016"
+        },
+        "competition": "Premier League",
+        "clock": "96",
+        "kickoffTimezoneString": "Europe/London",
+        "seasonId": "2016",
+        "homeTeam": {
+          "score": 0,
+          "name": "Burnley",
+          "id": "90",
+          "halfTimeScore": 0,
+          "shortName": "Burnley",
+          "abbr": "BUR",
+          "redCards": 0
+        },
+        "ground": "Turf Moor, Burnley",
+        "resultType": "NormalResult",
+        "matchId": "855174",
+        "attendance": 19126
+      },
+      "headers": {
+        "content-type": "application/json",
+        "transfer-encoding": "chunked",
+        "connection": "close",
+        "x-pulse-sdp-endpoint": "/v2/matches/{id}",
+        "cache-control": "max-age=5, stale-while-revalidate=120, stale-if-error=86400",
+        "date": "Sat, 22 Aug 2026 19:25:43 GMT",
+        "x-cache-status": "MISS",
+        "x-cache-server": "norp",
+        "x-ratelimit-limit": "300, 300;w=60",
+        "x-ratelimit-remaining": "299",
+        "x-ratelimit-reset": "17",
+        "x-request-id": "7f8e22c7-5ad5-4596-8a8e-dd69b05796d0",
+        "vary": "Origin",
+        "x-cache": "Miss from cloudfront",
+        "via": "1.1 9f542e15440a31bd62d618848e2633fc.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "MAN51-P6",
+        "alt-svc": "h3=\":443\"; ma=86400",
+        "x-amz-cf-id": "nuWXs2BnM9POujVv-hMCpnrdUgyuWSw_-QHyOb1Nho7ZFNhdskkBFA==",
+        "x-frame-options": "DENY",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+        "set-cookie": "Secure; HttpOnly;"
+      }
+    },
+    "events": {
+      "endpoint": "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v1/matches/855174/events",
+      "retrieved_at": "2026-08-22T19:25:43.099387+00:00",
+      "payload": {
+        "awayTeam": {
+          "cards": [
+            {
+              "period": "SecondHalf",
+              "time": "90",
+              "type": "Yellow",
+              "playerId": "57145",
+              "timestamp": "20160813T164629+0100"
+            },
+            {
+              "period": "SecondHalf",
+              "time": "53",
+              "type": "Yellow",
+              "playerId": "80789",
+              "timestamp": "20160813T160945+0100"
+            }
+          ],
+          "subs": [
+            {
+              "period": "SecondHalf",
+              "playerOnId": "49195",
+              "playerOffId": "111787",
+              "time": "64",
+              "timestamp": "20160813T162055+0100"
+            },
+            {
+              "period": "SecondHalf",
+              "playerOnId": "55422",
+              "playerOffId": "15114",
+              "time": "60",
+              "timestamp": "20160813T161622+0100"
+            },
+            {
+              "period": "SecondHalf",
+              "playerOnId": "42996",
+              "playerOffId": "11829",
+              "time": "87",
+              "timestamp": "20160813T164317+0100"
+            }
+          ],
+          "name": "Swansea City",
+          "id": "80",
+          "shortName": "Swansea",
+          "goals": [
+            {
+              "goalType": "Goal",
+              "period": "SecondHalf",
+              "assistPlayerId": null,
+              "time": "82",
+              "playerId": "49277",
+              "timestamp": "20160813T163848+0100"
+            }
+          ]
+        },
+        "homeTeam": {
+          "cards": [
+            {
+              "period": "SecondHalf",
+              "time": "67",
+              "type": "Yellow",
+              "playerId": "40616",
+              "timestamp": "20160813T162353+0100"
+            },
+            {
+              "period": "FirstHalf",
+              "time": "42",
+              "type": "Yellow",
+              "playerId": "19556",
+              "timestamp": "20160813T154215+0100"
+            },
+            {
+              "period": "SecondHalf",
+              "time": "80",
+              "type": "Yellow",
+              "playerId": "68983",
+              "timestamp": "20160813T163651+0100"
+            }
+          ],
+          "subs": [
+            {
+              "period": "SecondHalf",
+              "playerOnId": "60586",
+              "playerOffId": "39158",
+              "time": "75",
+              "timestamp": "20160813T163138+0100"
+            },
+            {
+              "period": "SecondHalf",
+              "playerOnId": "34654",
+              "playerOffId": "19556",
+              "time": "87",
+              "timestamp": "20160813T164339+0100"
+            }
+          ],
+          "name": "Burnley",
+          "id": "90",
+          "shortName": "Burnley",
+          "goals": []
+        }
+      },
+      "headers": {
+        "content-type": "application/json",
+        "transfer-encoding": "chunked",
+        "connection": "close",
+        "x-pulse-sdp-endpoint": "/v1/matches/{id}/events",
+        "cache-control": "max-age=5, stale-while-revalidate=120, stale-if-error=86400",
+        "date": "Sat, 22 Aug 2026 19:25:43 GMT",
+        "x-cache-status": "MISS",
+        "x-cache-server": "norp",
+        "x-ratelimit-limit": "300, 300;w=60",
+        "x-ratelimit-remaining": "298",
+        "x-ratelimit-reset": "17",
+        "x-request-id": "79fbffd0-418b-42b4-bef2-ae0203374c7c",
+        "vary": "Origin",
+        "x-cache": "Miss from cloudfront",
+        "via": "1.1 9f9fb24eb1d0a839508189d948930b52.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "MAN51-P6",
+        "alt-svc": "h3=\":443\"; ma=86400",
+        "x-amz-cf-id": "VhMm3khM192THnXU8h3kPp7EjGt9oIPBPBMwjCy7jA1pJCUUl32PmA==",
+        "x-frame-options": "DENY",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+        "set-cookie": "Secure; HttpOnly;"
+      }
+    },
+    "lineups": {
+      "endpoint": "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v3/matches/855174/lineups",
+      "retrieved_at": "2026-08-22T19:25:43.220770+00:00",
+      "payload": {
+        "home_team": {
+          "players": [
+            {
+              "firstName": "Michael",
+              "lastName": "Keane",
+              "shirtNum": "5",
+              "isCaptain": false,
+              "id": "106611",
+              "position": "Defender"
+            },
+            {
+              "firstName": "Andre",
+              "lastName": "Gray",
+              "shirtNum": "7",
+              "isCaptain": false,
+              "id": "73426",
+              "position": "Forward"
+            },
+            {
+              "firstName": "Lukas",
+              "lastName": "Jutkiewicz",
+              "subPosition": "Forward",
+              "shirtNum": "19",
+              "isCaptain": false,
+              "id": "34654",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Tendayi",
+              "lastName": "Darikwa",
+              "subPosition": "Defender",
+              "shirtNum": "27",
+              "isCaptain": false,
+              "id": "85017",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "James",
+              "lastName": "Tarkowski",
+              "subPosition": "Defender",
+              "shirtNum": "26",
+              "isCaptain": false,
+              "id": "17761",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Paul",
+              "lastName": "Robinson",
+              "subPosition": "Goalkeeper",
+              "shirtNum": "17",
+              "isCaptain": false,
+              "id": "1801",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Stephen",
+              "lastName": "Ward",
+              "shirtNum": "23",
+              "isCaptain": false,
+              "id": "40616",
+              "position": "Defender"
+            },
+            {
+              "firstName": "Matthew",
+              "lastName": "Lowton",
+              "shirtNum": "2",
+              "isCaptain": false,
+              "id": "68983",
+              "position": "Defender"
+            },
+            {
+              "firstName": "Dean",
+              "lastName": "Marney",
+              "shirtNum": "8",
+              "isCaptain": false,
+              "id": "15982",
+              "position": "Midfielder"
+            },
+            {
+              "firstName": "David",
+              "lastName": "Jones",
+              "shirtNum": "14",
+              "isCaptain": false,
+              "id": "19556",
+              "position": "Midfielder",
+              "knownName": "David Jones"
+            },
+            {
+              "firstName": "Fredrik",
+              "lastName": "Ulvestad",
+              "subPosition": "Midfielder",
+              "shirtNum": "20",
+              "isCaptain": false,
+              "id": "95508",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Jóhann",
+              "lastName": "Gudmundsson",
+              "subPosition": "Midfielder",
+              "shirtNum": "25",
+              "isCaptain": false,
+              "id": "60586",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Michael",
+              "lastName": "Kightly",
+              "subPosition": "Midfielder",
+              "shirtNum": "11",
+              "isCaptain": false,
+              "id": "15944",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Tom",
+              "lastName": "Heaton",
+              "shirtNum": "1",
+              "isCaptain": true,
+              "id": "21205",
+              "position": "Goalkeeper"
+            },
+            {
+              "firstName": "Ben",
+              "lastName": "Mee",
+              "shirtNum": "6",
+              "isCaptain": false,
+              "id": "51927",
+              "position": "Defender"
+            },
+            {
+              "firstName": "Scott",
+              "lastName": "Arfield",
+              "shirtNum": "37",
+              "isCaptain": false,
+              "id": "39158",
+              "position": "Midfielder"
+            },
+            {
+              "firstName": "George",
+              "lastName": "Boyd",
+              "shirtNum": "21",
+              "isCaptain": false,
+              "id": "28244",
+              "position": "Midfielder"
+            },
+            {
+              "firstName": "Sam",
+              "lastName": "Vokes",
+              "shirtNum": "9",
+              "isCaptain": false,
+              "id": "40399",
+              "position": "Forward"
+            }
+          ],
+          "teamId": "90",
+          "formation": {
+            "subs": [
+              "15944",
+              "1801",
+              "34654",
+              "95508",
+              "60586",
+              "17761",
+              "85017"
+            ],
+            "teamId": "90",
+            "lineup": [
+              [
+                "21205"
+              ],
+              [
+                "68983",
+                "106611",
+                "51927",
+                "40616"
+              ],
+              [
+                "28244",
+                "15982",
+                "19556",
+                "39158"
+              ],
+              [
+                "73426",
+                "40399"
+              ]
+            ],
+            "formation": "4-4-2"
+          },
+          "managers": [
+            {
+              "firstName": "Sean",
+              "lastName": "Dyche",
+              "id": "40853",
+              "type": "Manager"
+            }
+          ]
+        },
+        "away_team": {
+          "players": [
+            {
+              "firstName": "Lukasz",
+              "lastName": "Fabianski",
+              "shirtNum": "1",
+              "isCaptain": false,
+              "id": "37096",
+              "position": "Goalkeeper"
+            },
+            {
+              "firstName": "Leroy",
+              "lastName": "Fer",
+              "shirtNum": "8",
+              "isCaptain": false,
+              "id": "49277",
+              "position": "Midfielder"
+            },
+            {
+              "firstName": "Gylfi",
+              "lastName": "Sigurdsson",
+              "subPosition": "Midfielder",
+              "shirtNum": "23",
+              "isCaptain": false,
+              "id": "55422",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Jefferson",
+              "lastName": "Montero",
+              "subPosition": "Midfielder",
+              "shirtNum": "20",
+              "isCaptain": false,
+              "id": "49195",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Jay",
+              "lastName": "Fulton",
+              "subPosition": "Midfielder",
+              "shirtNum": "56",
+              "isCaptain": false,
+              "id": "96305",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Federico",
+              "lastName": "Fernández",
+              "shirtNum": "33",
+              "isCaptain": false,
+              "id": "57145",
+              "position": "Defender"
+            },
+            {
+              "firstName": "Jack",
+              "lastName": "Cork",
+              "shirtNum": "24",
+              "isCaptain": false,
+              "id": "40145",
+              "position": "Midfielder"
+            },
+            {
+              "firstName": "Kristoffer",
+              "lastName": "Nordfeldt",
+              "subPosition": "Goalkeeper",
+              "shirtNum": "13",
+              "isCaptain": false,
+              "id": "61760",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Fernando",
+              "lastName": "Llorente",
+              "shirtNum": "9",
+              "isCaptain": false,
+              "id": "19760",
+              "position": "Forward"
+            },
+            {
+              "firstName": "Mike",
+              "lastName": "van der Hoorn",
+              "subPosition": "Defender",
+              "shirtNum": "5",
+              "isCaptain": false,
+              "id": "97615",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Nathan",
+              "lastName": "Dyer",
+              "subPosition": "Midfielder",
+              "shirtNum": "12",
+              "isCaptain": false,
+              "id": "21083",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Angel",
+              "lastName": "Rangel",
+              "subPosition": "Defender",
+              "shirtNum": "22",
+              "isCaptain": false,
+              "id": "42996",
+              "position": "Substitute"
+            },
+            {
+              "firstName": "Stephen",
+              "lastName": "Kingsley",
+              "shirtNum": "35",
+              "isCaptain": false,
+              "id": "96306",
+              "position": "Defender"
+            },
+            {
+              "firstName": "Jordi",
+              "lastName": "Amat",
+              "shirtNum": "2",
+              "isCaptain": false,
+              "id": "80789",
+              "position": "Defender"
+            },
+            {
+              "firstName": "Kyle",
+              "lastName": "Naughton",
+              "shirtNum": "26",
+              "isCaptain": false,
+              "id": "49539",
+              "position": "Defender"
+            },
+            {
+              "firstName": "Leon",
+              "lastName": "Britton",
+              "shirtNum": "7",
+              "isCaptain": true,
+              "id": "15114",
+              "position": "Midfielder"
+            },
+            {
+              "firstName": "Wayne",
+              "lastName": "Routledge",
+              "shirtNum": "15",
+              "isCaptain": false,
+              "id": "11829",
+              "position": "Forward"
+            },
+            {
+              "firstName": "Modou",
+              "lastName": "Barrow",
+              "shirtNum": "17",
+              "isCaptain": false,
+              "id": "111787",
+              "position": "Forward"
+            }
+          ],
+          "teamId": "80",
+          "formation": {
+            "subs": [
+              "97615",
+              "21083",
+              "61760",
+              "49195",
+              "42996",
+              "55422",
+              "96305"
+            ],
+            "teamId": "80",
+            "lineup": [
+              [
+                "37096"
+              ],
+              [
+                "49539",
+                "57145",
+                "80789",
+                "96306"
+              ],
+              [
+                "40145",
+                "15114",
+                "49277"
+              ],
+              [
+                "111787",
+                "19760",
+                "11829"
+              ]
+            ],
+            "formation": "4-3-3"
+          },
+          "managers": [
+            {
+              "firstName": "Francesco",
+              "lastName": "Guidolin",
+              "id": "141",
+              "type": "Manager"
+            }
+          ]
+        }
+      },
+      "headers": {
+        "content-type": "application/json",
+        "transfer-encoding": "chunked",
+        "connection": "close",
+        "x-pulse-sdp-endpoint": "/v3/matches/{id}/lineups",
+        "cache-control": "max-age=10, stale-while-revalidate=600, stale-if-error=86400",
+        "date": "Sat, 22 Aug 2026 19:25:43 GMT",
+        "x-cache-status": "MISS",
+        "x-cache-server": "norp",
+        "x-ratelimit-limit": "300, 300;w=60",
+        "x-ratelimit-remaining": "297",
+        "x-ratelimit-reset": "17",
+        "x-request-id": "743d9528-d8df-4503-bb54-edfb5e4e608f",
+        "vary": "Origin",
+        "x-cache": "Miss from cloudfront",
+        "via": "1.1 ea4c2c9e1fb7862f35bf288099d173ee.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "MAN51-P6",
+        "alt-svc": "h3=\":443\"; ma=86400",
+        "x-amz-cf-id": "5Io2D0PWC-FtusXgn03JB1AT3eKG5yCVSM9NySwqKuUfrkjGTeEe_A==",
+        "x-frame-options": "DENY",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+        "set-cookie": "Secure; HttpOnly;"
+      }
+    },
+    "stats": {
+      "endpoint": "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v3/matches/855174/stats",
+      "retrieved_at": "2026-08-22T19:25:43.364168+00:00",
+      "payload": [
+        {
+          "side": "Away",
+          "stats": {
+            "attLfTarget": 1.0,
+            "bigChanceScored": 1.0,
+            "ballRecovery": 68.0,
+            "attGoalLowRight": 1.0,
+            "savedObox": 2.0,
+            "attIboxBlocked": 1.0,
+            "accurateLongBalls": 32.0,
+            "totalClearance": 49.0,
+            "attObxCentre": 6.0,
+            "attLfTotal": 4.0,
+            "attemptsIbox": 11.0,
+            "saves": 3.0,
+            "attRfTarget": 3.0,
+            "fwdPass": 165.0,
+            "accurateCross": 12.0,
+            "wonContest": 8.0,
+            "goals": 1.0,
+            "fouledFinalThird": 4.0,
+            "totalAttAssist": 13.0,
+            "attCmissRight": 1.0,
+            "ontargetScoringAtt": 9.0,
+            "rightsidePass": 82.0,
+            "possLostAll": 137.0,
+            "duelWon": 69.0,
+            "attFreekickTotal": 1.0,
+            "totalScoringAtt": 17.0,
+            "attOboxBlocked": 1.0,
+            "aerialLost": 20.0,
+            "attIboxTarget": 5.0,
+            "accurateKeeperSweeper": 1.0,
+            "attSvLowCentre": 2.0,
+            "attMissLeft": 1.0,
+            "totalCross": 28.0,
+            "wonTackle": 16.0,
+            "attOboxTarget": 3.0,
+            "effectiveClearance": 34.0,
+            "totalCornersIntobox": 3.0,
+            "totalLayoffs": 16.0,
+            "totalChippedPass": 29.0,
+            "accurateFwdZonePass": 155.0,
+            "attMissHighRight": 1.0,
+            "cleanSheet": 1.0,
+            "yellowCard": 0.0,
+            "totalFinalThirdPasses": 84.0,
+            "fkFoulLost": 14.0,
+            "divingSave": 3.0,
+            "attSvHighLeft": 1.0,
+            "midfielderGoals": 1.0,
+            "attSvLowLeft": 2.0,
+            "freekickCross": 2.0,
+            "goodHighClaim": 2.0,
+            "passesLeft": 51.0,
+            "passesRight": 68.0,
+            "ontargetAttAssist": 9.0,
+            "backwardPass": 54.0,
+            "interceptionsInBox": 1.0,
+            "attMissRight": 1.0,
+            "totalCrossNocorner": 25.0,
+            "putThrough": 17.0,
+            "attemptsObox": 6.0,
+            "freekickTotal": 1.0,
+            "crosses18yardplus": 7.0,
+            "attOboxMiss": 2.0,
+            "possLostCtrl": 137.0,
+            "bigChanceCreated": 1.0,
+            "attemptsConcededIbox": 6.0,
+            "leftsidePass": 82.0,
+            "touches": 613.0,
+            "attAssistOpenplay": 12.0,
+            "totalFlickOn": 14.0,
+            "touchesInOppBox": 22.0,
+            "attHdTarget": 4.0,
+            "interception": 22.0,
+            "successfulOpenPlayPass": 278.0,
+            "possWonDef3rd": 31.0,
+            "attMissHighLeft": 1.0,
+            "accurateLaunches": 6.0,
+            "headClearance": 24.0,
+            "totalKeeperSweeper": 1.0,
+            "totalYelCard": 2.0,
+            "outfielderBlock": 2.0,
+            "offtargetAttAssist": 4.0,
+            "totalThrows": 13.0,
+            "openPlayPass": 359.0,
+            "finalThirdEntries": 39.0,
+            "accurateFreekickCross": 1.0,
+            "fastestPlayer": {
+              "playerId": "97615"
+            },
+            "attBxCentre": 7.0,
+            "accurateBackZonePass": 154.0,
+            "bigChanceMissed": 1.0,
+            "crosses18yard": 16.0,
+            "attSetpiece": 1.0,
+            "totalBackZonePass": 184.0,
+            "attemptedTackleFoul": 6.0,
+            "attRfGoal": 1.0,
+            "totalPullBack": 1.0,
+            "blockedPass": 17.0,
+            "goalKicks": 9.0,
+            "duelLost": 53.0,
+            "attCmissHigh": 1.0,
+            "totalOffside": 2.0,
+            "accurateKeeperThrows": 5.0,
+            "goalsOpenplay": 1.0,
+            "unsuccessfulTouch": 12.0,
+            "attemptsConcededObox": 4.0,
+            "accurateGoalKicks": 6.0,
+            "attMissHigh": 2.0,
+            "totalLongBalls": 58.0,
+            "accuratePass": 297.0,
+            "fkFoulWon": 10.0,
+            "challengeLost": 6.0,
+            "attAssistSetplay": 1.0,
+            "totalLaunches": 21.0,
+            "attCorner": 2.0,
+            "longPassOwnToOpp": 85.0,
+            "attSvLowRight": 2.0,
+            "attCmissLeft": 1.0,
+            "punches": 2.0,
+            "redCard": 0.0,
+            "attFreekickTarget": 1.0,
+            "overrun": 5.0,
+            "lostCorners": 7.0,
+            "savedIbox": 1.0,
+            "attIboxGoal": 1.0,
+            "accurateFlickOn": 5.0,
+            "totalRedCard": 0.0,
+            "accurateCrossNocorner": 10.0,
+            "attHdTotal": 6.0,
+            "possessionPercentage": 52.5,
+            "accurateThrows": 11.0,
+            "attHdMiss": 2.0,
+            "possWonAtt3rd": 1.0,
+            "attBxLeft": 2.0,
+            "attSvHighCentre": 1.0,
+            "keeperThrows": 5.0,
+            "blockedScoringAtt": 2.0,
+            "longPassOwnToOppSuccess": 57.0,
+            "cornerTaken": 4.0,
+            "totalHighClaim": 3.0,
+            "totalPass": 383.0,
+            "interceptionWon": 22.0,
+            "dispossessed": 11.0,
+            "accurateChippedPass": 13.0,
+            "shotOffTarget": 6.0,
+            "penAreaEntries": 32.0,
+            "accurateCornersIntobox": 2.0,
+            "attIboxMiss": 4.0,
+            "totalFwdZonePass": 227.0,
+            "attRfTotal": 7.0,
+            "accurateLayoffs": 15.0,
+            "aerialWon": 32.0,
+            "successfulFinalThirdPasses": 59.0,
+            "possWonMid3rd": 27.0,
+            "effectiveBlockedCross": 3.0,
+            "effectiveHeadClearance": 22.0,
+            "totalTackle": 19.0,
+            "attOpenplay": 13.0,
+            "subsMade": 3.0,
+            "totalContest": 11.0,
+            "blockedCross": 3.0,
+            "successfulPutThrough": 11.0,
+            "wonCorners": 4.0
+          },
+          "teamId": "80"
+        },
+        {
+          "side": "Home",
+          "stats": {
+            "ballRecovery": 59.0,
+            "savedObox": 3.0,
+            "accurateLongBalls": 43.0,
+            "totalClearance": 16.0,
+            "attObxCentre": 4.0,
+            "attLfTotal": 3.0,
+            "attemptsIbox": 6.0,
+            "saves": 7.0,
+            "attRfTarget": 3.0,
+            "fwdPass": 166.0,
+            "accurateCross": 5.0,
+            "wonContest": 6.0,
+            "fouledFinalThird": 3.0,
+            "totalAttAssist": 5.0,
+            "ontargetScoringAtt": 3.0,
+            "rightsidePass": 65.0,
+            "possLostAll": 170.0,
+            "duelWon": 53.0,
+            "attFreekickTotal": 1.0,
+            "totalScoringAtt": 10.0,
+            "attOboxBlocked": 2.0,
+            "aerialLost": 32.0,
+            "attIboxTarget": 1.0,
+            "shotFastbreak": 1.0,
+            "attBxRight": 4.0,
+            "attSvLowCentre": 1.0,
+            "attMissLeft": 1.0,
+            "totalCross": 23.0,
+            "wonTackle": 9.0,
+            "attOboxTarget": 2.0,
+            "effectiveClearance": 14.0,
+            "totalCornersIntobox": 7.0,
+            "totalLayoffs": 13.0,
+            "totalChippedPass": 42.0,
+            "accurateFwdZonePass": 140.0,
+            "attMissHighRight": 1.0,
+            "attSvHighRight": 1.0,
+            "yellowCard": 0.0,
+            "totalFinalThirdPasses": 146.0,
+            "fkFoulLost": 10.0,
+            "divingSave": 2.0,
+            "totalFastbreak": 1.0,
+            "freekickCross": 2.0,
+            "goodHighClaim": 1.0,
+            "passesLeft": 52.0,
+            "passesRight": 45.0,
+            "ontargetAttAssist": 1.0,
+            "backwardPass": 67.0,
+            "interceptionsInBox": 1.0,
+            "attMissRight": 1.0,
+            "totalCrossNocorner": 16.0,
+            "putThrough": 17.0,
+            "attemptsObox": 4.0,
+            "freekickTotal": 1.0,
+            "crosses18yardplus": 5.0,
+            "possLostCtrl": 170.0,
+            "bigChanceCreated": 1.0,
+            "attemptsConcededIbox": 11.0,
+            "leftsidePass": 55.0,
+            "touches": 558.0,
+            "attAssistOpenplay": 5.0,
+            "totalFlickOn": 18.0,
+            "touchesInOppBox": 25.0,
+            "interception": 18.0,
+            "successfulOpenPlayPass": 237.0,
+            "possWonDef3rd": 21.0,
+            "accurateLaunches": 13.0,
+            "headClearance": 10.0,
+            "totalYelCard": 3.0,
+            "outfielderBlock": 3.0,
+            "offtargetAttAssist": 4.0,
+            "totalThrows": 41.0,
+            "openPlayPass": 326.0,
+            "finalThirdEntries": 92.0,
+            "fastestPlayer": {
+              "playerId": "95508"
+            },
+            "attBxCentre": 1.0,
+            "accurateBackZonePass": 114.0,
+            "bigChanceMissed": 1.0,
+            "crosses18yard": 9.0,
+            "attSetpiece": 1.0,
+            "totalBackZonePass": 124.0,
+            "attemptedTackleFoul": 8.0,
+            "blockedPass": 17.0,
+            "goalKicks": 9.0,
+            "duelLost": 69.0,
+            "attCmissHigh": 1.0,
+            "totalOffside": 3.0,
+            "unsuccessfulTouch": 10.0,
+            "attemptsConcededObox": 6.0,
+            "accurateGoalKicks": 5.0,
+            "attMissHigh": 2.0,
+            "totalLongBalls": 84.0,
+            "accuratePass": 249.0,
+            "fkFoulWon": 14.0,
+            "challengeLost": 8.0,
+            "totalLaunches": 31.0,
+            "longPassOwnToOpp": 83.0,
+            "attFastbreak": 1.0,
+            "attSvLowRight": 1.0,
+            "attCmissLeft": 1.0,
+            "redCard": 0.0,
+            "overrun": 4.0,
+            "lostCorners": 4.0,
+            "savedIbox": 5.0,
+            "goalsConceded": 1.0,
+            "accurateFlickOn": 5.0,
+            "totalRedCard": 0.0,
+            "accurateCrossNocorner": 4.0,
+            "attHdTotal": 1.0,
+            "possessionPercentage": 47.5,
+            "accurateThrows": 29.0,
+            "attHdMiss": 1.0,
+            "possWonAtt3rd": 2.0,
+            "blockedScoringAtt": 2.0,
+            "clearanceOffLine": 1.0,
+            "longPassOwnToOppSuccess": 41.0,
+            "cornerTaken": 7.0,
+            "totalHighClaim": 1.0,
+            "totalPass": 353.0,
+            "interceptionWon": 18.0,
+            "dispossessed": 14.0,
+            "accurateChippedPass": 21.0,
+            "shotOffTarget": 5.0,
+            "penAreaEntries": 40.0,
+            "accurateCornersIntobox": 1.0,
+            "attIboxMiss": 5.0,
+            "totalFwdZonePass": 252.0,
+            "attRfTotal": 6.0,
+            "accurateLayoffs": 11.0,
+            "aerialWon": 20.0,
+            "successfulFinalThirdPasses": 76.0,
+            "possWonMid3rd": 25.0,
+            "effectiveBlockedCross": 4.0,
+            "effectiveHeadClearance": 8.0,
+            "totalTackle": 14.0,
+            "goalsConcededIbox": 1.0,
+            "attOpenplay": 8.0,
+            "subsMade": 2.0,
+            "totalContest": 11.0,
+            "blockedCross": 4.0,
+            "successfulPutThrough": 6.0,
+            "wonCorners": 7.0
+          },
+          "teamId": "90"
+        }
+      ],
+      "headers": {
+        "content-type": "application/json",
+        "transfer-encoding": "chunked",
+        "connection": "close",
+        "x-pulse-sdp-endpoint": "/v3/matches/{mid}/stats",
+        "cache-control": "max-age=30, stale-while-revalidate=600, stale-if-error=86400",
+        "date": "Sat, 22 Aug 2026 19:25:43 GMT",
+        "x-cache-status": "MISS",
+        "x-cache-server": "norp",
+        "x-ratelimit-limit": "300, 300;w=60",
+        "x-ratelimit-remaining": "296",
+        "x-ratelimit-reset": "17",
+        "x-request-id": "b0a776af-dd7e-49b3-a463-95f76e134c40",
+        "vary": "Origin",
+        "x-cache": "Miss from cloudfront",
+        "via": "1.1 8e49b170478612b328a739365178d0c2.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "MAN51-P6",
+        "alt-svc": "h3=\":443\"; ma=86400",
+        "x-amz-cf-id": "GVV-Ch-kZIFkt70ByxpHBVohtPgXzISwWNEAm_owQsfLlnLx4g47DQ==",
+        "x-frame-options": "DENY",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+        "set-cookie": "Secure; HttpOnly;"
+      }
+    },
+    "commentary": {
+      "endpoint": "https://sdp-prem-prod.premier-league-prod.pulselive.com/api/v1/matches/855174/commentary?_limit=20&_sort=timestamp:desc",
+      "retrieved_at": "2026-08-22T19:25:43.489682+00:00",
+      "payload": {
+        "pagination": {
+          "_limit": 20,
+          "_prev": null,
+          "_next": "eyJsYW5nX2lkIjogImVuIiwgIm1hdGNoX2lkIjogIjg1NTE3NCIsICJtZXNzYWdlX2lkIjogIjE5NDYwNDA3NzIifV9feyJfbGkiOiBbIjIwMTYtMDgtMTMgMTY6MzY6NDIiXX0"
+        },
+        "data": [
+          {
+            "comment": "Match ends, Burnley 0, Swansea City 1.",
+            "time": " ",
+            "type": "end 14",
+            "timestamp": "2016-08-13 17:00:04"
+          },
+          {
+            "comment": "Second Half ends, Burnley 0, Swansea City 1.",
+            "time": "90'+6'",
+            "type": "end 2",
+            "timestamp": "2016-08-13 16:51:59"
+          },
+          {
+            "player1": "106611",
+            "comment": "Michael Keane (Burnley) wins a free kick in the attacking half.",
+            "time": "90'+4'",
+            "type": "free kick won",
+            "timestamp": "2016-08-13 16:50:42"
+          },
+          {
+            "player1": "19760",
+            "comment": "Foul by Fernando Llorente (Swansea City).",
+            "time": "90'+4'",
+            "type": "free kick lost",
+            "timestamp": "2016-08-13 16:50:42"
+          },
+          {
+            "comment": "Delay over. They are ready to continue.",
+            "time": "90'+2'",
+            "type": "end delay",
+            "timestamp": "2016-08-13 16:48:47"
+          },
+          {
+            "comment": "Delay in match  because of an injury Leroy Fer (Swansea City).",
+            "time": "90'+2'",
+            "type": "start delay",
+            "timestamp": "2016-08-13 16:48:03"
+          },
+          {
+            "player1": "15982",
+            "comment": "Attempt saved. Dean Marney (Burnley) right footed shot from outside the box is saved in the top right corner.",
+            "time": "90'+1'",
+            "type": "attempt saved",
+            "timestamp": "2016-08-13 16:47:27"
+          },
+          {
+            "player1": "60586",
+            "comment": "Attempt blocked. Jóhann Gudmundsson (Burnley) left footed shot from outside the box is blocked.",
+            "time": "90'+1'",
+            "type": "attempt blocked",
+            "timestamp": "2016-08-13 16:47:24"
+          },
+          {
+            "player1": "57145",
+            "comment": "Federico Fernández (Swansea City) is shown the yellow card for a bad foul.",
+            "time": "90'",
+            "type": "yellow card",
+            "timestamp": "2016-08-13 16:46:29"
+          },
+          {
+            "player1": "15982",
+            "comment": "Dean Marney (Burnley) wins a free kick in the attacking half.",
+            "time": "90'",
+            "type": "free kick won",
+            "timestamp": "2016-08-13 16:46:25"
+          },
+          {
+            "player1": "57145",
+            "comment": "Foul by Federico Fernández (Swansea City).",
+            "time": "90'",
+            "type": "free kick lost",
+            "timestamp": "2016-08-13 16:46:25"
+          },
+          {
+            "player1": "96306",
+            "comment": "Corner,  Burnley. Conceded by Stephen Kingsley.",
+            "time": "88'",
+            "type": "corner",
+            "timestamp": "2016-08-13 16:44:15"
+          },
+          {
+            "player1": "34654",
+            "player2": "19556",
+            "comment": "Substitution, Burnley. Lukas Jutkiewicz replaces David Jones.",
+            "time": "87'",
+            "type": "substitution",
+            "timestamp": "2016-08-13 16:43:39"
+          },
+          {
+            "player1": "42996",
+            "player2": "11829",
+            "comment": "Substitution, Swansea City. Angel Rangel replaces Wayne Routledge.",
+            "time": "87'",
+            "type": "substitution",
+            "timestamp": "2016-08-13 16:43:17"
+          },
+          {
+            "player1": "73426",
+            "player2": "28244",
+            "comment": "Attempt missed. Andre Gray (Burnley) left footed shot from very close range is close, but misses to the left. Assisted by George Boyd.",
+            "time": "84'",
+            "type": "miss",
+            "timestamp": "2016-08-13 16:39:57"
+          },
+          {
+            "player1": "49277",
+            "comment": "Goal!  Burnley 0, Swansea City 1. Leroy Fer (Swansea City) right footed shot from very close range to the bottom right corner.",
+            "time": "82'",
+            "type": "goal",
+            "timestamp": "2016-08-13 16:38:48"
+          },
+          {
+            "player1": "19760",
+            "player2": "49195",
+            "comment": "Attempt saved. Fernando Llorente (Swansea City) header from the centre of the box is saved in the centre of the goal. Assisted by Jefferson Montero with a cross.",
+            "time": "82'",
+            "type": "attempt saved",
+            "timestamp": "2016-08-13 16:38:45"
+          },
+          {
+            "player1": "96306",
+            "comment": "Attempt missed. Stephen Kingsley (Swansea City) left footed shot from outside the box is high and wide to the left following a set piece situation.",
+            "time": "81'",
+            "type": "miss",
+            "timestamp": "2016-08-13 16:37:42"
+          },
+          {
+            "player1": "68983",
+            "comment": "Matthew Lowton (Burnley) is shown the yellow card for a bad foul.",
+            "time": "80'",
+            "type": "yellow card",
+            "timestamp": "2016-08-13 16:36:51"
+          },
+          {
+            "player1": "68983",
+            "comment": "Foul by Matthew Lowton (Burnley).",
+            "time": "80'",
+            "type": "free kick lost",
+            "timestamp": "2016-08-13 16:36:42"
+          }
+        ]
+      },
+      "headers": {
+        "content-type": "application/json",
+        "transfer-encoding": "chunked",
+        "connection": "close",
+        "x-pulse-sdp-endpoint": "/v1/matches/{id}/commentary",
+        "cache-control": "max-age=5, stale-while-revalidate=120, stale-if-error=86400",
+        "date": "Sat, 22 Aug 2026 19:25:43 GMT",
+        "x-cache-status": "MISS",
+        "x-cache-server": "norp",
+        "x-ratelimit-limit": "300, 300;w=60",
+        "x-ratelimit-remaining": "295",
+        "x-ratelimit-reset": "17",
+        "x-request-id": "2a191bdb-8349-4aac-ad66-820949bf1ac2",
+        "vary": "Origin",
+        "x-cache": "Miss from cloudfront",
+        "via": "1.1 7170ee611613179ebc0e36da1458b068.cloudfront.net (CloudFront)",
+        "x-amz-cf-pop": "MAN51-P6",
+        "alt-svc": "h3=\":443\"; ma=86400",
+        "x-amz-cf-id": "YgMlnHLdptfOgphB77_n4R0dys31YXLIHTtC7DGRKmqfhM8zePS2Fw==",
+        "x-frame-options": "DENY",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+        "x-content-type-options": "nosniff",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+        "set-cookie": "Secure; HttpOnly;"
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+﻿field_name,endpoint_count,path_count,endpoints,paths,field_types,evidence_role
+assistPlayerId,1,2,match_events,awayTeam.goals[].assistPlayerId | homeTeam.goals[].assistPlayerId,str,SCALAR_EVIDENCE
+cards,1,2,match_events,awayTeam.cards | homeTeam.cards,array,CONTAINER_OR_NESTED_STRUCTURE
+crossingAccuracy,1,1,team_leaderboard,data[].stats.crossingAccuracy,float,SCALAR_EVIDENCE
+formation,1,4,match_lineups,away_team.formation | away_team.formation.formation | home_team.formation | home_team.formation.formation,object | str,SCALAR_EVIDENCE
+goalConversion,2,2,team_leaderboard | team_stats,data[].stats.goalConversion | stats.goalConversion,float,SCALAR_EVIDENCE
+goalType,1,2,match_events,awayTeam.goals[].goalType | homeTeam.goals[].goalType,str,SCALAR_EVIDENCE
+goalsFromInsideBox,1,1,team_stats,stats.goalsFromInsideBox,int,SCALAR_EVIDENCE
+goalsFromOutsideBox,1,1,team_stats,stats.goalsFromOutsideBox,int,SCALAR_EVIDENCE
+halfTimeScore,2,4,match_detail | matches,awayTeam.halfTimeScore | data[].awayTeam.halfTimeScore | data[].homeTeam.halfTimeScore | homeTeam.halfTimeScore,int,SCALAR_EVIDENCE
+lineup,1,2,match_lineups,away_team.formation.lineup | home_team.formation.lineup,array,CONTAINER_OR_NESTED_STRUCTURE
+ownGoalsAccrued,2,2,team_leaderboard | team_stats,data[].stats.ownGoalsAccrued | stats.ownGoalsAccrued,float,SCALAR_EVIDENCE
+ownGoalsConceded,1,1,team_stats,stats.ownGoalsConceded,float,SCALAR_EVIDENCE
+passingAccuracy,1,1,team_leaderboard,data[].stats.passingAccuracy,float,SCALAR_EVIDENCE
+passingPercentOppHalf,1,1,team_leaderboard,data[].stats.passingPercentOppHalf,float,SCALAR_EVIDENCE
+pointsDroppedFromWinningPositions,2,2,team_leaderboard | team_stats,data[].stats.pointsDroppedFromWinningPositions | stats.pointsDroppedFromWinningPositions,float,SCALAR_EVIDENCE
+pointsGainedFromLosingPositions,2,2,team_leaderboard | team_stats,data[].stats.pointsGainedFromLosingPositions | stats.pointsGainedFromLosingPositions,float,SCALAR_EVIDENCE
+redCards,2,4,match_detail | matches,awayTeam.redCards | data[].awayTeam.redCards | data[].homeTeam.redCards | homeTeam.redCards,int,SCALAR_EVIDENCE
+resultType,2,2,match_detail | matches,data[].resultType | resultType,str,SCALAR_EVIDENCE
+score,2,4,match_detail | matches,awayTeam.score | data[].awayTeam.score | data[].homeTeam.score | homeTeam.score,int,SCALAR_EVIDENCE
+shotsOnConcededInsideBox,2,2,team_leaderboard | team_stats,data[].stats.shotsOnConcededInsideBox | stats.shotsOnConcededInsideBox,float,SCALAR_EVIDENCE
+shotsOnConcededOutsideBox,2,2,team_leaderboard | team_stats,data[].stats.shotsOnConcededOutsideBox | stats.shotsOnConcededOutsideBox,float,SCALAR_EVIDENCE
+stats,4,2,player_leaderboard | player_season_stats | team_leaderboard | team_stats,data[].stats | stats,object,CONTAINER_OR_NESTED_STRUCTURE
+successfulOpenPlayPasses,2,2,team_leaderboard | team_stats,data[].stats.successfulOpenPlayPasses | stats.successfulOpenPlayPasses,float,SCALAR_EVIDENCE
+tackleSuccess,1,1,team_leaderboard,data[].stats.tackleSuccess,float,SCALAR_EVIDENCE
+totalShotsConceded,2,2,team_leaderboard | team_stats,data[].stats.totalShotsConceded | stats.totalShotsConceded,float,SCALAR_EVIDENCE
+totalSuccessfulPassesExclCrossesAndCorners,1,1,team_stats,stats.totalSuccessfulPassesExclCrossesAndCorners,int,SCALAR_EVIDENCE
+unsuccessfulPassesOppositionHalf,2,2,team_leaderboard | team_stats,data[].stats.unsuccessfulPassesOppositionHalf | stats.unsuccessfulPassesOppositionHalf,float,SCALAR_EVIDENCE

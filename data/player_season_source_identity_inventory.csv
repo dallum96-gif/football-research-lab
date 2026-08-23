@@ -1,0 +1,4 @@
+﻿source_file,row_count,target_fields_present,identity_like_columns,id_like_columns,name_like_columns,team_like_columns,season_like_columns,nonblank_identity_like_counts,registry_key_overlap
+data\fixture_match_stats.csv,3800,season,"season,fixture_id,source_match_id,home_core_offsides,away_core_offsides","fixture_id,source_match_id,home_core_offsides,away_core_offsides",,,season,season=3800;fixture_id=3800;source_match_id=3800;home_core_offsides=3079;away_core_offsides=2968,fixture_id=0;source_match_id=1;home_core_offsides=0;away_core_offsides=0
+data\source_field_coverage.csv,4358,season,season,,,,season,season=4358,
+data\upstream_pl_stats_schema_by_season.csv,6559,season,"season,field_name",,field_name,,season,season=6559;field_name=6559,

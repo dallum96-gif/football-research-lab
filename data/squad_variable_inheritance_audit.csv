@@ -1,0 +1,22 @@
+﻿field_name,resource,grain,identity_route,inheritance_status,reason
+playerId,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+position,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+nationality,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+playerId,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+position,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+age,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+birthCountry,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+birthDate,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+displayName,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+firstName,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+height_cm,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+isoCode,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+joinDate,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+lastName,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+nationality,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+onLoan,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+playerId,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+position,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+preferredFoot,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+shirtNumber,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.
+weight_kg,squad,squad,season + local_team_id -> team_season_id,INHERITANCE_REQUIRES_SQUAD_ROW_EVIDENCE,No single squad row evidence source was identified by the prior audit; no row-level inheritance claim is made.

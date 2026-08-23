@@ -1,0 +1,24 @@
+﻿field_name,endpoint_count,endpoints,path_count,paths,samples,semantic_merge_status,review_status
+assistPlayerId,1,match_events,2,awayTeam.goals[].assistPlayerId | homeTeam.goals[].assistPlayerId,'111317' | '243016',SINGLE_SURFACE,OPEN
+crossingAccuracy,1,team_leaderboard,1,data[].stats.crossingAccuracy,26.82,SINGLE_SURFACE,OPEN
+goalConversion,2,team_leaderboard | team_stats,2,data[].stats.goalConversion | stats.goalConversion,1025.43 | 18.33,NATIVE_NAME_COLLISION,OPEN
+goalType,1,match_events,2,awayTeam.goals[].goalType | homeTeam.goals[].goalType,'Goal',SINGLE_SURFACE,OPEN
+goalsFromInsideBox,1,team_stats,1,stats.goalsFromInsideBox,0,SINGLE_SURFACE,OPEN
+goalsFromOutsideBox,1,team_stats,1,stats.goalsFromOutsideBox,0,SINGLE_SURFACE,OPEN
+halfTimeScore,2,match_detail | matches,4,awayTeam.halfTimeScore | data[].awayTeam.halfTimeScore | data[].homeTeam.halfTimeScore | homeTeam.halfTimeScore,0 | 1,NATIVE_NAME_COLLISION,OPEN
+ownGoalsAccrued,2,team_leaderboard | team_stats,2,data[].stats.ownGoalsAccrued | stats.ownGoalsAccrued,3.0 | 79.0,NATIVE_NAME_COLLISION,OPEN
+ownGoalsConceded,1,team_stats,1,stats.ownGoalsConceded,47.0,SINGLE_SURFACE,OPEN
+passingAccuracy,1,team_leaderboard,1,data[].stats.passingAccuracy,88.51,SINGLE_SURFACE,OPEN
+passingPercentOppHalf,1,team_leaderboard,1,data[].stats.passingPercentOppHalf,85.92,SINGLE_SURFACE,OPEN
+pointsDroppedFromWinningPositions,2,team_leaderboard | team_stats,2,data[].stats.pointsDroppedFromWinningPositions | stats.pointsDroppedFromWinningPositions,20.0 | 373.0,NATIVE_NAME_COLLISION,OPEN
+pointsGainedFromLosingPositions,2,team_leaderboard | team_stats,2,data[].stats.pointsGainedFromLosingPositions | stats.pointsGainedFromLosingPositions,411.0 | 5.0,NATIVE_NAME_COLLISION,OPEN
+redCards,2,match_detail | matches,4,awayTeam.redCards | data[].awayTeam.redCards | data[].homeTeam.redCards | homeTeam.redCards,0,NATIVE_NAME_COLLISION,OPEN
+resultType,2,match_detail | matches,2,data[].resultType | resultType,'NormalResult',NATIVE_NAME_COLLISION,OPEN
+score,2,match_detail | matches,4,awayTeam.score | data[].awayTeam.score | data[].homeTeam.score | homeTeam.score,2 | 4,NATIVE_NAME_COLLISION,OPEN
+shotsOnConcededInsideBox,2,team_leaderboard | team_stats,2,data[].stats.shotsOnConcededInsideBox | stats.shotsOnConcededInsideBox,2393.0 | 97.0,NATIVE_NAME_COLLISION,OPEN
+shotsOnConcededOutsideBox,2,team_leaderboard | team_stats,2,data[].stats.shotsOnConcededOutsideBox | stats.shotsOnConcededOutsideBox,1013.0 | 30.0,NATIVE_NAME_COLLISION,OPEN
+successfulOpenPlayPasses,2,team_leaderboard | team_stats,2,data[].stats.successfulOpenPlayPasses | stats.successfulOpenPlayPasses,19028.0 | 354776.0,NATIVE_NAME_COLLISION,OPEN
+tackleSuccess,1,team_leaderboard,1,data[].stats.tackleSuccess,61.06,SINGLE_SURFACE,OPEN
+totalShotsConceded,2,team_leaderboard | team_stats,2,data[].stats.totalShotsConceded | stats.totalShotsConceded,369.0 | 8953.0,NATIVE_NAME_COLLISION,OPEN
+totalSuccessfulPassesExclCrossesAndCorners,1,team_stats,1,stats.totalSuccessfulPassesExclCrossesAndCorners,0,SINGLE_SURFACE,OPEN
+unsuccessfulPassesOppositionHalf,2,team_leaderboard | team_stats,2,data[].stats.unsuccessfulPassesOppositionHalf | stats.unsuccessfulPassesOppositionHalf,2310.0 | 81023.0,NATIVE_NAME_COLLISION,OPEN

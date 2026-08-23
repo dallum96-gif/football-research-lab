@@ -1,0 +1,29 @@
+{
+  "status": 200,
+  "payload": {
+    "pageInfo": {
+      "page": 0,
+      "numPages": 0,
+      "pageSize": 10,
+      "numEntries": 0
+    },
+    "content": []
+  },
+  "headers": {
+    "content-type": "application/json;charset=UTF-8",
+    "content-length": "78",
+    "connection": "close",
+    "date": "Sat, 22 Aug 2026 21:29:10 GMT",
+    "x-request-id": "0bcde9b59d1ef5aa3777e4be64620cbf",
+    "cache-control": "max-age=30, stale-while-revalidate=600, stale-if-error=86400",
+    "etag": "\"00ffb78876c897ec9e5385409c2131e87\"",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 5346816c151b787851f96d254eda2b6c.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "x-amz-cf-id": "HgoAFXAgkm6cko6eiGgFrQ9cymlMO4zXyIXWMezt2X33zb1-zGxoNw==",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "x-content-type-options": "nosniff",
+    "vary": "Origin"
+  }
+}

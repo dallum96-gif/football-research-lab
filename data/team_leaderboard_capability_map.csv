@@ -1,0 +1,64 @@
+﻿field_name,family,field_type,sample_values,status,reason,grain,source_surface
+aerialDuels,Duels & Aerials,,854.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+aerialDuelsLost,Duels & Aerials,,363.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+aerialDuelsWon,Duels & Aerials,,491.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+attemptsFromSetPieces,Shooting,,13.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+blockedShots,Shooting,,174.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+blocks,Defending,,105.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+cleanSheets,Finishing & Goals,,16.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+clearancesOffTheLine,Defending,,3.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+cornersTakenInclShortCorners,Corners,,247.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+cornersWon,Corners,,247.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+crossingAccuracy,Crossing & Set Pieces,,26.82,NEW_SOURCE_CAPABILITY,No exact FRL field match and no safe derivation rule recognised.,team_season_candidate,pulselive_live_api
+duels,Duels & Aerials,,3556.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+duelsLost,Duels & Aerials,,1699.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+duelsWon,Duels & Aerials,,1857.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+expectedAssists,Review,,49.9934,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+expectedGoals,Finishing & Goals,,71.2605,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+expectedGoalsFreekick,Finishing & Goals,,0.7338,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+expectedGoalsOnTarget,Finishing & Goals,,68.1275,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+expectedGoalsOnTargetConceded,Finishing & Goals,,43.3074,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+gamesPlayed,Review,,38.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+goals,Finishing & Goals,,77.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+goalsConceded,Finishing & Goals,,35.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+goalsConcededInsideBox,Finishing & Goals,,28.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+goalsConcededOutsideBox,Finishing & Goals,,7.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+interceptions,Defending,,302.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+offsides,Discipline & Offside,,44.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+openPlayPasses,Passing & Territory,,21496.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+penaltiesConceded,Defending,,2.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+penaltiesSaved,Review,,1.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+penaltyGoals,Finishing & Goals,,3.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+penaltyGoalsConceded,Finishing & Goals,,1.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+pointsDroppedFromWinningPositions,Finishing & Goals,,20.0,NEW_SOURCE_CAPABILITY,No exact FRL field match and no safe derivation rule recognised.,team_season_candidate,pulselive_live_api
+pointsGainedFromLosingPositions,Finishing & Goals,,5.0,NEW_SOURCE_CAPABILITY,No exact FRL field match and no safe derivation rule recognised.,team_season_candidate,pulselive_live_api
+possessionPercentage,Possession,,60.4,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+shotsOffTargetIncWoodwork,Shooting,,215.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+shotsOnConcededInsideBox,Shooting,,97.0,NEW_SOURCE_CAPABILITY,No exact FRL field match and no safe derivation rule recognised.,team_season_candidate,pulselive_live_api
+shotsOnConcededOutsideBox,Shooting,,30.0,NEW_SOURCE_CAPABILITY,No exact FRL field match and no safe derivation rule recognised.,team_season_candidate,pulselive_live_api
+shotsOnTargetIncGoals,Finishing & Goals,,205.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulCornersIntoBox,Crossing & Set Pieces,,70.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulCrossesAndCorners,Crossing & Set Pieces,,166.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulCrossesOpenPlay,Crossing & Set Pieces,,91.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulDribbles,Dribbling,,409.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulLaunches,Passing & Territory,,106.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulLayoffs,Passing & Territory,,421.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulLongPasses,Passing & Territory,,737.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulOpenPlayPasses,Passing & Territory,,19028.0,NEW_SOURCE_CAPABILITY,No exact FRL field match and no safe derivation rule recognised.,team_season_candidate,pulselive_live_api
+successfulPassesOppositionHalf,Passing & Territory,,11502.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulPassesOwnHalf,Passing & Territory,,8440.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+successfulShortPasses,Passing & Territory,,19039.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+tackleSuccess,Defending,,61.06,NEW_SOURCE_CAPABILITY,No exact FRL field match and no safe derivation rule recognised.,team_season_candidate,pulselive_live_api
+tacklesLost,Defending,,213.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+tacklesWon,Defending,,334.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+touchesInOppBox,Shooting,,1409.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulCornersIntoBox,Crossing & Set Pieces,,131.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulCrossesAndCorners,Crossing & Set Pieces,,453.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulCrossesOpenPlay,Crossing & Set Pieces,,302.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulDribbles,Dribbling,,415.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulLaunches,Passing & Territory,,358.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulLayoffs,Passing & Territory,,26.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulLongPasses,Passing & Territory,,727.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulPassesOppositionHalf,Passing & Territory,,2310.0,NEW_SOURCE_CAPABILITY,No exact FRL field match and no safe derivation rule recognised.,team_season_candidate,pulselive_live_api
+unsuccessfulPassesOwnHalf,Passing & Territory,,709.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api
+unsuccessfulShortPasses,Passing & Territory,,1839.0,EXISTING_FIELD,Exact native field name appears in the local FRL variable universe.,team_season_candidate,pulselive_live_api

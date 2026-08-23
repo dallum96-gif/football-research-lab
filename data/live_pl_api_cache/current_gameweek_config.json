@@ -1,0 +1,28 @@
+{
+  "status": 200,
+  "payload": {
+    "matchweek": 1
+  },
+  "headers": {
+    "content-type": "application/json",
+    "content-length": "21",
+    "connection": "close",
+    "last-modified": "Fri, 05 Jun 2026 11:28:15 GMT",
+    "x-amz-server-side-encryption": "AES256",
+    "x-amz-version-id": "QwxiuNAYe0HH8gapZsS7XXokORct_Uph",
+    "accept-ranges": "bytes",
+    "server": "AmazonS3",
+    "date": "Sat, 22 Aug 2026 21:29:10 GMT",
+    "cache-control": "max-age=300",
+    "etag": "\"6381d49caecf583710a0cfc2040c07e5\"",
+    "x-cache": "Hit from cloudfront",
+    "via": "1.1 efe36817647452e64733e83d981ac762.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P4",
+    "x-amz-cf-id": "niHI-hyPfpCKDlqoasdF36H8u12ASBc-3GbaW6nSAvBdVunrzXVykw==",
+    "age": "243",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "vary": "Origin"
+  }
+}

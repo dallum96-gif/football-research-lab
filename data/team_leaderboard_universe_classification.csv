@@ -1,0 +1,110 @@
+﻿field_name,field_type,sample_values,category,classification_basis
+aerialDuels,str,854.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+aerialDuelsLost,str,363.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+aerialDuelsWon,str,491.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+attemptsFromSetPieces,str,13.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+awayGoals,str,32.0,REVIEW,no safe structural classification rule
+blockedShots,str,174.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+blocks,str,105.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+catches,str,16.0,REVIEW,no safe structural classification rule
+cleanSheets,str,16.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+clearancesOffTheLine,str,3.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+cornersTakenInclShortCorners,str,247.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+cornersWon,str,247.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+crossingAccuracy,str,26.82,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+drops,str,6.0,REVIEW,no safe structural classification rule
+duels,str,3556.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+duelsLost,str,1699.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+duelsWon,str,1857.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+expectedAssists,str,49.9934,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+expectedGoals,str,71.2605,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+expectedGoalsFreekick,str,0.7338,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+expectedGoalsOnTarget,str,68.1275,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+expectedGoalsOnTargetConceded,str,43.3074,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+foulAttemptedTackle,str,170.0,REVIEW,no safe structural classification rule
+foulWonPenalty,str,4.0,REVIEW,no safe structural classification rule
+freekickTotal,str,13.0,REVIEW,no safe structural classification rule
+gamesPlayed,str,38.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+gkSuccessfulDistribution,str,311.0,REVIEW,no safe structural classification rule
+gkUnsuccessfulDistribution,str,37.0,REVIEW,no safe structural classification rule
+goalAssists,str,57.0,REVIEW,no safe structural classification rule
+goalConversion,str,18.33,REVIEW,no safe structural classification rule
+goalKicks,str,217.0,REVIEW,no safe structural classification rule
+goals,str,77.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+goalsConceded,str,35.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+goalsConcededInsideBox,str,28.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+goalsConcededOutsideBox,str,7.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+groundDuels,str,2702.0,REVIEW,no safe structural classification rule
+groundDuelsLost,str,1336.0,REVIEW,no safe structural classification rule
+groundDuelsWon,str,1366.0,REVIEW,no safe structural classification rule
+handballsConceded,str,10.0,REVIEW,no safe structural classification rule
+headedGoals,str,9.0,REVIEW,no safe structural classification rule
+hitWoodwork,str,18.0,REVIEW,no safe structural classification rule
+homeGoals,str,45.0,REVIEW,no safe structural classification rule
+iboxBlocked,str,115.0,REVIEW,no safe structural classification rule
+iboxTarget,str,112.0,REVIEW,no safe structural classification rule
+interceptions,str,302.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+keyPassesAttemptAssists,str,398.0,REVIEW,no safe structural classification rule
+lastPlayerTackle,str,9.0,REVIEW,no safe structural classification rule
+leftFootGoals,str,39.0,REVIEW,no safe structural classification rule
+oboxBlocked,str,59.0,REVIEW,no safe structural classification rule
+oboxTarget,str,19.0,REVIEW,no safe structural classification rule
+offsides,str,44.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+openPlayPasses,str,21496.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+overruns,str,56.0,REVIEW,no safe structural classification rule
+ownGoalsAccrued,str,3.0,REVIEW,no safe structural classification rule
+passingAccuracy,str,88.51,REVIEW,no safe structural classification rule
+passingPercentOppHalf,str,85.92,REVIEW,no safe structural classification rule
+penaltiesConceded,str,2.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+penaltiesSaved,str,1.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+penaltyGoals,str,3.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+penaltyGoalsConceded,str,1.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+pointsDroppedFromWinningPositions,str,20.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+pointsGainedFromLosingPositions,str,5.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+possessionPercentage,str,60.4,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+putthroughBlockedDistribution,str,604.0,REVIEW,no safe structural classification rule
+putthroughBlockedDistributionWon,str,261.0,REVIEW,no safe structural classification rule
+rightFootGoals,str,26.0,REVIEW,no safe structural classification rule
+shootingAccuracy,str,48.81,REVIEW,no safe structural classification rule
+shotsOffTargetIncWoodwork,str,215.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+shotsOnConcededInsideBox,str,97.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+shotsOnConcededOutsideBox,str,30.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+shotsOnTargetIncGoals,str,205.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+straightRedCards,str,0.0,REVIEW,no safe structural classification rule
+successfulCornersIntoBox,str,70.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulCrossesAndCorners,str,166.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulCrossesOpenPlay,str,91.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulDribbles,str,409.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulLaunches,str,106.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulLayoffs,str,421.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulLongPasses,str,737.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulOpenPlayPasses,str,19028.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulPassesOppositionHalf,str,11502.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulPassesOwnHalf,str,8440.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+successfulShortPasses,str,19039.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+tackleSuccess,str,61.06,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+tacklesLost,str,213.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+tacklesWon,str,334.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+throwInsToOppositionPlayer,str,76.0,REVIEW,no safe structural classification rule
+throwInsToOwnPlayer,str,582.0,REVIEW,no safe structural classification rule
+timesTackled,str,790.0,REVIEW,no safe structural classification rule
+totalClearances,str,820.0,REVIEW,no safe structural classification rule
+totalFoulsConceded,str,368.0,REVIEW,no safe structural classification rule
+totalFoulsWon,str,413.0,REVIEW,no safe structural classification rule
+totalLossesOfPossession,str,4539.0,REVIEW,no safe structural classification rule
+totalPasses,str,22342.0,REVIEW,no safe structural classification rule
+totalRedCards,str,0.0,REVIEW,no safe structural classification rule
+totalShots,str,420.0,REVIEW,no safe structural classification rule
+totalShotsConceded,str,369.0,REVIEW,no safe structural classification rule
+touchesInOppBox,str,1409.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulCornersIntoBox,str,131.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulCrossesAndCorners,str,453.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulCrossesOpenPlay,str,302.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulDribbles,str,415.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulLaunches,str,358.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulLayoffs,str,26.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulLongPasses,str,727.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulPassesOppositionHalf,str,2310.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulPassesOwnHalf,str,709.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+unsuccessfulShortPasses,str,1839.0,ANALYTICAL_CANDIDATE,statistical/football metric naming pattern
+yellowCards,str,67.0,REVIEW,no safe structural classification rule

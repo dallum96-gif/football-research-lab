@@ -1,0 +1,436 @@
+{
+  "status": 200,
+  "payload": {
+    "pageInfo": {
+      "page": 0,
+      "numPages": 1,
+      "pageSize": 5,
+      "numEntries": 1
+    },
+    "content": [
+      {
+        "id": 951,
+        "name": "Liverpool v Bournemouth",
+        "startDateTime": "2025-08-15T20:00:00Z",
+        "broadcasters": [
+          {
+            "id": 36,
+            "name": "UK - Sky Sports",
+            "abbreviation": "SKY",
+            "logo": {
+              "reference": "4650804",
+              "type": "PHOTO",
+              "info": {
+                "original": {
+                  "width": 266,
+                  "height": 56,
+                  "aspectRatio": 4.75,
+                  "url": "https://resources.premierleague.pulselive.com/premierleague/photo/2026/05/08/5f9162ca-42f8-4606-a7c7-44d781f53447/sky-x2.png"
+                },
+                "orientation": "NORMAL",
+                "areas": [
+                  {
+                    "area": "default",
+                    "positionX": 27,
+                    "positionY": 6,
+                    "width": 213,
+                    "height": 45,
+                    "uuid": null
+                  }
+                ]
+              }
+            },
+            "link": "https://www.sky.com/tv/sports/premier-league",
+            "restrictedRegions": [
+              {
+                "id": 11,
+                "name": "Ireland",
+                "timezone": "Europe/Dublin"
+              },
+              {
+                "id": 53,
+                "name": "Scotland",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 54,
+                "name": "Wales",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 10,
+                "name": "UK",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 52,
+                "name": "England",
+                "timezone": "Europe/London"
+              }
+            ],
+            "restrictedCountries": [
+              "GB",
+              "IE"
+            ]
+          },
+          {
+            "id": 39,
+            "name": "TalkSport",
+            "abbreviation": "tlksp",
+            "logo": {
+              "reference": "4650808",
+              "type": "PHOTO",
+              "info": {
+                "original": {
+                  "width": 266,
+                  "height": 56,
+                  "aspectRatio": 4.75,
+                  "url": "https://resources.premierleague.pulselive.com/premierleague/photo/2026/05/08/44d25db6-4570-4a04-815e-fa1125b17695/tlksp-x2.png"
+                },
+                "orientation": "NORMAL",
+                "areas": [
+                  {
+                    "area": "default",
+                    "positionX": 27,
+                    "positionY": 6,
+                    "width": 213,
+                    "height": 45,
+                    "uuid": null
+                  }
+                ]
+              }
+            },
+            "link": "https://talksport.com/football/premier-league/",
+            "restrictedRegions": [
+              {
+                "id": 54,
+                "name": "Wales",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 10,
+                "name": "UK",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 11,
+                "name": "Ireland",
+                "timezone": "Europe/Dublin"
+              },
+              {
+                "id": 52,
+                "name": "England",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 53,
+                "name": "Scotland",
+                "timezone": "Europe/London"
+              }
+            ],
+            "restrictedCountries": [
+              "GB",
+              "IE"
+            ]
+          }
+        ],
+        "channels": [
+          {
+            "info": {
+              "id": 154,
+              "name": "TalkSport",
+              "description": "Listen to Matchday Live",
+              "abbreviation": "tlksp",
+              "logo": {
+                "reference": "4650809",
+                "type": "PHOTO",
+                "info": {
+                  "original": {
+                    "width": 266,
+                    "height": 56,
+                    "aspectRatio": 4.75,
+                    "url": "https://resources.premierleague.pulselive.com/premierleague/photo/2026/05/08/04749ccc-cd43-48c6-a2c7-21df42d6370a/tlksp-x2.png"
+                  },
+                  "orientation": "NORMAL",
+                  "areas": [
+                    {
+                      "area": "default",
+                      "positionX": 27,
+                      "positionY": 6,
+                      "width": 213,
+                      "height": 45,
+                      "uuid": null
+                    }
+                  ]
+                }
+              },
+              "link": null,
+              "broadcaster": {
+                "id": 39,
+                "name": "TalkSport",
+                "abbreviation": "tlksp",
+                "logo": {
+                  "reference": "4650808",
+                  "type": "PHOTO",
+                  "info": {
+                    "original": {
+                      "width": 266,
+                      "height": 56,
+                      "aspectRatio": 4.75,
+                      "url": "https://resources.premierleague.pulselive.com/premierleague/photo/2026/05/08/44d25db6-4570-4a04-815e-fa1125b17695/tlksp-x2.png"
+                    },
+                    "orientation": "NORMAL",
+                    "areas": [
+                      {
+                        "area": "default",
+                        "positionX": 27,
+                        "positionY": 6,
+                        "width": 213,
+                        "height": 45,
+                        "uuid": null
+                      }
+                    ]
+                  }
+                },
+                "link": "https://talksport.com/football/premier-league/",
+                "restrictedRegions": [
+                  {
+                    "id": 54,
+                    "name": "Wales",
+                    "timezone": "Europe/London"
+                  },
+                  {
+                    "id": 52,
+                    "name": "England",
+                    "timezone": "Europe/London"
+                  },
+                  {
+                    "id": 11,
+                    "name": "Ireland",
+                    "timezone": "Europe/Dublin"
+                  },
+                  {
+                    "id": 53,
+                    "name": "Scotland",
+                    "timezone": "Europe/London"
+                  },
+                  {
+                    "id": 10,
+                    "name": "UK",
+                    "timezone": "Europe/London"
+                  }
+                ],
+                "restrictedCountries": [
+                  "GB",
+                  "IE"
+                ]
+              },
+              "restrictedRegions": [
+                {
+                  "id": 10,
+                  "name": "UK",
+                  "timezone": "Europe/London"
+                },
+                {
+                  "id": 11,
+                  "name": "Ireland",
+                  "timezone": "Europe/Dublin"
+                },
+                {
+                  "id": 53,
+                  "name": "Scotland",
+                  "timezone": "Europe/London"
+                },
+                {
+                  "id": 54,
+                  "name": "Wales",
+                  "timezone": "Europe/London"
+                },
+                {
+                  "id": 52,
+                  "name": "England",
+                  "timezone": "Europe/London"
+                }
+              ],
+              "channelTypes": [
+                {
+                  "id": 4,
+                  "name": "Radio",
+                  "mediaType": "AUDIO"
+                }
+              ]
+            },
+            "startDateTime": "2025-08-15T12:00:00Z",
+            "endDateTime": "2025-08-15T21:15:00Z",
+            "restrictedRegions": [
+              {
+                "id": 11,
+                "name": "Ireland",
+                "timezone": "Europe/Dublin"
+              },
+              {
+                "id": 10,
+                "name": "UK",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 53,
+                "name": "Scotland",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 52,
+                "name": "England",
+                "timezone": "Europe/London"
+              },
+              {
+                "id": 54,
+                "name": "Wales",
+                "timezone": "Europe/London"
+              }
+            ],
+            "customAttributes": [
+              {
+                "name": "Photo Reference",
+                "value": "1083709"
+              },
+              {
+                "name": "Streaming Link",
+                "value": ""
+              }
+            ]
+          },
+          {
+            "info": {
+              "id": 223,
+              "name": "Now",
+              "description": null,
+              "abbreviation": "sky1",
+              "logo": {
+                "reference": "4655788",
+                "type": "PHOTO",
+                "info": {
+                  "original": {
+                    "width": 200,
+                    "height": 100,
+                    "aspectRatio": 2.0,
+                    "url": "https://resources.premierleague.pulselive.com/premierleague/photo/2026/05/11/7c17ff3b-2765-4d1c-a40c-771bf6660d35/sky1-x2.png"
+                  },
+                  "orientation": "NORMAL",
+                  "areas": [
+                    {
+                      "area": "default",
+                      "positionX": 20,
+                      "positionY": 10,
+                      "width": 160,
+                      "height": 80,
+                      "uuid": null
+                    }
+                  ]
+                }
+              },
+              "link": null,
+              "broadcaster": {
+                "id": 178,
+                "name": "Now",
+                "abbreviation": "sky1",
+                "logo": {
+                  "reference": "4655787",
+                  "type": "PHOTO",
+                  "info": {
+                    "original": {
+                      "width": 200,
+                      "height": 100,
+                      "aspectRatio": 2.0,
+                      "url": "https://resources.premierleague.pulselive.com/premierleague/photo/2026/05/11/d8e84fe7-576b-4c4a-b8c0-246ed6348ed1/sky1-x2.png"
+                    },
+                    "orientation": "NORMAL",
+                    "areas": [
+                      {
+                        "area": "default",
+                        "positionX": 20,
+                        "positionY": 10,
+                        "width": 160,
+                        "height": 80,
+                        "uuid": null
+                      }
+                    ]
+                  }
+                },
+                "link": "https://www.sky.com/tv/sports/premier-league",
+                "restrictedRegions": [
+                  {
+                    "id": 10,
+                    "name": "UK",
+                    "timezone": "Europe/London"
+                  },
+                  {
+                    "id": 11,
+                    "name": "Ireland",
+                    "timezone": "Europe/Dublin"
+                  }
+                ],
+                "restrictedCountries": [
+                  "GB",
+                  "IE"
+                ]
+              },
+              "restrictedRegions": [
+                {
+                  "id": 11,
+                  "name": "Ireland",
+                  "timezone": "Europe/Dublin"
+                },
+                {
+                  "id": 10,
+                  "name": "UK",
+                  "timezone": "Europe/London"
+                }
+              ],
+              "channelTypes": [
+                {
+                  "id": 5,
+                  "name": "Subscription TV",
+                  "mediaType": "VIDEO"
+                }
+              ]
+            },
+            "startDateTime": "2025-08-15T20:00:00Z",
+            "endDateTime": null,
+            "restrictedRegions": [
+              {
+                "id": 10,
+                "name": "UK",
+                "timezone": "Europe/London"
+              }
+            ],
+            "customAttributes": []
+          }
+        ],
+        "contentReference": {
+          "id": 2561895,
+          "providerId": "2561895",
+          "type": "SDP_FOOTBALL_MATCH"
+        }
+      }
+    ]
+  },
+  "headers": {
+    "content-type": "application/json",
+    "content-length": "5382",
+    "connection": "close",
+    "date": "Sat, 22 Aug 2026 21:29:09 GMT",
+    "x-request-id": "0c2842367dd452d76b4098292bc607b8",
+    "cache-control": "max-age=600, stale-if-error=86400, stale-while-revalidate=3600",
+    "cloudfront-viewer-country": "GB",
+    "etag": "\"0b457ee982b2f127f79def6f581ffd9d0\"",
+    "strict-transport-security": "max-age=31536000; includeSubDomains; preload",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 7170ee611613179ebc0e36da1458b068.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "x-amz-cf-id": "HulEW0G9ccACo4IZJas2A28GgyMVS7plKlTPVeBIwdzqj7ZlmNtLNg==",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "x-content-type-options": "nosniff"
+  }
+}

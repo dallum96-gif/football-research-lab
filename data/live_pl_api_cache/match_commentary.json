@@ -1,0 +1,55 @@
+{
+  "status": 200,
+  "payload": {
+    "pagination": {
+      "_limit": 2,
+      "_prev": null,
+      "_next": "eyJsYW5nX2lkIjogImVuIiwgIm1hdGNoX2lkIjogIjI1NjE4OTUiLCAibWVzc2FnZV9pZCI6ICIyODM1MjIwMDI1In1fX3siX2xpIjogWyIyMDI1LTA4LTE1IDIxOjU2OjEyIl19"
+    },
+    "data": [
+      {
+        "team1": "91",
+        "team2": "14",
+        "comment": "Match ends, Liverpool 4, Bournemouth 2.",
+        "time": " ",
+        "type": "end 14",
+        "timestamp": "2025-08-15 21:56:25"
+      },
+      {
+        "team1": "91",
+        "team2": "14",
+        "comment": "Second Half ends, Liverpool 4, Bournemouth 2.",
+        "time": "90'+7'",
+        "type": "end 2",
+        "timestamp": "2025-08-15 21:56:12"
+      }
+    ]
+  },
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v1/matches/{id}/commentary",
+    "cache-control": "max-age=5, stale-while-revalidate=120, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:04 GMT",
+    "x-cache-status": "MISS",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "289",
+    "x-ratelimit-reset": "56",
+    "x-request-id": "6ea9b5fc-e7a2-4df1-a973-c203dee38e8a",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 fbfbfeb63c7a31b612da0d0f61e127fe.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "vN_TyNQ1AYoLjFhRhUQ-b9vMAkZ82J6jzHOCQjMRj95phDhsZAt9MQ==",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

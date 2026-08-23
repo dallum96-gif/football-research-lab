@@ -1,0 +1,831 @@
+{
+  "status": 200,
+  "payload": {
+    "matchweek": 38,
+    "tables": [
+      {
+        "entries": [
+          {
+            "away": {
+              "goalsFor": 30,
+              "lost": 3,
+              "won": 11,
+              "position": 1,
+              "drawn": 5,
+              "goalsAgainst": 16,
+              "played": 19,
+              "points": 38
+            },
+            "overall": {
+              "goalsFor": 71,
+              "lost": 5,
+              "won": 26,
+              "position": 1,
+              "drawn": 7,
+              "goalsAgainst": 27,
+              "startingPosition": 1,
+              "played": 38,
+              "points": 85
+            },
+            "team": {
+              "name": "Arsenal",
+              "id": "3",
+              "shortName": "Arsenal",
+              "abbr": "ARS"
+            },
+            "home": {
+              "goalsFor": 41,
+              "lost": 2,
+              "won": 15,
+              "position": 1,
+              "drawn": 2,
+              "goalsAgainst": 11,
+              "played": 19,
+              "points": 47
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 32,
+              "lost": 4,
+              "won": 9,
+              "position": 2,
+              "drawn": 6,
+              "goalsAgainst": 21,
+              "played": 19,
+              "points": 33
+            },
+            "overall": {
+              "goalsFor": 77,
+              "lost": 6,
+              "won": 23,
+              "position": 2,
+              "drawn": 9,
+              "goalsAgainst": 35,
+              "startingPosition": 2,
+              "played": 38,
+              "points": 78
+            },
+            "team": {
+              "name": "Manchester City",
+              "id": "43",
+              "shortName": "Man City",
+              "abbr": "MCI"
+            },
+            "home": {
+              "goalsFor": 45,
+              "lost": 2,
+              "won": 14,
+              "position": 2,
+              "drawn": 3,
+              "goalsAgainst": 14,
+              "played": 19,
+              "points": 45
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 30,
+              "lost": 4,
+              "won": 7,
+              "position": 3,
+              "drawn": 8,
+              "goalsAgainst": 26,
+              "played": 19,
+              "points": 29
+            },
+            "overall": {
+              "goalsFor": 69,
+              "lost": 7,
+              "won": 20,
+              "position": 3,
+              "drawn": 11,
+              "goalsAgainst": 50,
+              "startingPosition": 3,
+              "played": 38,
+              "points": 71
+            },
+            "team": {
+              "name": "Manchester United",
+              "id": "1",
+              "shortName": "Man Utd",
+              "abbr": "MUN"
+            },
+            "home": {
+              "goalsFor": 39,
+              "lost": 3,
+              "won": 13,
+              "position": 3,
+              "drawn": 3,
+              "goalsAgainst": 24,
+              "played": 19,
+              "points": 42
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 24,
+              "lost": 6,
+              "won": 7,
+              "position": 4,
+              "drawn": 6,
+              "goalsAgainst": 27,
+              "played": 19,
+              "points": 27
+            },
+            "overall": {
+              "goalsFor": 56,
+              "lost": 11,
+              "won": 19,
+              "position": 4,
+              "drawn": 8,
+              "goalsAgainst": 49,
+              "startingPosition": 4,
+              "played": 38,
+              "points": 65
+            },
+            "team": {
+              "name": "Aston Villa",
+              "id": "7",
+              "shortName": "Aston Villa",
+              "abbr": "AVL"
+            },
+            "home": {
+              "goalsFor": 32,
+              "lost": 5,
+              "won": 12,
+              "position": 4,
+              "drawn": 2,
+              "goalsAgainst": 22,
+              "played": 19,
+              "points": 38
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 29,
+              "lost": 9,
+              "won": 7,
+              "position": 10,
+              "drawn": 3,
+              "goalsAgainst": 33,
+              "played": 19,
+              "points": 24
+            },
+            "overall": {
+              "goalsFor": 63,
+              "lost": 12,
+              "won": 17,
+              "position": 5,
+              "drawn": 9,
+              "goalsAgainst": 53,
+              "startingPosition": 5,
+              "played": 38,
+              "points": 60
+            },
+            "team": {
+              "name": "Liverpool",
+              "id": "14",
+              "shortName": "Liverpool",
+              "abbr": "LIV"
+            },
+            "home": {
+              "goalsFor": 34,
+              "lost": 3,
+              "won": 10,
+              "position": 5,
+              "drawn": 6,
+              "goalsAgainst": 20,
+              "played": 19,
+              "points": 36
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 29,
+              "lost": 5,
+              "won": 6,
+              "position": 8,
+              "drawn": 8,
+              "goalsAgainst": 34,
+              "played": 19,
+              "points": 26
+            },
+            "overall": {
+              "goalsFor": 58,
+              "lost": 7,
+              "won": 13,
+              "position": 6,
+              "drawn": 18,
+              "goalsAgainst": 54,
+              "startingPosition": 6,
+              "played": 38,
+              "points": 57
+            },
+            "team": {
+              "name": "Bournemouth",
+              "id": "91",
+              "shortName": "Bournemouth",
+              "abbr": "BOU"
+            },
+            "home": {
+              "goalsFor": 29,
+              "lost": 2,
+              "won": 7,
+              "position": 12,
+              "drawn": 10,
+              "goalsAgainst": 20,
+              "played": 19,
+              "points": 31
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 17,
+              "lost": 8,
+              "won": 5,
+              "position": 13,
+              "drawn": 6,
+              "goalsAgainst": 28,
+              "played": 19,
+              "points": 21
+            },
+            "overall": {
+              "goalsFor": 42,
+              "lost": 12,
+              "won": 14,
+              "position": 7,
+              "drawn": 12,
+              "goalsAgainst": 48,
+              "startingPosition": 10,
+              "played": 38,
+              "points": 54
+            },
+            "team": {
+              "name": "Sunderland",
+              "id": "56",
+              "shortName": "Sunderland",
+              "abbr": "SUN"
+            },
+            "home": {
+              "goalsFor": 25,
+              "lost": 4,
+              "won": 9,
+              "position": 8,
+              "drawn": 6,
+              "goalsAgainst": 20,
+              "played": 19,
+              "points": 33
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 22,
+              "lost": 9,
+              "won": 5,
+              "position": 14,
+              "drawn": 5,
+              "goalsAgainst": 26,
+              "played": 19,
+              "points": 20
+            },
+            "overall": {
+              "goalsFor": 52,
+              "lost": 13,
+              "won": 14,
+              "position": 8,
+              "drawn": 11,
+              "goalsAgainst": 46,
+              "startingPosition": 7,
+              "played": 38,
+              "points": 53
+            },
+            "team": {
+              "name": "Brighton and Hove Albion",
+              "id": "36",
+              "shortName": "Brighton",
+              "abbr": "BHA"
+            },
+            "home": {
+              "goalsFor": 30,
+              "lost": 4,
+              "won": 9,
+              "position": 7,
+              "drawn": 6,
+              "goalsAgainst": 20,
+              "played": 19,
+              "points": 33
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 22,
+              "lost": 10,
+              "won": 6,
+              "position": 12,
+              "drawn": 3,
+              "goalsAgainst": 31,
+              "played": 19,
+              "points": 21
+            },
+            "overall": {
+              "goalsFor": 55,
+              "lost": 13,
+              "won": 14,
+              "position": 9,
+              "drawn": 11,
+              "goalsAgainst": 52,
+              "startingPosition": 9,
+              "played": 38,
+              "points": 53
+            },
+            "team": {
+              "name": "Brentford",
+              "id": "94",
+              "shortName": "Brentford",
+              "abbr": "BRE"
+            },
+            "home": {
+              "goalsFor": 33,
+              "lost": 3,
+              "won": 8,
+              "position": 9,
+              "drawn": 8,
+              "goalsAgainst": 21,
+              "played": 19,
+              "points": 32
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 32,
+              "lost": 7,
+              "won": 7,
+              "position": 5,
+              "drawn": 5,
+              "goalsAgainst": 27,
+              "played": 19,
+              "points": 26
+            },
+            "overall": {
+              "goalsFor": 58,
+              "lost": 14,
+              "won": 14,
+              "position": 10,
+              "drawn": 10,
+              "goalsAgainst": 52,
+              "startingPosition": 8,
+              "played": 38,
+              "points": 52
+            },
+            "team": {
+              "name": "Chelsea",
+              "id": "8",
+              "shortName": "Chelsea",
+              "abbr": "CHE"
+            },
+            "home": {
+              "goalsFor": 26,
+              "lost": 7,
+              "won": 7,
+              "position": 13,
+              "drawn": 5,
+              "goalsAgainst": 25,
+              "played": 19,
+              "points": 26
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 17,
+              "lost": 10,
+              "won": 4,
+              "position": 16,
+              "drawn": 5,
+              "goalsAgainst": 31,
+              "played": 19,
+              "points": 17
+            },
+            "overall": {
+              "goalsFor": 47,
+              "lost": 16,
+              "won": 15,
+              "position": 11,
+              "drawn": 7,
+              "goalsAgainst": 51,
+              "startingPosition": 13,
+              "played": 38,
+              "points": 52
+            },
+            "team": {
+              "name": "Fulham",
+              "id": "54",
+              "shortName": "Fulham",
+              "abbr": "FUL"
+            },
+            "home": {
+              "goalsFor": 30,
+              "lost": 6,
+              "won": 11,
+              "position": 6,
+              "drawn": 2,
+              "goalsAgainst": 20,
+              "played": 19,
+              "points": 35
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 17,
+              "lost": 10,
+              "won": 4,
+              "position": 15,
+              "drawn": 5,
+              "goalsAgainst": 25,
+              "played": 19,
+              "points": 17
+            },
+            "overall": {
+              "goalsFor": 53,
+              "lost": 17,
+              "won": 14,
+              "position": 12,
+              "drawn": 7,
+              "goalsAgainst": 55,
+              "startingPosition": 11,
+              "played": 38,
+              "points": 49
+            },
+            "team": {
+              "name": "Newcastle United",
+              "id": "4",
+              "shortName": "Newcastle",
+              "abbr": "NEW"
+            },
+            "home": {
+              "goalsFor": 36,
+              "lost": 7,
+              "won": 10,
+              "position": 11,
+              "drawn": 2,
+              "goalsAgainst": 30,
+              "played": 19,
+              "points": 32
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 21,
+              "lost": 7,
+              "won": 7,
+              "position": 7,
+              "drawn": 5,
+              "goalsAgainst": 23,
+              "played": 19,
+              "points": 26
+            },
+            "overall": {
+              "goalsFor": 47,
+              "lost": 15,
+              "won": 13,
+              "position": 13,
+              "drawn": 10,
+              "goalsAgainst": 50,
+              "startingPosition": 12,
+              "played": 38,
+              "points": 49
+            },
+            "team": {
+              "name": "Everton",
+              "id": "11",
+              "shortName": "Everton",
+              "abbr": "EVE"
+            },
+            "home": {
+              "goalsFor": 26,
+              "lost": 8,
+              "won": 6,
+              "position": 14,
+              "drawn": 5,
+              "goalsAgainst": 27,
+              "played": 19,
+              "points": 23
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 20,
+              "lost": 8,
+              "won": 2,
+              "position": 18,
+              "drawn": 9,
+              "goalsAgainst": 35,
+              "played": 19,
+              "points": 15
+            },
+            "overall": {
+              "goalsFor": 49,
+              "lost": 13,
+              "won": 11,
+              "position": 14,
+              "drawn": 14,
+              "goalsAgainst": 56,
+              "startingPosition": 14,
+              "played": 38,
+              "points": 47
+            },
+            "team": {
+              "name": "Leeds United",
+              "id": "2",
+              "shortName": "Leeds",
+              "abbr": "LEE"
+            },
+            "home": {
+              "goalsFor": 29,
+              "lost": 5,
+              "won": 9,
+              "position": 10,
+              "drawn": 5,
+              "goalsAgainst": 21,
+              "played": 19,
+              "points": 32
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 22,
+              "lost": 9,
+              "won": 7,
+              "position": 11,
+              "drawn": 3,
+              "goalsAgainst": 28,
+              "played": 19,
+              "points": 24
+            },
+            "overall": {
+              "goalsFor": 41,
+              "lost": 15,
+              "won": 11,
+              "position": 15,
+              "drawn": 12,
+              "goalsAgainst": 51,
+              "startingPosition": 15,
+              "played": 38,
+              "points": 45
+            },
+            "team": {
+              "name": "Crystal Palace",
+              "id": "31",
+              "shortName": "Crystal Palace",
+              "abbr": "CRY"
+            },
+            "home": {
+              "goalsFor": 19,
+              "lost": 6,
+              "won": 4,
+              "position": 16,
+              "drawn": 9,
+              "goalsAgainst": 23,
+              "played": 19,
+              "points": 21
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 28,
+              "lost": 9,
+              "won": 7,
+              "position": 9,
+              "drawn": 3,
+              "goalsAgainst": 28,
+              "played": 19,
+              "points": 24
+            },
+            "overall": {
+              "goalsFor": 48,
+              "lost": 16,
+              "won": 11,
+              "position": 16,
+              "drawn": 11,
+              "goalsAgainst": 51,
+              "startingPosition": 16,
+              "played": 38,
+              "points": 44
+            },
+            "team": {
+              "name": "Nottingham Forest",
+              "id": "17",
+              "shortName": "Nott'm Forest",
+              "abbr": "NFO"
+            },
+            "home": {
+              "goalsFor": 20,
+              "lost": 7,
+              "won": 4,
+              "position": 17,
+              "drawn": 8,
+              "goalsAgainst": 23,
+              "played": 19,
+              "points": 20
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 26,
+              "lost": 7,
+              "won": 7,
+              "position": 6,
+              "drawn": 5,
+              "goalsAgainst": 26,
+              "played": 19,
+              "points": 26
+            },
+            "overall": {
+              "goalsFor": 48,
+              "lost": 17,
+              "won": 10,
+              "position": 17,
+              "drawn": 11,
+              "goalsAgainst": 57,
+              "startingPosition": 17,
+              "played": 38,
+              "points": 41
+            },
+            "team": {
+              "name": "Tottenham Hotspur",
+              "id": "6",
+              "shortName": "Spurs",
+              "abbr": "TOT"
+            },
+            "home": {
+              "goalsFor": 22,
+              "lost": 10,
+              "won": 3,
+              "position": 18,
+              "drawn": 6,
+              "goalsAgainst": 31,
+              "played": 19,
+              "points": 15
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 19,
+              "lost": 10,
+              "won": 4,
+              "position": 17,
+              "drawn": 5,
+              "goalsAgainst": 35,
+              "played": 19,
+              "points": 17
+            },
+            "overall": {
+              "goalsFor": 46,
+              "lost": 19,
+              "won": 10,
+              "position": 18,
+              "drawn": 9,
+              "goalsAgainst": 65,
+              "startingPosition": 18,
+              "played": 38,
+              "points": 39
+            },
+            "team": {
+              "name": "West Ham United",
+              "id": "21",
+              "shortName": "West Ham",
+              "abbr": "WHU"
+            },
+            "home": {
+              "goalsFor": 27,
+              "lost": 9,
+              "won": 6,
+              "position": 15,
+              "drawn": 4,
+              "goalsAgainst": 30,
+              "played": 19,
+              "points": 22
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 20,
+              "lost": 14,
+              "won": 2,
+              "position": 19,
+              "drawn": 3,
+              "goalsAgainst": 46,
+              "played": 19,
+              "points": 9
+            },
+            "overall": {
+              "goalsFor": 38,
+              "lost": 24,
+              "won": 4,
+              "position": 19,
+              "drawn": 10,
+              "goalsAgainst": 75,
+              "startingPosition": 19,
+              "played": 38,
+              "points": 22
+            },
+            "team": {
+              "name": "Burnley",
+              "id": "90",
+              "shortName": "Burnley",
+              "abbr": "BUR"
+            },
+            "home": {
+              "goalsFor": 18,
+              "lost": 10,
+              "won": 2,
+              "position": 20,
+              "drawn": 7,
+              "goalsAgainst": 29,
+              "played": 19,
+              "points": 13
+            }
+          },
+          {
+            "away": {
+              "goalsFor": 8,
+              "lost": 13,
+              "won": 0,
+              "position": 20,
+              "drawn": 6,
+              "goalsAgainst": 34,
+              "played": 19,
+              "points": 6
+            },
+            "overall": {
+              "goalsFor": 27,
+              "lost": 24,
+              "won": 3,
+              "position": 20,
+              "drawn": 11,
+              "goalsAgainst": 68,
+              "startingPosition": 20,
+              "played": 38,
+              "points": 20
+            },
+            "team": {
+              "name": "Wolverhampton Wanderers",
+              "id": "39",
+              "shortName": "Wolves",
+              "abbr": "WOL"
+            },
+            "home": {
+              "goalsFor": 19,
+              "lost": 11,
+              "won": 3,
+              "position": 19,
+              "drawn": 5,
+              "goalsAgainst": 34,
+              "played": 19,
+              "points": 14
+            }
+          }
+        ]
+      }
+    ],
+    "season": {
+      "name": "Season 2025/2026",
+      "id": "2025"
+    },
+    "competition": {
+      "code": "EN_PR",
+      "name": "Premier League",
+      "id": "8"
+    },
+    "deductions": [],
+    "live": false
+  },
+  "headers": {
+    "content-type": "application/json",
+    "transfer-encoding": "chunked",
+    "connection": "close",
+    "x-pulse-sdp-endpoint": "/v5/competitions/{cid}/seasons/{sid}/standings",
+    "cache-control": "max-age=30, stale-while-revalidate=600, stale-if-error=86400",
+    "date": "Sat, 22 Aug 2026 21:29:01 GMT",
+    "x-cache-status": "HIT",
+    "x-cache-server": "norp",
+    "x-ratelimit-limit": "300, 300;w=60",
+    "x-ratelimit-remaining": "296",
+    "x-ratelimit-reset": "59",
+    "x-request-id": "943d4063-fd85-44eb-af13-be92f6db8586",
+    "vary": "Origin",
+    "x-cache": "Miss from cloudfront",
+    "via": "1.1 9217f52f502ad5d150d3fc20ec1e8a8e.cloudfront.net (CloudFront)",
+    "x-amz-cf-pop": "MAN51-P6",
+    "alt-svc": "h3=\":443\"; ma=86400",
+    "x-amz-cf-id": "7uCh9hg90vpqB2yMpPoV0yzIbJc3p4PWcp8ZGCOsanhT11uxlKH5eg==",
+    "age": "16",
+    "x-frame-options": "DENY",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "content-security-policy": "frame-ancestors 'none'; default-src 'self'; script-src 'self'; script-src-elem 'self'; script-src-attr 'self'; style-src 'self'; style-src-elem 'self'; style-src-attr 'self'; img-src 'self'; connect-src 'self'; frame-src 'self'; font-src 'self'; media-src 'self'; object-src 'self'; manifest-src 'self'; worker-src 'self'; prefetch-src 'self'; form-action 'self';",
+    "x-content-type-options": "nosniff",
+    "strict-transport-security": "max-age=31536000; includeSubDomains",
+    "permissions-policy": "accelerometer=(), autoplay=(), camera=(), ch-dpr=(), ch-save-data=(), ch-viewport-width=(), ch-width=(), clipboard-read=(), clipboard-write=(), cross-origin-isolated=(), display-capture=(), encrypted-media=(), fullscreen=(), gamepad=(), geolocation=(), gyroscope=(), hid=(), idle-detection=(), keyboard-map=(), local-fonts=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), sync-xhr=(), usb=(), window-placement=(), xr-spatial-tracking=()",
+    "set-cookie": "Secure; HttpOnly;"
+  }
+}

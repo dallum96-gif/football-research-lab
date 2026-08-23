@@ -1,0 +1,2 @@
+﻿live_id,live_name,reason,season,fpl_element,fpl_name_normalized,team_code,source_player_id,match_method,confidence,identity_status,evidence_basis
+223094,Erling Haaland,fpl_name_normalized=NORMALIZED_NAME,2025-26,430,erling haaland,43,839956,EXACT_NAME_TEAM,VERIFIED,VERIFIED,exact normalized name + verified seasonal team identity; unique source playerId across all verified team records

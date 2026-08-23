@@ -1,0 +1,11 @@
+﻿path,field_type,sample
+home_team.managers,list,"[{""firstName"":""Arne"",""lastName"":""Slot"",""id"":""52174"",""type"":""Manager""}]"
+home_team.managers[].firstName,str,"""Arne"""
+home_team.managers[].lastName,str,"""Slot"""
+home_team.managers[].id,str,"""52174"""
+home_team.managers[].type,str,"""Manager"""
+away_team.managers,list,"[{""firstName"":""Andoni"",""lastName"":""Iraola"",""id"":""50428"",""type"":""Manager""}]"
+away_team.managers[].firstName,str,"""Andoni"""
+away_team.managers[].lastName,str,"""Iraola"""
+away_team.managers[].id,str,"""50428"""
+away_team.managers[].type,str,"""Manager"""

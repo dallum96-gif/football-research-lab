@@ -1,0 +1,12 @@
+﻿target,components,formula,target_value,derived_value,difference,status,reason
+duels,duelsWon + duelsLost,duelsWon + duelsLost,3556,3556,0,EXACT,Observed source value equals the stated arithmetic relationship.
+goalsConceded,goalsConcededInsideBox + goalsConcededOutsideBox,goalsConcededInsideBox + goalsConcededOutsideBox,35,35,0,EXACT,Observed source value equals the stated arithmetic relationship.
+aerialDuels,aerialDuelsWon + aerialDuelsLost,aerialDuelsWon + aerialDuelsLost,854,854,0,EXACT,Observed source value equals the stated arithmetic relationship.
+crossesAndCorners_attempts,successfulCrossesAndCorners + unsuccessfulCrossesAndCorners,successfulCrossesAndCorners + unsuccessfulCrossesAndCorners,,619,,UNTESTABLE,Not all source values are present in the candidate-values artefact.
+crossesOpenPlay_attempts,successfulCrossesOpenPlay + unsuccessfulCrossesOpenPlay,successfulCrossesOpenPlay + unsuccessfulCrossesOpenPlay,,393,,UNTESTABLE,Not all source values are present in the candidate-values artefact.
+dribbles_attempts,successfulDribbles + unsuccessfulDribbles,successfulDribbles + unsuccessfulDribbles,,824,,UNTESTABLE,Not all source values are present in the candidate-values artefact.
+launches_attempts,successfulLaunches + unsuccessfulLaunches,successfulLaunches + unsuccessfulLaunches,,464,,UNTESTABLE,Not all source values are present in the candidate-values artefact.
+layoffs_attempts,successfulLayoffs + unsuccessfulLayoffs,successfulLayoffs + unsuccessfulLayoffs,,447,,UNTESTABLE,Not all source values are present in the candidate-values artefact.
+longPasses_attempts,successfulLongPasses + unsuccessfulLongPasses,successfulLongPasses + unsuccessfulLongPasses,,1464,,UNTESTABLE,Not all source values are present in the candidate-values artefact.
+shortPasses_attempts,successfulShortPasses + unsuccessfulShortPasses,successfulShortPasses + unsuccessfulShortPasses,,20878,,UNTESTABLE,Not all source values are present in the candidate-values artefact.
+passesOwnHalf_attempts,successfulPassesOwnHalf + unsuccessfulPassesOwnHalf,successfulPassesOwnHalf + unsuccessfulPassesOwnHalf,,9149,,UNTESTABLE,Not all source values are present in the candidate-values artefact.
