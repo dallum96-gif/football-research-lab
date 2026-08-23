@@ -81,12 +81,14 @@ def _player_match(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "home_team_entity_id": _n(row.get("home_team_attachment_entity_id")),
             "away_team_attachment_status": _status(row.get("away_team_attachment_status")),
             "away_team_entity_id": _n(row.get("away_team_attachment_entity_id")),
+            "source_player_identity_status": "VERIFIED" if _n(row.get("source_player_id")) else "UNRESOLVED",
             "player_attachment_status": _status(row.get("player_attachment_status")),
-            "player_entity_id": _n(row.get("player_attachment_entity_id")),
+            "player_entity_id": "",
+            "player_source_identity_ref": _n(row.get("source_player_id")),
             "participation_status": _n(row.get("participation_status")),
             "attachment_basis_fixture": "legacy routed materialiser: verified source-match route",
             "attachment_basis_team": "legacy routed materialiser: verified team-season route",
-            "attachment_basis_player": _n(row.get("attachment_basis_player")) or "verified player identity registry only",
+            "attachment_basis_player": _n(row.get("attachment_basis_player")) or "verified source player identity; canonical FRL player not promoted",
         })
     return out
 
@@ -94,22 +96,27 @@ def _player_match(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def _player_season(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out = []
     for i, row in enumerate(rows, start=1):
+        source_id = _n(row.get("source_player_id"))
         out.append({
             "observation_id": _n(row.get("observation_id")) or f"player_season/{i}",
             "grain": "player_season",
             "season": _n(row.get("season")),
             "source_record_id": _n(row.get("observation_id")),
-            "source_player_id": _n(row.get("source_player_id")),
+            "source_player_id": source_id,
             "source_match_id": "",
-            "source_team_id": _n(row.get("team_season_id")),
+            "source_team_id": "",
             "fixture_attachment_status": "NOT_APPLICABLE",
             "fixture_entity_id": "",
             "home_team_attachment_status": "NOT_APPLICABLE",
             "home_team_entity_id": "",
             "away_team_attachment_status": "NOT_APPLICABLE",
             "away_team_entity_id": "",
+            "source_player_identity_status": "VERIFIED" if source_id else "UNRESOLVED",
             "player_attachment_status": _status(row.get("player_attachment_status")),
-            "player_entity_id": _n(row.get("player_attachment_entity_id")),
+            "player_entity_id": "",
+            "player_source_identity_ref": source_id,
+            "team_attachment_status": _status(row.get("team_attachment_status")),
+            "team_season_id": _n(row.get("team_season_id")),
         })
     return out
 
@@ -142,12 +149,13 @@ def _team_match(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def _squad(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     out = []
     for i, row in enumerate(rows, start=1):
+        source_id = _n(row.get("source_player_id"))
         out.append({
             "observation_id": _n(row.get("observation_id")) or f"squad/{i}",
             "grain": "squad",
             "season": _n(row.get("season")),
             "source_record_id": _n(row.get("observation_id")),
-            "source_player_id": _n(row.get("source_player_id")),
+            "source_player_id": source_id,
             "source_match_id": "",
             "source_team_id": _n(row.get("source_team_id")),
             "fixture_attachment_status": "NOT_APPLICABLE",
@@ -156,8 +164,10 @@ def _squad(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "home_team_entity_id": "",
             "away_team_attachment_status": "NOT_APPLICABLE",
             "away_team_entity_id": "",
+            "source_player_identity_status": "VERIFIED" if source_id else "UNRESOLVED",
             "player_attachment_status": _status(row.get("player_attachment_status")),
-            "player_entity_id": _n(row.get("player_attachment_entity_id")),
+            "player_entity_id": "",
+            "player_source_identity_ref": source_id,
             "team_attachment_status": _status(row.get("team_attachment_status")),
             "team_season_id": _n(row.get("team_season_attachment_entity_id")),
         })
