@@ -1,0 +1,1 @@
+Temporary CI audit entrypoint for the unresolved player-match evidence census. The workflow checks out the public upstream source archive and runs the existing read-only audit with source roots redirected in memory. No canonical identity data is modified.
