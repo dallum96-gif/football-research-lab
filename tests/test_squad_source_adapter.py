@@ -1,4 +1,5 @@
 from squad_source_adapter import resolve_team_season, squad_context
+from pulselive_season_namespace import load_mapping
 
 
 def payload():
@@ -38,3 +39,8 @@ def test_squad_route_verifies_unique_team_season():
 def test_squad_route_fails_closed_without_audited_season_map():
     result = resolve_team_season(payload(), source_season_map={}, registry=())
     assert result["status"] == "UNRESOLVED_SEASON"
+
+
+def test_external_correlated_namespace_map_contains_2025_mapping():
+    mapping = load_mapping()
+    assert mapping["2025"] == "2025-26"
