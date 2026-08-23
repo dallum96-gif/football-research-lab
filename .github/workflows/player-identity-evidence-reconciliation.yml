@@ -1,0 +1,75 @@
+name: Player Identity Evidence Reconciliation
+
+on:
+  push:
+    branches:
+      - feat/source-family-adapters-2026-08-21
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run existing identity evidence audits
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import player_identity_audit
+          import player_identity_crosswalk
+          import source_family_adapters
+          import player_match_stats
+          import match_stats
+          import audit_fpl_player_season_bridge
+          import audit_source_player_season_identity_bridge
+          import audit_early_fpl_continuity_name_resolution
+          import audit_player_identity_relationship_closure
+
+          source_root = Path.cwd() / 'source' / 'pl_stats'
+          player_identity_audit.PL_ROOT = source_root
+          player_identity_crosswalk.PL_ROOT = source_root
+          source_family_adapters.PL_ROOT = source_root
+          player_match_stats.PL_ROOT = source_root
+          match_stats.PL_ROOT = source_root
+          audit_player_identity_relationship_closure.PL_ROOT = source_root
+          audit_player_identity_relationship_closure.MERGED_PLAYERS = source_root / '_merged' / 'players'
+
+          print('--- EXISTING FPL ELEMENT -> PL SOURCE CROSSWALK ---')
+          report = player_identity_crosswalk.summarize()
+          player_identity_crosswalk.print_report(report)
+
+          print('--- EXISTING FPL -> PLAYER-SEASON BRIDGE ---')
+          report2 = audit_fpl_player_season_bridge.audit()
+          audit_fpl_player_season_bridge.print_report(report2)
+
+          print('--- EXISTING SOURCE PLAYER -> PLAYER-SEASON BRIDGE ---')
+          audit_source_player_season_identity_bridge.main()
+
+          print('--- EXISTING EARLY FPL ELEMENT CONTINUITY + NAME RESOLUTION ---')
+          audit_early_fpl_continuity_name_resolution.run()
+
+          print('--- EXISTING PLAYER IDENTITY RELATIONSHIP CLOSURE ---')
+          audit_player_identity_relationship_closure.main()
+          PY

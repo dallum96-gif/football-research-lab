@@ -1,0 +1,49 @@
+name: Unresolved Player Evidence Census
+
+on:
+  push:
+    branches:
+      - feat/source-family-adapters-2026-08-21
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL audit repo
+        uses: actions/checkout@v4
+
+      - name: Checkout preserved upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source-data
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install FRL requirements when present
+        shell: bash
+        run: |
+          if [ -f requirements.txt ]; then
+            python -m pip install -r requirements.txt
+          fi
+
+      - name: Run read-only unresolved Player evidence census
+        env:
+          FRL_PL_ROOT: ${{ github.workspace }}/source-data/pl_stats
+        run: |
+          python ci/run_unresolved_player_evidence_census.py | tee unresolved-player-evidence-census.txt
+
+      - name: Upload census report
+        uses: actions/upload-artifact@v4
+        with:
+          name: unresolved-player-evidence-census
+          path: unresolved-player-evidence-census.txt

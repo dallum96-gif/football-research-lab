@@ -1,4 +1,4 @@
-﻿"""Read-only builder/auditor for the FRL FPL element -> source playerId crosswalk.
+"""Read-only builder/auditor for the FRL FPL element -> source playerId crosswalk.
 
 The historical FPL files use season-local ``element`` values. The external
 player-match source provides a longitudinal ``playerId``. This module builds
@@ -51,11 +51,25 @@ def source_files(season: str) -> tuple[Path, ...]:
 
 
 def verified_team_codes(season: str) -> dict[str, str]:
+    """Return verified persistent team codes keyed by normalized canonical name."""
     return {
         normalize_name(row["canonical_name"]): str(row["persistent_team_code"])
         for row in query_lab.load_identity_registry()
         if row["season"] == season and row["mapping_status"] == "VERIFIED"
     }
+
+
+def verified_source_team_codes(season: str) -> dict[str, str]:
+    """Map verified season-local team IDs from source player-match data to persistent team codes."""
+    mapping: dict[str, str] = {}
+    for row in query_lab.load_identity_registry():
+        if row["season"] != season or row["mapping_status"] != "VERIFIED":
+            continue
+        local_id = str(row.get("local_team_id") or "").strip()
+        persistent = str(row.get("persistent_team_code") or "").strip()
+        if local_id and persistent:
+            mapping[local_id] = persistent
+    return mapping
 
 
 def fpl_records(season: str):
@@ -79,21 +93,24 @@ def fpl_records(season: str):
 
 def source_records(season: str):
     seen = set()
+    team_codes = verified_source_team_codes(season)
     for path in source_files(season):
         f, r = open_csv(path)
         for row in r:
             pid = str(row.get("playerId") or row.get("pl_code") or row.get("player_id") or "").strip()
             name = str(row.get("playerName") or row.get("player_name") or row.get("name") or "").strip()
-            team = str(row.get("team_id") or "").strip()
-            key = (pid, team, normalize_name(name))
-            if pid and key not in seen:
+            local_team_id = str(row.get("team_id") or "").strip()
+            persistent_team_code = team_codes.get(local_team_id, "")
+            key = (pid, persistent_team_code, normalize_name(name))
+            if pid and persistent_team_code and key not in seen:
                 seen.add(key)
                 yield {
                     "season": season,
                     "source_player_id": pid,
                     "name": name,
                     "name_norm": normalize_name(name),
-                    "team_code": team,
+                    "team_code": persistent_team_code,
+                    "source_local_team_id": local_team_id,
                 }
         f.close()
 
@@ -117,7 +134,7 @@ def exact_name_team_candidates(season: str):
                 "source_player_id": next(iter(ids)),
                 "name_norm": key[0],
                 "team_code": key[1],
-                "method": "EXACT_NAME_TEAM",
+                "method": "EXACT_NAME_VERIFIED_PERSISTENT_TEAM",
                 "status": "VERIFIED_CANDIDATE",
             })
     return out

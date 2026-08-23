@@ -1,0 +1,80 @@
+name: Audit unresolved player-match evidence
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'audit_unresolved_player_match_evidence.py'
+      - 'player_identity_audit.py'
+      - 'player_identity_crosswalk.py'
+      - 'player_identity_crossseason_audit.py'
+      - 'player_identity_registry.py'
+      - 'player_research.py'
+      - 'player_match_stats.py'
+      - 'source_family_adapters.py'
+      - 'query_lab.py'
+      - '.github/workflows/audit-unresolved-player-evidence.yml'
+
+jobs:
+  census:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL audit repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout committed upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install audit dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Run unresolved player-match evidence census
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          source_root = Path.cwd() / 'source' / 'pl_stats'
+
+          import match_stats
+          import player_match_stats
+          import player_identity_audit
+          import player_identity_crosswalk
+          import source_family_adapters
+
+          # Redirect the existing Windows-local source roots in memory only.
+          match_stats.PL_ROOT = source_root
+          player_match_stats.PL_ROOT = source_root
+          player_identity_audit.PL_ROOT = source_root
+          player_identity_crosswalk.PL_ROOT = source_root
+          source_family_adapters.PL_ROOT = source_root
+
+          import audit_unresolved_player_match_evidence as audit
+
+          result = audit.classify()
+          audit.print_report(result)
+
+          out = Path('unresolved_player_match_evidence_ci.json')
+          out.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding='utf-8')
+          print(f'CI_RESULT_FILE={out}')
+          PY
+
+      - name: Upload full census result
+        uses: actions/upload-artifact@v4
+        with:
+          name: unresolved-player-match-evidence-census
+          path: unresolved_player_match_evidence_ci.json
+          if-no-files-found: error

@@ -1,0 +1,48 @@
+name: Player Identity Source-Family Inventory
+
+on:
+  push:
+    branches:
+      - feat/source-family-adapters-2026-08-21
+  pull_request:
+    paths:
+      - audit_source_family_player_identity_inventory.py
+      - tests/test_source_family_player_identity_inventory.py
+      - .github/workflows/player-identity-inventory.yml
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL audit repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout committed upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install test dependency
+        run: python -m pip install pytest
+
+      - name: Run unit test
+        run: python -m pytest tests/test_source_family_player_identity_inventory.py
+
+      - name: Run source-family identity inventory
+        run: python audit_source_family_player_identity_inventory.py
+
+      - name: Upload identity inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-family-player-identity-inventory
+          path: data/source_family_player_identity_inventory.csv

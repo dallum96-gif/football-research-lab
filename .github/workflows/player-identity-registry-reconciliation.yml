@@ -1,0 +1,116 @@
+name: Player Identity Registry Reconciliation
+
+on:
+  pull_request:
+    paths:
+      - player_identity_registry.py
+      - audit_fpl_element_historical_pl_index.py
+      - player_identity_audit.py
+      - player_research.py
+      - query_lab.py
+      - tests/test-player-identity-registry.py
+      - .github/workflows/player-identity-registry-reconciliation.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install test dependency
+        run: python -m pip install pytest
+
+      - name: Run registry tests
+        run: python -m pytest tests/test-player-identity-registry.py
+
+      - name: Build reconciled registry and measure Player-Match coverage
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv
+          from collections import defaultdict
+          from pathlib import Path
+
+          import player_identity_audit
+          import player_identity_registry
+          import audit_fpl_element_historical_pl_index
+
+          source_root = Path.cwd() / 'source' / 'pl_stats'
+          player_identity_audit.PL_ROOT = source_root
+          audit_fpl_element_historical_pl_index.PL_ROOT = source_root
+          audit_fpl_element_historical_pl_index.INDEX_DIR = source_root / '_index'
+
+          canonical = player_identity_registry._canonical_exact_rows()
+          reconciled = player_identity_registry.build_registry()
+          canonical_keys = {(r['season'], r['source_player_id']) for r in canonical}
+          reconciled_keys = {(r['season'], r['source_player_id']) for r in reconciled}
+          historical_additions = [
+              r for r in reconciled
+              if r['match_method'] == 'HISTORICAL_PL_INDEX_NAME_PLAYER_MATCH'
+          ]
+
+          mapping = defaultdict(set)
+          for row in reconciled:
+              mapping[(row['season'], row['source_player_id'])].add(row['fpl_element'])
+
+          total = covered = baseline_covered = 0
+          season_stats = defaultdict(lambda: [0, 0, 0])
+          for season in player_identity_audit.SEASONS:
+              expected = f'{season}_players_match_stats.csv'
+              for path in sorted(source_root.rglob(expected)):
+                  with path.open('r', encoding='utf-8-sig', newline='') as fh:
+                      for row in csv.DictReader(fh):
+                          sid = str(row.get('playerId') or row.get('player_id') or row.get('pl_code') or '').strip()
+                          if not sid:
+                              continue
+                          total += 1
+                          season_stats[season][0] += 1
+                          if (season, sid) in mapping and len(mapping[(season, sid)]) == 1:
+                              covered += 1
+                              season_stats[season][1] += 1
+                          if (season, sid) in canonical_keys:
+                              baseline_covered += 1
+                              season_stats[season][2] += 1
+
+          print('=' * 108)
+          print('FRL RECONCILED PLAYER IDENTITY REGISTRY')
+          print('=' * 108)
+          print(f'Canonical exact registry rows:          {len(canonical):,}')
+          print(f'Reconciled registry rows:                {len(reconciled):,}')
+          print(f'Historical-index additions:              {len(historical_additions):,}')
+          print(f'Conflicting reconciliations removed:     {len(canonical) + len(historical_additions) - len(reconciled):,}')
+          print()
+          print(f'Player-Match observations:                {total:,}')
+          print(f'Baseline covered observations:           {baseline_covered:,}')
+          print(f'Reconciled covered observations:         {covered:,}')
+          print(f'Newly covered observations:              {covered - baseline_covered:,}')
+          print()
+          for season in player_identity_audit.SEASONS:
+              total_s, cov_s, base_s = season_stats[season]
+              print(f'{season}: observations={total_s:,} baseline={base_s:,} reconciled={cov_s:,} new={cov_s-base_s:,}')
+          print()
+          print('HISTORICAL ADDITION SAMPLE')
+          for row in historical_additions[:40]:
+              print(f"  {row['season']} | element={row['fpl_element']} | source={row['source_player_id']} | {row['fpl_name_normalized']}")
+          print('=' * 108)
+          PY

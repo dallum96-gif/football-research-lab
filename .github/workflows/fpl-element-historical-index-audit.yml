@@ -1,0 +1,48 @@
+name: FPL Element Historical PL Index Audit
+
+on:
+  pull_request:
+    paths:
+      - audit_fpl_element_historical_pl_index.py
+      - player_identity_audit.py
+      - player_research.py
+      - query_lab.py
+      - .github/workflows/fpl-element-historical-index-audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source
+          fetch-depth: 1
+
+      - name: Run read-only historical index audit
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import player_identity_audit
+          import audit_fpl_element_historical_pl_index as audit
+
+          source_root = Path.cwd() / 'source' / 'pl_stats'
+          player_identity_audit.PL_ROOT = source_root
+          audit.PL_ROOT = source_root
+          audit.INDEX_DIR = source_root / '_index'
+
+          result = audit.audit()
+          audit.print_report(result)
+          PY
