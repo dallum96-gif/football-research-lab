@@ -1,6 +1,6 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 23 August 2026, 22:18 BST
+**Last updated:** 23 August 2026, 22:21 BST
 
 ## Active branch
 
@@ -45,17 +45,15 @@ At this milestone it contains **26 source-native player identities covering 225 
 
 ## Default identity contract
 
-The default FRL identity schema is now formally defined in:
+The default FRL identity schema is:
 
 `FRL_DEFAULT_IDENTITY_SCHEMA_V1.md`
 
-It is mandatory reading before identity, relationship or source-variable mapping work.
-
-The detailed identity/relationship architecture contract remains:
+The detailed identity/relationship architecture contract is:
 
 `FRL_IDENTITY_RELATIONSHIP_CONTRACT_V1.md`
 
-Fresh sessions must read both contracts before modifying player, team, fixture or source identity logic.
+Fresh sessions must read both contracts before modifying player, team, fixture or source-variable identity logic.
 
 Historical milestone record:
 
@@ -64,6 +62,51 @@ Historical milestone record:
 Milestone commit:
 
 `3fee450` — `milestone: complete player-match identity attachment reconciliation`
+
+## Current strategy — Match Variable Universe Expansion
+
+**Status: ACTIVE — execution phase.**
+
+Strategy contract:
+
+`FRL_MATCH_VARIABLE_UNIVERSE_EXPANSION_STRATEGY_V1.md`
+
+Objective: build the richest possible validated match evidence layer from every usable facet in the approved source universe.
+
+Baseline:
+
+- **477 variables mapped**
+- approximately **900 additional variables/fields** previously identified as an unmapped expansion frontier
+
+The ~900 figure is a working estimate only. The authoritative frontier count must be regenerated from the source census.
+
+### Execution order
+
+```text
+A. Recover complete source-variable universe
+        ↓
+B. Reconcile against the 477 mapped baseline
+        ↓
+C. Classify the full unmapped frontier
+        ↓
+D. Map every structurally valid facet
+        ↓
+E. Validate grain / identity / temporal semantics / provenance
+        ↓
+F. Build match-data completeness matrix
+        ↓
+G. Only then decide research-facing / GUI exposure
+```
+
+### Immediate execution task
+
+Recover the existing source inventory and mapped-variable artefacts from the local research workspace and compute the authoritative mapped-vs-unmapped census.
+
+Do **not** scrape new sources until the existing inventory is reconciled.
+
+Do **not** delete or rewrite the existing 477 mappings during discovery.
+
+All new mappings must use the default identity schema and identity/relationship contract.
 
 ## Foundational identity rule
 
@@ -76,19 +119,7 @@ Source identifiers are not automatically interchangeable. In particular:
 - team identity is season-aware and must use `identity/team_seasons.csv` rather than bare names or unscoped IDs;
 - fixture identity is canonicalised as `(season, fixture_id)` and source match IDs are bridged into it.
 
-No player attachment may silently create a cross-source identity merely to make a row resolve.
-
-## Variable universe expansion
-
-The identity layer is now complete enough to support the next major discovery phase: mapping the wider source-variable universe.
-
-Current routed variable universe: **477 mapped variables**.
-
-The wider discovered source universe contains approximately **900 additional variables/fields** awaiting systematic classification and mapping.
-
-Variable mapping must use the default identity schema and record source family, source field, observation grain, identity contract, relationship contract, transformation/aggregation, availability semantics and provenance status before a variable is considered research-ready.
-
-Mapping the universe is distinct from exposing variables in the GUI.
+No identity attachment may silently create a cross-source identity merely to make a field resolve.
 
 ## Foundational visualisation principle
 
@@ -111,8 +142,9 @@ The durable visualisation rule is recorded in `FRL_VISUALISATION_DATA_CONTRACT.m
 
 ## Immediate next steps
 
-1. Confirm the corrected CSV-vs-DuckDB query-equivalence gate is green.
-2. Build the small reusable analytical query seam over the local Parquet representation without switching production consumers.
-3. Prove that the same research result object can feed both a table and at least one chart.
-4. Begin systematic classification of the wider ~900-variable source universe using `FRL_DEFAULT_IDENTITY_SCHEMA_V1.md` as the identity contract.
-5. Validate newly mapped variable relationships before any GUI exposure.
+1. Execute the source-variable census against the existing local source universe.
+2. Reconcile the authoritative universe against the 477 mapped baseline.
+3. Produce the unmapped frontier inventory.
+4. Begin systematic field-by-field mapping using the new identity/relationship contracts.
+5. Preserve all atomic facets and defer GUI exposure decisions until mapping is complete.
+6. Validate the expanded match evidence layer before changing research/query or GUI consumers.
