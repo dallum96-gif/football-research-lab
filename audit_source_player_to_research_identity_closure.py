@@ -1,6 +1,6 @@
 """Audit longitudinal source-player -> Player Research identity closure.
 
-Read-only. Uses only the existing source player-match records, the existing
+Read-only. Uses only the existing source player-match adapter, the existing
 FPL element -> source-player crosswalk candidates, and the existing Player
 Research canonical-name function. It never writes canonical data and never
 performs fuzzy matching or metric aggregation.
@@ -11,7 +11,7 @@ from collections import defaultdict
 
 import player_identity_crosswalk as crosswalk
 import player_research
-import player_match_stats
+from source_family_adapters import player_match_source_rows_for_season
 
 
 def main() -> None:
@@ -21,7 +21,7 @@ def main() -> None:
 
     for season in seasons:
         sids: list[str] = []
-        for row in player_match_stats.player_match_source_rows(season):
+        for row in player_match_source_rows_for_season(season):
             sid = str(row.get("playerId") or row.get("player_id") or row.get("pl_code") or "").strip()
             if sid:
                 source_ids.add(sid)
