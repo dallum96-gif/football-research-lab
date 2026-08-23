@@ -146,3 +146,13 @@ Do not make results depend on hidden state, undocumented local files, current wa
 If an approved source family genuinely lacks a corresponding record, record that as a source-coverage limitation rather than manufacturing an identity or weakening a match rule.
 
 A complete reconciliation is not allowed to mean an unsupported reconciliation.
+
+## 15. Operator workflow
+
+The human operator should not manually edit Python, SQL, configuration, tests, or other repository source files as part of normal FRL development.
+
+Code changes should be made programmatically by the coding agent through the repository tooling, or through explicit reproducible PowerShell operations provided by the coding agent.
+
+When a coding change is required, provide the operator with the minimal PowerShell needed to run tests, inspect state, or verify the result rather than asking them to open an editor and manually patch source code.
+
+The coding agent owns the correctness of the code changes it proposes and should not offload source editing to the operator.
