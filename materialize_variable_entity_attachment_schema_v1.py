@@ -20,6 +20,19 @@ def _n(value: Any) -> str:
     return str(value or "").strip()
 
 
+def _status(value: Any, *, default: str = "UNRESOLVED") -> str:
+    raw = _n(value).upper()
+    if raw == "VERIFIED" or raw.endswith("_VERIFIED") or raw.startswith("VERIFIED_"):
+        return "VERIFIED"
+    if raw in {"REVIEW", "AMBIGUOUS", "AMBIGUOUS_OR_MISSING"} or "AMBIG" in raw:
+        return "REVIEW"
+    if raw in {"NOT_APPLICABLE", "NOT_DIRECTLY_EXPOSED"}:
+        return "NOT_APPLICABLE"
+    if raw in {"UNRESOLVED", "SOURCE_NATIVE_ONLY", ""}:
+        return default
+    return default
+
+
 def _write(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fields: list[str] = []
@@ -62,15 +75,18 @@ def _player_match(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "source_player_id": _n(row.get("source_player_id")),
             "source_match_id": _n(row.get("source_match_id")),
             "source_team_id": _n(row.get("source_team_id")),
-            "fixture_attachment_status": _n(row.get("fixture_attachment_status")) or "UNRESOLVED",
+            "fixture_attachment_status": _status(row.get("fixture_attachment_status")),
             "fixture_entity_id": _n(row.get("fixture_id")),
-            "home_team_attachment_status": _n(row.get("home_team_attachment_status")) or "UNRESOLVED",
+            "home_team_attachment_status": _status(row.get("home_team_attachment_status")),
             "home_team_entity_id": _n(row.get("home_team_attachment_entity_id")),
-            "away_team_attachment_status": _n(row.get("away_team_attachment_status")) or "UNRESOLVED",
+            "away_team_attachment_status": _status(row.get("away_team_attachment_status")),
             "away_team_entity_id": _n(row.get("away_team_attachment_entity_id")),
-            "player_attachment_status": _n(row.get("player_attachment_status")) or "UNRESOLVED",
+            "player_attachment_status": _status(row.get("player_attachment_status")),
             "player_entity_id": _n(row.get("player_attachment_entity_id")),
             "participation_status": _n(row.get("participation_status")),
+            "attachment_basis_fixture": "legacy routed materialiser: verified source-match route",
+            "attachment_basis_team": "legacy routed materialiser: verified team-season route",
+            "attachment_basis_player": _n(row.get("attachment_basis_player")) or "verified player identity registry only",
         })
     return out
 
@@ -92,7 +108,7 @@ def _player_season(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "home_team_entity_id": "",
             "away_team_attachment_status": "NOT_APPLICABLE",
             "away_team_entity_id": "",
-            "player_attachment_status": _n(row.get("player_attachment_status")) or "UNRESOLVED",
+            "player_attachment_status": _status(row.get("player_attachment_status")),
             "player_entity_id": _n(row.get("player_attachment_entity_id")),
         })
     return out
@@ -109,15 +125,15 @@ def _team_match(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "source_player_id": "",
             "source_match_id": _n(row.get("source_match_id")),
             "source_team_id": _n(row.get("source_team_id")),
-            "fixture_attachment_status": _n(row.get("fixture_attachment_status")) or "UNRESOLVED",
+            "fixture_attachment_status": _status(row.get("fixture_attachment_status")),
             "fixture_entity_id": _n(row.get("fixture_id")),
-            "home_team_attachment_status": _n(row.get("home_team_attachment_status")) or "NOT_APPLICABLE",
+            "home_team_attachment_status": _status(row.get("home_team_attachment_status"), default="NOT_APPLICABLE"),
             "home_team_entity_id": _n(row.get("home_team_attachment_entity_id")),
-            "away_team_attachment_status": _n(row.get("away_team_attachment_status")) or "NOT_APPLICABLE",
+            "away_team_attachment_status": _status(row.get("away_team_attachment_status"), default="NOT_APPLICABLE"),
             "away_team_entity_id": _n(row.get("away_team_attachment_entity_id")),
             "player_attachment_status": "NOT_APPLICABLE",
             "player_entity_id": "",
-            "team_attachment_status": _n(row.get("team_attachment_status")) or "UNRESOLVED",
+            "team_attachment_status": _status(row.get("team_attachment_status")),
             "team_season_id": _n(row.get("team_season_id")),
         })
     return out
@@ -140,9 +156,9 @@ def _squad(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "home_team_entity_id": "",
             "away_team_attachment_status": "NOT_APPLICABLE",
             "away_team_entity_id": "",
-            "player_attachment_status": _n(row.get("player_attachment_status")) or "UNRESOLVED",
+            "player_attachment_status": _status(row.get("player_attachment_status")),
             "player_entity_id": _n(row.get("player_attachment_entity_id")),
-            "team_attachment_status": _n(row.get("team_attachment_status")) or "UNRESOLVED",
+            "team_attachment_status": _status(row.get("team_attachment_status")),
             "team_season_id": _n(row.get("team_season_attachment_entity_id")),
         })
     return out
