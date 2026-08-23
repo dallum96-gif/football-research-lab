@@ -40,6 +40,8 @@ jobs:
           import player_identity_audit
           import player_identity_crosswalk
           import source_family_adapters
+          import player_match_stats
+          import match_stats
           import audit_fpl_player_season_bridge
           import audit_source_player_season_identity_bridge
           import audit_early_fpl_continuity_name_resolution
@@ -49,6 +51,8 @@ jobs:
           player_identity_audit.PL_ROOT = source_root
           player_identity_crosswalk.PL_ROOT = source_root
           source_family_adapters.PL_ROOT = source_root
+          player_match_stats.PL_ROOT = source_root
+          match_stats.PL_ROOT = source_root
           audit_player_identity_relationship_closure.PL_ROOT = source_root
           audit_player_identity_relationship_closure.MERGED_PLAYERS = source_root / '_merged' / 'players'
 
