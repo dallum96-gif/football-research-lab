@@ -71,7 +71,7 @@ def player_season_audit() -> tuple[list[dict[str, str]], Counter]:
     reg = registry_index()
     rows: list[dict[str, str]] = []
     counts = Counter()
-    seasons = sorted({n(r.get("season")) for r in reg})
+    seasons = sorted({season for season, _source_id in reg})
     for season_index, season in enumerate(seasons, start=1):
         print(f"  PLAYER-SEASON [{season_index:02d}/{len(seasons):02d}] {season}", flush=True)
         source_rows = player_season_source_rows(season)
@@ -124,18 +124,18 @@ def main() -> None:
 
     print()
     print(f"PLAYER-MATCH observations: {len(pm):,}")
-    print(f"  SOURCE PLAYER IDENTITY")
+    print("  SOURCE PLAYER IDENTITY")
     for k in ("VERIFIED", "AMBIGUOUS", "UNAVAILABLE"):
         print(f"    {pcm.get(('source', k), 0):6d} {k}")
-    print(f"  FRL PLAYER IDENTITY")
+    print("  FRL PLAYER IDENTITY")
     for k in ("VERIFIED", "AMBIGUOUS", "UNRESOLVED"):
         print(f"    {pcm.get(('frl', k), 0):6d} {k}")
 
     print(f"PLAYER-SEASON rows: {len(ps):,}")
-    print(f"  SOURCE PLAYER IDENTITY")
+    print("  SOURCE PLAYER IDENTITY")
     for k in ("VERIFIED", "AMBIGUOUS", "UNAVAILABLE"):
         print(f"    {pcs.get(('source_season', k), 0):6d} {k}")
-    print(f"  FRL PLAYER IDENTITY")
+    print("  FRL PLAYER IDENTITY")
     for k in ("VERIFIED", "AMBIGUOUS", "UNRESOLVED"):
         print(f"    {pcs.get(('frl_season', k), 0):6d} {k}")
 
