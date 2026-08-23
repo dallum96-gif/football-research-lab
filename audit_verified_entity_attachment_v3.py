@@ -10,27 +10,26 @@ def read(p):
         r=csv.DictReader(f); return list(r), r.fieldnames or []
 def n(v): return str(v or '').strip()
 
-def status_for(r,e):
-    x=n(r.get(f'eligibility_{e.lower()}'))
+def status_for(row,e):
+    x=n(row.get(f'eligibility_{e.lower()}'))
     if x: return x
-    x=n(r.get(f'{e.lower()}_eligibility'))
+    x=n(row.get(f'{e.lower()}_eligibility'))
     if x: return x
-    # Legacy 3-row shape
-    entity=n(r.get('entity') or r.get('target_entity')).upper()
+    entity=n(row.get('entity') or row.get('target_entity')).upper()
     if entity==e:
-        return n(r.get('eligibility_status'))
+        return n(row.get('eligibility_status'))
     return ''
 
-def structural(status,e):
+def structural(row,status,e):
     if status in {'GRAIN_COMPATIBLE','GRAIN_OR_CONTRACT_COMPATIBLE'}: return True
     if status: return False
-    grain=n(r.get('grain')).lower()
+    grain=n(row.get('grain')).lower()
     if e=='PLAYER': return grain in {'player','player_season','player_match'}
-    if e=='FIXTURE': return grain in {'fixture','player_match','team_match','event'} or n(r.get('identity_contract')).lower()=='canonical_fixture_to_source_match'
-    return grain in {'team','team_match','squad'} or n(r.get('identity_contract')).lower()=='canonical_team_season_to_source_team'
+    if e=='FIXTURE': return grain in {'fixture','player_match','team_match','event'} or n(row.get('identity_contract')).lower()=='canonical_fixture_to_source_match'
+    return grain in {'team','team_match','squad'} or n(row.get('identity_contract')).lower()=='canonical_team_season_to_source_team'
 
-def contract_for(r,e):
-    g=n(r.get('grain')).lower(); c=n(r.get('identity_contract')).lower(); rel=n(r.get('relationship_kind')).upper()
+def contract_for(row,e):
+    g=n(row.get('grain')).lower(); c=n(row.get('identity_contract')).lower()
     if e=='PLAYER': return g in {'player','player_season','player_match'} or c in {'fpl_player_to_frl_player_identity','source_player_identity_to_player_season','player_identity_to_player_match_observations'}
     if e=='FIXTURE': return g in {'fixture','player_match','team_match','event'} or c=='canonical_fixture_to_source_match'
     return g in {'team','team_match','squad'} or c=='canonical_team_season_to_source_team'
@@ -38,19 +37,19 @@ def contract_for(r,e):
 def main():
     rows,cols=read(ELIG); print('FRL VERIFIED ENTITY ATTACHMENT AUDIT V3'); print('='*100); print(f'Eligibility rows: {len(rows)}')
     out=[]; counters={e:Counter() for e in ('PLAYER','FIXTURE','TEAM')}
-    for r in rows:
-        # Current shape: one row per variable. Legacy shape: entity-specific rows.
+    for row in rows:
+        explicit_entity=n(row.get('entity') or row.get('target_entity')).upper()
         for e in ('PLAYER','FIXTURE','TEAM'):
-            if n(r.get('entity') or r.get('target_entity')) and n(r.get('entity') or r.get('target_entity')).upper()!=e:
+            if explicit_entity and explicit_entity!=e:
                 continue
-            status=status_for(r,e)
-            ok=structural(status,e)
-            contract=contract_for(r,e)
+            status=status_for(row,e)
+            ok=structural(row,status,e)
+            contract=contract_for(row,e)
             if not ok: result='NOT_STRUCTURALLY_ELIGIBLE'
             elif contract: result='EXPLICIT_CONTRACT_ROUTE_PRESENT_REQUIRES_EVIDENCE_CHECK'
             else: result='STRUCTURALLY_ELIGIBLE_NO_EXPLICIT_CONTRACT'
             counters[e][result]+=1
-            item=dict(r); item['target_entity']=e; item['eligibility_status_normalized']=status; item['verification_result']=result; item['explicit_contract_detected']='TRUE' if contract else 'FALSE'; out.append(item)
+            item=dict(row); item['target_entity']=e; item['eligibility_status_normalized']=status; item['verification_result']=result; item['explicit_contract_detected']='TRUE' if contract else 'FALSE'; out.append(item)
     for e in ('PLAYER','FIXTURE','TEAM'):
         print('\n'+e)
         for k,v in counters[e].most_common(): print(f'{v:6}  {k}')
