@@ -1,0 +1,35 @@
+name: PL playerId Current FPL Research Closure
+
+on:
+  push:
+    branches:
+      - feat/source-family-adapters-2026-08-21
+  pull_request:
+    paths:
+      - audit_pl_playerid_current_fpl_research_closure.py
+      - .github/workflows/pl-playerid-current-fpl-research-closure.yml
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL audit repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout committed upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run closure audit
+        run: python audit_pl_playerid_current_fpl_research_closure.py
