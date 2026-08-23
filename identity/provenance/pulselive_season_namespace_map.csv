@@ -1,0 +1,2 @@
+provider,competition_id,source_season_id,frl_season,status,evidence_source,evidence_basis,notes
+pulselive,8,2025,2025-26,EXTERNAL_CORROBORATED,https://github.com/DanielTomaro13/football-invincibles/blob/main/PREMIER_LEAGUE_API.md,"Provider season namespace documented as starting-year season identifier; 2025 therefore corresponds to 2025-26","External corroboration only; not treated as immutable FRL raw-source evidence"
