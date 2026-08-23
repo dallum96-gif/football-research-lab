@@ -43,8 +43,8 @@ def main() -> None:
         explicit = bool(rel.identity_contract or rel.canonical_attachment != "UNMAPPED_REVIEW")
         for entity in ("player", "fixture", "team"):
             route = route_for_entity(grain, entity)
-            entity_routes[entity] = route or ""
-            explicit = explicit or bool(route)
+            entity_routes[entity] = route
+            explicit = explicit or route is not None
 
         if not explicit:
             continue
@@ -57,9 +57,9 @@ def main() -> None:
             "identity_contract": rel.identity_contract,
             "source_identity_required": str(rel.source_identity_required),
             "relationship_note": rel.note,
-            "player_route": entity_routes["player"],
-            "fixture_route": entity_routes["fixture"],
-            "team_route": entity_routes["team"],
+            "player_route": entity_routes["player"].route_family if entity_routes["player"] else "",
+            "fixture_route": entity_routes["fixture"].route_family if entity_routes["fixture"] else "",
+            "team_route": entity_routes["team"].route_family if entity_routes["team"] else "",
             "route_status": "EXPLICIT_SOURCE_FAMILY_ROUTE",
             "attachment_verified": "NOT_YET_PROVEN",
         })
@@ -83,11 +83,13 @@ def main() -> None:
         for route, count in Counter(n(r.get(key)) for r in out if n(r.get(key))).most_common():
             print(f"{count:6}  {route}")
 
-    fields = list(dict.fromkeys((rows[0].keys() if rows else []) + [
+    base_fields = list(rows[0].keys()) if rows else []
+    extra_fields = [
         "canonical_attachment", "relationship_kind", "identity_contract",
         "source_identity_required", "relationship_note", "player_route",
         "fixture_route", "team_route", "route_status", "attachment_verified"
-    ]))
+    ]
+    fields = list(dict.fromkeys(base_fields + extra_fields))
     with OUT.open("w", encoding="utf-8-sig", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fields)
         w.writeheader()
