@@ -28,8 +28,11 @@ def player_match_audit() -> tuple[list[dict[str, str]], Counter]:
     reg = registry_index()
     rows: list[dict[str, str]] = []
     counts = Counter()
-    for season in sorted({n(r.get("season")) for r in _fixture_rows() if n(r.get("season"))}):
-        for fixture in season_fixtures(season):
+    seasons = sorted({n(r.get("season")) for r in _fixture_rows() if n(r.get("season"))})
+    for season_index, season in enumerate(seasons, start=1):
+        fixtures = season_fixtures(season)
+        print(f"  PLAYER-MATCH [{season_index:02d}/{len(seasons):02d}] {season}: {len(fixtures)} fixtures", flush=True)
+        for fixture in fixtures:
             fixture_id = n(fixture.get("fixture_id"))
             try:
                 source_rows = player_match_source_rows(season, fixture_id)
@@ -69,7 +72,8 @@ def player_season_audit() -> tuple[list[dict[str, str]], Counter]:
     rows: list[dict[str, str]] = []
     counts = Counter()
     seasons = sorted({n(r.get("season")) for r in reg})
-    for season in seasons:
+    for season_index, season in enumerate(seasons, start=1):
+        print(f"  PLAYER-SEASON [{season_index:02d}/{len(seasons):02d}] {season}", flush=True)
         source_rows = player_season_source_rows(season)
         seen: dict[str, int] = Counter(n(r.get("playerId")) for r in source_rows if n(r.get("playerId")))
         for src in source_rows:
@@ -103,10 +107,12 @@ def _fixture_rows():
 
 
 def main() -> None:
-    print("FRL PLAYER IDENTITY LAYER AUDIT")
-    print("=" * 88)
-    print("Source Player Identity and FRL Player Identity are evaluated separately.")
+    print("FRL PLAYER IDENTITY LAYER AUDIT", flush=True)
+    print("=" * 88, flush=True)
+    print("Source Player Identity and FRL Player Identity are evaluated separately.", flush=True)
+    print("[1/2] Scanning player-match source identity layer", flush=True)
     pm, pcm = player_match_audit()
+    print("[2/2] Scanning player-season source identity layer", flush=True)
     ps, pcs = player_season_audit()
     all_rows = pm + ps
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -116,6 +122,7 @@ def main() -> None:
         writer.writeheader()
         writer.writerows(all_rows)
 
+    print()
     print(f"PLAYER-MATCH observations: {len(pm):,}")
     print(f"  SOURCE PLAYER IDENTITY")
     for k in ("VERIFIED", "AMBIGUOUS", "UNAVAILABLE"):
