@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 import tempfile
-from datetime import datetime
 
 import duckdb
 
@@ -27,8 +27,15 @@ def _promote(con: duckdb.DuckDBPyConnection, source: Path, target: Path) -> None
 
 def _canonical_kickoff(value) -> str:
     if isinstance(value, datetime):
-        return value.isoformat().replace("+00:00", "Z")
-    return str(value).replace("+00:00", "Z")
+        dt = value
+    else:
+        raw = str(value).strip()
+        dt = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+
+    if dt.tzinfo is None:
+        raise ValueError(f"Naive timestamp encountered: {value!r}")
+
+    return dt.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
 def _duckdb_fixture_rows(con: duckdb.DuckDBPyConnection, fixture_pq: Path, team_pq: Path, season: str):
