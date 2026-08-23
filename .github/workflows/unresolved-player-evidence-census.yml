@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - feat/source-family-adapters-2026-08-21
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
