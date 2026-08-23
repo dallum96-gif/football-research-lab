@@ -30,29 +30,44 @@ def main() -> None:
 
         verified_ids = {sid for sid, count in by_id.items() if count == 1}
         ambiguous_ids = {sid for sid, count in by_id.items() if count > 1}
+        observed_ids = set(observed)
 
-        verified_obs = sum(observed[sid] for sid in observed if sid in verified_ids)
-        ambiguous_obs = sum(observed[sid] for sid in observed if sid in ambiguous_ids)
-        unresolved_obs = sum(observed[sid] for sid in observed if sid not in verified_ids and sid not in ambiguous_ids)
+        verified_observation_count = sum(
+            observed[sid] for sid in observed_ids if sid in verified_ids
+        )
+        ambiguous_observation_count = sum(
+            observed[sid] for sid in observed_ids if sid in ambiguous_ids
+        )
+        unresolved_observation_count = sum(
+            observed[sid]
+            for sid in observed_ids
+            if sid not in verified_ids and sid not in ambiguous_ids
+        )
+
+        verified_id_count = len(observed_ids & verified_ids)
+        ambiguous_id_count = len(observed_ids & ambiguous_ids)
+        unresolved_id_count = len(observed_ids - verified_ids - ambiguous_ids)
 
         total_obs += sum(observed.values())
-        total_ids += len(observed)
-        totals.update({
-            "verified_ids": len(observed & verified_ids),
-            "ambiguous_ids": len(observed & ambiguous_ids),
-            "unresolved_ids": len(observed - verified_ids - ambiguous_ids),
-            "verified_obs": verified_obs,
-            "ambiguous_obs": ambiguous_obs,
-            "unresolved_obs": unresolved_obs,
-        })
+        total_ids += len(observed_ids)
+        totals.update(
+            {
+                "verified_ids": verified_id_count,
+                "ambiguous_ids": ambiguous_id_count,
+                "unresolved_ids": unresolved_id_count,
+                "verified_obs": verified_observation_count,
+                "ambiguous_obs": ambiguous_observation_count,
+                "unresolved_obs": unresolved_observation_count,
+            }
+        )
 
         print(
             f"{season}: observations={sum(observed.values()):,} "
-            f"source_player_ids={len(observed):,} "
-            f"verified_ids={len(observed & verified_ids):,} "
-            f"ambiguous_ids={len(observed & ambiguous_ids):,} "
-            f"unresolved_ids={len(observed - verified_ids - ambiguous_ids):,} "
-            f"verified_observations={verified_obs:,}"
+            f"source_player_ids={len(observed_ids):,} "
+            f"verified_ids={verified_id_count:,} "
+            f"ambiguous_ids={ambiguous_id_count:,} "
+            f"unresolved_ids={unresolved_id_count:,} "
+            f"verified_observations={verified_observation_count:,}"
         )
 
     print()
