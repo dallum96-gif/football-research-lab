@@ -1,8 +1,7 @@
-"""CI runner for the unresolved Player-Match evidence census.
+"""CI runner for the canonical Player evidence census.
 
-This wrapper redirects the existing read-only audit machinery to a checked-out
-copy of the preserved upstream Premier-League-Stats source archive. It does
-not modify FRL identity logic, registries, or canonical data.
+Redirects existing source-root constants for a CI checkout. The underlying
+census is read-only and does not modify identity registries or canonical data.
 """
 from __future__ import annotations
 
@@ -17,9 +16,6 @@ source_root = Path(os.environ["FRL_PL_ROOT"]).resolve()
 if not source_root.is_dir():
     raise FileNotFoundError(f"Source archive not found: {source_root}")
 
-# Patch every module that copies the hard-coded local source root before the
-# common adapter layer imports those modules. No application source code is
-# modified; this is CI-only path redirection.
 import match_stats  # noqa: E402
 import player_match_stats  # noqa: E402
 
@@ -34,7 +30,7 @@ import source_family_adapters  # noqa: E402
 
 source_family_adapters.PL_ROOT = str(source_root)
 
-from audit_unresolved_player_match_evidence import classify, print_report  # noqa: E402
+from audit_unresolved_player_match_canonical_evidence import classify, print_report  # noqa: E402
 
 
 if __name__ == "__main__":
