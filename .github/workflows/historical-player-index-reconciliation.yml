@@ -1,0 +1,70 @@
+name: Historical PL Player Index Reconciliation
+
+on:
+  push:
+    branches:
+      - feat/source-family-adapters-2026-08-21
+  pull_request:
+    paths:
+      - audit_historical_player_index_fpl_reconciliation.py
+      - .github/workflows/historical-player-index-reconciliation.yml
+      - player_identity_audit.py
+      - player_research.py
+      - query_lab.py
+      - player_identity_registry.csv
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL audit repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout committed upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run reconciliation audit
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          import player_identity_audit
+          import audit_historical_player_index_fpl_reconciliation as audit
+
+          source_root = Path.cwd() / 'source' / 'pl_stats'
+          player_identity_audit.PL_ROOT = source_root
+          audit.PL_ROOT = source_root
+          audit.HISTORICAL_INDEX_DIR = source_root / '_index'
+
+          result = audit.run()
+          audit.print_report(result)
+
+          out = Path('historical-player-index-reconciliation.json')
+          out.write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding='utf-8')
+          print(f'CI_RESULT_FILE={out}')
+          PY
+
+      - name: Upload reconciliation evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: historical-player-index-reconciliation
+          path: historical-player-index-reconciliation.json
+          if-no-files-found: error
