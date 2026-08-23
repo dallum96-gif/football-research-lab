@@ -63,7 +63,8 @@ def _verified_player_map() -> dict[tuple[str, str], list[dict[str, str]]]:
 
 def _team_season_id(season: str, local_team_id: str, registry: list[dict[str, str]]) -> tuple[str, str]:
     matches = [
-        row for row in registry
+        row
+        for row in registry
         if _n(row.get("season")) == season
         and _n(row.get("local_team_id")) == local_team_id
         and _n(row.get("mapping_status")) in ("", "VERIFIED")
@@ -75,8 +76,11 @@ def _team_season_id(season: str, local_team_id: str, registry: list[dict[str, st
 
 def materialize_team_match(registry: list[dict[str, str]]) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    for season in sorted({_n(r.get("season")) for r in _read_csv(ROOT / "fixtures_master_corrected.csv") if _n(r.get("season"))}):
-        for fixture in season_fixtures(season):
+    seasons = sorted({_n(r.get("season")) for r in _read_csv(ROOT / "fixtures_master_corrected.csv") if _n(r.get("season"))})
+    print(f"  team_match: {len(seasons)} seasons", flush=True)
+    for index, season in enumerate(seasons, start=1):
+        fixtures = season_fixtures(season)
+        for fixture in fixtures:
             fixture_id = _n(fixture.get("fixture_id"))
             try:
                 home, away = team_match_source_rows(season, fixture_id)
@@ -96,13 +100,17 @@ def materialize_team_match(registry: list[dict[str, str]]) -> list[dict[str, obj
                     "fixture_attachment_status": "VERIFIED_SOURCE_MATCH_ROUTE",
                     "team_attachment_status": team_status,
                 })
+        print(f"    [{index:02d}/{len(seasons):02d}] {season}: {len(fixtures)} fixtures", flush=True)
     return rows
 
 
 def materialize_player_match(registry: list[dict[str, str]], player_map: dict[tuple[str, str], list[dict[str, str]]]) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    for season in sorted({_n(r.get("season")) for r in _read_csv(ROOT / "fixtures_master_corrected.csv") if _n(r.get("season"))}):
-        for fixture in season_fixtures(season):
+    seasons = sorted({_n(r.get("season")) for r in _read_csv(ROOT / "fixtures_master_corrected.csv") if _n(r.get("season"))})
+    print(f"  player_match: {len(seasons)} seasons", flush=True)
+    for index, season in enumerate(seasons, start=1):
+        fixtures = season_fixtures(season)
+        for fixture in fixtures:
             fixture_id = _n(fixture.get("fixture_id"))
             try:
                 source_rows = player_match_source_rows(season, fixture_id)
@@ -125,13 +133,17 @@ def materialize_player_match(registry: list[dict[str, str]], player_map: dict[tu
                     "team_season_id": team_season_id,
                     "frl_player_identity_status": _n(candidates[0].get("identity_status")) if len(candidates) == 1 else "",
                 })
+        print(f"    [{index:02d}/{len(seasons):02d}] {season}: {len(fixtures)} fixtures", flush=True)
     return rows
 
 
 def materialize_player_season(player_map: dict[tuple[str, str], list[dict[str, str]]]) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
-    for season in sorted({_n(r.get("season")) for r in _read_csv(ROOT / "player_identity_registry.csv") if _n(r.get("season"))}):
-        for source_row in player_season_source_rows(season):
+    seasons = sorted({_n(r.get("season")) for r in _read_csv(ROOT / "player_identity_registry.csv") if _n(r.get("season"))})
+    print(f"  player_season: {len(seasons)} seasons", flush=True)
+    for index, season in enumerate(seasons, start=1):
+        source_rows = player_season_source_rows(season)
+        for source_row in source_rows:
             source_player_id = _n(source_row.get("playerId"))
             candidates = player_map.get((season, source_player_id), [])
             status = "VERIFIED" if len(candidates) == 1 else ("AMBIGUOUS" if len(candidates) > 1 else "UNRESOLVED")
@@ -143,15 +155,18 @@ def materialize_player_season(player_map: dict[tuple[str, str], list[dict[str, s
                 "frl_player_identity_status": _n(candidates[0].get("identity_status")) if len(candidates) == 1 else "",
                 "player_season_source_name": _n(source_row.get("playerName")),
             })
+        print(f"    [{index:02d}/{len(seasons):02d}] {season}: {len(source_rows)} player-season rows", flush=True)
     return rows
 
 
 def materialize_squad(registry: list[dict[str, str]]) -> list[dict[str, object]]:
+    print("  squad: loading live squad payload", flush=True)
     payload = load_squad_payload()
     context = resolve_team_season(payload, source_season_map=load_mapping(), registry=registry)
     rows: list[dict[str, object]] = []
     if context.get("status") == "VERIFIED_TEAM_SEASON_ROUTE":
-        for player in squad_player_rows(payload):
+        players = squad_player_rows(payload)
+        for player in players:
             rows.append({
                 "grain": "squad",
                 "season": _n(context.get("season")),
@@ -162,6 +177,7 @@ def materialize_squad(registry: list[dict[str, str]]) -> list[dict[str, object]]
                 "team_attachment_status": "VERIFIED",
                 "player_attachment_status": "SOURCE_NATIVE_ONLY",
             })
+        print(f"    squad route: VERIFIED_TEAM_SEASON_ROUTE; {len(players)} players", flush=True)
     else:
         rows.append({
             "grain": "squad",
@@ -173,6 +189,7 @@ def materialize_squad(registry: list[dict[str, str]]) -> list[dict[str, object]]
             "team_attachment_status": _n(context.get("status")),
             "player_attachment_status": "SOURCE_NATIVE_ONLY",
         })
+        print(f"    squad route: {_n(context.get('status'))}", flush=True)
     return rows
 
 
@@ -190,9 +207,17 @@ def main() -> None:
         }
         for row in routed
     ]
+
+    print("FRL ROUTED ENTITY ATTACHMENT MATERIALISATION", flush=True)
+    print("=" * 80, flush=True)
+    print(f"Routed variables: {len(variable_rows)}", flush=True)
+    print("[1/4] TEAM-MATCH", flush=True)
     team_match = materialize_team_match(registry)
+    print("[2/4] PLAYER-MATCH", flush=True)
     player_match = materialize_player_match(registry, player_map)
+    print("[3/4] PLAYER-SEASON", flush=True)
     player_season = materialize_player_season(player_map)
+    print("[4/4] SQUAD", flush=True)
     squad = materialize_squad(registry)
 
     _write_csv(OUT_DIR / "routed_variable_family_map.csv", variable_rows)
@@ -201,14 +226,12 @@ def main() -> None:
     _write_csv(OUT_DIR / "player_season_observation_attachments.csv", player_season)
     _write_csv(OUT_DIR / "squad_observation_attachments.csv", squad)
 
-    print("FRL ROUTED ENTITY ATTACHMENT MATERIALISATION")
-    print("=" * 80)
-    print(f"Routed variables: {len(variable_rows)}")
+    print()
+    print("MATERIALISATION SUMMARY")
     print(f"team_match observations: {len(team_match)}")
     print(f"player_match observations: {len(player_match)}")
     print(f"player_season observations: {len(player_season)}")
     print(f"squad observations: {len(squad)}")
-    print()
     for name, rows, key in (
         ("PLAYER_MATCH PLAYER", player_match, "player_attachment_status"),
         ("PLAYER_SEASON PLAYER", player_season, "player_attachment_status"),
