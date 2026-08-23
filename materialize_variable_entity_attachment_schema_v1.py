@@ -1,7 +1,8 @@
-"""Materialise the frozen FRL variable/entity attachment schema V1.
+"""Materialise the frozen V1 variable/entity attachment schema.
 
-Additive seam over the existing routed observation materialiser.
-No identity inference and no canonical identity promotion.
+This is an additive seam over the existing routed observation materialiser.
+It does not replace source adapters, identity registries, or canonical data.
+No identity inference is performed.
 """
 from __future__ import annotations
 
@@ -13,6 +14,7 @@ import materialize_routed_entity_attachments as routed
 
 ROOT = Path(__file__).resolve().parent
 OUT = ROOT / "data" / "entity_attachments_v1"
+FIXTURES = ROOT / "fixtures_master_corrected.csv"
 
 
 def _n(value: Any) -> str:
@@ -46,37 +48,66 @@ def _write(path: Path, rows: list[dict[str, Any]]) -> None:
 
 
 def _variable_map(rows: list[dict[str, str]]) -> list[dict[str, str]]:
-    return [{k: _n(row.get(k)) for k in (
-        "field_name", "source_family", "resource", "grain", "field_type",
-        "semantic_status", "relationship_kind", "source_identity_required",
-        "provenance_requirement", "identity_contract",
-    )} for row in rows]
+    return [
+        {
+            "field_name": _n(row.get("field_name")),
+            "source_family": _n(row.get("source_family")),
+            "resource": _n(row.get("resource")),
+            "grain": _n(row.get("grain")),
+            "field_type": _n(row.get("field_type")),
+            "semantic_status": _n(row.get("semantic_status")),
+            "relationship_kind": _n(row.get("relationship_kind")),
+            "source_identity_required": _n(row.get("source_identity_required")),
+            "provenance_requirement": _n(row.get("provenance_requirement")),
+            "identity_contract": _n(row.get("identity_contract")),
+        }
+        for row in rows
+    ]
 
 
-def _player_match(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [{
-        "observation_id": _n(row.get("observation_id")) or f"player_match/{i}",
-        "grain": "player_match",
-        "season": _n(row.get("season")),
-        "source_record_id": _n(row.get("source_match_id")),
-        "source_player_id": _n(row.get("source_player_id")),
-        "source_match_id": _n(row.get("source_match_id")),
-        "source_team_id": _n(row.get("source_team_id")),
-        "fixture_attachment_status": _status(row.get("fixture_attachment_status")),
-        "fixture_entity_id": _n(row.get("fixture_id")),
-        "home_team_attachment_status": _status(row.get("home_team_attachment_status")),
-        "home_team_entity_id": _n(row.get("home_team_attachment_entity_id")),
-        "away_team_attachment_status": _status(row.get("away_team_attachment_status")),
-        "away_team_entity_id": _n(row.get("away_team_attachment_entity_id")),
-        "source_player_identity_status": "VERIFIED" if _n(row.get("source_player_id")) else "UNRESOLVED",
-        "player_attachment_status": _status(row.get("player_attachment_status")),
-        "player_entity_id": "",
-        "player_source_identity_ref": _n(row.get("source_player_id")),
-        "participation_status": _n(row.get("participation_status")),
-        "attachment_basis_fixture": "existing verified fixture-to-source-match route",
-        "attachment_basis_team": "existing verified fixture-team hierarchy",
-        "attachment_basis_player": _n(row.get("attachment_basis_player")) or "verified source player identity; canonical FRL player not promoted",
-    } for i, row in enumerate(rows, start=1)]
+def _fixture_map() -> dict[tuple[str, str], dict[str, str]]:
+    return {
+        (_n(row.get("season")), _n(row.get("fixture_id"))): row
+        for row in routed._read_csv(FIXTURES)
+        if _n(row.get("season")) and _n(row.get("fixture_id"))
+    }
+
+
+def _player_match(rows: list[dict[str, Any]], registry: list[dict[str, str]], fixtures: dict[tuple[str, str], dict[str, str]]) -> list[dict[str, Any]]:
+    out = []
+    for i, row in enumerate(rows, start=1):
+        season = _n(row.get("season"))
+        fixture_id = _n(row.get("fixture_id"))
+        fixture = fixtures.get((season, fixture_id), {})
+        home_local_id = _n(fixture.get("home_team_id"))
+        away_local_id = _n(fixture.get("away_team_id"))
+        home_team_id, home_status = routed._team_season_id(season, home_local_id, registry)
+        away_team_id, away_status = routed._team_season_id(season, away_local_id, registry)
+        source_player_id = _n(row.get("source_player_id"))
+        out.append({
+            "observation_id": _n(row.get("observation_id")) or f"player_match/{i}",
+            "grain": "player_match",
+            "season": season,
+            "source_record_id": _n(row.get("source_match_id")),
+            "source_player_id": source_player_id,
+            "source_match_id": _n(row.get("source_match_id")),
+            "source_team_id": _n(row.get("source_team_id")),
+            "fixture_attachment_status": _status(row.get("fixture_attachment_status")),
+            "fixture_entity_id": fixture_id,
+            "home_team_attachment_status": home_status,
+            "home_team_entity_id": home_team_id,
+            "away_team_attachment_status": away_status,
+            "away_team_entity_id": away_team_id,
+            "source_player_identity_status": "VERIFIED" if source_player_id else "UNRESOLVED",
+            "player_attachment_status": _status(row.get("player_attachment_status")),
+            "player_entity_id": "",
+            "player_source_identity_ref": source_player_id,
+            "participation_status": _n(row.get("participation_status")),
+            "attachment_basis_fixture": "verified canonical_fixture_to_source_match route",
+            "attachment_basis_team": "verified fixture home/away team relationship via identity/team_seasons.csv",
+            "attachment_basis_player": _n(row.get("attachment_basis_player")) or "verified source player identity; canonical FRL player not promoted",
+        })
+    return out
 
 
 def _player_season(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -133,50 +164,51 @@ def _team_match(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _squad(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [{
-        "observation_id": _n(row.get("observation_id")) or f"squad/{i}",
-        "grain": "squad",
-        "season": _n(row.get("season")),
-        "source_record_id": _n(row.get("observation_id")),
-        "source_player_id": _n(row.get("source_player_id")),
-        "source_match_id": "",
-        "source_team_id": _n(row.get("source_team_id")),
-        "fixture_attachment_status": "NOT_APPLICABLE",
-        "fixture_entity_id": "",
-        "home_team_attachment_status": "NOT_APPLICABLE",
-        "home_team_entity_id": "",
-        "away_team_attachment_status": "NOT_APPLICABLE",
-        "away_team_entity_id": "",
-        "source_player_identity_status": "VERIFIED" if _n(row.get("source_player_id")) else "UNRESOLVED",
-        "player_attachment_status": _status(row.get("player_attachment_status")),
-        "player_entity_id": "",
-        "player_source_identity_ref": _n(row.get("source_player_id")),
-        "team_attachment_status": _status(row.get("team_attachment_status")),
-        "team_season_id": _n(row.get("team_season_attachment_entity_id")),
-    } for i, row in enumerate(rows, start=1)]
+    out = []
+    for i, row in enumerate(rows, start=1):
+        source_id = _n(row.get("source_player_id"))
+        out.append({
+            "observation_id": _n(row.get("observation_id")) or f"squad/{i}",
+            "grain": "squad",
+            "season": _n(row.get("season")),
+            "source_record_id": _n(row.get("observation_id")),
+            "source_player_id": source_id,
+            "source_match_id": "",
+            "source_team_id": _n(row.get("source_team_id")),
+            "fixture_attachment_status": "NOT_APPLICABLE",
+            "fixture_entity_id": "",
+            "home_team_attachment_status": "NOT_APPLICABLE",
+            "home_team_entity_id": "",
+            "away_team_attachment_status": "NOT_APPLICABLE",
+            "away_team_entity_id": "",
+            "source_player_identity_status": "VERIFIED" if source_id else "UNRESOLVED",
+            "player_attachment_status": _status(row.get("player_attachment_status")),
+            "player_entity_id": "",
+            "player_source_identity_ref": source_id,
+            "team_attachment_status": _status(row.get("team_attachment_status")),
+            "team_season_id": _n(row.get("team_season_attachment_entity_id")),
+        })
+    return out
 
 
 def main() -> None:
     routed_rows = routed._read_csv(routed.ROUTED)
     registry = routed._team_registry()
     player_map = routed._verified_player_map()
-
+    fixtures = _fixture_map()
     print("FRL VARIABLE -> ENTITY ATTACHMENT SCHEMA V1 MATERIALISATION")
     print("=" * 96)
     variables = _variable_map(routed_rows)
     print(f"Variables: {len(variables):,}")
-
     team_match = _team_match(routed.materialize_team_match(registry))
-    player_match = _player_match(routed.materialize_player_match(registry, player_map))
+    player_match = _player_match(routed.materialize_player_match(registry, player_map), registry, fixtures)
     player_season = _player_season(routed.materialize_player_season(player_map))
     squad = _squad(routed.materialize_squad(registry))
-
     _write(OUT / "variable.csv", variables)
     _write(OUT / "team_match_observation.csv", team_match)
     _write(OUT / "player_match_observation.csv", player_match)
     _write(OUT / "player_season_observation.csv", player_season)
     _write(OUT / "squad_observation.csv", squad)
-
     print()
     print("SCHEMA V1 OUTPUT")
     print(f"  variable:                    {len(variables):,}")
