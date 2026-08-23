@@ -166,6 +166,7 @@ def _player_match(
     registry: list[dict[str, str]],
     fixtures: dict[tuple[str, str], dict[str, str]],
     research_map: dict[str, set[str]],
+    player_map: dict[tuple[str, str], list[dict[str, str]]],
 ) -> list[dict[str, Any]]:
     out = []
     for i, row in enumerate(rows, start=1):
@@ -177,7 +178,7 @@ def _player_match(
         home_team_id, home_status = routed._team_season_id(season, home_local_id, registry)
         away_team_id, away_status = routed._team_season_id(season, away_local_id, registry)
         source_player_id = _n(row.get("source_player_id"))
-        direct_candidates = routed._verified_player_map().get((season, source_player_id), [])
+        direct_candidates = player_map.get((season, source_player_id), [])
         player_status, player_entity_id, player_source_ref, player_basis = _player_identity_attachment(
             season,
             source_player_id,
@@ -319,7 +320,8 @@ def main() -> None:
     variables = _variable_map(routed_rows)
     print(f"Variables: {len(variables):,}")
     team_match = _team_match(routed.materialize_team_match(registry))
-    player_match = _player_match(routed.materialize_player_match(registry, player_map), registry, fixtures, research_map)
+    player_match_rows = routed.materialize_player_match(registry, player_map)
+    player_match = _player_match(player_match_rows, registry, fixtures, research_map, player_map)
     player_season = _player_season(routed.materialize_player_season(player_map), research_map)
     squad = _squad(routed.materialize_squad(registry), research_map)
     _write(OUT / "variable.csv", variables)
