@@ -4,7 +4,7 @@ Evidence chain, per season:
     PL seasonal player index: playerId -> canonical source name
     Player-Match observations: playerId -> season-local team occurrence
     FRL team registry: season-local team -> verified persistent team code
-    FPL player rows: normalized player name + persistent team -> element
+    Upstream FPL per-team seasonal rows: normalized player name + team -> element
 
 Only unique bidirectional mappings are VERIFIED. No canonical FRL player ID is
 invented or written by this audit.
@@ -19,11 +19,11 @@ from collections import defaultdict
 from pathlib import Path
 
 import player_identity_audit
-import player_research
 import query_lab
 
 PL_ROOT = player_identity_audit.PL_ROOT
 HISTORICAL_INDEX_DIR = PL_ROOT / "_index"
+FPL_ROOT = Path("source") / "fpl_scraper" / "fpl_stats"
 
 
 def normalize_name(value: str | None) -> str:
@@ -72,16 +72,26 @@ def source_occurrences(season: str) -> dict[str, set[str]]:
     return out
 
 
+def pattern_for_fpl(season: str) -> Path:
+    return FPL_ROOT / "teams" / "*" / "players" / f"{season}_all_players_gw.csv"
+
+
 def fpl_by_name_team(season: str) -> dict[tuple[str, str], set[str]]:
+    """Index upstream historical FPL rows by normalized name + team_code."""
     out: dict[tuple[str, str], set[str]] = defaultdict(set)
-    team_by_name = player_identity_audit.verified_team_codes(season)
-    for row in player_research._load_season_rows(season):
-        element = str(player_research.seasonal_player_id(row)).strip()
-        name = normalize_name(player_research.display_player_name(row))
-        club = player_research._row_club(row)
-        team_code = str(row.get("team_code") or "").strip() or team_by_name.get(normalize_name(club), "")
-        if element and name and team_code:
-            out[(name, team_code)].add(element)
+    paths = sorted((FPL_ROOT / "teams").glob(f"*/players/{season}_all_players_gw.csv"))
+
+    for path in paths:
+        with path.open("r", encoding="utf-8-sig", newline="") as handle:
+            for row in csv.DictReader(handle):
+                element = str(row.get("element") or "").strip()
+                first = str(row.get("first_name") or "").strip()
+                second = str(row.get("second_name") or "").strip()
+                name = " ".join(part for part in (first, second) if part)
+                team_code = str(row.get("team_code") or "").strip()
+                if element and name and team_code:
+                    out[(normalize_name(name), team_code)].add(element)
+
     return out
 
 
@@ -101,12 +111,13 @@ def candidate_rows(season: str) -> list[dict[str, str]]:
         name_norm = normalize_name(source_name)
         if not name_norm:
             continue
+
         candidate_elements: set[str] = set()
         for team_code in team_codes:
             candidate_elements.update(fpl.get((name_norm, team_code), set()))
 
+        source_to_elements[source_id].update(candidate_elements)
         for element in candidate_elements:
-            source_to_elements[source_id].add(element)
             element_to_sources[element].add(source_id)
 
         rows.append({
@@ -118,6 +129,7 @@ def candidate_rows(season: str) -> list[dict[str, str]]:
             "candidate_fpl_elements": ";".join(sorted(candidate_elements, key=int)),
             "evidence_historical_index": str(HISTORICAL_INDEX_DIR / f"{season}_players.json"),
             "evidence_player_match": ";".join(str(p) for p in player_identity_audit.source_files(season)),
+            "evidence_fpl_pattern": str(pattern_for_fpl(season)),
             "method": "HISTORICAL_INDEX_NAME_PLUS_VERIFIED_TEAM",
         })
 
@@ -134,8 +146,8 @@ def candidate_rows(season: str) -> list[dict[str, str]]:
                 row["evidence_basis"] = (
                     "historical PL player index supplies source identity; Player-Match supplies "
                     "season/team occurrence; verified team registry supplies persistent team; "
-                    "FPL seasonal data yields exactly one element and the element maps back to "
-                    "exactly one source playerId"
+                    "upstream FPL seasonal team files yield exactly one element and that element "
+                    "maps back to exactly one source playerId"
                 )
             else:
                 row["status"] = "REVIEW"
@@ -158,7 +170,7 @@ def candidate_rows(season: str) -> list[dict[str, str]]:
 
 def run() -> dict:
     seasons = tuple(
-        season for season in player_identity_audit.SEASONS
+        season for season in sorted(query_lab.season_files())
         if (HISTORICAL_INDEX_DIR / f"{season}_players.json").exists()
     )
     all_rows: list[dict[str, str]] = []
@@ -169,7 +181,6 @@ def run() -> dict:
     review = [r for r in all_rows if r["status"] == "REVIEW"]
     unresolved = [r for r in all_rows if r["status"] == "UNRESOLVED"]
 
-    # Compare against the current verified registry so we can measure genuinely new edges.
     existing: set[tuple[str, str, str]] = set()
     registry = Path("player_identity_registry.csv")
     if registry.exists():
@@ -206,8 +217,8 @@ def print_report(result: dict) -> None:
     print(f"Source player-season rows:       {c['source_player_season_rows']:,}")
     print(f"Verified candidate edges:        {c['verified_candidates']:,}")
     print(f"New verified edges vs registry:  {c['new_verified_edges']:,}")
-    print(f"Review edges:                    {c['review']:,}")
-    print(f"Unresolved edges:                {c['unresolved']:,}")
+    print(f"Review edges:                     {c['review']:,}")
+    print(f"Unresolved edges:                 {c['unresolved']:,}")
     print()
     print("NEW VERIFIED SAMPLE")
     for row in result["new_verified"][:50]:
