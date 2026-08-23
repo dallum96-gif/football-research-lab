@@ -1,7 +1,7 @@
 """Fail-closed adapter for Pulselive team-squad payloads.
 
 The adapter only promotes a squad payload to a canonical team-season when an
-external, audited source_season_id -> FRL season mapping is supplied and the
+external, audited source_season_id -> FRL season mapping is available and the
 source team id resolves uniquely to the verified seasonal team registry.
 Player identity remains source-native until the existing player identity
 contracts independently prove a bridge.
@@ -13,6 +13,7 @@ import json
 from pathlib import Path
 from typing import Iterable
 
+from pulselive_season_namespace import load_mapping
 from relationship_contracts import get_relationship_contract
 
 ROOT = Path(__file__).resolve().parent
@@ -62,13 +63,14 @@ def squad_context(payload: dict) -> dict[str, str]:
 def resolve_team_season(
     payload: dict,
     *,
-    source_season_map: dict[str, str],
+    source_season_map: dict[str, str] | None = None,
     registry: Iterable[dict[str, str]] | None = None,
 ) -> dict[str, object]:
-    """Resolve a squad payload using an already-audited season-id map."""
+    """Resolve a squad payload using an audited provider-season map."""
     get_relationship_contract("canonical_team_season_to_source_team")
     context = squad_context(payload)
-    season = _n(source_season_map.get(context["source_season_id"]))
+    season_map = source_season_map if source_season_map is not None else load_mapping()
+    season = _n(season_map.get(context["source_season_id"]))
     if not season:
         return {"status": "UNRESOLVED_SEASON", **context}
 
