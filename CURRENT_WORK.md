@@ -1,6 +1,6 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 23 August 2026, 21:48 BST
+**Last updated:** 23 August 2026, 22:18 BST
 
 ## Active branch
 
@@ -17,8 +17,6 @@ Validated:
 - canonical relationship-integrity proof: green;
 - temporary Parquet/DuckDB analytical materialisation for `fixtures` and `team_fixtures`: green;
 - analytical/query-equivalence proof: prototype corrected after two test-environment issues; latest corrected CI run is being validated.
-
-The previous query-equivalence attempt failed in the prototype only: DuckDB attempted to import `pytz` while ordering an inferred timezone-aware timestamp. No canonical data, relationship mapping or GUI behaviour failed. The proof was corrected to order the stored timestamp representation directly.
 
 ## Player identity milestone — 23 August 2026
 
@@ -45,11 +43,19 @@ The source-native bridge is stored in:
 
 At this milestone it contains **26 source-native player identities covering 225 Player-Match observations**.
 
-The permanent identity/relationship contract is:
+## Default identity contract
+
+The default FRL identity schema is now formally defined in:
+
+`FRL_DEFAULT_IDENTITY_SCHEMA_V1.md`
+
+It is mandatory reading before identity, relationship or source-variable mapping work.
+
+The detailed identity/relationship architecture contract remains:
 
 `FRL_IDENTITY_RELATIONSHIP_CONTRACT_V1.md`
 
-**Fresh sessions must read this contract before modifying player, team or fixture identity logic.**
+Fresh sessions must read both contracts before modifying player, team, fixture or source identity logic.
 
 Historical milestone record:
 
@@ -71,6 +77,18 @@ Source identifiers are not automatically interchangeable. In particular:
 - fixture identity is canonicalised as `(season, fixture_id)` and source match IDs are bridged into it.
 
 No player attachment may silently create a cross-source identity merely to make a row resolve.
+
+## Variable universe expansion
+
+The identity layer is now complete enough to support the next major discovery phase: mapping the wider source-variable universe.
+
+Current routed variable universe: **477 mapped variables**.
+
+The wider discovered source universe contains approximately **900 additional variables/fields** awaiting systematic classification and mapping.
+
+Variable mapping must use the default identity schema and record source family, source field, observation grain, identity contract, relationship contract, transformation/aggregation, availability semantics and provenance status before a variable is considered research-ready.
+
+Mapping the universe is distinct from exposing variables in the GUI.
 
 ## Foundational visualisation principle
 
@@ -96,5 +114,5 @@ The durable visualisation rule is recorded in `FRL_VISUALISATION_DATA_CONTRACT.m
 1. Confirm the corrected CSV-vs-DuckDB query-equivalence gate is green.
 2. Build the small reusable analytical query seam over the local Parquet representation without switching production consumers.
 3. Prove that the same research result object can feed both a table and at least one chart.
-4. Validate visualisation outputs against the GUI contract before any interface rollout.
-5. Only then consider expanding Parquet materialisation to more datasets or considering object storage.
+4. Begin systematic classification of the wider ~900-variable source universe using `FRL_DEFAULT_IDENTITY_SCHEMA_V1.md` as the identity contract.
+5. Validate newly mapped variable relationships before any GUI exposure.
