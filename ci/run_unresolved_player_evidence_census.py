@@ -7,7 +7,11 @@ not modify FRL identity logic, registries, or canonical data.
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
+
+repo_root = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(repo_root))
 
 source_root = Path(os.environ["FRL_PL_ROOT"]).resolve()
 if not source_root.is_dir():
