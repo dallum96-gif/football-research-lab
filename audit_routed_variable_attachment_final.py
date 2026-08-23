@@ -6,7 +6,7 @@ from collections import Counter
 
 from entity_route_inheritance import route_for_entity
 from relationship_contracts import get_relationship_contract
-from pulselive_season_namespace import season_map
+from pulselive_season_namespace import load_mapping
 
 ROOT = Path(__file__).resolve().parent
 INPUT = ROOT / "data" / "routed_variable_attachment_registry_v2.csv"
@@ -21,6 +21,7 @@ def main() -> None:
     with INPUT.open("r", encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.DictReader(handle))
 
+    namespace_map = load_mapping()
     out = []
     for row in rows:
         grain = n(row.get("grain")).lower()
@@ -40,6 +41,9 @@ def main() -> None:
             player_gate = "VERIFIED_SOURCE_PLAYER_IDENTITY_REQUIRED"
         elif grain == "squad":
             team_gate = "VERIFIED_TEAM_SEASON_ROUTE_WITH_AUDITED_PROVIDER_SEASON_MAP"
+            if not namespace_map:
+                status = "EVIDENCE_GATE_MISSING"
+                team_gate = "AUDITED_PROVIDER_SEASON_MAP_REQUIRED"
         else:
             status = "NOT_IN_ROUTED_FAMILY"
             evidence_gate = "UNMAPPED_GRAIN"
@@ -58,7 +62,7 @@ def main() -> None:
             "player_evidence_gate": player_gate,
             "fixture_evidence_gate": fixture_gate,
             "team_evidence_gate": team_gate,
-            "provider_season_namespace_entries": str(len(season_map())),
+            "provider_season_namespace_entries": str(len(namespace_map)),
         })
         out.append(merged)
 
@@ -85,7 +89,7 @@ def main() -> None:
     for key, value in counts.most_common():
         print(f"  {value:4d} {key}")
     print()
-    print(f"Provider season namespace entries available: {len(season_map())}")
+    print(f"Provider season namespace entries available: {len(namespace_map)}")
     print(f"Output: {OUTPUT}")
 
 
