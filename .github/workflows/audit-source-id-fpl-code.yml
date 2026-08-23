@@ -1,0 +1,33 @@
+name: Audit source playerId to FPL player_code
+
+on:
+  pull_request:
+    paths:
+      - 'audit_source_id_fpl_code_direct.py'
+      - '.github/workflows/audit-source-id-fpl-code.yml'
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL audit repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Checkout committed upstream source archive
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: main
+          path: source
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run direct numeric identity audit
+        run: python audit_source_id_fpl_code_direct.py
