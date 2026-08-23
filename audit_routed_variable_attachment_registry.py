@@ -7,7 +7,9 @@ in the repository's variable dictionary and source-family route definitions.
 from __future__ import annotations
 
 import csv
+from collections import Counter
 from pathlib import Path
+
 from variable_dictionary_relationships import relationship_for
 from entity_route_inheritance import route_for_entity
 
@@ -40,7 +42,7 @@ def main() -> None:
         entity_routes = {}
         explicit = bool(rel.identity_contract or rel.canonical_attachment != "UNMAPPED_REVIEW")
         for entity in ("player", "fixture", "team"):
-            route = route_for_entity(entity, grain=grain, resource=resource)
+            route = route_for_entity(grain, entity)
             entity_routes[entity] = route or ""
             explicit = explicit or bool(route)
 
@@ -69,7 +71,6 @@ def main() -> None:
     print(f"Explicitly routed variables: {routed}")
     print("No identity inference and no canonical promotion.")
 
-    from collections import Counter
     print("\nBY GRAIN")
     for grain, count in Counter(n(r.get("grain")) for r in out).most_common():
         print(f"{count:6}  {grain or '<blank>'}")
