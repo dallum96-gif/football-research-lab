@@ -1,6 +1,6 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 22 August 2026
+**Last updated:** 23 August 2026
 
 ## Active branch
 
@@ -17,20 +17,89 @@ Validated during the current source/relationship phase:
 - source-family adapters are covered by targeted tests;
 - relationship contracts and enforcement are green;
 - fixture relationship enforcement is green;
-- player identity/relationship enforcement is green;
+- player identity/relationship enforcement is fail-closed;
 - all-season relationship matrix is using the shared contract layer;
 - canonical player identity reconciliation is fail-closed;
 - source-field universe audit covers 10 seasons and 4 source families;
 - semantic review queue and conservative priority ranking are in place;
-- current searchable source-field universe contains 447 distinct fields;
-- 93 are currently exposed, 19 retained, and 325 remain in semantic review after the first promotion batch;
-- all 325 currently uncatalogued fields have now received a read-only semantic triage and source-value evidence audit;
-- a presentation-oriented taxonomy now assigns every uncatalogued field to a navigation category without changing registry status;
-- the current ambiguity audit is read-only and does not promote unresolved identities.
+- the broad variable universe and routed-variable registry are established;
+- fixture, home-team and away-team edges are independently verified across the full 145,571 player-match observation population;
+- source player identity is independently verified across the full 145,571 player-match observation population;
+- the remaining broad Player-Match gap is specifically the canonical FRL-player edge, not a failure of fixture/team/source-player evidence.
 
 The known 2019–20 Manchester City v Arsenal fixture anomaly remains a known source/data-state warning and must not be “fixed” by inventing data.
 
-## New durable architecture decisions
+## Frozen variable/entity attachment architecture
+
+`FRL_VARIABLE_ENTITY_ATTACHMENT_SCHEMA_V1.md` is now the frozen architecture target for variable/entity attachment work.
+
+The model is:
+
+```text
+source observation
+   ├── fixture edge
+   ├── home-team edge
+   ├── away-team edge
+   └── player edge
+```
+
+Each edge is independent and carries its own attachment status, identity contract/evidence basis and provenance reference.
+
+Core entities:
+
+- `variable`
+- `source_variable_observation`
+- `fixture`
+- `team_season`
+- `player`
+- `player_source_identity`
+- `player_fixture_observation`
+
+Natural grain-to-entity applicability:
+
+- `player_match` → Player + Fixture + Team
+- `player_season` → Player + Team + Season
+- `team_match` → Team + Fixture
+- `squad` → Team + Season + Player
+- `sample_payload` → source evidence until grain is established
+
+Important invariant:
+
+> A verified source-player identity or FPL seasonal key is not itself a canonical FRL `player_id`.
+
+The new V1 materialisation seam therefore preserves `source_player_id` and a separate `source_player_identity_status`, while leaving `player_entity_id` empty unless a canonical FRL-player relationship is actually verified.
+
+## New V1 implementation seam
+
+Added:
+
+- `FRL_VARIABLE_ENTITY_ATTACHMENT_SCHEMA_V1.md`
+- `entity_attachment_resolver.py`
+- `materialize_variable_entity_attachment_schema_v1.py`
+- `tests/test_entity_attachment_resolver.py`
+- `tests/test_variable_entity_attachment_schema_v1.py`
+
+The new materialiser is intentionally additive. It wraps the existing routed observation materialiser rather than replacing it.
+
+Existing observation production and identity registries remain authoritative. The new seam normalises legacy status strings into the frozen V1 vocabulary and does not infer or promote identities.
+
+## Discovery boundary
+
+Discovery of the entity schema is complete for this phase. Future work should measure coverage against the frozen V1 architecture rather than reopening the entity model.
+
+The remaining work is now implementation/coverage work:
+
+1. validate the new V1 tests and materialiser locally;
+2. run the existing 26/26 research gate and project-health gate;
+3. reconcile the V1 output against the trusted existing observation counts;
+4. expand source-variable observations and provenance without creating variable×observation Cartesian products;
+5. close additional verified Player identity coverage only where existing identity evidence supports it.
+
+Standing rule:
+
+> **Do not reopen the schema because an identity edge remains unresolved. Preserve the edge as unresolved and continue building the rest of the verified graph.**
+
+## Existing durable architecture decisions
 
 Read:
 
@@ -83,8 +152,6 @@ The source-field review has moved from simple discovery into a two-track process
 
 The taxonomy is deliberately independent of semantic promotion. A field can be navigable/categorised without being considered semantically approved, canonical, model-eligible or UI-visible.
 
-The product direction is to build an extensive variable universe and make it feel manageable through grouping and filtering, combining the information depth of Football Manager-style search, the statistical taxonomy of FBref-style presentation and the approachable player/profile feel of modern football apps.
-
 ## Multi-session roadmap
 
 1. **Source-field semantic review** — establish field meanings, coverage, units, missingness and stability; promote only defensible fields.
@@ -96,10 +163,6 @@ The product direction is to build an extensive variable universe and make it fee
 7. **Navigable football database UI** — seasons, teams, players, player-seasons, fixtures, match observations and provenance; expose the broad variable universe through taxonomy and advanced filtering rather than a flat wall of fields.
 8. **Research interface + visualisation** — structured queries first, natural language later; one trusted result object should drive tables/charts/comparisons.
 9. **Modelling/evaluation** — only after the evidence/data platform is stable.
-
-Standing rule:
-
-> **Do not build a higher layer to compensate for an unproven lower layer.**
 
 ## Current analytical representation direction
 
