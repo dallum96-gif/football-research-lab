@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import os
 import sys
 from pathlib import Path
@@ -74,6 +75,29 @@ class FixtureResearchResult(BaseModel):
     limitations: list[str]
 
 
+class FixtureDetailStats(BaseModel):
+    home_possession: float | None = None
+    away_possession: float | None = None
+    home_shots_on_target: int | None = None
+    away_shots_on_target: int | None = None
+    home_shots: int | None = None
+    away_shots: int | None = None
+    home_corners: int | None = None
+    away_corners: int | None = None
+    home_fouls: int | None = None
+    away_fouls: int | None = None
+    home_yellow_cards: int | None = None
+    away_yellow_cards: int | None = None
+    attendance: int | None = None
+
+
+class FixtureDetailResult(BaseModel):
+    fixture: FixtureResultRow
+    stats: FixtureDetailStats | None = None
+    provenance: ResearchProvenance
+    limitations: list[str]
+
+
 class TeamOption(BaseModel):
     persistent_team_code: str | None = None
     display_name: str
@@ -106,6 +130,12 @@ def _normalise_int(value: str | int | None) -> int | None:
     if value in (None, ""):
         return None
     return int(value)
+
+
+def _normalise_float(value: str | float | int | None) -> float | None:
+    if value in (None, ""):
+        return None
+    return float(value)
 
 
 def _row_for_api(row: dict, team_filter: str | None) -> FixtureResultRow:
@@ -146,9 +176,28 @@ def _row_for_api(row: dict, team_filter: str | None) -> FixtureResultRow:
     )
 
 
+def _load_fixture_detail(season: str, fixture_id: str) -> tuple[dict, dict | None]:
+    fixture_rows = [
+        row
+        for row in query_api._load_csv(query_api.FIXTURE_FILE)
+        if row.get("season") == season and str(row.get("fixture_id")) == fixture_id
+    ]
+    if not fixture_rows:
+        raise ValueError(f"Fixture {season}/{fixture_id} was not found in the canonical fixture master.")
+
+    stats_file = ROOT / "data" / "fixture_match_stats.csv"
+    stats_rows = [
+        row
+        for row in query_api._load_csv(stats_file)
+        if row.get("season") == season and str(row.get("fixture_id")) == fixture_id
+    ] if stats_file.is_file() else []
+
+    return fixture_rows[0], (stats_rows[0] if stats_rows else None)
+
+
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "service": "football-research-lab-api"}
+    return {"status": "ok", "service": "football-research-laboratory-api"}
 
 
 @app.get("/api/v1/seasons")
@@ -185,7 +234,6 @@ def get_teams(season: str) -> list[TeamOption]:
 def get_team_seasons(
     persistent_team_code: str = Query(..., min_length=1),
 ) -> list[TeamSeasonOption]:
-    """Return only seasons where the trusted identity registry contains this club code."""
     try:
         seasons = list(query_api.list_seasons())
     except Exception as exc:
@@ -289,6 +337,79 @@ def get_fixtures(
             "No historical as-of information-availability snapshot is asserted by this endpoint yet.",
             "The frontend must not infer canonical identity from display names or provider-local IDs.",
         ],
+    )
+
+
+@app.get("/api/v1/fixtures/{season}/{fixture_id}", response_model=FixtureDetailResult)
+def get_fixture_detail(season: str, fixture_id: str) -> FixtureDetailResult:
+    try:
+        row, stats = _load_fixture_detail(season, fixture_id)
+        by_local_id, _, _ = query_api._team_lookup(season)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Fixture detail query failed safely.") from exc
+
+    home_id = str(row.get("home_team_id", "")).strip()
+    away_id = str(row.get("away_team_id", "")).strip()
+    if home_id not in by_local_id or away_id not in by_local_id:
+        raise HTTPException(status_code=500, detail="Fixture identity could not be resolved safely.")
+
+    fixture = FixtureResultRow(
+        fixture_id=fixture_id,
+        season=season,
+        gameweek=int(row["gameweek"]) if row.get("gameweek") not in (None, "") else None,
+        kickoff_time=str(row["kickoff_time"]) if row.get("kickoff_time") else None,
+        home_team_id=home_id,
+        away_team_id=away_id,
+        home_team_name=str(by_local_id[home_id]["team"]),
+        away_team_name=str(by_local_id[away_id]["team"]),
+        home_score=_normalise_int(row.get("home_score")),
+        away_score=_normalise_int(row.get("away_score")),
+    )
+
+    detail_stats = None
+    if stats is not None:
+        home_fouls = _normalise_int(stats.get("away_core_fouls_won"))
+        away_fouls = _normalise_int(stats.get("home_core_fouls_won"))
+        attendance = _normalise_int(stats.get("home_optional_attendance"))
+        if attendance is None:
+            attendance = _normalise_int(stats.get("away_optional_attendance"))
+
+        detail_stats = FixtureDetailStats(
+            home_possession=_normalise_float(stats.get("home_core_possession")),
+            away_possession=_normalise_float(stats.get("away_core_possession")),
+            home_shots_on_target=_normalise_int(stats.get("home_core_shots_on_target")),
+            away_shots_on_target=_normalise_int(stats.get("away_core_shots_on_target")),
+            home_shots=_normalise_int(stats.get("home_core_shots")),
+            away_shots=_normalise_int(stats.get("away_core_shots")),
+            home_corners=_normalise_int(stats.get("home_core_corners")),
+            away_corners=_normalise_int(stats.get("away_core_corners")),
+            home_fouls=home_fouls,
+            away_fouls=away_fouls,
+            home_yellow_cards=_normalise_int(stats.get("home_core_yellow_cards")),
+            away_yellow_cards=_normalise_int(stats.get("away_core_yellow_cards")),
+            attendance=attendance,
+        )
+
+    limitations = [
+        "Managers are not supplied because the approved FRL manager-data boundary does not currently expose them.",
+        "Event timeline and player starting-lineup details are not yet part of this fixture-detail API contract.",
+        "No historical as-of information-availability snapshot is asserted by this endpoint yet.",
+    ]
+
+    return FixtureDetailResult(
+        fixture=fixture,
+        stats=detail_stats,
+        provenance=ResearchProvenance(
+            source=(
+                "fixtures_master_corrected.csv + data/fixture_match_stats.csv"
+                if stats is not None
+                else "fixtures_master_corrected.csv"
+            ),
+            transformation_version="fixture-detail-v1",
+        ),
+        limitations=limitations,
     )
 
 
