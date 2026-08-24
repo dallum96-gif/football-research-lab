@@ -138,9 +138,12 @@
 }
 
 .statsSection { grid-column: 2; width: 100%; justify-self: center; }
-.sectionTitle { display: flex; justify-content: center; align-items: baseline; border-top: 1px solid var(--frl-border-strong); padding-top: .62rem; margin-top: .15rem; }
-.sectionTitle h2 { margin: 0; font-size: .64rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.sectionTitle { display: grid; grid-template-columns: minmax(80px, 1fr) auto minmax(80px, 1fr); align-items: center; column-gap: 1rem; border-top: 1px solid var(--frl-border-strong); padding-top: .62rem; margin-top: .15rem; }
+.sectionTitle h2 { margin: 0; font-size: .64rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; text-align: center; }
 .sectionTitle span { color: var(--frl-muted-soft); font-size: .58rem; }
+.sectionArrow { color: var(--frl-muted-soft); font-size: 1.05rem; font-weight: 500; line-height: 1; white-space: nowrap; }
+.sectionArrow:first-child { justify-self: end; }
+.sectionArrow:last-child { justify-self: start; }
 .stats { display: grid; gap: .16rem; }
 .statRow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 1.85rem; font-size: .68rem; }
 .statValue { display: flex; align-items: center; gap: .5rem; font-weight: 650; font-variant-numeric: tabular-nums; }
