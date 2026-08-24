@@ -96,9 +96,9 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
 
         <section className={styles.matchHeader} aria-label="Match result">
           <div className={styles.teams}>
-            <div className={styles.team}>
-              <Kit team="arsenal" />
+            <div className={`${styles.team} ${styles.teamHome}`}>
               <span className={styles.teamName}>Arsenal</span>
+              <Kit team="arsenal" />
             </div>
 
             <div>
