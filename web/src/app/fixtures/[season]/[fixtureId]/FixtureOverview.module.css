@@ -60,25 +60,13 @@
 .lineupSide { min-width: 0; align-self: stretch; }
 .lineupHome { grid-column: 1; }
 .lineupAway { grid-column: 3; }
-.lineupSideHeader {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding-bottom: .42rem;
-  border-bottom: 1px solid var(--frl-border-strong);
-  color: var(--frl-text);
-  font-size: .62rem;
-  font-weight: 750;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-}
-.lineupSideHeader span:last-child { color: var(--frl-muted-soft); font-size: .54rem; font-weight: 650; letter-spacing: .04em; }
+.lineupSideHeader { display: none; }
 
 .tacticalBoard {
   position: relative;
-  height: calc(100% - 1.55rem);
+  height: 100%;
   min-height: 0;
-  margin-top: .5rem;
+  margin-top: 0;
   overflow: hidden;
   border: 0;
   border-radius: 0;
