@@ -3,145 +3,51 @@ import { AppShell } from "@/components/AppShell";
 import { fetchFixtureDetail, type FixturePlayerMatchEvidence } from "@/lib/api";
 import styles from "./FixtureOverview.module.css";
 
-type FixtureDetailProps = {
-  params: Promise<{
-    season: string;
-    fixtureId: string;
-  }>;
-};
-
+type FixtureDetailProps = { params: Promise<{ season: string; fixtureId: string; }>; };
 type Player = { name: string; role: string; x: number; y: number };
 type StatRow = [string, string, string, number, number];
-
-function formatDate(kickoffTime: string | null, season: string): string {
-  if (!kickoffTime) return season;
-  const parsed = new Date(kickoffTime);
-  if (Number.isNaN(parsed.getTime())) return kickoffTime;
-  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(parsed);
-}
-
-function formatKickoff(kickoffTime: string | null): string {
-  if (!kickoffTime) return "";
-  const parsed = new Date(kickoffTime);
-  if (Number.isNaN(parsed.getTime())) return kickoffTime;
-  return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false }).format(parsed);
-}
-
+function formatDate(kickoffTime: string | null, season: string): string { if (!kickoffTime) return season; const parsed = new Date(kickoffTime); if (Number.isNaN(parsed.getTime())) return kickoffTime; return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(parsed); }
+function formatKickoff(kickoffTime: string | null): string { if (!kickoffTime) return ""; const parsed = new Date(kickoffTime); if (Number.isNaN(parsed.getTime())) return kickoffTime; return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false }).format(parsed); }
 function formatInteger(value: number | null): string { return value == null ? "–" : value.toLocaleString("en-GB"); }
 function formatPossession(value: number | null): string { return value == null ? "–" : `${Number.isInteger(value) ? value : value.toFixed(1)}%`; }
-function share(left: number | null, right: number | null): [number, number] {
-  if (left == null || right == null || left + right === 0) return [50, 50];
-  const leftShare = Math.round((left / (left + right)) * 100);
-  return [leftShare, 100 - leftShare];
-}
+function share(left: number | null, right: number | null): [number, number] { if (left == null || right == null || left + right === 0) return [50, 50]; const leftShare = Math.round((left / (left + right)) * 100); return [leftShare, 100 - leftShare]; }
+function buildStats(stats: { home_possession: number | null; away_possession: number | null; home_shots_on_target: number | null; away_shots_on_target: number | null; home_shots: number | null; away_shots: number | null; home_corners: number | null; away_corners: number | null; home_fouls: number | null; away_fouls: number | null; home_yellow_cards: number | null; away_yellow_cards: number | null; } | null): StatRow[] { if (!stats) return []; return [[formatPossession(stats.home_possession), "Possession", formatPossession(stats.away_possession), ...share(stats.home_possession, stats.away_possession)],[formatInteger(stats.home_shots_on_target), "Shots on target", formatInteger(stats.away_shots_on_target), ...share(stats.home_shots_on_target, stats.away_shots_on_target)],[formatInteger(stats.home_shots), "Shots", formatInteger(stats.away_shots), ...share(stats.home_shots, stats.away_shots)],[formatInteger(stats.home_corners), "Corners", formatInteger(stats.away_corners), ...share(stats.home_corners, stats.away_corners)],[formatInteger(stats.home_fouls), "Fouls", formatInteger(stats.away_fouls), ...share(stats.home_fouls, stats.away_fouls)],[formatInteger(stats.home_yellow_cards), "Yellow cards", formatInteger(stats.away_yellow_cards), ...share(stats.home_yellow_cards, stats.away_yellow_cards)]]; }
 
-function buildStats(stats: {
-  home_possession: number | null; away_possession: number | null;
-  home_shots_on_target: number | null; away_shots_on_target: number | null;
-  home_shots: number | null; away_shots: number | null;
-  home_corners: number | null; away_corners: number | null;
-  home_fouls: number | null; away_fouls: number | null;
-  home_yellow_cards: number | null; away_yellow_cards: number | null;
-} | null): StatRow[] {
-  if (!stats) return [];
-  return [
-    [formatPossession(stats.home_possession), "Possession", formatPossession(stats.away_possession), ...share(stats.home_possession, stats.away_possession)],
-    [formatInteger(stats.home_shots_on_target), "Shots on target", formatInteger(stats.away_shots_on_target), ...share(stats.home_shots_on_target, stats.away_shots_on_target)],
-    [formatInteger(stats.home_shots), "Shots", formatInteger(stats.away_shots), ...share(stats.home_shots, stats.away_shots)],
-    [formatInteger(stats.home_corners), "Corners", formatInteger(stats.away_corners), ...share(stats.home_corners, stats.away_corners)],
-    [formatInteger(stats.home_fouls), "Fouls", formatInteger(stats.away_fouls), ...share(stats.home_fouls, stats.away_fouls)],
-    [formatInteger(stats.home_yellow_cards), "Yellow cards", formatInteger(stats.away_yellow_cards), ...share(stats.home_yellow_cards, stats.away_yellow_cards)],
-  ];
-}
-
-function positionBand(position: string | null): { label: string; y: number } {
-  const value = (position ?? "").toUpperCase();
-  if (value.includes("GK") || value.includes("GOALKEEP")) return { label: "GK", y: 8 };
-  if (value.includes("DEF") || value.includes("DF") || ["CB", "LB", "RB", "LWB", "RWB", "WB", "SW"].some((code) => value === code)) return { label: value || "DEF", y: 31 };
-  if (value.includes("MID") || value.includes("MF") || ["CM", "DM", "AM", "LM", "RM", "WM"].some((code) => value === code)) return { label: value || "MID", y: 56 };
-  return { label: value || "FW", y: 82 };
+function rolePlacement(position: string | null): { label: string; x: number; y: number } {
+  const value = (position ?? "").toUpperCase().trim();
+  const anchors: Record<string, { x: number; y: number }> = {
+    GK: { x: 50, y: 8 },
+    LB: { x: 15, y: 31 }, LWB: { x: 12, y: 31 }, LCB: { x: 35, y: 31 }, CB: { x: 50, y: 31 }, RCB: { x: 65, y: 31 }, RB: { x: 85, y: 31 }, RWB: { x: 88, y: 31 },
+    LM: { x: 15, y: 56 }, LCM: { x: 32, y: 56 }, DM: { x: 50, y: 56 }, CDM: { x: 50, y: 56 }, CM: { x: 50, y: 56 }, RCM: { x: 68, y: 56 }, RM: { x: 85, y: 56 }, LAM: { x: 32, y: 56 }, AM: { x: 50, y: 56 }, RAM: { x: 68, y: 56 }, WM: { x: 50, y: 56 },
+    LW: { x: 15, y: 82 }, LF: { x: 25, y: 82 }, CF: { x: 38, y: 82 }, ST: { x: 50, y: 82 }, FW: { x: 50, y: 82 }, RF: { x: 62, y: 82 }, RW: { x: 85, y: 82 },
+  };
+  const anchor = anchors[value];
+  if (anchor) return { label: value, ...anchor };
+  if (value.includes("GK") || value.includes("GOALKEEP")) return { label: value || "GK", x: 50, y: 8 };
+  if (value.includes("DEF") || value.includes("DF")) return { label: value || "DEF", x: 50, y: 31 };
+  if (value.includes("MID") || value.includes("MF")) return { label: value || "MID", x: 50, y: 56 };
+  return { label: value || "FW", x: 50, y: 82 };
 }
 
 function buildLineup(records: FixturePlayerMatchEvidence[], side: "home" | "away"): Player[] {
   const starters = records.filter((record) => record.side === side && record.participation === "starting");
-  const grouped = new Map<number, FixturePlayerMatchEvidence[]>();
-  for (const record of starters) {
-    const band = positionBand(record.position).y;
-    const items = grouped.get(band) ?? [];
-    items.push(record);
-    grouped.set(band, items);
-  }
-  const players: Player[] = [];
-  for (const [y, items] of grouped.entries()) {
-    items.sort((a, b) => (a.source_name ?? "").localeCompare(b.source_name ?? ""));
-    items.forEach((record, index) => {
-      const x = items.length === 1 ? 50 : 20 + (60 / (items.length - 1)) * index;
-      const band = positionBand(record.position);
-      players.push({ name: record.source_name ?? record.source_player_id ?? "Unknown player", role: band.label, x, y });
-    });
-  }
+  const used = new Map<string, number>();
+  const players = starters.map((record) => {
+    const placement = rolePlacement(record.position);
+    const key = `${placement.x}:${placement.y}`;
+    const duplicate = used.get(key) ?? 0;
+    used.set(key, duplicate + 1);
+    let x = placement.x;
+    if (duplicate > 0) {
+      const offsets = [-8, 8, -12, 12];
+      x = Math.max(8, Math.min(92, placement.x + (offsets[duplicate - 1] ?? (duplicate % 2 ? 12 : -12))));
+    }
+    return { name: record.source_name ?? record.source_player_id ?? "Unknown player", role: placement.label, x, y: placement.y };
+  });
   return players.sort((a, b) => a.y - b.y || a.x - b.x);
 }
 
-function Kit({ team }: { team: "home" | "away" }) {
-  return <span className={`${styles.kit} ${team === "home" ? styles.arsenal : styles.liverpool}`} aria-hidden="true"><span className={styles.kitSleeve} /><span className={styles.kitSleeveRight} /><span className={styles.kitBody} /></span>;
-}
-
-function LineupSide({ title, players, team }: { title: string; players: Player[]; team: "home" | "away" }) {
-  return <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}>
-    <div className={styles.lineupSideHeader}><span>{title}</span></div>
-    <div className={styles.tacticalBoard}>
-      <div className={styles.boardHalfLine} /><div className={styles.boardCenterLine} />
-      {players.map((player) => <div className={styles.playerNode} key={`${team}-${player.name}`} style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}>
-        <span className={styles.playerDot} /><span className={styles.playerRole}>{player.role}</span><span className={styles.playerName}>{player.name}</span>
-      </div>)}
-    </div>
-  </div>;
-}
-
-function FrlBrand() {
-  return <div className={styles.frlBrand} aria-label="Football Research Laboratory">
-    <svg className={styles.frlMascot} viewBox="0 0 84 52" role="img" aria-hidden="true">
-      <circle cx="42" cy="29" r="22" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="3" />
-      <path d="M25 16 31 11M59 16 53 11M20 34 11 39M64 34 73 39" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-      <path d="M32 23 38 19 42 22 46 18 52 23 47 30 42 33 36 30Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" opacity=".38" />
-      <circle cx="31.5" cy="25" r="4.2" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="1.9" /><circle cx="31.5" cy="25" r="1.55" fill="currentColor" />
-      <circle cx="52.5" cy="25" r="4.2" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="1.9" /><circle cx="52.5" cy="25" r="1.55" fill="currentColor" />
-      <path d="M35.7 25H48.3" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" /><path d="M34 38Q42 44 50 38" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-    </svg><div className={styles.frlWordmark}>FRL</div>
-  </div>;
-}
-
-export default async function FixtureDetailPage({ params }: FixtureDetailProps) {
-  const { season, fixtureId } = await params;
-  const detail = await fetchFixtureDetail(season, fixtureId);
-  const { fixture, stats } = detail;
-  const statRows = buildStats(stats);
-  const homePlayers = buildLineup(detail.player_match, "home");
-  const awayPlayers = buildLineup(detail.player_match, "away");
-  const hasScore = fixture.home_score != null && fixture.away_score != null;
-  const scoreLabel = hasScore ? `${fixture.home_team_name} ${fixture.home_score} ${fixture.away_team_name} ${fixture.away_score}` : `${fixture.home_team_name} not played ${fixture.away_team_name}`;
-
-  return <AppShell><div className={styles.overview}>
-    <header className={styles.pageHeader}><div className={styles.pageHeaderCompetition}>Premier League</div><div className={styles.pageHeaderDate}>{formatDate(fixture.kickoff_time, season)}</div><FrlBrand /></header>
-
-    <section className={styles.matchHeader} aria-label="Match result"><div className={styles.teams}>
-      <div className={`${styles.team} ${styles.teamHome}`}><span className={styles.teamName}>{fixture.home_team_name}</span><Kit team="home" /></div>
-      <div className={styles.scoreBlock}><div className={styles.score} aria-label={scoreLabel}><span className={styles.scoreNumber}>{fixture.home_score ?? "–"}</span><span className={styles.scoreDash}>–</span><span className={styles.scoreNumber}>{fixture.away_score ?? "–"}</span></div><div className={styles.status}>{hasScore ? "Full time" : "Scheduled"}</div></div>
-      <div className={`${styles.team} ${styles.teamAway}`}><Kit team="away" /><span className={styles.teamName}>{fixture.away_team_name}</span></div>
-    </div>
-    <div className={styles.timelineWrap}><div className={styles.timeline} aria-label="Goals and cards timeline">
-      {Array.from({ length: 13 }, (_, index) => <div key={index} className={styles.timelineRow}><span className={styles.eventEmpty} /><div className={styles.minute}>{index === 0 ? formatKickoff(fixture.kickoff_time) : ""}</div><span className={styles.eventEmpty} /></div>)}
-    </div></div></section>
-
-    <section className={styles.lineupSection} aria-label="Starting lineups"><LineupSide title={fixture.home_team_name} players={homePlayers} team="home" /><LineupSide title={fixture.away_team_name} players={awayPlayers} team="away" /></section>
-
-    <section className={styles.statsSection}><div className={styles.sectionTitle}><span className={styles.sectionArrow} aria-hidden="true">←</span><h2>Match statistics</h2><span className={styles.sectionArrow} aria-hidden="true">→</span></div><div className={styles.stats}>
-      {statRows.map(([home, label, away, homeShare, awayShare]) => <div className={styles.statRow} key={label}><div className={`${styles.statValue} ${styles.statHome}`}><span>{home}</span><span className={styles.statTrack} style={{ "--home-share": `${homeShare}%` } as CSSProperties} /></div><div className={styles.statLabel}>{label}</div><div className={`${styles.statValue} ${styles.statAway}`}><span className={styles.statTrack} style={{ "--away-share": `${awayShare}%` } as CSSProperties} /><span>{away}</span></div></div>)}
-    </div></section>
-
-    <section className={styles.metadata} aria-label="Match metadata">
-      {[["Competition", "Premier League"],["Matchweek", fixture.gameweek == null ? "–" : String(fixture.gameweek)],["Date", formatDate(fixture.kickoff_time, season)],["Kick-off", formatKickoff(fixture.kickoff_time) || "–"],["Venue", "–"],["Attendance", formatInteger(stats?.attendance ?? null)],["Referee", "–"]].map(([label, value]) => <div className={styles.metadataItem} key={label}><span className={styles.metadataLabel}>{label}</span><span className={styles.metadataValue}>{value}</span></div>)}
-    </section>
-  </div></AppShell>;
-}
+function Kit({ team }: { team: "home" | "away" }) { return <span className={`${styles.kit} ${team === "home" ? styles.arsenal : styles.liverpool}`} aria-hidden="true"><span className={styles.kitSleeve} /><span className={styles.kitSleeveRight} /><span className={styles.kitBody} /></span>; }
+function LineupSide({ title, players, team }: { title: string; players: Player[]; team: "home" | "away" }) { return <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}><div className={styles.lineupSideHeader}><span>{title}</span></div><div className={styles.tacticalBoard}><div className={styles.boardHalfLine} /><div className={styles.boardCenterLine} />{players.map((player) => <div className={styles.playerNode} key={`${team}-${player.name}`} style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}><span className={styles.playerDot} /><span className={styles.playerRole}>{player.role}</span><span className={styles.playerName}>{player.name}</span></div>)}</div></div>; }
+function FrlBrand() { return <div className={styles.frlBrand} aria-label="Football Research Laboratory"><svg className={styles.frlMascot} viewBox="0 0 84 52" role="img" aria-hidden="true"><circle cx="42" cy="29" r="22" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="3" /><path d="M25 16 31 11M59 16 53 11M20 34 11 39M64 34 73 39" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /><path d="M32 23 38 19 42 22 46 18 52 23 47 30 42 33 36 30Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" opacity=".38" /><circle cx="31.5" cy="25" r="4.2" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="1.9" /><circle cx="31.5" cy="25" r="1.55" fill="currentColor" /><circle cx="52.5" cy="25" r="4.2" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="1.9" /><circle cx="52.5" cy="25" r="1.55" fill="currentColor" /><path d="M35.7 25H48.3" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" /><path d="M34 38Q42 44 50 38" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" /></svg><div className={styles.frlWordmark}>FRL</div></div>; }
+export default async function FixtureDetailPage({ params }: FixtureDetailProps) { const { season, fixtureId } = await params; const detail = await fetchFixtureDetail(season, fixtureId); const { fixture, stats } = detail; const statRows = buildStats(stats); const homePlayers = buildLineup(detail.player_match, "home"); const awayPlayers = buildLineup(detail.player_match, "away"); const hasScore = fixture.home_score != null && fixture.away_score != null; const scoreLabel = hasScore ? `${fixture.home_team_name} ${fixture.home_score} ${fixture.away_team_name} ${fixture.away_score}` : `${fixture.home_team_name} not played ${fixture.away_team_name}`; return <AppShell><div className={styles.overview}><header className={styles.pageHeader}><div className={styles.pageHeaderCompetition}>Premier League</div><div className={styles.pageHeaderDate}>{formatDate(fixture.kickoff_time, season)}</div><FrlBrand /></header><section className={styles.matchHeader} aria-label="Match result"><div className={styles.teams}><div className={`${styles.team} ${styles.teamHome}`}><span className={styles.teamName}>{fixture.home_team_name}</span><Kit team="home" /></div><div className={styles.scoreBlock}><div className={styles.score} aria-label={scoreLabel}><span className={styles.scoreNumber}>{fixture.home_score ?? "–"}</span><span className={styles.scoreDash}>–</span><span className={styles.scoreNumber}>{fixture.away_score ?? "–"}</span></div><div className={styles.status}>{hasScore ? "Full time" : "Scheduled"}</div></div><div className={`${styles.team} ${styles.teamAway}`}><Kit team="away" /><span className={styles.teamName}>{fixture.away_team_name}</span></div></div><div className={styles.timelineWrap}><div className={styles.timeline} aria-label="Goals and cards timeline">{Array.from({ length: 13 }, (_, index) => <div key={index} className={styles.timelineRow}><span className={styles.eventEmpty} /><div className={styles.minute}>{index === 0 ? formatKickoff(fixture.kickoff_time) : ""}</div><span className={styles.eventEmpty} /></div>)}</div></div></section><section className={styles.lineupSection} aria-label="Starting lineups"><LineupSide title={fixture.home_team_name} players={homePlayers} team="home" /><LineupSide title={fixture.away_team_name} players={awayPlayers} team="away" /></section><section className={styles.statsSection}><div className={styles.sectionTitle}><span className={styles.sectionArrow} aria-hidden="true">←</span><h2>Match statistics</h2><span className={styles.sectionArrow} aria-hidden="true">→</span></div><div className={styles.stats}>{statRows.map(([home, label, away, homeShare, awayShare]) => <div className={styles.statRow} key={label}><div className={`${styles.statValue} ${styles.statHome}`}><span>{home}</span><span className={styles.statTrack} style={{ "--home-share": `${homeShare}%` } as CSSProperties} /></div><div className={styles.statLabel}>{label}</div><div className={`${styles.statValue} ${styles.statAway}`}><span className={styles.statTrack} style={{ "--away-share": `${awayShare}%` }} /><span>{away}</span></div></div>)}</div></section><section className={styles.metadata} aria-label="Match metadata">{[["Competition", "Premier League"],["Matchweek", fixture.gameweek == null ? "–" : String(fixture.gameweek)],["Date", formatDate(fixture.kickoff_time, season)],["Kick-off", formatKickoff(fixture.kickoff_time) || "–"],["Venue", "–"],["Attendance", formatInteger(stats?.attendance ?? null)],["Referee", "–"]].map(([label, value]) => <div className={styles.metadataItem} key={label}><span className={styles.metadataLabel}>{label}</span><span className={styles.metadataValue}>{value}</span></div>)}</section></div></AppShell>; }
