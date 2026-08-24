@@ -18,6 +18,13 @@ type Event = {
   card?: "yellow" | "red";
 };
 
+type Player = {
+  name: string;
+  role: string;
+  x: number;
+  y: number;
+};
+
 const events: Event[] = [
   { minute: "26'", side: "away", kind: "card", player: "Adam Lallana", card: "yellow" },
   { minute: "29'", side: "away", kind: "card", player: "Alberto Moreno", card: "yellow" },
@@ -52,6 +59,34 @@ const metadata = [
   ["Referee", "Michael Oliver"],
 ];
 
+const arsenalPlayers: Player[] = [
+  { name: "Čech", role: "GK", x: 8, y: 50 },
+  { name: "Bellerín", role: "RB", x: 22, y: 18 },
+  { name: "Koscielny", role: "CB", x: 22, y: 39 },
+  { name: "Holding", role: "CB", x: 22, y: 61 },
+  { name: "Monreal", role: "LB", x: 22, y: 82 },
+  { name: "Coquelin", role: "DM", x: 39, y: 34 },
+  { name: "Cazorla", role: "DM", x: 39, y: 66 },
+  { name: "Iwobi", role: "AM", x: 55, y: 18 },
+  { name: "Özil", role: "AM", x: 55, y: 50 },
+  { name: "Walcott", role: "AM", x: 55, y: 82 },
+  { name: "Giroud", role: "ST", x: 73, y: 50 },
+];
+
+const liverpoolPlayers: Player[] = [
+  { name: "Mignolet", role: "GK", x: 92, y: 50 },
+  { name: "Clyne", role: "RB", x: 78, y: 18 },
+  { name: "Lovren", role: "CB", x: 78, y: 39 },
+  { name: "Klavan", role: "CB", x: 78, y: 61 },
+  { name: "Moreno", role: "LB", x: 78, y: 82 },
+  { name: "Wijnaldum", role: "CM", x: 61, y: 28 },
+  { name: "Henderson", role: "CM", x: 61, y: 50 },
+  { name: "Lallana", role: "CM", x: 61, y: 72 },
+  { name: "Mané", role: "RW", x: 45, y: 22 },
+  { name: "Firmino", role: "ST", x: 45, y: 50 },
+  { name: "Coutinho", role: "LW", x: 45, y: 78 },
+];
+
 function Kit({ team }: { team: "arsenal" | "liverpool" }) {
   return (
     <span className={`${styles.kit} ${team === "arsenal" ? styles.arsenal : styles.liverpool}`} aria-hidden="true">
@@ -79,6 +114,42 @@ function EventCell({ event }: { event: Event }) {
         {event.player}
         {event.assist ? <span className={styles.eventAssist}> — {event.assist} assist</span> : null}
       </span>
+    </div>
+  );
+}
+
+function LineupSide({
+  title,
+  formation,
+  players,
+  team,
+}: {
+  title: string;
+  formation: string;
+  players: Player[];
+  team: "home" | "away";
+}) {
+  return (
+    <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}>
+      <div className={styles.lineupSideHeader}>
+        <span>{title}</span>
+        <span>{formation}</span>
+      </div>
+      <div className={styles.tacticalBoard}>
+        <div className={styles.boardHalfLine} />
+        <div className={styles.boardCenterLine} />
+        {players.map((player) => (
+          <div
+            className={styles.playerNode}
+            key={player.name}
+            style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}
+          >
+            <span className={styles.playerDot} />
+            <span className={styles.playerRole}>{player.role}</span>
+            <span className={styles.playerName}>{player.name}</span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -127,6 +198,11 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
               ))}
             </div>
           </div>
+        </section>
+
+        <section className={styles.lineupSection} aria-label="Starting lineups">
+          <LineupSide title="Arsenal" formation="4–2–3–1" players={arsenalPlayers} team="home" />
+          <LineupSide title="Liverpool" formation="4–3–3" players={liverpoolPlayers} team="away" />
         </section>
 
         <section>
