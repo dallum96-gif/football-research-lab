@@ -163,6 +163,10 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
         <header className={styles.pageHeader}>
           <div className={styles.pageHeaderCompetition}>Premier League</div>
           <div className={styles.pageHeaderDate}>14 August 2016</div>
+          <div className={styles.frlMonogram} aria-label="Football Research Laboratory" title="Football Research Laboratory">
+            <span className={styles.frlMonogramF}>F</span>
+            <span className={styles.frlMonogramRL}>RL</span>
+          </div>
         </header>
 
         <section className={styles.matchHeader} aria-label="Match result">
