@@ -122,11 +122,13 @@ function EventCell({ event }: { event: Event }) {
 function LineupSide({
   title,
   formation,
+  manager,
   players,
   team,
 }: {
   title: string;
   formation: string;
+  manager: string;
   players: Player[];
   team: "home" | "away";
 }) {
@@ -139,6 +141,7 @@ function LineupSide({
       <div className={styles.tacticalBoard}>
         <div className={styles.boardHalfLine} />
         <div className={styles.boardCenterLine} />
+        <span className={styles.managerName}>{manager}</span>
         {players.map((player) => (
           <div
             className={styles.playerNode}
@@ -223,8 +226,8 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
         </section>
 
         <section className={styles.lineupSection} aria-label="Starting lineups">
-          <LineupSide title="Arsenal" formation="4–2–3–1" players={arsenalPlayers} team="home" />
-          <LineupSide title="Liverpool" formation="4–3–3" players={liverpoolPlayers} team="away" />
+          <LineupSide title="Arsenal" formation="4–2–3–1" manager="Arsène Wenger" players={arsenalPlayers} team="home" />
+          <LineupSide title="Liverpool" formation="4–3–3" manager="Jürgen Klopp" players={liverpoolPlayers} team="away" />
         </section>
 
         <section className={styles.statsSection}>
