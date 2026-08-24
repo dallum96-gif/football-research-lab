@@ -157,15 +157,19 @@ function LineupSide({
 function FrlBrand() {
   return (
     <div className={styles.frlBrand} aria-label="Football Research Laboratory">
-      <svg className={styles.frlMascot} viewBox="0 0 76 68" role="img" aria-hidden="true">
-        <circle cx="38" cy="28" r="19" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="2.8" />
-        <path d="M24 14 31 9M52 14 45 9M27 47 19 55M49 47 57 55" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
-        <path d="M18 33 10 38M58 33 66 38" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
-        <path d="M27.5 28.5 38 34 48.5 28.5M27 24h1M49 24h1" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="48.5" cy="24" r="6" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="2" />
-        <circle cx="48.5" cy="24" r="1.9" fill="currentColor" />
-        <path d="M54.5 24H59" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M31 58h-5M45 58h5" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" />
+      <svg className={styles.frlMascot} viewBox="0 0 84 78" role="img" aria-hidden="true">
+        <circle cx="42" cy="29" r="22" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="3" />
+        <path d="M25 16 31 11M59 16 53 11M29 48 21 56M55 48 63 56" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        <path d="M20 34 11 39M64 34 73 39" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        <path d="M32 24 42 19 52 24 46 32 38 34 31 30Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" opacity=".6" />
+        <path d="M30 24h2M52 24h2" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+        <circle cx="52" cy="24" r="7.2" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="2.4" />
+        <circle cx="52" cy="24" r="2.4" fill="currentColor" />
+        <path d="M59 24h5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        <path d="M34 36Q42 43 50 36" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+        <circle cx="30" cy="30" r="1.5" fill="currentColor" />
+        <circle cx="55" cy="13" r="1.5" fill="currentColor" />
+        <path d="M34 64h-7M50 64h7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
       </svg>
       <div className={styles.frlWordmark}>FRL</div>
     </div>
