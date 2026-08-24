@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { AppShell } from "@/components/AppShell";
-import { fetchFixtureDetail } from "@/lib/api";
+import { fetchFixtureDetail, type FixturePlayerMatchEvidence } from "@/lib/api";
 import styles from "./FixtureOverview.module.css";
 
 type FixtureDetailProps = {
@@ -8,15 +8,6 @@ type FixtureDetailProps = {
     season: string;
     fixtureId: string;
   }>;
-};
-
-type Event = {
-  minute: string;
-  side: "home" | "away";
-  kind: "goal" | "card";
-  player: string;
-  assist?: string;
-  card?: "yellow" | "red";
 };
 
 type Player = {
@@ -97,6 +88,64 @@ function buildStats(stats: {
   ];
 }
 
+function positionBand(position: string | null): { label: string; y: number } {
+  const value = (position ?? "").toUpperCase();
+
+  if (value.includes("GK") || value.includes("GOALKEEP")) return { label: "GK", y: 8 };
+  if (
+    value.includes("DEF") ||
+    value.includes("DF") ||
+    ["CB", "LB", "RB", "LWB", "RWB", "WB", "SW"].some((code) => value === code)
+  ) {
+    return { label: value || "DEF", y: 31 };
+  }
+  if (
+    value.includes("MID") ||
+    value.includes("MF") ||
+    ["CM", "DM", "AM", "LM", "RM", "WM"].some((code) => value === code)
+  ) {
+    return { label: value || "MID", y: 56 };
+  }
+
+  return { label: value || "FW", y: 82 };
+}
+
+function buildLineup(records: FixturePlayerMatchEvidence[], side: "home" | "away"): Player[] {
+  const starters = records
+    .filter((record) => record.side === side && record.participation === "starting")
+    .sort((a, b) => {
+      const aBand = positionBand(a.position).y;
+      const bBand = positionBand(b.position).y;
+      return aBand - bBand || (a.source_name ?? "").localeCompare(b.source_name ?? "");
+    });
+
+  const grouped = new Map<number, FixturePlayerMatchEvidence[]>();
+  for (const record of starters) {
+    const band = positionBand(record.position).y;
+    const items = grouped.get(band) ?? [];
+    items.push(record);
+    grouped.set(band, items);
+  }
+
+  const players: Player[] = [];
+  for (const [y, items] of grouped.entries()) {
+    items.forEach((record, index) => {
+      const x = items.length === 1
+        ? 50
+        : 20 + (60 / (items.length - 1)) * index;
+      const band = positionBand(record.position);
+      players.push({
+        name: record.source_name ?? record.source_player_id ?? "Unknown player",
+        role: band.label,
+        x,
+        y,
+      });
+    });
+  }
+
+  return players.sort((a, b) => a.y - b.y || a.x - b.x);
+}
+
 function Kit({ team }: { team: "home" | "away" }) {
   return (
     <span className={`${styles.kit} ${team === "home" ? styles.arsenal : styles.liverpool}`} aria-hidden="true">
@@ -107,69 +156,27 @@ function Kit({ team }: { team: "home" | "away" }) {
   );
 }
 
-function EventCell({ event }: { event: Event }) {
-  const isGoal = event.kind === "goal";
-  const isRed = event.card === "red";
-  const icon = isGoal ? "⚽" : "■";
-  const className = isGoal
-    ? styles.eventGoal
-    : isRed
-      ? styles.eventRed
-      : styles.eventCard;
-
-  return (
-    <div className={`${styles.event} ${event.side === "home" ? styles.eventHome : styles.eventAway} ${className}`}>
-      <span className={styles.icon}>{icon}</span>
-      <span>
-        {event.player}
-        {event.assist ? <span className={styles.eventAssist}> — {event.assist} assist</span> : null}
-      </span>
-    </div>
-  );
-}
-
 function LineupSide({
   title,
-  formation,
-  manager,
   players,
   team,
 }: {
   title: string;
-  formation?: string | null;
-  manager?: string | null;
   players: Player[];
   team: "home" | "away";
 }) {
-  const managerStyle: CSSProperties = {
-    position: "absolute",
-    top: "-.35rem",
-    [team === "home" ? "right" : "left"]: "15%",
-    color: "var(--frl-muted-soft)",
-    fontSize: ".5rem",
-    fontWeight: 700,
-    letterSpacing: ".1em",
-    lineHeight: 1,
-    textTransform: "uppercase",
-    whiteSpace: "nowrap",
-    zIndex: 2,
-    textAlign: team === "home" ? "right" : "left",
-  };
-
   return (
     <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}>
       <div className={styles.lineupSideHeader}>
         <span>{title}</span>
-        {formation ? <span>{formation}</span> : null}
       </div>
       <div className={styles.tacticalBoard}>
         <div className={styles.boardHalfLine} />
         <div className={styles.boardCenterLine} />
-        {manager ? <span style={managerStyle}>{manager}</span> : null}
         {players.map((player) => (
           <div
             className={styles.playerNode}
-            key={player.name}
+            key={`${team}-${player.name}`}
             style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}
           >
             <span className={styles.playerDot} />
@@ -206,6 +213,8 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
   const detail = await fetchFixtureDetail(season, fixtureId);
   const { fixture, stats } = detail;
   const statRows = buildStats(stats);
+  const homePlayers = buildLineup(detail.player_match, "home");
+  const awayPlayers = buildLineup(detail.player_match, "away");
   const hasScore = fixture.home_score != null && fixture.away_score != null;
   const scoreLabel = hasScore
     ? `${fixture.home_team_name} ${fixture.home_score} ${fixture.away_team_name} ${fixture.away_score}`
@@ -243,7 +252,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
           </div>
 
           <div className={styles.timelineWrap}>
-            <div className={styles.timeline} aria-label="Goals and cards timeline">
+            <div className={styles.timeline} aria-label="Match timeline">
               <div className={styles.eventEmpty} />
               <div className={styles.minute}>{formatKickoff(fixture.kickoff_time)}</div>
               <div className={styles.eventEmpty} />
@@ -252,8 +261,8 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
         </section>
 
         <section className={styles.lineupSection} aria-label="Starting lineups">
-          <LineupSide title={fixture.home_team_name} players={[]} team="home" />
-          <LineupSide title={fixture.away_team_name} players={[]} team="away" />
+          <LineupSide title={fixture.home_team_name} players={homePlayers} team="home" />
+          <LineupSide title={fixture.away_team_name} players={awayPlayers} team="away" />
         </section>
 
         <section className={styles.statsSection}>

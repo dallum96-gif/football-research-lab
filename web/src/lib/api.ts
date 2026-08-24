@@ -29,9 +29,21 @@ export type FixtureDetailStats = {
   attendance: number | null;
 };
 
+export type FixturePlayerMatchEvidence = {
+  source_match_id: string;
+  source_player_id: string | null;
+  source_name: string | null;
+  position: string | null;
+  side: "home" | "away" | null;
+  participation: "starting" | "sub_in" | "bench" | "unknown";
+  minutes: number | null;
+};
+
 export type FixtureDetailResult = {
   fixture: FixtureApiRow;
   stats: FixtureDetailStats | null;
+  player_match: FixturePlayerMatchEvidence[];
+  player_match_status: "AVAILABLE" | "UNAVAILABLE" | "KNOWN_EXCEPTION";
   provenance: {
     source: string;
     transformation_version: string;

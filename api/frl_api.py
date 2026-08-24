@@ -241,21 +241,19 @@ def _fixture_player_match_evidence(fixture: dict) -> tuple[list[FixturePlayerMat
         raise
 
     if source_match_id is None:
-        return [], "KNOWN_EXCEPTION" if str(fixture.get("season")) == "2019-20" and str(fixture.get("fixture_id")) == "275" else "UNAVAILABLE", None
+        status = "KNOWN_EXCEPTION" if str(fixture.get("season")) == "2019-20" and str(fixture.get("fixture_id")) == "275" else "UNAVAILABLE"
+        return [], status, None
 
     rows = player_match_stats.fixture_player_match_rows(fixture)
-    home_source_id, away_source_id = player_match_stats._source_team_ids_for_fixture(fixture)
-
     evidence: list[FixturePlayerMatchEvidence] = []
     for row in rows:
-        source_team_id = str(row.get("team_id") or "").strip()
+        venue = str(row.get("venue") or "").strip().lower()
         side: Literal["home", "away"] | None = None
-        if source_team_id == home_source_id:
+        if venue == "home":
             side = "home"
-        elif source_team_id == away_source_id:
+        elif venue == "away":
             side = "away"
 
-        minutes = _normalise_float(row.get("minutesPlayed"))
         evidence.append(
             FixturePlayerMatchEvidence(
                 source_match_id=source_match_id,
@@ -264,7 +262,7 @@ def _fixture_player_match_evidence(fixture: dict) -> tuple[list[FixturePlayerMat
                 position=str(row.get("position") or row.get("positionText") or "").strip() or None,
                 side=side,
                 participation=player_match_stats.classify_participation(row),
-                minutes=minutes,
+                minutes=_normalise_float(row.get("minutesPlayed")),
             )
         )
 
