@@ -9,7 +9,7 @@
 .pageHeaderCompetition { color: var(--frl-text); font-size: .72rem; font-weight: 800; letter-spacing: .01em; }
 .pageHeaderDate { margin-top: .18rem; color: var(--frl-muted-soft); font-size: .62rem; font-weight: 650; letter-spacing: 0; }
 
-.matchHeader { display: grid; align-content: center; min-height: 0; }
+.matchHeader { display: grid; align-content: center; min-height: 0; position: relative; padding-bottom: 6.4rem; }
 .teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; column-gap: clamp(.7rem, 1.8vw, 1.5rem); max-width: 1050px; width: 100%; margin: -.18rem auto 0; }
 .team { display: flex; align-items: center; gap: .65rem; min-width: 0; }
 .teamHome { justify-content: flex-end; text-align: right; }
@@ -45,6 +45,32 @@
 .icon { font-size: .62rem; line-height: 1; }
 .eventEmpty { min-height: 1.25rem; }
 
+/* Integrated lineup rail: real page-level content, not a pitch or detached table. */
+.matchHeader::before,
+.matchHeader::after {
+  position: absolute;
+  bottom: 0;
+  width: calc(50% - 1.35rem);
+  color: var(--frl-text);
+  line-height: 1.42;
+  font-size: .68rem;
+  font-weight: 600;
+  padding-top: .58rem;
+  border-top: 1px solid var(--frl-border);
+  white-space: pre-line;
+  content: "";
+}
+.matchHeader::before {
+  left: 0;
+  text-align: left;
+  content: "ARSENAL  ·  4–2–3–1\A\A GK  Petr Čech\A DEF  Héctor Bellerín · Laurent Koscielny · Rob Holding · Nacho Monreal\A MID  Francis Coquelin · Santi Cazorla · Alex Iwobi · Mesut Özil · Theo Walcott\A FW  Olivier Giroud";
+}
+.matchHeader::after {
+  right: 0;
+  text-align: right;
+  content: "LIVERPOOL  ·  4–3–3\A\A GK  Simon Mignolet\A DEF  Nathaniel Clyne · Dejan Lovren · Ragnar Klavan · Alberto Moreno\A MID  Georginio Wijnaldum · Jordan Henderson · Adam Lallana\A FW  Sadio Mané · Roberto Firmino · Philippe Coutinho";
+}
+
 .sectionTitle { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--frl-border-strong); padding-top: .62rem; margin-top: .15rem; }
 .sectionTitle h2 { margin: 0; font-size: .64rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .sectionTitle span { color: var(--frl-muted-soft); font-size: .58rem; }
@@ -64,39 +90,15 @@
 .metadataLabel { display: block; color: var(--frl-muted-soft); font-size: .51rem; font-weight: 700; letter-spacing: .085em; text-transform: uppercase; margin-bottom: .18rem; }
 .metadataValue { display: block; color: var(--frl-text); font-size: .65rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Integrated lineup rail: visual prototype occupying the unused horizontal space without a pitch or card. */
-.metadata { margin-top: 5.8rem; }
-.metadata::before,
-.metadata::after {
-  position: absolute;
-  top: -5.2rem;
-  width: calc(50% - 1.1rem);
-  color: var(--frl-text);
-  white-space: pre-line;
-  line-height: 1.45;
-  font-size: .68rem;
-  font-weight: 600;
-  padding-top: .45rem;
-  border-top: 1px solid var(--frl-border);
-}
-.metadata::before {
-  content: "ARSENAL   4–2–3–1\A\A GK\A Petr Čech\A\A DEF\A Héctor Bellerín   Laurent Koscielny\A Rob Holding   Nacho Monreal\A\A MID\A Francis Coquelin   Santi Cazorla\A Alex Iwobi   Mesut Özil   Theo Walcott\A\A FW\A Olivier Giroud";
-  left: 0;
-  text-align: left;
-}
-.metadata::after {
-  content: "LIVERPOOL   4–3–3\A\A GK\A Simon Mignolet\A\A DEF\A Nathaniel Clyne   Dejan Lovren\A Ragnar Klavan   Alberto Moreno\A\A MID\A Georginio Wijnaldum   Jordan Henderson   Adam Lallana\A\A FW\A Sadio Mané   Roberto Firmino   Philippe Coutinho";
-  right: 0;
-  text-align: right;
-}
-
 @media (max-width: 1100px) { .metadata { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 900px) {
   .overview { min-height: auto; }
   .teams { column-gap: .75rem; margin-top: -.12rem; }
   .teamName { font-size: clamp(1.65rem, 5vw, 2.35rem); }
   .scoreNumber { font-size: clamp(2rem, 6vw, 2.7rem); }
-  .metadata { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 5.6rem; }
+  .metadata { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .matchHeader { padding-bottom: 6.1rem; }
+  .matchHeader::before, .matchHeader::after { width: calc(50% - .9rem); font-size: .64rem; }
 }
 @media (max-width: 650px) {
   .overview { gap: .85rem; }
@@ -107,6 +109,7 @@
   .timeline { grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1fr); }
   .eventHome { padding-right: .35rem; }
   .eventAway { padding-left: .35rem; }
-  .metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 0; padding-top: .6rem; }
-  .metadata::before, .metadata::after { display: none; }
+  .metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-top: .6rem; }
+  .matchHeader { padding-bottom: 0; }
+  .matchHeader::before, .matchHeader::after { display: none; }
 }
