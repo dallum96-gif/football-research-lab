@@ -138,10 +138,10 @@
 }
 
 .statsSection { grid-column: 2; width: 100%; justify-self: center; }
-.sectionTitle { display: grid; grid-template-columns: minmax(80px, 1fr) auto minmax(80px, 1fr); align-items: center; column-gap: 1rem; border-top: 1px solid var(--frl-border-strong); padding-top: .62rem; margin-top: .15rem; }
-.sectionTitle h2 { margin: 0; font-size: .64rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; text-align: center; }
+.sectionTitle { display: grid; grid-template-columns: minmax(96px, 1fr) auto minmax(96px, 1fr); align-items: center; column-gap: 1.15rem; border-top: 1px solid var(--frl-border-strong); padding-top: .42rem; margin-top: -.1rem; margin-bottom: .18rem; }
+.sectionTitle h2 { margin: 0; font-size: .64rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; text-align: center; }
 .sectionTitle span { color: var(--frl-muted-soft); font-size: .58rem; }
-.sectionArrow { color: var(--frl-muted-soft); font-size: 1.05rem; font-weight: 500; line-height: 1; white-space: nowrap; }
+.sectionArrow { color: var(--frl-text); font-size: 1.28rem; font-weight: 700; line-height: 1; white-space: nowrap; letter-spacing: -.05em; }
 .sectionArrow:first-child { justify-self: end; }
 .sectionArrow:last-child { justify-self: start; }
 .stats { display: grid; gap: .16rem; }
