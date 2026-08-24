@@ -46,6 +46,7 @@ const stats: [string, string, string, number, number][] = [
   ["5", "Shots on target", "7", 42, 58],
   ["9", "Shots", "16", 36, 64],
   ["5", "Corners", "4", 56, 44],
+  ["13", "Fouls", "17", 43, 57],
   ["3", "Yellow cards", "3", 50, 50],
 ];
 
