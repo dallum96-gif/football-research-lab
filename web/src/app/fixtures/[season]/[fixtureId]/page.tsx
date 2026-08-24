@@ -161,14 +161,15 @@ function FrlBrand() {
         <circle cx="42" cy="29" r="22" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="3" />
         <path d="M25 16 31 11M59 16 53 11M29 48 21 56M55 48 63 56" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
         <path d="M20 34 11 39M64 34 73 39" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-        <path d="M32 24 42 19 52 24 46 32 38 34 31 30Z" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" opacity=".6" />
-        <path d="M30 24h2M52 24h2" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-        <circle cx="52" cy="24" r="7.2" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="2.4" />
-        <circle cx="52" cy="24" r="2.4" fill="currentColor" />
-        <path d="M59 24h5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        <path d="M33 23 38 19 42 22 46 18 51 23 47 29 42 32 37 30Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" opacity=".42" />
+        <circle cx="31.5" cy="24" r="3.6" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="31.5" cy="24" r="1.45" fill="currentColor" />
+        <circle cx="52.5" cy="24" r="7.4" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="2.6" />
+        <circle cx="52.5" cy="24" r="2.35" fill="currentColor" />
+        <path d="M35.2 24H43.8M59.8 24H65" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" />
         <path d="M34 36Q42 43 50 36" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-        <circle cx="30" cy="30" r="1.5" fill="currentColor" />
-        <circle cx="55" cy="13" r="1.5" fill="currentColor" />
+        <circle cx="27" cy="30" r="1.2" fill="currentColor" />
+        <circle cx="57" cy="13" r="1.2" fill="currentColor" />
         <path d="M34 64h-7M50 64h7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
       </svg>
       <div className={styles.frlWordmark}>FRL</div>
