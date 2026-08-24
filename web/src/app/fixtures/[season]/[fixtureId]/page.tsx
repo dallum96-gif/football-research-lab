@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/AppShell";
+import styles from "./FixtureOverview.module.css";
 
 type FixtureDetailProps = {
   params: Promise<{
@@ -7,22 +8,166 @@ type FixtureDetailProps = {
   }>;
 };
 
+type Event = {
+  minute: string;
+  side: "home" | "away";
+  kind: "goal" | "card";
+  player: string;
+  assist?: string;
+  card?: "yellow" | "red";
+};
+
+const events: Event[] = [
+  { minute: "26'", side: "away", kind: "card", player: "Adam Lallana", card: "yellow" },
+  { minute: "29'", side: "away", kind: "card", player: "Alberto Moreno", card: "yellow" },
+  { minute: "31'", side: "home", kind: "goal", player: "Theo Walcott", assist: "Alex Iwobi" },
+  { minute: "37'", side: "home", kind: "card", player: "Francis Coquelin", card: "yellow" },
+  { minute: "41'", side: "away", kind: "card", player: "Dejan Lovren", card: "yellow" },
+  { minute: "45+1'", side: "away", kind: "goal", player: "Philippe Coutinho" },
+  { minute: "49'", side: "away", kind: "goal", player: "Adam Lallana", assist: "Georginio Wijnaldum" },
+  { minute: "56'", side: "away", kind: "goal", player: "Philippe Coutinho", assist: "Nathaniel Clyne" },
+  { minute: "57'", side: "home", kind: "card", player: "Alex Iwobi", card: "yellow" },
+  { minute: "63'", side: "away", kind: "goal", player: "Sadio Mané", assist: "Adam Lallana" },
+  { minute: "64'", side: "home", kind: "goal", player: "Alex Oxlade-Chamberlain", assist: "Santi Cazorla" },
+  { minute: "86'", side: "home", kind: "card", player: "Granit Xhaka", card: "yellow" },
+  { minute: "75'", side: "home", kind: "goal", player: "Calum Chambers", assist: "Santi Cazorla" },
+];
+
+const stats = [
+  ["50%", "Possession", "50%", 50, 50],
+  ["5", "Shots on target", "7", 42, 58],
+  ["13", "Total shots", "16", 45, 55],
+  ["5", "Corners", "4", 56, 44],
+  ["3", "Yellow cards", "3", 50, 50],
+];
+
+const metadata = [
+  ["Competition", "Premier League"],
+  ["Matchweek", "1"],
+  ["Date", "14 August 2016"],
+  ["Kick-off", "16:00"],
+  ["Venue", "Emirates Stadium"],
+  ["Attendance", "60,033"],
+  ["Referee", "Michael Oliver"],
+];
+
+function Kit({ team }: { team: "arsenal" | "liverpool" }) {
+  return (
+    <span className={`${styles.kit} ${team === "arsenal" ? styles.arsenal : styles.liverpool}`} aria-hidden="true">
+      <span className={styles.kitSleeve} />
+      <span className={styles.kitSleeveRight} />
+      <span className={styles.kitBody} />
+    </span>
+  );
+}
+
+function EventCell({ event }: { event: Event }) {
+  const isGoal = event.kind === "goal";
+  const isRed = event.card === "red";
+  const icon = isGoal ? "⚽" : isRed ? "■" : "■";
+  const className = isGoal
+    ? styles.eventGoal
+    : isRed
+      ? styles.eventRed
+      : styles.eventCard;
+
+  return (
+    <div className={`${styles.event} ${event.side === "home" ? styles.eventHome : styles.eventAway} ${className}`}>
+      <span className={styles.icon}>{icon}</span>
+      <span>
+        {event.player}
+        {event.assist ? <span className={styles.eventAssist}> — {event.assist} assist</span> : null}
+      </span>
+    </div>
+  );
+}
+
 export default async function FixtureDetailPage({ params }: FixtureDetailProps) {
-  const { season, fixtureId } = await params;
+  await params;
 
   return (
     <AppShell>
-      <div className="frl-eyebrow">Fixture</div>
-      <h1 className="frl-title">Fixture Landing</h1>
-      <div className="frl-context">Canonical fixture reference: {season} / {fixtureId}</div>
-      <div className="frl-rule" />
-      <section className="frl-panel">
-        <div className="frl-panel-title">Next migration step</div>
-        <p className="frl-panel-subtitle">
-          This route is intentionally a placeholder. The fixture landing workspace will be built next from
-          the same canonical fixture identity and Research Result contracts.
-        </p>
-      </section>
+      <div className={styles.overview}>
+        <div className={styles.metaBar}>
+          <div className={styles.metaSide}>
+            <span className={styles.metaStrong}>Premier League</span>
+            <span className={styles.metaDot} />
+            <span>2016/17</span>
+          </div>
+          <div className={styles.metaCentre}>Overview</div>
+          <div className={styles.metaSide}>
+            <span>Matchweek 1</span>
+            <span className={styles.metaDot} />
+            <span>FT</span>
+          </div>
+        </div>
+
+        <section className={styles.matchHeader} aria-label="Match result">
+          <div className={styles.teams}>
+            <div className={styles.team}>
+              <Kit team="arsenal" />
+              <span className={styles.teamName}>Arsenal</span>
+            </div>
+
+            <div>
+              <div className={styles.score} aria-label="Arsenal 3 Liverpool 4">
+                <span className={styles.scoreNumber}>3</span>
+                <span className={styles.scoreDash}>–</span>
+                <span className={styles.scoreNumber}>4</span>
+              </div>
+              <div className={styles.status}>Full time</div>
+            </div>
+
+            <div className={`${styles.team} ${styles.teamAway}`}>
+              <Kit team="liverpool" />
+              <span className={styles.teamName}>Liverpool</span>
+            </div>
+          </div>
+
+          <div className={styles.timelineWrap}>
+            <div className={styles.timeline} aria-label="Goals and cards timeline">
+              {events.map((event) => (
+                <div key={`${event.minute}-${event.player}`} className={styles.timelineRow}>
+                  {event.side === "home" ? <EventCell event={event} /> : <span className={styles.eventEmpty} />}
+                  <div className={styles.minute}>{event.minute}</div>
+                  {event.side === "away" ? <EventCell event={event} /> : <span className={styles.eventEmpty} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div className={styles.sectionTitle}>
+            <h2>Match statistics</h2>
+            <span>Arsenal · Liverpool</span>
+          </div>
+          <div className={styles.stats}>
+            {stats.map(([home, label, away, homeShare, awayShare]) => (
+              <div className={styles.statRow} key={label}>
+                <div className={`${styles.statValue} ${styles.statHome}`}>
+                  <span>{home}</span>
+                  <span className={styles.statTrack} style={{ "--home-share": `${homeShare}%` } as React.CSSProperties} />
+                </div>
+                <div className={styles.statLabel}>{label}</div>
+                <div className={`${styles.statValue} ${styles.statAway}`}>
+                  <span className={styles.statTrack} style={{ "--away-share": `${awayShare}%` } as React.CSSProperties} />
+                  <span>{away}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className={styles.metadata} aria-label="Match metadata">
+          {metadata.map(([label, value]) => (
+            <div className={styles.metadataItem} key={label}>
+              <span className={styles.metadataLabel}>{label}</span>
+              <span className={styles.metadataValue}>{value}</span>
+            </div>
+          ))}
+        </section>
+      </div>
     </AppShell>
   );
 }
