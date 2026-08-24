@@ -138,7 +138,7 @@
 }
 
 .statsSection { grid-column: 2; width: 100%; justify-self: center; }
-.sectionTitle { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--frl-border-strong); padding-top: .62rem; margin-top: .15rem; }
+.sectionTitle { display: flex; justify-content: center; align-items: baseline; border-top: 1px solid var(--frl-border-strong); padding-top: .62rem; margin-top: .15rem; }
 .sectionTitle h2 { margin: 0; font-size: .64rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .sectionTitle span { color: var(--frl-muted-soft); font-size: .58rem; }
 .stats { display: grid; gap: .16rem; }
