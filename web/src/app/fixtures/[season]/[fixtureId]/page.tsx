@@ -157,7 +157,7 @@ function LineupSide({
 function FrlBrand() {
   return (
     <div className={styles.frlBrand} aria-label="Football Research Laboratory">
-      <svg className={styles.frlMascot} viewBox="0 0 84 88" role="img" aria-hidden="true">
+      <svg className={styles.frlMascot} viewBox="0 0 84 78" role="img" aria-hidden="true">
         <circle cx="42" cy="29" r="22" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="3" />
         <path d="M25 16 31 11M59 16 53 11M20 34 11 39M64 34 73 39" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
         <path d="M32 23 38 19 42 22 46 18 52 23 47 30 42 33 36 30Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" opacity=".38" />
@@ -167,9 +167,6 @@ function FrlBrand() {
         <circle cx="52.5" cy="25" r="1.55" fill="currentColor" />
         <path d="M35.7 25H48.3" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
         <path d="M34 38Q42 44 50 38" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-        <path d="M42 52V64M42 56L33 62M42 56L51 62M35 65L30 75M49 65L54 75" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        <path d="M27 77Q30 73 34 76L32 80H24Z" fill="var(--frl-text)" />
-        <path d="M50 76Q54 73 58 77L60 80H52Z" fill="var(--frl-text)" />
       </svg>
       <div className={styles.frlWordmark}>FRL</div>
     </div>
