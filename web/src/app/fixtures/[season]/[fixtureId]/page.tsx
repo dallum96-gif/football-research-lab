@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { AppShell } from "@/components/AppShell";
 import styles from "./FixtureOverview.module.css";
 
@@ -29,14 +30,14 @@ const events: Event[] = [
   { minute: "57'", side: "home", kind: "card", player: "Alex Iwobi", card: "yellow" },
   { minute: "63'", side: "away", kind: "goal", player: "Sadio Mané", assist: "Adam Lallana" },
   { minute: "64'", side: "home", kind: "goal", player: "Alex Oxlade-Chamberlain", assist: "Santi Cazorla" },
-  { minute: "86'", side: "home", kind: "card", player: "Granit Xhaka", card: "yellow" },
   { minute: "75'", side: "home", kind: "goal", player: "Calum Chambers", assist: "Santi Cazorla" },
+  { minute: "86'", side: "home", kind: "card", player: "Granit Xhaka", card: "yellow" },
 ];
 
-const stats = [
+const stats: [string, string, string, number, number][] = [
   ["50%", "Possession", "50%", 50, 50],
   ["5", "Shots on target", "7", 42, 58],
-  ["13", "Total shots", "16", 45, 55],
+  ["9", "Shots", "16", 36, 64],
   ["5", "Corners", "4", 56, 44],
   ["3", "Yellow cards", "3", 50, 50],
 ];
@@ -147,11 +148,11 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
               <div className={styles.statRow} key={label}>
                 <div className={`${styles.statValue} ${styles.statHome}`}>
                   <span>{home}</span>
-                  <span className={styles.statTrack} style={{ "--home-share": `${homeShare}%` } as React.CSSProperties} />
+                  <span className={styles.statTrack} style={{ "--home-share": `${homeShare}%` } as CSSProperties} />
                 </div>
                 <div className={styles.statLabel}>{label}</div>
                 <div className={`${styles.statValue} ${styles.statAway}`}>
-                  <span className={styles.statTrack} style={{ "--away-share": `${awayShare}%` } as React.CSSProperties} />
+                  <span className={styles.statTrack} style={{ "--away-share": `${awayShare}%` } as CSSProperties} />
                   <span>{away}</span>
                 </div>
               </div>
