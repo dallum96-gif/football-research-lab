@@ -70,7 +70,7 @@
   height: calc(100% - 10rem);
   min-height: 0;
   margin-top: 10rem;
-  overflow: hidden;
+  overflow: visible;
   border: 0;
   border-radius: 0;
   background: transparent;
