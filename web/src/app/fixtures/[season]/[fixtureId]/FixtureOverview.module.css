@@ -92,7 +92,7 @@
   background: linear-gradient(to bottom, transparent 30%, rgba(244,197,168,.84) 30% 42%, transparent 42% 100%);
 }
 
-.scoreBlock { display: grid; justify-items: center; }
+.scoreBlock { display: grid; justify-items: center; position: relative; }
 .score {
   display: flex;
   align-items: baseline;
@@ -115,8 +115,11 @@
 }
 
 .status {
-  margin-top: .32rem;
-  text-align: center;
+  position: absolute;
+  top: calc(100% + .32rem);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
   color: var(--frl-muted-soft);
   font-size: .55rem;
   font-weight: 700;
