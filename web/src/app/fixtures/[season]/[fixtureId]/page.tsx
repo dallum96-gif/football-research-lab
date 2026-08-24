@@ -89,19 +89,10 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
   return (
     <AppShell>
       <div className={styles.overview}>
-        <div className={styles.metaBar}>
-          <div className={styles.metaSide}>
-            <span className={styles.metaStrong}>Premier League</span>
-            <span className={styles.metaDot} />
-            <span>2016/17</span>
-          </div>
-          <div className={styles.metaCentre}>Overview</div>
-          <div className={styles.metaSide}>
-            <span>Matchweek 1</span>
-            <span className={styles.metaDot} />
-            <span>FT</span>
-          </div>
-        </div>
+        <header className={styles.pageHeader}>
+          <div className={styles.pageHeaderCompetition}>Premier League</div>
+          <div className={styles.pageHeaderDate}>14 August 2016</div>
+        </header>
 
         <section className={styles.matchHeader} aria-label="Match result">
           <div className={styles.teams}>
