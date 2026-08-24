@@ -5,28 +5,24 @@
   gap: 1rem;
 }
 
-.metaBar {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 1rem;
-  padding-bottom: .7rem;
-  border-bottom: 1px solid var(--frl-border);
+.pageHeader {
+  text-align: center;
+  padding: .15rem 0 .55rem;
 }
 
-.metaSide {
-  display: flex;
-  align-items: center;
-  gap: .45rem;
-  min-width: 0;
-  color: var(--frl-muted);
-  font-size: .66rem;
+.pageHeaderCompetition {
+  color: var(--frl-text);
+  font-size: .72rem;
+  font-weight: 780;
+  letter-spacing: .02em;
 }
 
-.metaSide:last-child { justify-content: flex-end; }
-.metaStrong { color: var(--frl-text); font-weight: 780; }
-.metaCentre { color: var(--frl-muted-soft); text-transform: uppercase; letter-spacing: .1em; font-size: .56rem; font-weight: 800; text-align: center; }
-.metaDot { width: 3px; height: 3px; border-radius: 50%; background: var(--frl-border-strong); }
+.pageHeaderDate {
+  margin-top: .18rem;
+  color: var(--frl-muted-soft);
+  font-size: .62rem;
+  font-weight: 650;
+}
 
 .matchHeader { display: grid; align-content: center; min-height: 0; }
 .teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; column-gap: clamp(1.2rem, 3vw, 3.5rem); }
@@ -114,9 +110,6 @@
 
 @media (max-width: 650px) {
   .overview { gap: .85rem; }
-  .metaBar { grid-template-columns: 1fr; gap: .25rem; }
-  .metaSide, .metaSide:last-child { justify-content: center; }
-  .metaCentre { order: -1; }
   .teams { grid-template-columns: 1fr; gap: .55rem; }
   .team, .teamAway { justify-content: center; flex-direction: row; text-align: center; }
   .score { justify-content: center; order: -1; }
