@@ -82,9 +82,9 @@ const liverpoolPlayers: Player[] = [
   { name: "Wijnaldum", role: "CM", x: 25, y: 48 },
   { name: "Henderson", role: "CM", x: 50, y: 48 },
   { name: "Lallana", role: "CM", x: 75, y: 48 },
-  { name: "Mané", role: "RW", x: 20, y: 69 },
+  { name: "Mané", role: "RW", x: 20, y: 67 },
   { name: "Firmino", role: "ST", x: 50, y: 69 },
-  { name: "Coutinho", role: "LW", x: 80, y: 69 },
+  { name: "Coutinho", role: "LW", x: 80, y: 67 },
 ];
 
 function Kit({ team }: { team: "arsenal" | "liverpool" }) {
