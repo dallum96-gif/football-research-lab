@@ -23,22 +23,14 @@ function formatDate(kickoffTime: string | null, season: string): string {
   if (!kickoffTime) return season;
   const parsed = new Date(kickoffTime);
   if (Number.isNaN(parsed.getTime())) return kickoffTime;
-  return new Intl.DateTimeFormat("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(parsed);
+  return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "long", year: "numeric" }).format(parsed);
 }
 
 function formatKickoff(kickoffTime: string | null): string {
   if (!kickoffTime) return "";
   const parsed = new Date(kickoffTime);
   if (Number.isNaN(parsed.getTime())) return kickoffTime;
-  return new Intl.DateTimeFormat("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  }).format(parsed);
+  return new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false }).format(parsed);
 }
 
 function formatInteger(value: number | null): string {
@@ -70,55 +62,26 @@ function buildStats(stats: {
   away_yellow_cards: number | null;
 } | null): StatRow[] {
   if (!stats) return [];
-
-  const possessionShare = share(stats.home_possession, stats.away_possession);
-  const shotsOnTargetShare = share(stats.home_shots_on_target, stats.away_shots_on_target);
-  const shotsShare = share(stats.home_shots, stats.away_shots);
-  const cornersShare = share(stats.home_corners, stats.away_corners);
-  const foulsShare = share(stats.home_fouls, stats.away_fouls);
-  const cardsShare = share(stats.home_yellow_cards, stats.away_yellow_cards);
-
   return [
-    [formatPossession(stats.home_possession), "Possession", formatPossession(stats.away_possession), ...possessionShare],
-    [formatInteger(stats.home_shots_on_target), "Shots on target", formatInteger(stats.away_shots_on_target), ...shotsOnTargetShare],
-    [formatInteger(stats.home_shots), "Shots", formatInteger(stats.away_shots), ...shotsShare],
-    [formatInteger(stats.home_corners), "Corners", formatInteger(stats.away_corners), ...cornersShare],
-    [formatInteger(stats.home_fouls), "Fouls", formatInteger(stats.away_fouls), ...foulsShare],
-    [formatInteger(stats.home_yellow_cards), "Yellow cards", formatInteger(stats.away_yellow_cards), ...cardsShare],
+    [formatPossession(stats.home_possession), "Possession", formatPossession(stats.away_possession), ...share(stats.home_possession, stats.away_possession)],
+    [formatInteger(stats.home_shots_on_target), "Shots on target", formatInteger(stats.away_shots_on_target), ...share(stats.home_shots_on_target, stats.away_shots_on_target)],
+    [formatInteger(stats.home_shots), "Shots", formatInteger(stats.away_shots), ...share(stats.home_shots, stats.away_shots)],
+    [formatInteger(stats.home_corners), "Corners", formatInteger(stats.away_corners), ...share(stats.home_corners, stats.away_corners)],
+    [formatInteger(stats.home_fouls), "Fouls", formatInteger(stats.away_fouls), ...share(stats.home_fouls, stats.away_fouls)],
+    [formatInteger(stats.home_yellow_cards), "Yellow cards", formatInteger(stats.away_yellow_cards), ...share(stats.home_yellow_cards, stats.away_yellow_cards)],
   ];
 }
 
 function positionBand(position: string | null): { label: string; y: number } {
   const value = (position ?? "").toUpperCase();
-
   if (value.includes("GK") || value.includes("GOALKEEP")) return { label: "GK", y: 8 };
-  if (
-    value.includes("DEF") ||
-    value.includes("DF") ||
-    ["CB", "LB", "RB", "LWB", "RWB", "WB", "SW"].some((code) => value === code)
-  ) {
-    return { label: value || "DEF", y: 31 };
-  }
-  if (
-    value.includes("MID") ||
-    value.includes("MF") ||
-    ["CM", "DM", "AM", "LM", "RM", "WM"].some((code) => value === code)
-  ) {
-    return { label: value || "MID", y: 56 };
-  }
-
+  if (value.includes("DEF") || value.includes("DF") || ["CB", "LB", "RB", "LWB", "RWB", "WB", "SW"].some((code) => value === code)) return { label: value || "DEF", y: 31 };
+  if (value.includes("MID") || value.includes("MF") || ["CM", "DM", "AM", "LM", "RM", "WM"].some((code) => value === code)) return { label: value || "MID", y: 56 };
   return { label: value || "FW", y: 82 };
 }
 
 function buildLineup(records: FixturePlayerMatchEvidence[], side: "home" | "away"): Player[] {
-  const starters = records
-    .filter((record) => record.side === side && record.participation === "starting")
-    .sort((a, b) => {
-      const aBand = positionBand(a.position).y;
-      const bBand = positionBand(b.position).y;
-      return aBand - bBand || (a.source_name ?? "").localeCompare(b.source_name ?? "");
-    });
-
+  const starters = records.filter((record) => record.side === side && record.participation === "starting");
   const grouped = new Map<number, FixturePlayerMatchEvidence[]>();
   for (const record of starters) {
     const band = positionBand(record.position).y;
@@ -126,23 +89,15 @@ function buildLineup(records: FixturePlayerMatchEvidence[], side: "home" | "away
     items.push(record);
     grouped.set(band, items);
   }
-
   const players: Player[] = [];
   for (const [y, items] of grouped.entries()) {
+    items.sort((a, b) => (a.source_name ?? "").localeCompare(b.source_name ?? ""));
     items.forEach((record, index) => {
-      const x = items.length === 1
-        ? 50
-        : 20 + (60 / (items.length - 1)) * index;
+      const x = items.length === 1 ? 50 : 20 + (60 / (items.length - 1)) * index;
       const band = positionBand(record.position);
-      players.push({
-        name: record.source_name ?? record.source_player_id ?? "Unknown player",
-        role: band.label,
-        x,
-        y,
-      });
+      players.push({ name: record.source_name ?? record.source_player_id ?? "Unknown player", role: band.label, x, y });
     });
   }
-
   return players.sort((a, b) => a.y - b.y || a.x - b.x);
 }
 
@@ -156,29 +111,15 @@ function Kit({ team }: { team: "home" | "away" }) {
   );
 }
 
-function LineupSide({
-  title,
-  players,
-  team,
-}: {
-  title: string;
-  players: Player[];
-  team: "home" | "away";
-}) {
+function LineupSide({ title, players, team }: { title: string; players: Player[]; team: "home" | "away" }) {
   return (
     <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}>
-      <div className={styles.lineupSideHeader}>
-        <span>{title}</span>
-      </div>
+      <div className={styles.lineupSideHeader}><span>{title}</span></div>
       <div className={styles.tacticalBoard}>
         <div className={styles.boardHalfLine} />
         <div className={styles.boardCenterLine} />
         {players.map((player) => (
-          <div
-            className={styles.playerNode}
-            key={`${team}-${player.name}`}
-            style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}
-          >
+          <div className={styles.playerNode} key={`${team}-${player.name}`} style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}>
             <span className={styles.playerDot} />
             <span className={styles.playerRole}>{player.role}</span>
             <span className={styles.playerName}>{player.name}</span>
@@ -216,9 +157,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
   const homePlayers = buildLineup(detail.player_match, "home");
   const awayPlayers = buildLineup(detail.player_match, "away");
   const hasScore = fixture.home_score != null && fixture.away_score != null;
-  const scoreLabel = hasScore
-    ? `${fixture.home_team_name} ${fixture.home_score} ${fixture.away_team_name} ${fixture.away_score}`
-    : `${fixture.home_team_name} not played ${fixture.away_team_name}`;
+  const scoreLabel = hasScore ? `${fixture.home_team_name} ${fixture.home_score} ${fixture.away_team_name} ${fixture.away_score}` : `${fixture.home_team_name} not played ${fixture.away_team_name}`;
 
   return (
     <AppShell>
@@ -235,7 +174,6 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
               <span className={styles.teamName}>{fixture.home_team_name}</span>
               <Kit team="home" />
             </div>
-
             <div className={styles.scoreBlock}>
               <div className={styles.score} aria-label={scoreLabel}>
                 <span className={styles.scoreNumber}>{fixture.home_score ?? "–"}</span>
@@ -244,7 +182,6 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
               </div>
               <div className={styles.status}>{hasScore ? "Full time" : "Scheduled"}</div>
             </div>
-
             <div className={`${styles.team} ${styles.teamAway}`}>
               <Kit team="away" />
               <span className={styles.teamName}>{fixture.away_team_name}</span>
@@ -252,10 +189,14 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
           </div>
 
           <div className={styles.timelineWrap}>
-            <div className={styles.timeline} aria-label="Match timeline">
-              <div className={styles.eventEmpty} />
-              <div className={styles.minute}>{formatKickoff(fixture.kickoff_time)}</div>
-              <div className={styles.eventEmpty} />
+            <div className={styles.timeline} aria-label="Goals and cards timeline">
+              {Array.from({ length: 13 }, (_, index) => (
+                <div key={index} className={styles.timelineRow}>
+                  <span className={styles.eventEmpty} />
+                  <div className={styles.minute}>{index === 0 ? formatKickoff(fixture.kickoff_time) : ""}</div>
+                  <span className={styles.eventEmpty} />
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -289,26 +230,20 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
         </section>
 
         <section className={styles.metadata} aria-label="Match metadata">
-          <div className={styles.metadataItem}>
-            <span className={styles.metadataLabel}>Competition</span>
-            <span className={styles.metadataValue}>Premier League</span>
-          </div>
-          <div className={styles.metadataItem}>
-            <span className={styles.metadataLabel}>Matchweek</span>
-            <span className={styles.metadataValue}>{fixture.gameweek ?? "–"}</span>
-          </div>
-          <div className={styles.metadataItem}>
-            <span className={styles.metadataLabel}>Date</span>
-            <span className={styles.metadataValue}>{formatDate(fixture.kickoff_time, season)}</span>
-          </div>
-          <div className={styles.metadataItem}>
-            <span className={styles.metadataLabel}>Kick-off</span>
-            <span className={styles.metadataValue}>{formatKickoff(fixture.kickoff_time) || "–"}</span>
-          </div>
-          <div className={styles.metadataItem}>
-            <span className={styles.metadataLabel}>Attendance</span>
-            <span className={styles.metadataValue}>{formatInteger(stats?.attendance ?? null)}</span>
-          </div>
+          {[
+            ["Competition", "Premier League"],
+            ["Matchweek", fixture.gameweek == null ? "–" : String(fixture.gameweek)],
+            ["Date", formatDate(fixture.kickoff_time, season)],
+            ["Kick-off", formatKickoff(fixture.kickoff_time) || "–"],
+            ["Venue", "–"],
+            ["Attendance", formatInteger(stats?.attendance ?? null)],
+            ["Referee", "–"],
+          ].map(([label, value]) => (
+            <div className={styles.metadataItem} key={label}>
+              <span className={styles.metadataLabel}>{label}</span>
+              <span className={styles.metadataValue}>{value}</span>
+            </div>
+          ))}
         </section>
       </div>
     </AppShell>
