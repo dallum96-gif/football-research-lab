@@ -168,7 +168,6 @@ function FrlBrand() {
         <circle cx="52.5" cy="25" r="1.55" fill="currentColor" />
         <path d="M35.7 25H48.3" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
         <path d="M34 38Q42 44 50 38" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-        <path d="M34 64h-7M50 64h7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
       </svg>
       <div className={styles.frlWordmark}>FRL</div>
     </div>
