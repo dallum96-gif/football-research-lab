@@ -158,6 +158,8 @@ function FrlBrand() {
   return (
     <div className={styles.frlBrand} aria-label="Football Research Laboratory">
       <svg className={styles.frlMascot} viewBox="0 0 84 78" role="img" aria-hidden="true">
+        <path d="M28 7Q42 2 56 7L54 16H30Z" fill="var(--frl-text)" />
+        <path d="M25 13H59" fill="none" stroke="var(--frl-text)" strokeWidth="2.5" strokeLinecap="round" />
         <circle cx="42" cy="29" r="22" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="3" />
         <path d="M25 16 31 11M59 16 53 11M29 48 21 56M55 48 63 56" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
         <path d="M20 34 11 39M64 34 73 39" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
@@ -171,6 +173,8 @@ function FrlBrand() {
         <circle cx="27" cy="30" r="1.2" fill="currentColor" />
         <circle cx="57" cy="13" r="1.2" fill="currentColor" />
         <path d="M34 64h-7M50 64h7" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        <path d="M25 64Q22 65 20 68H28Q29 66 28 64ZM59 64Q62 65 64 68H56Q55 66 56 64Z" fill="var(--frl-text)" />
+        <path d="M21 68Q24 65 28 67M63 68Q60 65 56 67" fill="none" stroke="var(--frl-text)" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
       <div className={styles.frlWordmark}>FRL</div>
     </div>
