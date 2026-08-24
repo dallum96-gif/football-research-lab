@@ -134,7 +134,7 @@ function LineupSide({
 }) {
   const managerStyle: CSSProperties = {
     position: "absolute",
-    top: ".22rem",
+    top: "-.82rem",
     [team === "home" ? "right" : "left"]: "15%",
     color: "var(--frl-muted-soft)",
     fontSize: ".5rem",
