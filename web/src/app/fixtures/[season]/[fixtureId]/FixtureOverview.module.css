@@ -5,129 +5,32 @@
   gap: 1rem;
 }
 
-.pageHeader {
-  text-align: center;
-  padding: .15rem 0 .55rem;
-}
-
-.pageHeaderCompetition {
-  color: var(--frl-text);
-  font-size: .72rem;
-  font-weight: 800;
-  letter-spacing: .01em;
-}
-
-.pageHeaderDate {
-  margin-top: .18rem;
-  color: var(--frl-muted-soft);
-  font-size: .62rem;
-  font-weight: 650;
-  letter-spacing: 0;
-}
+.pageHeader { text-align: center; padding: .15rem 0 .55rem; }
+.pageHeaderCompetition { color: var(--frl-text); font-size: .72rem; font-weight: 800; letter-spacing: .01em; }
+.pageHeaderDate { margin-top: .18rem; color: var(--frl-muted-soft); font-size: .62rem; font-weight: 650; letter-spacing: 0; }
 
 .matchHeader { display: grid; align-content: center; min-height: 0; }
-.teams {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  column-gap: clamp(.7rem, 1.8vw, 1.5rem);
-  max-width: 1050px;
-  width: 100%;
-  margin: -0.34rem auto 0;
-}
-
-.team {
-  display: flex;
-  align-items: center;
-  gap: .65rem;
-  min-width: 0;
-}
-
+.teams { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; column-gap: clamp(.7rem, 1.8vw, 1.5rem); max-width: 1050px; width: 100%; margin: -.18rem auto 0; }
+.team { display: flex; align-items: center; gap: .65rem; min-width: 0; }
 .teamHome { justify-content: flex-end; text-align: right; }
 .teamAway { justify-content: flex-start; flex-direction: row; text-align: left; }
-.teamName {
-  font-size: clamp(1.9rem, 3vw, 2.8rem);
-  line-height: .96;
-  font-weight: 800;
-  letter-spacing: -.045em;
-  white-space: nowrap;
-}
+.teamName { font-size: clamp(1.9rem, 3vw, 2.8rem); line-height: .96; font-weight: 800; letter-spacing: -.045em; white-space: nowrap; }
 
-.kit {
-  position: relative;
-  width: 36px;
-  height: 37px;
-  flex: 0 0 36px;
-  opacity: .95;
-}
-
-.kitBody {
-  position: absolute;
-  inset: 1px 2px 2px;
-  width: 32px;
-  height: 34px;
-  border: 0;
-  border-radius: 0;
-  overflow: visible;
-  clip-path: polygon(22% 0,38% 0,44% 12%,56% 12%,62% 0,78% 0,100% 25%,84% 39%,76% 28%,76% 100%,24% 100%,24% 28%,16% 39%,0 25%);
-  background: var(--kit-colour);
-}
-
+.kit { position: relative; width: 36px; height: 37px; flex: 0 0 36px; opacity: .95; }
+.kitBody { position: absolute; inset: 1px 2px 2px; width: 32px; height: 34px; border: 0; border-radius: 0; overflow: visible; clip-path: polygon(22% 0,38% 0,44% 12%,56% 12%,62% 0,78% 0,100% 25%,84% 39%,76% 28%,76% 100%,24% 100%,24% 28%,16% 39%,0 25%); background: var(--kit-colour); }
 .kitSleeve, .kitSleeveRight { display: none; }
 .arsenal { --kit-colour: #ef0107; }
 .liverpool { --kit-colour: #c8102e; }
-
-.arsenal .kitBody::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(255,255,255,.9) 0 17%, transparent 17% 100%);
-  opacity: .68;
-}
-
-.liverpool .kitBody::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, transparent 30%, rgba(244,197,168,.84) 30% 42%, transparent 42% 100%);
-}
+.arsenal .kitBody::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,.9) 0 17%, transparent 17% 100%); opacity: .68; }
+.liverpool .kitBody::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(244,197,168,.84) 30% 42%, transparent 42% 100%); }
 
 .scoreBlock { display: grid; justify-items: center; position: relative; }
-.score {
-  display: flex;
-  align-items: baseline;
-  gap: .36rem;
-  white-space: nowrap;
-}
+.score { display: flex; align-items: baseline; gap: .36rem; white-space: nowrap; }
+.scoreNumber { font-size: clamp(2.05rem, 2.7vw, 2.55rem); line-height: .95; font-weight: 800; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.scoreDash { color: var(--frl-muted-soft); font-size: .95rem; font-weight: 650; }
+.status { position: absolute; top: calc(100% + .08rem); left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--frl-muted-soft); font-size: .55rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 
-.scoreNumber {
-  font-size: clamp(2.05rem, 2.7vw, 2.55rem);
-  line-height: .95;
-  font-weight: 800;
-  letter-spacing: -.05em;
-  font-variant-numeric: tabular-nums;
-}
-
-.scoreDash {
-  color: var(--frl-muted-soft);
-  font-size: .95rem;
-  font-weight: 650;
-}
-
-.status {
-  position: absolute;
-  top: calc(100% + .02rem);
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  color: var(--frl-muted-soft);
-  font-size: .55rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-
-.timelineWrap { width: min(900px, 100%); margin: .68rem auto 0; }
+.timelineWrap { width: min(1100px, 100%); margin: .55rem auto 0; }
 .timeline { display: grid; grid-template-columns: minmax(0, 1fr) 3.3rem minmax(0, 1fr); row-gap: .32rem; align-items: center; position: relative; }
 .timelineRow { display: contents; }
 .timeline::before { content: ""; position: absolute; top: .25rem; bottom: .25rem; left: 50%; width: 1px; background: var(--frl-border-strong); transform: translateX(-50%); }
@@ -156,31 +59,54 @@
 .statHome .statTrack::after { right: 0; width: var(--home-share); }
 .statAway .statTrack::after { left: 0; width: var(--away-share); }
 
-.metadata { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .9rem; padding-top: .6rem; }
+.metadata { position: relative; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .9rem; padding-top: .6rem; }
 .metadataItem { min-width: 0; }
 .metadataLabel { display: block; color: var(--frl-muted-soft); font-size: .51rem; font-weight: 700; letter-spacing: .085em; text-transform: uppercase; margin-bottom: .18rem; }
 .metadataValue { display: block; color: var(--frl-text); font-size: .65rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-@media (max-width: 1100px) {
-  .metadata { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+/* Integrated lineup rail: visual prototype occupying the unused horizontal space without a pitch or card. */
+.metadata { margin-top: 5.8rem; }
+.metadata::before,
+.metadata::after {
+  position: absolute;
+  top: -5.2rem;
+  width: calc(50% - 1.1rem);
+  color: var(--frl-text);
+  white-space: pre-line;
+  line-height: 1.45;
+  font-size: .68rem;
+  font-weight: 600;
+  padding-top: .45rem;
+  border-top: 1px solid var(--frl-border);
+}
+.metadata::before {
+  content: "ARSENAL   4–2–3–1\A\A GK\A Petr Čech\A\A DEF\A Héctor Bellerín   Laurent Koscielny\A Rob Holding   Nacho Monreal\A\A MID\A Francis Coquelin   Santi Cazorla\A Alex Iwobi   Mesut Özil   Theo Walcott\A\A FW\A Olivier Giroud";
+  left: 0;
+  text-align: left;
+}
+.metadata::after {
+  content: "LIVERPOOL   4–3–3\A\A GK\A Simon Mignolet\A\A DEF\A Nathaniel Clyne   Dejan Lovren\A Ragnar Klavan   Alberto Moreno\A\A MID\A Georginio Wijnaldum   Jordan Henderson   Adam Lallana\A\A FW\A Sadio Mané   Roberto Firmino   Philippe Coutinho";
+  right: 0;
+  text-align: right;
 }
 
+@media (max-width: 1100px) { .metadata { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 900px) {
   .overview { min-height: auto; }
-  .teams { column-gap: .75rem; margin-top: -.28rem; }
+  .teams { column-gap: .75rem; margin-top: -.12rem; }
   .teamName { font-size: clamp(1.65rem, 5vw, 2.35rem); }
   .scoreNumber { font-size: clamp(2rem, 6vw, 2.7rem); }
-  .metadata { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .metadata { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 5.6rem; }
 }
-
 @media (max-width: 650px) {
   .overview { gap: .85rem; }
   .teams { grid-template-columns: 1fr; gap: .55rem; margin-top: 0; }
   .team, .teamAway, .teamHome { justify-content: center; flex-direction: row; text-align: center; }
   .score { justify-content: center; order: -1; }
-  .timelineWrap { margin-top: .68rem; }
+  .timelineWrap { margin-top: .55rem; }
   .timeline { grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1fr); }
   .eventHome { padding-right: .35rem; }
   .eventAway { padding-left: .35rem; }
-  .metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 0; padding-top: .6rem; }
+  .metadata::before, .metadata::after { display: none; }
 }
