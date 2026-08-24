@@ -132,6 +132,21 @@ function LineupSide({
   players: Player[];
   team: "home" | "away";
 }) {
+  const managerStyle: CSSProperties = {
+    position: "absolute",
+    top: "-.55rem",
+    [team === "home" ? "right" : "left"]: "15%",
+    color: "var(--frl-muted-soft)",
+    fontSize: ".5rem",
+    fontWeight: 700,
+    letterSpacing: ".1em",
+    lineHeight: 1,
+    textTransform: "uppercase",
+    whiteSpace: "nowrap",
+    zIndex: 2,
+    textAlign: team === "home" ? "right" : "left",
+  };
+
   return (
     <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}>
       <div className={styles.lineupSideHeader}>
@@ -141,7 +156,7 @@ function LineupSide({
       <div className={styles.tacticalBoard}>
         <div className={styles.boardHalfLine} />
         <div className={styles.boardCenterLine} />
-        <span className={styles.managerName}>{manager}</span>
+        <span style={managerStyle}>{manager}</span>
         {players.map((player) => (
           <div
             className={styles.playerNode}
