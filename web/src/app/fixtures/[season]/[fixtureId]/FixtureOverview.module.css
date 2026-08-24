@@ -137,8 +137,9 @@
   transform: translateY(-2px);
 }
 
-.statsSection { grid-column: 2; width: 100%; justify-self: center; }
-.sectionTitle { display: grid; grid-template-columns: minmax(96px, 1fr) auto minmax(96px, 1fr); align-items: center; column-gap: 1.15rem; border-top: 1px solid var(--frl-border-strong); padding-top: .42rem; margin-top: -.1rem; margin-bottom: .18rem; }
+.statsSection { grid-column: 2; width: 100%; justify-self: center; position: relative; }
+.statsSection::before { content: ""; position: absolute; left: 0; right: 0; top: -1rem; border-top: 1px solid var(--frl-border-strong); }
+.sectionTitle { display: grid; grid-template-columns: minmax(96px, 1fr) auto minmax(96px, 1fr); align-items: center; column-gap: 1.15rem; padding-top: .42rem; margin-top: 0; margin-bottom: .18rem; }
 .sectionTitle h2 { margin: 0; font-size: .64rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; text-align: center; }
 .sectionTitle span { color: var(--frl-muted-soft); font-size: .58rem; }
 .sectionArrow { color: var(--frl-text); font-size: 1.28rem; font-weight: 700; line-height: 1; white-space: nowrap; letter-spacing: -.05em; }
