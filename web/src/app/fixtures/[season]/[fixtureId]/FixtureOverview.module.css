@@ -30,8 +30,8 @@
 
 .scoreBlock { display: grid; justify-items: center; position: relative; }
 .score { display: flex; align-items: baseline; gap: .32rem; white-space: nowrap; transform: translateY(-.3rem); }
-.scoreNumber { font-size: clamp(1.8rem, 2.2vw, 2.25rem); line-height: .95; font-weight: 800; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
-.scoreDash { color: var(--frl-muted-soft); font-size: .82rem; font-weight: 650; }
+.scoreNumber { font-size: clamp(1.55rem, 1.9vw, 1.95rem); line-height: .95; font-weight: 800; letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.scoreDash { color: var(--frl-muted-soft); font-size: .72rem; font-weight: 650; }
 .status { position: absolute; top: calc(100% + .1rem); left: 50%; transform: translateX(-50%); white-space: nowrap; color: var(--frl-muted-soft); font-size: .5rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 
 .timelineWrap { width: 100%; margin: .6rem auto 0; }
@@ -164,7 +164,7 @@
   .lineupHome, .lineupAway { grid-column: 1; }
   .teams { column-gap: .65rem; }
   .teamName { font-size: clamp(1.45rem, 5vw, 2rem); }
-  .scoreNumber { font-size: clamp(1.8rem, 6vw, 2.3rem); }
+  .scoreNumber { font-size: clamp(1.55rem, 5.2vw, 2rem); }
   .frlMascot { width: 64px; height: 58px; }
   .frlBrand { top: clamp(1rem, 3.5vh, 2.5rem); }
   .tacticalBoard { height: calc(100% - 7rem); margin-top: 7rem; }
