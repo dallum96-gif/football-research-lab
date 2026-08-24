@@ -64,9 +64,9 @@
 
 .tacticalBoard {
   position: relative;
-  height: 100%;
+  height: calc(100% - 2.5rem);
   min-height: 0;
-  margin-top: 0;
+  margin-top: 2.5rem;
   overflow: hidden;
   border: 0;
   border-radius: 0;
@@ -134,7 +134,7 @@
   .teams { column-gap: .65rem; }
   .teamName { font-size: clamp(1.45rem, 5vw, 2rem); }
   .scoreNumber { font-size: clamp(1.8rem, 6vw, 2.3rem); }
-  .tacticalBoard { height: 290px; }
+  .tacticalBoard { height: calc(100% - 2rem); margin-top: 2rem; }
 }
 
 @media (max-width: 650px) {
@@ -146,6 +146,6 @@
   .timeline { grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1fr); }
   .eventHome { padding-right: .35rem; }
   .eventAway { padding-left: .35rem; }
-  .tacticalBoard { height: 310px; }
+  .tacticalBoard { height: calc(100% - 1.5rem); margin-top: 1.5rem; }
   .metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
