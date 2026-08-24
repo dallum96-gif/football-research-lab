@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import csv
 import os
 import sys
 from pathlib import Path
@@ -8,12 +7,13 @@ from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+import player_match_stats
 import query_api
 
 
@@ -28,7 +28,7 @@ class ResearchPopulation(BaseModel):
     label: str
     sample_size: int
     filters: dict[str, str | int | bool]
-    exclusions: list[str] = []
+    exclusions: list[str] = Field(default_factory=list)
 
 
 class ResearchScope(BaseModel):
@@ -44,7 +44,7 @@ class ResearchProvenance(BaseModel):
 
 class ResearchMethodology(BaseModel):
     metric_version: str
-    notes: list[str] = []
+    notes: list[str] = Field(default_factory=list)
 
 
 class FixtureResultRow(BaseModel):
@@ -91,11 +91,23 @@ class FixtureDetailStats(BaseModel):
     attendance: int | None = None
 
 
+class FixturePlayerMatchEvidence(BaseModel):
+    source_match_id: str
+    source_player_id: str | None = None
+    source_name: str | None = None
+    position: str | None = None
+    side: Literal["home", "away"] | None = None
+    participation: Literal["starting", "sub_in", "bench", "unknown"]
+    minutes: float | None = None
+
+
 class FixtureDetailResult(BaseModel):
     fixture: FixtureResultRow
     stats: FixtureDetailStats | None = None
+    player_match: list[FixturePlayerMatchEvidence] = Field(default_factory=list)
+    player_match_status: Literal["AVAILABLE", "UNAVAILABLE", "KNOWN_EXCEPTION"]
     provenance: ResearchProvenance
-    limitations: list[str]
+    limitations: list[str] = Field(default_factory=list)
 
 
 class TeamOption(BaseModel):
@@ -126,7 +138,7 @@ app.add_middleware(
 )
 
 
-def _normalise_int(value: str | int | None) -> int | None:
+def _normalise_int(value: str | int | float | None) -> int | None:
     if value in (None, ""):
         return None
     return int(value)
@@ -176,23 +188,87 @@ def _row_for_api(row: dict, team_filter: str | None) -> FixtureResultRow:
     )
 
 
-def _load_fixture_detail(season: str, fixture_id: str) -> tuple[dict, dict | None]:
-    fixture_rows = [
-        row
-        for row in query_api._load_csv(query_api.FIXTURE_FILE)
-        if row.get("season") == season and str(row.get("fixture_id")) == fixture_id
-    ]
-    if not fixture_rows:
-        raise ValueError(f"Fixture {season}/{fixture_id} was not found in the canonical fixture master.")
+def _flatten_fixture_stats(stats: dict | None) -> FixtureDetailStats | None:
+    if not stats or stats.get("status") != "AVAILABLE":
+        return None
 
-    stats_file = ROOT / "data" / "fixture_match_stats.csv"
-    stats_rows = [
-        row
-        for row in query_api._load_csv(stats_file)
-        if row.get("season") == season and str(row.get("fixture_id")) == fixture_id
-    ] if stats_file.is_file() else []
+    home_core = stats.get("home", {}).get("core", {})
+    home_optional = stats.get("home", {}).get("optional", {})
+    away_core = stats.get("away", {}).get("core", {})
+    away_optional = stats.get("away", {}).get("optional", {})
 
-    return fixture_rows[0], (stats_rows[0] if stats_rows else None)
+    return FixtureDetailStats(
+        home_possession=_normalise_float(home_core.get("Possession")),
+        away_possession=_normalise_float(away_core.get("Possession")),
+        home_shots_on_target=_normalise_int(home_core.get("Shots on target")),
+        away_shots_on_target=_normalise_int(away_core.get("Shots on target")),
+        home_shots=_normalise_int(home_core.get("Shots")),
+        away_shots=_normalise_int(away_core.get("Shots")),
+        home_corners=_normalise_int(home_core.get("Corners")),
+        away_corners=_normalise_int(away_core.get("Corners")),
+        home_fouls=_normalise_int(home_core.get("Fouls conceded")),
+        away_fouls=_normalise_int(away_core.get("Fouls conceded")),
+        home_yellow_cards=_normalise_int(home_core.get("Yellow cards")),
+        away_yellow_cards=_normalise_int(away_core.get("Yellow cards")),
+        attendance=_normalise_int(home_optional.get("Attendance"))
+        if home_optional.get("Attendance") is not None
+        else _normalise_int(away_optional.get("Attendance")),
+    )
+
+
+def _source_player_name(row: dict) -> str | None:
+    explicit = row.get("playerName") or row.get("name") or row.get("player")
+    if explicit:
+        value = str(explicit).strip()
+        if value:
+            return value.replace("_", " ")
+
+    first = str(row.get("first_name") or "").strip()
+    second = str(row.get("second_name") or "").strip()
+    combined = " ".join(part for part in (first, second) if part)
+    return combined or None
+
+
+def _fixture_player_match_evidence(fixture: dict) -> tuple[list[FixturePlayerMatchEvidence], str, str | None]:
+    try:
+        source_match_id = player_match_stats.player_match_id_for_fixture(fixture)
+    except FileNotFoundError:
+        return [], "UNAVAILABLE", None
+    except ValueError as exc:
+        message = str(exc)
+        if str(fixture.get("season")) == "2019-20" and str(fixture.get("fixture_id")) == "275":
+            return [], "KNOWN_EXCEPTION", message
+        raise
+
+    if source_match_id is None:
+        return [], "KNOWN_EXCEPTION" if str(fixture.get("season")) == "2019-20" and str(fixture.get("fixture_id")) == "275" else "UNAVAILABLE", None
+
+    rows = player_match_stats.fixture_player_match_rows(fixture)
+    home_source_id, away_source_id = player_match_stats._source_team_ids_for_fixture(fixture)
+
+    evidence: list[FixturePlayerMatchEvidence] = []
+    for row in rows:
+        source_team_id = str(row.get("team_id") or "").strip()
+        side: Literal["home", "away"] | None = None
+        if source_team_id == home_source_id:
+            side = "home"
+        elif source_team_id == away_source_id:
+            side = "away"
+
+        minutes = _normalise_float(row.get("minutesPlayed"))
+        evidence.append(
+            FixturePlayerMatchEvidence(
+                source_match_id=source_match_id,
+                source_player_id=player_match_stats.source_player_id(row),
+                source_name=_source_player_name(row),
+                position=str(row.get("position") or row.get("positionText") or "").strip() or None,
+                side=side,
+                participation=player_match_stats.classify_participation(row),
+                minutes=minutes,
+            )
+        )
+
+    return evidence, "AVAILABLE", None
 
 
 @app.get("/health")
@@ -343,71 +419,50 @@ def get_fixtures(
 @app.get("/api/v1/fixtures/{season}/{fixture_id}", response_model=FixtureDetailResult)
 def get_fixture_detail(season: str, fixture_id: str) -> FixtureDetailResult:
     try:
-        row, stats = _load_fixture_detail(season, fixture_id)
-        by_local_id, _, _ = query_api._team_lookup(season)
+        detail = query_api.fixture_detail(season=season, fixture_id=fixture_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail="Fixture detail query failed safely.") from exc
 
-    home_id = str(row.get("home_team_id", "")).strip()
-    away_id = str(row.get("away_team_id", "")).strip()
-    if home_id not in by_local_id or away_id not in by_local_id:
-        raise HTTPException(status_code=500, detail="Fixture identity could not be resolved safely.")
-
-    fixture = FixtureResultRow(
-        fixture_id=fixture_id,
-        season=season,
-        gameweek=int(row["gameweek"]) if row.get("gameweek") not in (None, "") else None,
-        kickoff_time=str(row["kickoff_time"]) if row.get("kickoff_time") else None,
-        home_team_id=home_id,
-        away_team_id=away_id,
-        home_team_name=str(by_local_id[home_id]["team"]),
-        away_team_name=str(by_local_id[away_id]["team"]),
-        home_score=_normalise_int(row.get("home_score")),
-        away_score=_normalise_int(row.get("away_score")),
+    fixture = detail["fixture"]
+    fixture_row = FixtureResultRow(
+        fixture_id=str(fixture["fixture_id"]),
+        season=str(fixture["season"]),
+        gameweek=int(fixture["gameweek"]) if fixture.get("gameweek") not in (None, "") else None,
+        kickoff_time=str(fixture["kickoff_time"]) if fixture.get("kickoff_time") else None,
+        home_team_id=str(fixture["home_team_id"]),
+        away_team_id=str(fixture["away_team_id"]),
+        home_team_name=str(fixture["home_team_name"]),
+        away_team_name=str(fixture["away_team_name"]),
+        home_score=_normalise_int(fixture.get("home_score")),
+        away_score=_normalise_int(fixture.get("away_score")),
     )
 
-    detail_stats = None
-    if stats is not None:
-        home_fouls = _normalise_int(stats.get("away_core_fouls_won"))
-        away_fouls = _normalise_int(stats.get("home_core_fouls_won"))
-        attendance = _normalise_int(stats.get("home_optional_attendance"))
-        if attendance is None:
-            attendance = _normalise_int(stats.get("away_optional_attendance"))
-
-        detail_stats = FixtureDetailStats(
-            home_possession=_normalise_float(stats.get("home_core_possession")),
-            away_possession=_normalise_float(stats.get("away_core_possession")),
-            home_shots_on_target=_normalise_int(stats.get("home_core_shots_on_target")),
-            away_shots_on_target=_normalise_int(stats.get("away_core_shots_on_target")),
-            home_shots=_normalise_int(stats.get("home_core_shots")),
-            away_shots=_normalise_int(stats.get("away_core_shots")),
-            home_corners=_normalise_int(stats.get("home_core_corners")),
-            away_corners=_normalise_int(stats.get("away_core_corners")),
-            home_fouls=home_fouls,
-            away_fouls=away_fouls,
-            home_yellow_cards=_normalise_int(stats.get("home_core_yellow_cards")),
-            away_yellow_cards=_normalise_int(stats.get("away_core_yellow_cards")),
-            attendance=attendance,
-        )
+    try:
+        player_match, player_match_status, player_match_note = _fixture_player_match_evidence(fixture)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Player-match evidence failed safely.") from exc
 
     limitations = [
         "Managers are not supplied because the approved FRL manager-data boundary does not currently expose them.",
-        "Event timeline and player starting-lineup details are not yet part of this fixture-detail API contract.",
+        "Event timeline details are not yet part of the trusted fixture-detail seam.",
         "No historical as-of information-availability snapshot is asserted by this endpoint yet.",
     ]
 
+    if player_match_status != "AVAILABLE":
+        limitations.append("Player-match evidence is unavailable for this fixture in the current approved source boundary.")
+    if player_match_note:
+        limitations.append(player_match_note)
+
     return FixtureDetailResult(
-        fixture=fixture,
-        stats=detail_stats,
+        fixture=fixture_row,
+        stats=_flatten_fixture_stats(detail.get("stats")),
+        player_match=player_match,
+        player_match_status=player_match_status,
         provenance=ResearchProvenance(
-            source=(
-                "fixtures_master_corrected.csv + data/fixture_match_stats.csv"
-                if stats is not None
-                else "fixtures_master_corrected.csv"
-            ),
-            transformation_version="fixture-detail-v1",
+            source="query_api.fixture_detail → query_lab.fixture_detail → canonical fixture + match statistics; player-match evidence via player_match_stats",
+            transformation_version=str(detail.get("query_version", "unknown")),
         ),
         limitations=limitations,
     )
