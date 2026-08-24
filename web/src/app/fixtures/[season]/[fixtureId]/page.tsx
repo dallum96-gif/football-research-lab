@@ -229,7 +229,6 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
         <section className={styles.statsSection}>
           <div className={styles.sectionTitle}>
             <h2>Match statistics</h2>
-            <span>Arsenal · Liverpool</span>
           </div>
           <div className={styles.stats}>
             {stats.map(([home, label, away, homeShare, awayShare]) => (
