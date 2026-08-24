@@ -101,7 +101,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
               <Kit team="arsenal" />
             </div>
 
-            <div>
+            <div className={styles.scoreBlock}>
               <div className={styles.score} aria-label="Arsenal 3 Liverpool 4">
                 <span className={styles.scoreNumber}>3</span>
                 <span className={styles.scoreDash}>–</span>
