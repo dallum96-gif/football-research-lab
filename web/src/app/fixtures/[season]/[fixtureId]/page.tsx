@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { AppShell } from "@/components/AppShell";
+import { fetchFixtureDetail } from "@/lib/api";
 import styles from "./FixtureOverview.module.css";
 
 type FixtureDetailProps = {
@@ -25,72 +26,80 @@ type Player = {
   y: number;
 };
 
-const events: Event[] = [
-  { minute: "26'", side: "away", kind: "card", player: "Adam Lallana", card: "yellow" },
-  { minute: "29'", side: "away", kind: "card", player: "Alberto Moreno", card: "yellow" },
-  { minute: "31'", side: "home", kind: "goal", player: "Theo Walcott", assist: "Alex Iwobi" },
-  { minute: "37'", side: "home", kind: "card", player: "Francis Coquelin", card: "yellow" },
-  { minute: "41'", side: "away", kind: "card", player: "Dejan Lovren", card: "yellow" },
-  { minute: "45+1'", side: "away", kind: "goal", player: "Philippe Coutinho" },
-  { minute: "49'", side: "away", kind: "goal", player: "Adam Lallana", assist: "Georginio Wijnaldum" },
-  { minute: "56'", side: "away", kind: "goal", player: "Philippe Coutinho", assist: "Nathaniel Clyne" },
-  { minute: "57'", side: "home", kind: "card", player: "Alex Iwobi", card: "yellow" },
-  { minute: "63'", side: "away", kind: "goal", player: "Sadio Mané", assist: "Adam Lallana" },
-  { minute: "64'", side: "home", kind: "goal", player: "Alex Oxlade-Chamberlain", assist: "Santi Cazorla" },
-  { minute: "75'", side: "home", kind: "goal", player: "Calum Chambers", assist: "Santi Cazorla" },
-  { minute: "86'", side: "home", kind: "card", player: "Granit Xhaka", card: "yellow" },
-];
+type StatRow = [string, string, string, number, number];
 
-const stats: [string, string, string, number, number][] = [
-  ["50%", "Possession", "50%", 50, 50],
-  ["5", "Shots on target", "7", 42, 58],
-  ["9", "Shots", "16", 36, 64],
-  ["5", "Corners", "4", 56, 44],
-  ["13", "Fouls", "17", 43, 57],
-  ["3", "Yellow cards", "3", 50, 50],
-];
+function formatDate(kickoffTime: string | null, season: string): string {
+  if (!kickoffTime) return season;
+  const parsed = new Date(kickoffTime);
+  if (Number.isNaN(parsed.getTime())) return kickoffTime;
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(parsed);
+}
 
-const metadata = [
-  ["Competition", "Premier League"],
-  ["Matchweek", "1"],
-  ["Date", "14 August 2016"],
-  ["Kick-off", "16:00"],
-  ["Venue", "Emirates Stadium"],
-  ["Attendance", "60,033"],
-  ["Referee", "Michael Oliver"],
-];
+function formatKickoff(kickoffTime: string | null): string {
+  if (!kickoffTime) return "";
+  const parsed = new Date(kickoffTime);
+  if (Number.isNaN(parsed.getTime())) return kickoffTime;
+  return new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(parsed);
+}
 
-const arsenalPlayers: Player[] = [
-  { name: "Čech", role: "GK", x: 50, y: 8 },
-  { name: "Bellerín", role: "RB", x: 20, y: 28.75 },
-  { name: "Koscielny", role: "CB", x: 40, y: 28.75 },
-  { name: "Holding", role: "CB", x: 60, y: 28.75 },
-  { name: "Monreal", role: "LB", x: 80, y: 28.75 },
-  { name: "Coquelin", role: "DM", x: 38, y: 49.5 },
-  { name: "Cazorla", role: "DM", x: 62, y: 49.5 },
-  { name: "Iwobi", role: "LW", x: 22, y: 70.25 },
-  { name: "Özil", role: "AM", x: 50, y: 70.25 },
-  { name: "Walcott", role: "RW", x: 78, y: 70.25 },
-  { name: "Giroud", role: "ST", x: 50, y: 91 },
-];
+function formatInteger(value: number | null): string {
+  return value == null ? "–" : value.toLocaleString("en-GB");
+}
 
-const liverpoolPlayers: Player[] = [
-  { name: "Mignolet", role: "GK", x: 50, y: 8 },
-  { name: "Clyne", role: "RB", x: 20, y: 35.67 },
-  { name: "Lovren", role: "CB", x: 40, y: 35.67 },
-  { name: "Klavan", role: "CB", x: 60, y: 35.67 },
-  { name: "Moreno", role: "LB", x: 80, y: 35.67 },
-  { name: "Wijnaldum", role: "CM", x: 25, y: 63.33 },
-  { name: "Henderson", role: "CM", x: 50, y: 63.33 },
-  { name: "Lallana", role: "CM", x: 75, y: 63.33 },
-  { name: "Mané", role: "RW", x: 20, y: 91 },
-  { name: "Firmino", role: "ST", x: 50, y: 91 },
-  { name: "Coutinho", role: "LW", x: 80, y: 91 },
-];
+function formatPossession(value: number | null): string {
+  return value == null ? "–" : `${Number.isInteger(value) ? value : value.toFixed(1)}%`;
+}
 
-function Kit({ team }: { team: "arsenal" | "liverpool" }) {
+function share(left: number | null, right: number | null): [number, number] {
+  if (left == null || right == null || left + right === 0) return [50, 50];
+  const leftShare = Math.round((left / (left + right)) * 100);
+  return [leftShare, 100 - leftShare];
+}
+
+function buildStats(stats: {
+  home_possession: number | null;
+  away_possession: number | null;
+  home_shots_on_target: number | null;
+  away_shots_on_target: number | null;
+  home_shots: number | null;
+  away_shots: number | null;
+  home_corners: number | null;
+  away_corners: number | null;
+  home_fouls: number | null;
+  away_fouls: number | null;
+  home_yellow_cards: number | null;
+  away_yellow_cards: number | null;
+} | null): StatRow[] {
+  if (!stats) return [];
+
+  const possessionShare = share(stats.home_possession, stats.away_possession);
+  const shotsOnTargetShare = share(stats.home_shots_on_target, stats.away_shots_on_target);
+  const shotsShare = share(stats.home_shots, stats.away_shots);
+  const cornersShare = share(stats.home_corners, stats.away_corners);
+  const foulsShare = share(stats.home_fouls, stats.away_fouls);
+  const cardsShare = share(stats.home_yellow_cards, stats.away_yellow_cards);
+
+  return [
+    [formatPossession(stats.home_possession), "Possession", formatPossession(stats.away_possession), ...possessionShare],
+    [formatInteger(stats.home_shots_on_target), "Shots on target", formatInteger(stats.away_shots_on_target), ...shotsOnTargetShare],
+    [formatInteger(stats.home_shots), "Shots", formatInteger(stats.away_shots), ...shotsShare],
+    [formatInteger(stats.home_corners), "Corners", formatInteger(stats.away_corners), ...cornersShare],
+    [formatInteger(stats.home_fouls), "Fouls", formatInteger(stats.away_fouls), ...foulsShare],
+    [formatInteger(stats.home_yellow_cards), "Yellow cards", formatInteger(stats.away_yellow_cards), ...cardsShare],
+  ];
+}
+
+function Kit({ team }: { team: "home" | "away" }) {
   return (
-    <span className={`${styles.kit} ${team === "arsenal" ? styles.arsenal : styles.liverpool}`} aria-hidden="true">
+    <span className={`${styles.kit} ${team === "home" ? styles.arsenal : styles.liverpool}`} aria-hidden="true">
       <span className={styles.kitSleeve} />
       <span className={styles.kitSleeveRight} />
       <span className={styles.kitBody} />
@@ -101,7 +110,7 @@ function Kit({ team }: { team: "arsenal" | "liverpool" }) {
 function EventCell({ event }: { event: Event }) {
   const isGoal = event.kind === "goal";
   const isRed = event.card === "red";
-  const icon = isGoal ? "⚽" : isRed ? "■" : "■";
+  const icon = isGoal ? "⚽" : "■";
   const className = isGoal
     ? styles.eventGoal
     : isRed
@@ -127,8 +136,8 @@ function LineupSide({
   team,
 }: {
   title: string;
-  formation: string;
-  manager: string;
+  formation?: string | null;
+  manager?: string | null;
   players: Player[];
   team: "home" | "away";
 }) {
@@ -151,12 +160,12 @@ function LineupSide({
     <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}>
       <div className={styles.lineupSideHeader}>
         <span>{title}</span>
-        <span>{formation}</span>
+        {formation ? <span>{formation}</span> : null}
       </div>
       <div className={styles.tacticalBoard}>
         <div className={styles.boardHalfLine} />
         <div className={styles.boardCenterLine} />
-        <span style={managerStyle}>{manager}</span>
+        {manager ? <span style={managerStyle}>{manager}</span> : null}
         {players.map((player) => (
           <div
             className={styles.playerNode}
@@ -193,55 +202,58 @@ function FrlBrand() {
 }
 
 export default async function FixtureDetailPage({ params }: FixtureDetailProps) {
-  await params;
+  const { season, fixtureId } = await params;
+  const detail = await fetchFixtureDetail(season, fixtureId);
+  const { fixture, stats } = detail;
+  const statRows = buildStats(stats);
+  const hasScore = fixture.home_score != null && fixture.away_score != null;
+  const scoreLabel = hasScore
+    ? `${fixture.home_team_name} ${fixture.home_score} ${fixture.away_team_name} ${fixture.away_score}`
+    : `${fixture.home_team_name} not played ${fixture.away_team_name}`;
 
   return (
     <AppShell>
       <div className={styles.overview}>
         <header className={styles.pageHeader}>
           <div className={styles.pageHeaderCompetition}>Premier League</div>
-          <div className={styles.pageHeaderDate}>14 August 2016</div>
+          <div className={styles.pageHeaderDate}>{formatDate(fixture.kickoff_time, season)}</div>
           <FrlBrand />
         </header>
 
         <section className={styles.matchHeader} aria-label="Match result">
           <div className={styles.teams}>
             <div className={`${styles.team} ${styles.teamHome}`}>
-              <span className={styles.teamName}>Arsenal</span>
-              <Kit team="arsenal" />
+              <span className={styles.teamName}>{fixture.home_team_name}</span>
+              <Kit team="home" />
             </div>
 
             <div className={styles.scoreBlock}>
-              <div className={styles.score} aria-label="Arsenal 3 Liverpool 4">
-                <span className={styles.scoreNumber}>3</span>
+              <div className={styles.score} aria-label={scoreLabel}>
+                <span className={styles.scoreNumber}>{fixture.home_score ?? "–"}</span>
                 <span className={styles.scoreDash}>–</span>
-                <span className={styles.scoreNumber}>4</span>
+                <span className={styles.scoreNumber}>{fixture.away_score ?? "–"}</span>
               </div>
-              <div className={styles.status}>Full time</div>
+              <div className={styles.status}>{hasScore ? "Full time" : "Scheduled"}</div>
             </div>
 
             <div className={`${styles.team} ${styles.teamAway}`}>
-              <Kit team="liverpool" />
-              <span className={styles.teamName}>Liverpool</span>
+              <Kit team="away" />
+              <span className={styles.teamName}>{fixture.away_team_name}</span>
             </div>
           </div>
 
           <div className={styles.timelineWrap}>
             <div className={styles.timeline} aria-label="Goals and cards timeline">
-              {events.map((event) => (
-                <div key={`${event.minute}-${event.player}`} className={styles.timelineRow}>
-                  {event.side === "home" ? <EventCell event={event} /> : <span className={styles.eventEmpty} />}
-                  <div className={styles.minute}>{event.minute}</div>
-                  {event.side === "away" ? <EventCell event={event} /> : <span className={styles.eventEmpty} />}
-                </div>
-              ))}
+              <div className={styles.eventEmpty} />
+              <div className={styles.minute}>{formatKickoff(fixture.kickoff_time)}</div>
+              <div className={styles.eventEmpty} />
             </div>
           </div>
         </section>
 
         <section className={styles.lineupSection} aria-label="Starting lineups">
-          <LineupSide title="Arsenal" formation="4–2–3–1" manager="Arsène Wenger" players={arsenalPlayers} team="home" />
-          <LineupSide title="Liverpool" formation="4–3–3" manager="Jürgen Klopp" players={liverpoolPlayers} team="away" />
+          <LineupSide title={fixture.home_team_name} players={[]} team="home" />
+          <LineupSide title={fixture.away_team_name} players={[]} team="away" />
         </section>
 
         <section className={styles.statsSection}>
@@ -251,7 +263,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
             <span className={styles.sectionArrow} aria-hidden="true">→</span>
           </div>
           <div className={styles.stats}>
-            {stats.map(([home, label, away, homeShare, awayShare]) => (
+            {statRows.map(([home, label, away, homeShare, awayShare]) => (
               <div className={styles.statRow} key={label}>
                 <div className={`${styles.statValue} ${styles.statHome}`}>
                   <span>{home}</span>
@@ -268,12 +280,26 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
         </section>
 
         <section className={styles.metadata} aria-label="Match metadata">
-          {metadata.map(([label, value]) => (
-            <div className={styles.metadataItem} key={label}>
-              <span className={styles.metadataLabel}>{label}</span>
-              <span className={styles.metadataValue}>{value}</span>
-            </div>
-          ))}
+          <div className={styles.metadataItem}>
+            <span className={styles.metadataLabel}>Competition</span>
+            <span className={styles.metadataValue}>Premier League</span>
+          </div>
+          <div className={styles.metadataItem}>
+            <span className={styles.metadataLabel}>Matchweek</span>
+            <span className={styles.metadataValue}>{fixture.gameweek ?? "–"}</span>
+          </div>
+          <div className={styles.metadataItem}>
+            <span className={styles.metadataLabel}>Date</span>
+            <span className={styles.metadataValue}>{formatDate(fixture.kickoff_time, season)}</span>
+          </div>
+          <div className={styles.metadataItem}>
+            <span className={styles.metadataLabel}>Kick-off</span>
+            <span className={styles.metadataValue}>{formatKickoff(fixture.kickoff_time) || "–"}</span>
+          </div>
+          <div className={styles.metadataItem}>
+            <span className={styles.metadataLabel}>Attendance</span>
+            <span className={styles.metadataValue}>{formatInteger(stats?.attendance ?? null)}</span>
+          </div>
         </section>
       </div>
     </AppShell>
