@@ -147,8 +147,8 @@
 .statHome { justify-content: flex-end; padding-right: .75rem; }
 .statAway { justify-content: flex-start; padding-left: .75rem; }
 .statLabel { color: var(--frl-muted); font-size: .59rem; font-weight: 600; letter-spacing: .01em; text-align: center; white-space: nowrap; }
-.statTrack { position: relative; height: 2px; background: var(--frl-border); width: min(20vw, 150px); }
-.statTrack::after { content: ""; position: absolute; top: 0; bottom: 0; background: var(--frl-accent); }
+.statTrack { position: relative; height: 1px; background: color-mix(in srgb, var(--frl-border) 70%, transparent); width: min(13vw, 100px); }
+.statTrack::after { content: ""; position: absolute; top: -1px; bottom: -1px; background: var(--frl-accent); }
 .statHome .statTrack::after { right: 0; width: var(--home-share); }
 .statAway .statTrack::after { left: 0; width: var(--away-share); }
 
