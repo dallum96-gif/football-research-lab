@@ -33,7 +33,7 @@
   column-gap: clamp(.7rem, 1.8vw, 1.5rem);
   max-width: 1050px;
   width: 100%;
-  margin: 0 auto;
+  margin: -0.18rem auto 0;
 }
 
 .team {
@@ -116,7 +116,7 @@
 
 .status {
   position: absolute;
-  top: calc(100% + .32rem);
+  top: calc(100% + .08rem);
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -127,7 +127,7 @@
   text-transform: uppercase;
 }
 
-.timelineWrap { width: min(900px, 100%); margin: .3rem auto 0; }
+.timelineWrap { width: min(900px, 100%); margin: .55rem auto 0; }
 .timeline { display: grid; grid-template-columns: minmax(0, 1fr) 3.3rem minmax(0, 1fr); row-gap: .32rem; align-items: center; position: relative; }
 .timelineRow { display: contents; }
 .timeline::before { content: ""; position: absolute; top: .25rem; bottom: .25rem; left: 50%; width: 1px; background: var(--frl-border-strong); transform: translateX(-50%); }
@@ -167,7 +167,7 @@
 
 @media (max-width: 900px) {
   .overview { min-height: auto; }
-  .teams { column-gap: .75rem; }
+  .teams { column-gap: .75rem; margin-top: -.12rem; }
   .teamName { font-size: clamp(1.65rem, 5vw, 2.35rem); }
   .scoreNumber { font-size: clamp(2rem, 6vw, 2.7rem); }
   .metadata { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -175,9 +175,10 @@
 
 @media (max-width: 650px) {
   .overview { gap: .85rem; }
-  .teams { grid-template-columns: 1fr; gap: .55rem; }
+  .teams { grid-template-columns: 1fr; gap: .55rem; margin-top: 0; }
   .team, .teamAway, .teamHome { justify-content: center; flex-direction: row; text-align: center; }
   .score { justify-content: center; order: -1; }
+  .timelineWrap { margin-top: .55rem; }
   .timeline { grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1fr); }
   .eventHome { padding-right: .35rem; }
   .eventAway { padding-left: .35rem; }
