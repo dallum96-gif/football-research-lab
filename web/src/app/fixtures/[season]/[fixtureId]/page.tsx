@@ -61,30 +61,30 @@ const metadata = [
 
 const arsenalPlayers: Player[] = [
   { name: "Čech", role: "GK", x: 50, y: 8 },
-  { name: "Bellerín", role: "RB", x: 20, y: 25 },
-  { name: "Koscielny", role: "CB", x: 40, y: 25 },
-  { name: "Holding", role: "CB", x: 60, y: 25 },
-  { name: "Monreal", role: "LB", x: 80, y: 25 },
-  { name: "Coquelin", role: "DM", x: 38, y: 46 },
-  { name: "Cazorla", role: "DM", x: 62, y: 46 },
-  { name: "Iwobi", role: "LW", x: 22, y: 67 },
-  { name: "Özil", role: "AM", x: 50, y: 67 },
-  { name: "Walcott", role: "RW", x: 78, y: 67 },
+  { name: "Bellerín", role: "RB", x: 20, y: 28.75 },
+  { name: "Koscielny", role: "CB", x: 40, y: 28.75 },
+  { name: "Holding", role: "CB", x: 60, y: 28.75 },
+  { name: "Monreal", role: "LB", x: 80, y: 28.75 },
+  { name: "Coquelin", role: "DM", x: 38, y: 49.5 },
+  { name: "Cazorla", role: "DM", x: 62, y: 49.5 },
+  { name: "Iwobi", role: "LW", x: 22, y: 70.25 },
+  { name: "Özil", role: "AM", x: 50, y: 70.25 },
+  { name: "Walcott", role: "RW", x: 78, y: 70.25 },
   { name: "Giroud", role: "ST", x: 50, y: 91 },
 ];
 
 const liverpoolPlayers: Player[] = [
   { name: "Mignolet", role: "GK", x: 50, y: 8 },
-  { name: "Clyne", role: "RB", x: 20, y: 25 },
-  { name: "Lovren", role: "CB", x: 40, y: 25 },
-  { name: "Klavan", role: "CB", x: 60, y: 25 },
-  { name: "Moreno", role: "LB", x: 80, y: 25 },
-  { name: "Wijnaldum", role: "CM", x: 25, y: 48 },
-  { name: "Henderson", role: "CM", x: 50, y: 48 },
-  { name: "Lallana", role: "CM", x: 75, y: 48 },
-  { name: "Mané", role: "RW", x: 20, y: 67 },
+  { name: "Clyne", role: "RB", x: 20, y: 35.67 },
+  { name: "Lovren", role: "CB", x: 40, y: 35.67 },
+  { name: "Klavan", role: "CB", x: 60, y: 35.67 },
+  { name: "Moreno", role: "LB", x: 80, y: 35.67 },
+  { name: "Wijnaldum", role: "CM", x: 25, y: 63.33 },
+  { name: "Henderson", role: "CM", x: 50, y: 63.33 },
+  { name: "Lallana", role: "CM", x: 75, y: 63.33 },
+  { name: "Mané", role: "RW", x: 20, y: 91 },
   { name: "Firmino", role: "ST", x: 50, y: 91 },
-  { name: "Coutinho", role: "LW", x: 80, y: 67 },
+  { name: "Coutinho", role: "LW", x: 80, y: 91 },
 ];
 
 function Kit({ team }: { team: "arsenal" | "liverpool" }) {
