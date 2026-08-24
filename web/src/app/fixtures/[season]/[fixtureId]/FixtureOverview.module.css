@@ -80,45 +80,31 @@
   min-height: 0;
   margin-top: .5rem;
   overflow: hidden;
-  border: 1px solid var(--frl-border);
-  border-radius: .55rem;
-  background: var(--frl-surface);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.5);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 .tacticalBoard::before {
   content: "";
   position: absolute;
-  top: 7%;
-  bottom: 7%;
-  left: 7%;
-  width: 86%;
-  border: 1px solid var(--frl-border);
-  border-radius: .3rem;
+  inset: 1% 15%;
+  border: 1px solid color-mix(in srgb, var(--frl-border) 65%, transparent);
+  border-radius: 1rem;
   pointer-events: none;
 }
 .tacticalBoard::after {
   content: "";
   position: absolute;
-  top: 7%;
-  bottom: 7%;
-  left: 50%;
-  width: 1px;
-  background: var(--frl-border);
-  box-shadow: -230px 0 0 -0.5px transparent;
+  top: 49.8%;
+  left: 15%;
+  width: 70%;
+  height: 1px;
+  background: color-mix(in srgb, var(--frl-border) 65%, transparent);
   pointer-events: none;
 }
-.boardHalfLine {
-  position: absolute;
-  top: 34%;
-  bottom: 34%;
-  left: 7%;
-  width: 86%;
-  border: 1px solid var(--frl-border);
-  border-radius: .3rem;
-  opacity: .75;
-  pointer-events: none;
-}
-.boardCenterLine { position: absolute; top: 7%; bottom: 7%; left: 50%; width: 1px; background: var(--frl-border); }
+.boardHalfLine { display: none; }
+.boardCenterLine { display: none; }
 
 .playerNode {
   position: absolute;
@@ -127,8 +113,8 @@
   justify-items: center;
   min-width: 54px;
 }
-.playerDot { width: 11px; height: 11px; border-radius: 999px; background: var(--frl-surface); border: 2px solid var(--frl-accent); box-shadow: 0 1px 5px rgba(15, 23, 42, .12); }
-.lineupAway .playerDot { border-color: var(--frl-text); }
+.playerDot { width: 11px; height: 11px; border-radius: 999px; background: transparent; border: 2px solid var(--frl-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--frl-accent) 9%, transparent); }
+.lineupAway .playerDot { border-color: var(--frl-text); box-shadow: 0 0 0 3px color-mix(in srgb, var(--frl-text) 8%, transparent); }
 .playerRole { margin-top: .16rem; color: var(--frl-muted-soft); font-size: .42rem; font-weight: 750; letter-spacing: .07em; }
 .playerName { margin-top: .03rem; color: var(--frl-text); font-size: .54rem; font-weight: 650; white-space: nowrap; }
 
