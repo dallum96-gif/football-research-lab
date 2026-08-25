@@ -7,9 +7,10 @@ identity joins of its own.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import Any
 
 from research_field_query import (
+    available_fields,
     fixture_field_values,
     player_match_field_values,
     player_season_field_values,
@@ -45,9 +46,9 @@ class VariableDefinition:
     definition: str | None = None
 
 
-# The canonical aliases are deliberately small and explicit. All other
-# registered source fields remain directly requestable by their native field
-# name, subject to the family/context supplied by the caller.
+# Explicit canonical aliases remain small and deliberate. Native source fields
+# are discovered from the empirical season inventory at resolution time, so a
+# field does not need an individual Python handler to become queryable.
 ALIASES: dict[str, VariableDefinition] = {
     "wonTacklePct": VariableDefinition(
         name="wonTacklePct",
@@ -94,7 +95,7 @@ ALIASES: dict[str, VariableDefinition] = {
 }
 
 
-def _field_families(field: str) -> tuple[str, ...]:
+def _registered_families(field: str) -> tuple[str, ...]:
     return tuple(spec.family for spec in _all_specs() if spec.source_field == field)
 
 
@@ -103,7 +104,21 @@ def _all_specs():
         yield from fields_for_family(family)
 
 
-def _infer_definition(name: str, family: str | None) -> VariableDefinition:
+def _season_families(field: str, season: str | None) -> tuple[str, ...]:
+    if season is None:
+        return tuple()
+    return tuple(
+        family
+        for family in ("team_match", "player_match", "player_season", "squad")
+        if field in set(available_fields(family, season))
+    )
+
+
+def _infer_definition(
+    name: str,
+    family: str | None,
+    season: str | None,
+) -> VariableDefinition:
     alias = ALIASES.get(name)
     if alias is not None:
         if family is not None and family != alias.family:
@@ -112,40 +127,46 @@ def _infer_definition(name: str, family: str | None) -> VariableDefinition:
             )
         return alias
 
-    families = _field_families(name)
+    families = _registered_families(name)
+    if season is not None:
+        discovered = _season_families(name, season)
+        families = tuple(dict.fromkeys((*families, *discovered)))
+
     if family is not None:
         if family not in families:
             raise UnknownVariableError(
-                f"Variable/source field '{name}' is not registered for family '{family}'."
+                f"Variable/source field '{name}' is not available for family "
+                f"'{family}' in the requested context."
             )
-        return VariableDefinition(name=name, label=name, family=family, source_field=name)
+        return VariableDefinition(
+            name=name,
+            label=name,
+            family=family,
+            source_field=name,
+        )
 
     if not families:
         raise UnknownVariableError(f"Unknown FRL variable/source field: {name}")
     if len(families) > 1:
         raise UnsupportedContextError(
             f"Variable '{name}' exists in multiple source families {list(families)}; "
-            "supply an explicit family or an entity context."
+            "supply an explicit family or entity context."
         )
-    return VariableDefinition(name=name, label=name, family=families[0], source_field=name)
+    return VariableDefinition(
+        name=name,
+        label=name,
+        family=families[0],
+        source_field=name,
+    )
 
 
-def variable_definition(name: str, *, family: str | None = None) -> VariableDefinition:
-    return _infer_definition(name, family)
-
-
-def _numbers(result: Mapping[str, Any], fields: tuple[str, ...]) -> dict[str, dict[str, float | None]]:
-    values: dict[str, dict[str, float | None]] = {}
-    by_identity = {str(item.get("source_player_id", "")): item for item in result.get("results", [])}
-    for key, item in by_identity.items():
-        values[key] = {}
-        for field in fields:
-            try:
-                raw = item.get(field)
-                values[key][field] = float(raw) if raw not in (None, "") else None
-            except (TypeError, ValueError):
-                values[key][field] = None
-    return values
+def variable_definition(
+    name: str,
+    *,
+    family: str | None = None,
+    season: str | None = None,
+) -> VariableDefinition:
+    return _infer_definition(name, family, season)
 
 
 def _derive_player_match(
@@ -155,21 +176,24 @@ def _derive_player_match(
     *,
     player_id: str | None,
 ) -> dict:
-    rows = player_match_field_values(
+    first = player_match_field_values(
         season,
         fixture_id,
         metric.derived_from[0],
         player_id=player_id,
-    )["results"]
+    )
     second = player_match_field_values(
         season,
         fixture_id,
         metric.derived_from[1],
         player_id=player_id,
-    )["results"]
-    second_by_player = {str(item["source_player_id"]): item for item in second}
+    )
+
+    second_by_player = {
+        str(item["source_player_id"]): item for item in second.get("results", [])
+    }
     results = []
-    for item in rows:
+    for item in first.get("results", []):
         pid = str(item["source_player_id"])
         a_raw = item.get("value")
         b_raw = second_by_player.get(pid, {}).get("value")
@@ -186,9 +210,13 @@ def _derive_player_match(
                 "source_player_id": pid,
                 "source_field": metric.name,
                 "value": value,
-                "inputs": {metric.derived_from[0]: a, metric.derived_from[1]: b},
+                "inputs": {
+                    metric.derived_from[0]: a,
+                    metric.derived_from[1]: b,
+                },
             }
         )
+
     return {
         "query_type": "frl_variable",
         "variable": metric.name,
@@ -197,7 +225,10 @@ def _derive_player_match(
         "season": season,
         "fixture_id": str(fixture_id),
         "results": results,
-        "provenance": {"source_fields": list(metric.derived_from)},
+        "provenance": {
+            "source_fields": list(metric.derived_from),
+            "registry_status": "derived",
+        },
     }
 
 
@@ -212,11 +243,12 @@ def resolve_variable(
 ) -> dict:
     """Resolve a source/canonical variable in a football context.
 
-    The caller may start from a fixture and optionally narrow to team/player.
-    The resolver then delegates to the existing generic research-field query
-    functions and returns their provenance-bearing result.
+    Native source fields are discovered against the requested season. The
+    resolver delegates actual retrieval to the existing generic research-field
+    query layer, preserving the audited source-family adapters and identity
+    bridges.
     """
-    definition = variable_definition(name, family=family)
+    definition = variable_definition(name, family=family, season=season)
 
     if definition.status != "exposed":
         raise VariableUnavailableError(
@@ -267,4 +299,9 @@ def resolve_variable(
     raise UnsupportedContextError(f"Unsupported variable family: {definition.family}")
 
 
-__all__ = ["VariableDefinition", "VariableResolutionError", "resolve_variable", "variable_definition"]
+__all__ = [
+    "VariableDefinition",
+    "VariableResolutionError",
+    "resolve_variable",
+    "variable_definition",
+]
