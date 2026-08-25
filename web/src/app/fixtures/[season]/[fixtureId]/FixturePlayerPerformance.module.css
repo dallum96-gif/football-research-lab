@@ -1,0 +1,125 @@
+.pair {
+  display: contents;
+}
+
+.panel {
+  grid-row: 3;
+  min-width: 0;
+  padding-top: .2rem;
+}
+
+.home {
+  grid-column: 1;
+  text-align: right;
+}
+
+.away {
+  grid-column: 3;
+  text-align: left;
+}
+
+.heading {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin-bottom: .35rem;
+}
+
+.home .heading {
+  justify-content: flex-end;
+}
+
+.away .heading {
+  justify-content: flex-start;
+}
+
+.kicker {
+  color: var(--frl-muted-soft);
+  font-size: .5rem;
+  font-weight: 750;
+  letter-spacing: .09em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.teamName {
+  color: var(--frl-text);
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  line-height: 1;
+}
+
+.metrics {
+  display: grid;
+}
+
+.metricRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: .7rem;
+  align-items: center;
+  min-height: 1.85rem;
+  border-top: 1px solid color-mix(in srgb, var(--frl-border) 72%, transparent);
+}
+
+.metricCopy {
+  min-width: 0;
+}
+
+.metricLabel {
+  display: block;
+  color: var(--frl-muted-soft);
+  font-size: .48rem;
+  font-weight: 700;
+  letter-spacing: .075em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.playerLine {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .3rem;
+  max-width: 100%;
+  margin-top: .14rem;
+  color: var(--frl-text);
+  font-size: .62rem;
+  font-weight: 700;
+  line-height: 1.05;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.position {
+  color: var(--frl-muted);
+  font-size: .45rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.metricValue {
+  color: var(--frl-text);
+  font-size: .7rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .panel {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .home,
+  .away {
+    text-align: left;
+  }
+
+  .home .heading,
+  .away .heading {
+    justify-content: flex-start;
+  }
+}
