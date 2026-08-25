@@ -1,0 +1,1 @@
+V2 adds empirical season-aware native field discovery to the universal resolver. The runtime still delegates actual retrieval to research_field_query and preserves source-family and fixture/player relationship semantics.
