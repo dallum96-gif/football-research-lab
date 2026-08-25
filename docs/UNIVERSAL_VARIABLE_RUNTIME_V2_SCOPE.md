@@ -1,0 +1,1 @@
+This runtime slice makes native source fields empirically discoverable by requested season and delegates retrieval to the audited generic research-field layer.
