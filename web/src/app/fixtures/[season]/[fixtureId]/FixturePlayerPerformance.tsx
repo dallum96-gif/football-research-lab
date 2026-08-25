@@ -9,12 +9,15 @@ type PlayerPerformance = {
   position: string | null;
   minutes: number | null;
   value: number | null;
+  secondary_value: number | null;
 };
 
 type PerformanceMetric = {
   key: string;
   label: string;
   unit: string;
+  secondary_label: string | null;
+  secondary_unit: string | null;
   player: PlayerPerformance | null;
 };
 
@@ -44,10 +47,9 @@ const runtimeEnv = (globalThis as typeof globalThis & {
 
 const API_BASE = runtimeEnv?.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
-function formatValue(metric: PerformanceMetric): string {
-  const value = metric.player?.value;
+function formatValue(value: number | null, unit: string): string {
   if (value == null || Number.isNaN(value)) return "—";
-  if (metric.unit === "%") return `${value.toFixed(1)}%`;
+  if (unit === "%") return `${value.toFixed(1)}%`;
   return Number.isInteger(value) ? String(value) : value.toFixed(1);
 }
 
@@ -57,23 +59,49 @@ function PlayerPerformancePanel({ side }: { side: FixturePlayerPerformanceSide }
   return (
     <section className={`${styles.panel} ${home ? styles.home : styles.away}`} aria-label={`${side.team_name} player performance`}>
       <div className={styles.heading}>
-        <span className={styles.kicker}>Player performance</span>
+        <span className={styles.kicker}>Standout players</span>
         <span className={styles.teamName}>{side.team_name}</span>
       </div>
 
-      <div className={styles.metrics}>
-        {side.metrics.map((metric) => (
-          <div className={styles.metricRow} key={metric.key}>
-            <div className={styles.metricCopy}>
-              <span className={styles.metricLabel}>{metric.label}</span>
-              <span className={styles.playerLine}>
-                {metric.player?.player_name ?? "No player recorded"}
-                {metric.player?.position ? <span className={styles.position}>{metric.player.position}</span> : null}
-              </span>
-            </div>
-            <span className={styles.metricValue}>{formatValue(metric)}</span>
-          </div>
-        ))}
+      <div className={styles.tiles}>
+        {side.metrics.map((metric) => {
+          const player = metric.player;
+          const hasSecondary = metric.secondary_label != null && player?.secondary_value != null;
+          const unitLabel = metric.key === "passes_completed"
+            ? "completed"
+            : metric.key === "tackles_won"
+              ? "won"
+              : metric.key === "successful_dribbles"
+                ? "successful"
+                : metric.key === "shots_on_target"
+                  ? "on target"
+                  : metric.key === "interceptions_won"
+                    ? "won"
+                    : "created";
+
+          return (
+            <article className={styles.tile} key={metric.key}>
+              <div className={styles.tileTop}>
+                <span className={styles.metricLabel}>{metric.label}</span>
+                {player?.position ? <span className={styles.position}>{player.position}</span> : null}
+              </div>
+
+              <div className={styles.playerName}>{player?.player_name ?? "No player recorded"}</div>
+
+              <div className={styles.valueLine}>
+                <strong className={styles.metricValue}>{formatValue(player?.value ?? null, metric.unit)}</strong>
+                <span className={styles.metricUnit}>{unitLabel}</span>
+              </div>
+
+              {hasSecondary ? (
+                <div className={styles.secondaryLine}>
+                  <span>{metric.secondary_label}</span>
+                  <strong>{formatValue(player.secondary_value, metric.secondary_unit ?? "")}</strong>
+                </div>
+              ) : null}
+            </article>
+          );
+        })}
       </div>
     </section>
   );
