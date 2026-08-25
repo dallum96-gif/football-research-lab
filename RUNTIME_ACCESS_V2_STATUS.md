@@ -1,0 +1,1 @@
+Implementation status: empirical season-aware native variable discovery is wired into the universal resolver, with canonical aliases and derived variables preserved.
