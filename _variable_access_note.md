@@ -1,0 +1,1 @@
+Temporary note: universal variable access implementation is staged in `feature/universal-variable-access` / PR #27. The first slice establishes the contract, resolver, metadata and tests without creating parallel source joins. Real source handlers remain to be attached at existing player-match/query seams.
