@@ -1,0 +1,1 @@
+Universal variable runtime V2 is complete on feature/universal-variable-runtime. Native source fields are discovered per requested season and resolved through the existing generic research-field query layer.
