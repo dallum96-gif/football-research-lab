@@ -1,0 +1,1 @@
+Implementation note: the universal resolver now supports empirical, season-aware native source-field discovery and delegates retrieval to the existing research-field query layer. Canonical aliases remain explicit and provenance is preserved.
