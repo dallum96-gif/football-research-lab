@@ -1,0 +1,1 @@
+Runtime V2 is implemented on feature/universal-variable-runtime. Native fields are empirically discovered per requested season and resolved through the existing generic research-field query layer; canonical aliases remain explicit.
