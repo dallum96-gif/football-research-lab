@@ -1,13 +1,9 @@
 .pair {
-  grid-column: 1 / -1;
-  grid-row: 3;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(430px, 620px) minmax(0, 1fr);
-  gap: 1rem;
-  align-items: start;
+  display: contents;
 }
 
 .panel {
+  grid-row: 3;
   min-width: 0;
   padding-top: .15rem;
 }
@@ -145,20 +141,22 @@
 }
 
 @media (max-width: 900px) {
-  .pair {
+  .panel {
     grid-column: 1;
     grid-row: auto;
-    grid-template-columns: 1fr;
   }
 
   .home,
   .away {
-    grid-column: 1;
     text-align: left;
   }
 
   .home .heading,
   .away .heading { justify-content: flex-start; }
+
+  .pair {
+    display: contents;
+  }
 }
 
 @media (max-width: 650px) {
