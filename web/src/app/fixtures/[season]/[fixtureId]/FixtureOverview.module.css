@@ -60,10 +60,41 @@
   z-index: 1;
 }
 
-.lineupSide { min-width: 0; align-self: stretch; }
+.lineupSide { min-width: 0; align-self: stretch; position: relative; }
 .lineupHome { grid-column: 1; }
 .lineupAway { grid-column: 3; }
 .lineupSideHeader { display: none; }
+
+.lineupSide::before {
+  content: "";
+  position: absolute;
+  top: 6.05rem;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: .92rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.05em;
+  background: color-mix(in srgb, var(--frl-surface) 90%, transparent);
+  z-index: 2;
+}
+.lineupHome::before {
+  content: "A";
+  color: #ef0107;
+  border: 1px solid #ef0107;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #ef0107 8%, transparent);
+}
+.lineupAway::before {
+  content: "L";
+  color: #111111;
+  border: 1px solid #111111;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #111111 8%, transparent);
+}
 
 .tacticalBoard {
   position: relative;
