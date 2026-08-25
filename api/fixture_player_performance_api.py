@@ -15,12 +15,15 @@ class PlayerPerformance(BaseModel):
     position: str | None = None
     minutes: float | None = None
     value: float | None = None
+    secondary_value: float | None = None
 
 
 class PerformanceMetric(BaseModel):
     key: str
     label: str
     unit: str
+    secondary_label: str | None = None
+    secondary_unit: str | None = None
     player: PlayerPerformance | None = None
 
 
@@ -40,12 +43,12 @@ class FixturePlayerPerformanceResponse(BaseModel):
 
 
 METRICS = (
-    ("tackle_won_pct", "Tackle won %", "%"),
-    ("interceptions_won", "Interceptions won", ""),
-    ("pass_completion_pct", "Pass completion %", "%"),
-    ("key_passes", "Key passes", ""),
-    ("successful_dribbles", "Successful dribbles", ""),
-    ("shots_on_target", "Shots on target", ""),
+    ("passes_completed", "Passes completed", "", "Pass completion", "%"),
+    ("tackles_won", "Tackles won", "", "Tackle won", "%"),
+    ("interceptions_won", "Interceptions won", "", None, None),
+    ("key_passes", "Key passes", "", None, None),
+    ("successful_dribbles", "Successful dribbles", "", "Dribble success", "%"),
+    ("shots_on_target", "Shots on target", "", "Shot accuracy", "%"),
 )
 
 
@@ -66,19 +69,24 @@ def _percentage(numerator, denominator):
     return numerator_value / denominator_value * 100.0
 
 
-def _metric_value(row: dict, key: str):
-    if key == "tackle_won_pct":
-        return _percentage(row.get("wonTackle"), row.get("totalTackle"))
+def _metric_values(row: dict, key: str) -> tuple[float | None, float | None]:
+    if key == "passes_completed":
+        return _number(row.get("accuratePass")), _percentage(row.get("accuratePass"), row.get("totalPass"))
+    if key == "tackles_won":
+        return _number(row.get("wonTackle")), _percentage(row.get("wonTackle"), row.get("totalTackle"))
     if key == "interceptions_won":
-        return _number(row.get("interceptionWon"))
-    if key == "pass_completion_pct":
-        return _percentage(row.get("accuratePass"), row.get("totalPass"))
+        return _number(row.get("interceptionWon")), None
     if key == "key_passes":
-        return _number(row.get("keyPass"))
+        return _number(row.get("keyPass")), None
     if key == "successful_dribbles":
-        return _number(row.get("successfulDribbles"))
+        successful = _number(row.get("successfulDribbles"))
+        unsuccessful = _number(row.get("unsuccessfulDribbles"))
+        total = None if successful is None and unsuccessful is None else (successful or 0.0) + (unsuccessful or 0.0)
+        return successful, _percentage(successful, total)
     if key == "shots_on_target":
-        return _number(row.get("onTargetScoringAttempt"))
+        on_target = _number(row.get("onTargetScoringAttempt"))
+        total_shots = _number(row.get("totalScoringAttempt"))
+        return on_target, _percentage(on_target, total_shots)
     raise KeyError(key)
 
 
@@ -109,21 +117,22 @@ def _eligible_rows(rows: tuple[dict, ...], side: str) -> tuple[dict, ...]:
 def _leader(rows: tuple[dict, ...], key: str) -> PlayerPerformance | None:
     candidates = []
     for row in rows:
-        value = _metric_value(row, key)
+        value, secondary_value = _metric_values(row, key)
         if value is None:
             continue
-        candidates.append((value, _name(row) or "", str(player_match_stats.source_player_id(row) or ""), row))
+        candidates.append((value, _name(row) or "", str(player_match_stats.source_player_id(row) or ""), row, secondary_value))
 
     if not candidates:
         return None
 
-    value, _, _, row = max(candidates, key=lambda item: (item[0], item[1].casefold(), item[2]))
+    value, _, _, row, secondary_value = max(candidates, key=lambda item: (item[0], item[1].casefold(), item[2]))
     return PlayerPerformance(
         player_id=player_match_stats.source_player_id(row),
         player_name=_name(row),
         position=str(row.get("position") or row.get("positionText") or "").strip() or None,
         minutes=_number(row.get("minutesPlayed")),
         value=value,
+        secondary_value=secondary_value,
     )
 
 
@@ -135,8 +144,15 @@ def _side_payload(
 ) -> FixturePlayerPerformance:
     eligible = _eligible_rows(rows, side)
     metrics = [
-        PerformanceMetric(key=key, label=label, unit=unit, player=_leader(eligible, key))
-        for key, label, unit in METRICS
+        PerformanceMetric(
+            key=key,
+            label=label,
+            unit=unit,
+            secondary_label=secondary_label,
+            secondary_unit=secondary_unit,
+            player=_leader(eligible, key),
+        )
+        for key, label, unit, secondary_label, secondary_unit in METRICS
     ]
     status: Literal["AVAILABLE", "UNAVAILABLE", "KNOWN_EXCEPTION"] = "AVAILABLE" if eligible else "UNAVAILABLE"
     limitations: list[str] = []
