@@ -1,0 +1,1 @@
+Universal variable runtime V2: native source fields are discovered empirically per requested season and resolved through the existing research_field_query seam. Canonical aliases remain explicit and presentation remains separate from access.
