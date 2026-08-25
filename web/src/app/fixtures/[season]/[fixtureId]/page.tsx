@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import { AppShell } from "@/components/AppShell";
+import { FixturePlayerPerformance } from "./FixturePlayerPerformance";
 import styles from "./FixtureOverview.module.css";
 
 type FixtureDetailProps = {
@@ -193,7 +194,7 @@ function FrlBrand() {
 }
 
 export default async function FixtureDetailPage({ params }: FixtureDetailProps) {
-  await params;
+  const { season, fixtureId } = await params;
 
   return (
     <AppShell>
@@ -243,6 +244,8 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
           <LineupSide title="Arsenal" formation="4–2–3–1" manager="Arsène Wenger" players={arsenalPlayers} team="home" />
           <LineupSide title="Liverpool" formation="4–3–3" manager="Jürgen Klopp" players={liverpoolPlayers} team="away" />
         </section>
+
+        <FixturePlayerPerformance season={season} fixtureId={fixtureId} />
 
         <section className={styles.statsSection}>
           <div className={styles.sectionTitle}>
