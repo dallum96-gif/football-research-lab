@@ -1,0 +1,1 @@
+V2 runtime complete: native source fields are empirically discovered per requested season and resolved through the existing research-field query seam; canonical aliases and derived variables remain explicit.
