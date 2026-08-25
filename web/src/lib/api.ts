@@ -13,6 +13,44 @@ export type FixtureApiRow = {
   result: "W" | "D" | "L" | "UNPLAYED" | null;
 };
 
+export type FixtureDetailStats = {
+  home_possession: number | null;
+  away_possession: number | null;
+  home_shots_on_target: number | null;
+  away_shots_on_target: number | null;
+  home_shots: number | null;
+  away_shots: number | null;
+  home_corners: number | null;
+  away_corners: number | null;
+  home_fouls: number | null;
+  away_fouls: number | null;
+  home_yellow_cards: number | null;
+  away_yellow_cards: number | null;
+  attendance: number | null;
+};
+
+export type FixturePlayerMatchEvidence = {
+  source_match_id: string;
+  source_player_id: string | null;
+  source_name: string | null;
+  position: string | null;
+  side: "home" | "away" | null;
+  participation: "starting" | "sub_in" | "bench" | "unknown";
+  minutes: number | null;
+};
+
+export type FixtureDetailResult = {
+  fixture: FixtureApiRow;
+  stats: FixtureDetailStats | null;
+  player_match: FixturePlayerMatchEvidence[];
+  player_match_status: "AVAILABLE" | "UNAVAILABLE" | "KNOWN_EXCEPTION";
+  provenance: {
+    source: string;
+    transformation_version: string;
+  };
+  limitations: string[];
+};
+
 export type TeamOption = {
   persistent_team_code: string | null;
   display_name: string;
@@ -57,7 +95,11 @@ export type FixtureResearchResult = {
   limitations: string[];
 };
 
-const API_BASE = process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
+const runtimeEnv = (globalThis as typeof globalThis & {
+  process?: { env?: Record<string, string | undefined> };
+}).process?.env;
+
+const API_BASE = runtimeEnv?.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
@@ -108,6 +150,17 @@ export async function fetchFixtureResearchResult(
 
   return getJson<FixtureResearchResult>(
     `/api/v1/fixtures/${encodeURIComponent(season)}?${params.toString()}`,
+    signal,
+  );
+}
+
+export function fetchFixtureDetail(
+  season: string,
+  fixtureId: string,
+  signal?: AbortSignal,
+): Promise<FixtureDetailResult> {
+  return getJson<FixtureDetailResult>(
+    `/api/v1/fixtures/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}`,
     signal,
   );
 }

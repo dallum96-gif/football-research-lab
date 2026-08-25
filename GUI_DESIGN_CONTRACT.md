@@ -152,6 +152,172 @@ After modifying:
 - Verify canonical entity references remain unchanged.
 - Verify navigation remains same-tab unless an explicit product decision changes that behaviour.
 
+## GUI change verification protocol
+
+For iterative visual work, a successful GitHub write is **not** sufficient evidence that a requested UI change is complete.
+
+Before instructing a user to pull a GUI change, the change must pass this verification sequence:
+
+### 1. Read current state
+
+Inspect the exact current file(s), active branch/ref, relevant shared components and active theme implementation.
+
+### 2. Define the visual delta
+
+State precisely what is intended to move, resize, align, appear, disappear or remain unchanged.
+
+### 3. Make the smallest change
+
+Prefer the smallest structural or styling change that can satisfy the request. Do not bundle unrelated visual improvements into the same iteration.
+
+### 4. Static audit
+
+Re-read the complete changed file(s) and check:
+
+- JSX/HTML structure;
+- CSS selectors and specificity;
+- grid/flex relationships;
+- absolute-positioning anchors;
+- inherited dimensions;
+- padding/margin/gap interactions;
+- responsive rules;
+- duplicate or conflicting rules;
+- stale implementations from the previous iteration;
+- use of the approved FRL theme variables and typography.
+
+### 5. Diff audit
+
+Compare the previous commit with the new commit. Confirm that the diff contains the requested change and does not silently alter unrelated UI or analytical behaviour.
+
+### 6. Commit verification
+
+Confirm:
+
+- the commit exists;
+- it is on the intended branch;
+- the expected file(s) changed;
+- the resulting commit SHA is known.
+
+### 7. Render-logic audit
+
+Trace the actual layout logic, not just the intended design language. Ask:
+
+- Which element determines the vertical start position?
+- Which parent establishes the coordinate system?
+- Are opposing sides anchored to the same coordinate system?
+- Are top and bottom elements using the same vertical span?
+- Does any hidden header, margin, padding or absolute-positioning rule introduce an offset?
+- What happens at the target viewport width?
+
+### 8. Pull instruction
+
+Only after steps 1–7 pass should the user be instructed to pull and review the change.
+
+If any verification step is uncertain, do not claim the change is complete. Report the uncertainty or continue auditing.
+
+## Fixture Overview visual contract
+
+The Fixture Overview is a specific visual reference point for iterative GUI work. These rules describe the intended current design direction and must be checked before fixture-page changes are presented for review.
+
+### Match identity
+
+```text
+Arsenal  →  kit  →  score  →  kit  →  Liverpool
+```
+
+- one horizontal match-identity composition;
+- the whole composition is centred on the page;
+- team names, kits and score share the same vertical line;
+- team names have more visual prominence than the scoreline;
+- the scoreline remains compact rather than oversized;
+- the FRL font is used consistently throughout the page;
+- `Full time` sits beneath the score with deliberate breathing room.
+
+### Event timeline
+
+- chronological;
+- goals, assists and yellow/red cards only;
+- substitutions are not part of this overview timeline;
+- home events read from the left;
+- away events read from the right;
+- minutes form the central spine;
+- the timeline belongs to the match page rather than appearing as a detached table.
+
+### Tactical formation area
+
+The formation display should use a **three-column composition**:
+
+```text
+Arsenal formation  |  match score + timeline  |  Liverpool formation
+```
+
+The central column is the visual spine of the match. The formations use the available left and right space rather than appearing as detached cards beneath it.
+
+The formation boards should have the **geometry of a pitch without the visual treatment of a football pitch**:
+
+- transparent background;
+- no generic green surface;
+- no large white card behind the board;
+- subtle FRL border/line geometry only;
+- professional, sleek, analytical appearance;
+- player nodes should remain visually restrained.
+
+The tactical orientation is vertical:
+
+```text
+GK
+↓
+DEF
+↓
+MID
+↓
+AM / FW
+↓
+ST
+```
+
+For home and away:
+
+- goalkeeper occupies the highest formation position;
+- striker occupies the lowest formation position;
+- both teams use the same vertical extent;
+- home GK and away GK finish on the same horizontal line;
+- home ST and away ST finish on the same horizontal line;
+- one formation must never appear visually longer or shorter than the other;
+- no lineup header or other decorative element may create a false vertical offset between the formations and the central match spine.
+
+### Match statistics
+
+- compact side-by-side presentation;
+- home and away labels clearly distinguish the two sides;
+- avoid unnecessary empty space;
+- percentages should be used where useful for instant scanning;
+- statistics should feel integrated into the page rather than like a generic dataframe.
+
+### Match metadata
+
+Match metadata remains part of the same overview page, including where applicable:
+
+- competition;
+- matchweek;
+- date;
+- kick-off;
+- venue;
+- attendance;
+- referee.
+
+Metadata should remain visually subordinate to the match identity and analytical content.
+
+### Page composition
+
+The page should be viewport-first rather than a long dashboard canvas.
+
+- minimise blank space where information can be placed meaningfully beside related content;
+- prefer navigation and progressive disclosure over unnecessary page scrolling;
+- keep the overview dense enough to feel like a serious football research workspace;
+- preserve the same FRL typography, palette, spacing rhythm and borders across all sections;
+- avoid generic dashboard cards and decorative sports-site components.
+
 ## Research Result presentation
 
 The FRL should progressively standardise around a reusable **Research Result** concept.
