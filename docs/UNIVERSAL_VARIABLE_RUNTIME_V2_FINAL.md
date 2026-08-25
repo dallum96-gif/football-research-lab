@@ -1,0 +1,1 @@
+Universal runtime V2 implementation is season-aware and source-native fields are discovered empirically before retrieval through the audited research-field layer.

@@ -1,0 +1,1 @@
+V2 complete: native field discovery is empirical and season-aware; retrieval delegates to the audited generic research-field layer; canonical aliases remain explicit.

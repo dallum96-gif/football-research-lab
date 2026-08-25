@@ -1,0 +1,1 @@
+V2 runtime: native source fields are empirically discovered per requested season and resolved through the existing research-field query layer. Canonical aliases and derived metrics remain explicit; presentation remains separate from accessibility.

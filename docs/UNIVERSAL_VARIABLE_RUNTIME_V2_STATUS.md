@@ -1,0 +1,1 @@
+Native source variables are now season-aware through empirical field discovery; actual retrieval remains delegated to the existing audited research-field query layer.
