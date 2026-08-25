@@ -1,0 +1,1 @@
+Universal variable runtime V2: canonical aliases plus empirical season-aware native source-field discovery, delegating retrieval to research_field_query and preserving provenance/identity semantics.
