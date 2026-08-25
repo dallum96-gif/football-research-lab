@@ -358,3 +358,139 @@ The blueprint will evolve as we learn more about the data and the research probl
 Preserve the underlying architecture so that new questions, variables, derived metrics, scouting classifications and models can be added without repeatedly rebuilding the foundations.
 
 **Build the foundations first. Discover the models later.**
+
+# MASTER PROMPT V2 — MATURE PROJECT RECOVERY PROTOCOL
+
+The FRL is now a mature, multi-layered research platform.
+
+Before substantive work, recover the actual current project state. Do not infer architecture from a single branch, document, inventory or count.
+
+## Mandatory recovery
+
+1. Read the governing project documents and relevant contracts.
+2. Establish current branch, commit, working-tree state and divergence from main.
+3. Identify the current project phase.
+4. Identify authoritative artefacts and their architectural layer.
+5. Locate established mechanisms before designing replacements.
+6. Inspect approved local/source-audit/archived mechanisms where necessary.
+7. Locate and run the current validation gates.
+8. Only then begin substantive implementation.
+
+## Architectural layer rule
+
+Never treat counts from different layers as interchangeable.
+
+Current known distinction:
+
+- 447 retained source fields = source-field inventory.
+- 1,414 authoritative canonical variables = canonical-variable universe.
+
+The 447 source-field universe is NOT the 1,414 canonical-variable universe.
+
+Never rebuild a higher-level authoritative artefact from a lower-level inventory without first proving that the existing artefact is unavailable.
+
+## Existing-system recovery rule
+
+Before creating a new mechanism, search for:
+
+- canonical mappings;
+- variable dictionaries;
+- routed-variable registries;
+- attachment matrices;
+- identity registries;
+- relationship contracts;
+- source-family adapters;
+- research/query services;
+- analytical services;
+- GUI consumers;
+- archived implementations;
+- relevant tests.
+
+Reuse established mechanisms before creating replacements.
+
+## Protected systems
+
+See FRL_PROTECTED_SYSTEMS.md.
+
+Use FRL_PROJECT_STATE.yaml as the machine-readable project-state anchor, and verify it against the repository.
+
+## Variable architecture
+
+Variables belong to their natural analytical grain.
+
+The standard consumer path is:
+
+validated/canonical variable
+→ canonical metadata
+→ natural grain
+→ verified identity/relationship bridge
+→ existing research/query layer
+→ structured value + provenance
+→ authorised consumer.
+
+Do not create bespoke page-specific extraction paths when established query infrastructure can be extended.
+
+## Identity safety
+
+Source identifiers are not automatically interchangeable.
+
+Never infer canonical identity merely because numbers match, names look similar, or a convenient join works.
+
+Ambiguous identity must fail closed.
+
+## Temporal safety
+
+Historical state and historical information availability are distinct.
+
+Never backfill missing historical fields from later seasons or convert missing evidence into zero.
+
+## Branch safety
+
+Do not assume main is automatically the only current implementation state.
+
+When branches diverge:
+
+1. determine the merge base;
+2. inspect each side's architectural contribution;
+3. identify complementary, superseded and required work;
+4. integrate on a safety branch;
+5. validate;
+6. only then promote the result.
+
+Never casually reset, rebase, force-push or discard substantial project work.
+
+## Validation
+
+Do not rely on stale test filenames or stale documentation.
+
+Locate the current validation gates in the actual checkout.
+
+At minimum establish:
+
+- project health;
+- Core Query Lab;
+- current Player Research gate;
+- relevant identity/relationship tests;
+- relevant Universal Variable Access tests;
+- relevant GUI/frontend smoke tests.
+
+Never claim a gate passed unless it was actually executed.
+
+## Stop conditions
+
+Stop and investigate if:
+
+- authoritative artefacts appear contradictory;
+- multiple plausible current branches exist;
+- a requested variable already exists in the canonical universe;
+- an apparently missing mechanism may exist elsewhere;
+- identity evidence is ambiguous;
+- temporal semantics are unclear;
+- a branch is already in merge/rebase/conflict state;
+- the current project phase is unclear.
+
+## Governing principle
+
+> Recover before building. Classify before interpreting. Reuse before replacing. Preserve before deleting. Validate before declaring success.
+
+Do not make the next session reconstruct what the current session can make explicit.
