@@ -1,0 +1,49 @@
+﻿project_name: Football Research Laboratory
+project_phase: integrated-platform
+state_as_of: 2026-08-25
+
+stable_branch: main
+working_branch: integration/frl-current-state
+integration_commit: 22b2966
+
+architecture:
+  source_field_universe:
+    count: 447
+    layer: retained_source_fields
+    meaning: "Deduplicated retained source-field inventory."
+  canonical_variable_universe:
+    count: 1414
+    layer: canonical_variables
+    meaning: "Authoritative canonical variable universe mapped to explicit relationship/context layers."
+  canonical_relationships:
+    status: established
+  universal_variable_access:
+    status: active_implementation
+  identity_layer:
+    status: established
+  research_query_layer:
+    status: established
+  frontend:
+    status: active_migration
+
+authoritative_artefacts:
+  source_field_universe: "data/master_variable_universe.csv"
+  canonical_variable_mapping: "FRL canonical variable mapping documented in source-audit workspace; 1414 is authoritative."
+  identity_schema: "FRL_DEFAULT_IDENTITY_SCHEMA_V1.md"
+  identity_relationship_contract: "FRL_IDENTITY_RELATIONSHIP_CONTRACT_V1.md"
+  variable_attachment_schema: "FRL_VARIABLE_ENTITY_ATTACHMENT_SCHEMA_V1.md"
+  universal_variable_access: "FRL_UNIVERSAL_VARIABLE_ACCESS_STATUS_2026-08-25.md"
+
+validation:
+  project_health: "GREEN_WITH_KNOWN_WARNING"
+  project_health_warning: "2019-20 fixture 275 has no score and remains explicitly uncompleted pending fixture status."
+  query_lab: "14/14"
+  player_research_v02_gate: "6/6"
+
+rules:
+  - "Do not treat source-field counts and canonical-variable counts as interchangeable."
+  - "Recover authoritative artefacts before rebuilding inventories."
+  - "Reuse established mechanisms before creating replacements."
+  - "Fail closed on ambiguous identity or unsupported historical evidence."
+  - "Do not infer absence from failure to find one file or branch."
+  - "Validate before declaring an architectural state complete."
