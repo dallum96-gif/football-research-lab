@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Literal
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 import player_match_stats
 import query_api
@@ -29,7 +29,7 @@ class FixturePlayerPerformance(BaseModel):
     team_name: str
     metrics: list[PerformanceMetric]
     status: Literal["AVAILABLE", "UNAVAILABLE", "KNOWN_EXCEPTION"]
-    limitations: list[str] = []
+    limitations: list[str] = Field(default_factory=list)
 
 
 class FixturePlayerPerformanceResponse(BaseModel):
@@ -127,7 +127,12 @@ def _leader(rows: tuple[dict, ...], key: str) -> PlayerPerformance | None:
     )
 
 
-def _side_payload(rows: tuple[dict, ...], side: Literal["home", "away"], team_name: str) -> FixturePlayerPerformance:
+def _side_payload(
+    rows: tuple[dict, ...],
+    side: Literal["home", "away"],
+    team_name: str,
+    limitation: str | None = None,
+) -> FixturePlayerPerformance:
     eligible = _eligible_rows(rows, side)
     metrics = [
         PerformanceMetric(key=key, label=label, unit=unit, player=_leader(eligible, key))
@@ -137,6 +142,8 @@ def _side_payload(rows: tuple[dict, ...], side: Literal["home", "away"], team_na
     limitations: list[str] = []
     if not eligible:
         limitations.append("No player-match rows with positive minutes are available for this fixture side.")
+    if limitation:
+        limitations.append(limitation)
     return FixturePlayerPerformance(side=side, team_name=team_name, metrics=metrics, status=status, limitations=limitations)
 
 
@@ -154,16 +161,19 @@ def install(app: FastAPI) -> None:
             raise HTTPException(status_code=500, detail="Fixture player performance failed safely.") from exc
 
         fixture = detail["fixture"]
+        limitation: str | None = None
         try:
             rows = player_match_stats.fixture_player_match_rows(fixture)
-        except (FileNotFoundError, ValueError) as exc:
-            raise HTTPException(status_code=200, detail=str(exc)) from exc
+        except FileNotFoundError as exc:
+            rows = tuple()
+            limitation = f"Player-match evidence source unavailable: {exc}"
+        except ValueError as exc:
+            rows = tuple()
+            limitation = f"Player-match evidence could not be reconciled safely: {exc}"
 
-        home = _side_payload(rows, "home", str(fixture["home_team_name"]))
-        away = _side_payload(rows, "away", str(fixture["away_team_name"]))
         return FixturePlayerPerformanceResponse(
             season=season,
             fixture_id=fixture_id,
-            home=home,
-            away=away,
+            home=_side_payload(rows, "home", str(fixture["home_team_name"]), limitation),
+            away=_side_payload(rows, "away", str(fixture["away_team_name"]), limitation),
         )
