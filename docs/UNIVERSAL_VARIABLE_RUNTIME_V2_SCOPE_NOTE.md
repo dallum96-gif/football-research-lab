@@ -1,0 +1,1 @@
+Native source variables are season-aware and resolved through research_field_query; no parallel extraction layer is introduced.
