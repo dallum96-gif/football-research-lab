@@ -1,11 +1,15 @@
 .pair {
-  display: contents;
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(430px, 620px) minmax(0, 1fr);
+  gap: 1rem;
+  align-items: start;
 }
 
 .panel {
-  grid-row: 3;
   min-width: 0;
-  padding-top: .2rem;
+  padding-top: .15rem;
 }
 
 .home {
@@ -21,21 +25,16 @@
 .heading {
   display: flex;
   align-items: baseline;
-  gap: .5rem;
-  margin-bottom: .35rem;
+  gap: .55rem;
+  margin-bottom: .55rem;
 }
 
-.home .heading {
-  justify-content: flex-end;
-}
-
-.away .heading {
-  justify-content: flex-start;
-}
+.home .heading { justify-content: flex-end; }
+.away .heading { justify-content: flex-start; }
 
 .kicker {
   color: var(--frl-muted-soft);
-  font-size: .5rem;
+  font-size: .49rem;
   font-weight: 750;
   letter-spacing: .09em;
   line-height: 1;
@@ -44,82 +43,124 @@
 
 .teamName {
   color: var(--frl-text);
-  font-size: .68rem;
+  font-size: .72rem;
   font-weight: 800;
   letter-spacing: -.01em;
   line-height: 1;
 }
 
-.metrics {
+.tiles {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .45rem;
 }
 
-.metricRow {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: .7rem;
-  align-items: center;
-  min-height: 1.85rem;
-  border-top: 1px solid color-mix(in srgb, var(--frl-border) 72%, transparent);
-}
-
-.metricCopy {
+.tile {
   min-width: 0;
+  min-height: 5.5rem;
+  padding: .62rem .66rem .58rem;
+  border: 1px solid color-mix(in srgb, var(--frl-border) 74%, transparent);
+  border-radius: .72rem;
+  background: color-mix(in srgb, var(--frl-surface) 72%, transparent);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--frl-border) 30%, transparent);
+}
+
+.tileTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .35rem;
 }
 
 .metricLabel {
-  display: block;
   color: var(--frl-muted-soft);
-  font-size: .48rem;
-  font-weight: 700;
+  font-size: .46rem;
+  font-weight: 750;
   letter-spacing: .075em;
-  line-height: 1;
+  line-height: 1.15;
   text-transform: uppercase;
 }
 
-.playerLine {
-  display: inline-flex;
-  align-items: baseline;
-  gap: .3rem;
-  max-width: 100%;
-  margin-top: .14rem;
+.position {
+  flex: 0 0 auto;
+  color: var(--frl-muted-soft);
+  font-size: .42rem;
+  font-weight: 750;
+  letter-spacing: .05em;
+}
+
+.playerName {
+  margin-top: .48rem;
   color: var(--frl-text);
-  font-size: .62rem;
-  font-weight: 700;
+  font-size: .67rem;
+  font-weight: 750;
+  letter-spacing: -.015em;
   line-height: 1.05;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.position {
-  color: var(--frl-muted);
-  font-size: .45rem;
-  font-weight: 700;
-  letter-spacing: .04em;
+.valueLine {
+  display: flex;
+  align-items: baseline;
+  gap: .3rem;
+  margin-top: .38rem;
 }
 
 .metricValue {
   color: var(--frl-text);
-  font-size: .7rem;
+  font-size: .9rem;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.03em;
+}
+
+.metricUnit {
+  color: var(--frl-muted);
+  font-size: .44rem;
+  font-weight: 700;
+  letter-spacing: .035em;
+  text-transform: uppercase;
+}
+
+.secondaryLine {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .4rem;
+  margin-top: .3rem;
+  padding-top: .28rem;
+  border-top: 1px solid color-mix(in srgb, var(--frl-border) 55%, transparent);
+  color: var(--frl-muted-soft);
+  font-size: .43rem;
+  font-weight: 650;
+}
+
+.secondaryLine strong {
+  color: var(--frl-text);
+  font-size: .51rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 
 @media (max-width: 900px) {
-  .panel {
+  .pair {
     grid-column: 1;
     grid-row: auto;
+    grid-template-columns: 1fr;
   }
 
   .home,
   .away {
+    grid-column: 1;
     text-align: left;
   }
 
   .home .heading,
-  .away .heading {
-    justify-content: flex-start;
-  }
+  .away .heading { justify-content: flex-start; }
+}
+
+@media (max-width: 650px) {
+  .tiles { grid-template-columns: 1fr; }
 }
