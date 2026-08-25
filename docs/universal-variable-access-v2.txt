@@ -1,0 +1,1 @@
+Universal variable access V2 uses empirical season-aware native field discovery and the existing research-field query seam. Canonical aliases remain explicit; presentation remains separate from accessibility.
