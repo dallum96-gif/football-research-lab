@@ -1,0 +1,1 @@
+Empirical season-aware native field discovery is the runtime discovery mechanism. Retrieval remains delegated to the audited generic research-field layer.
