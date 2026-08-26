@@ -56,6 +56,25 @@ function formatRate(value: number | null, unit: string | null): string {
   return `${value.toFixed(1)}${unit}`;
 }
 
+function metricUnit(metric: PlayerMetric): string {
+  switch (metric.key) {
+    case "passes_completed":
+      return "completed";
+    case "tackles_won":
+      return "won";
+    case "interceptions_won":
+      return "won";
+    case "key_passes":
+      return "created";
+    case "successful_dribbles":
+      return "dribbles";
+    case "shots_on_target":
+      return "on target";
+    default:
+      return metric.unit;
+  }
+}
+
 function PlayerPanel({ side }: { side: PlayerPerformanceSide }) {
   const home = side.side === "home";
 
@@ -65,33 +84,39 @@ function PlayerPanel({ side }: { side: PlayerPerformanceSide }) {
       aria-label={`${side.team_name} player performance`}
     >
       <div className={styles.heading}>
-        <span className={styles.kicker}>Standout players</span>
+        <span className={styles.kicker}>Key player performance</span>
         <span className={styles.teamName}>{side.team_name}</span>
       </div>
 
-      <div className={styles.tiles}>
+      <div className={styles.performanceList}>
         {side.metrics.map((metric) => {
           const player = metric.player;
           const secondary =
             player?.secondary_value != null && metric.secondary_label
               ? `${metric.secondary_label} ${formatRate(player.secondary_value, metric.secondary_unit)}`
               : null;
+          const context =
+            player?.position || player?.minutes != null
+              ? [player.position, player.minutes != null ? `${Math.round(player.minutes)}'` : null]
+                  .filter(Boolean)
+                  .join(" · ")
+              : null;
 
           return (
-            <article className={styles.tile} key={metric.key}>
+            <div className={styles.performanceRow} key={metric.key}>
               <div className={styles.metricLabel}>{metric.label}</div>
-              <div className={styles.playerName}>{player?.player_name ?? "Data unavailable"}</div>
-              <div className={styles.valueLine}>
-                <span className={styles.metricValue}>{formatValue(player?.value ?? null)}</span>
-                {metric.key === "passes_completed" ? <span className={styles.metricUnit}>completed</span> : null}
-                {metric.key === "tackles_won" ? <span className={styles.metricUnit}>won</span> : null}
-                {metric.key === "interceptions_won" ? <span className={styles.metricUnit}>won</span> : null}
-                {metric.key === "successful_dribbles" ? <span className={styles.metricUnit}>successful</span> : null}
-                {metric.key === "shots_on_target" ? <span className={styles.metricUnit}>on target</span> : null}
-                {metric.key === "key_passes" ? <span className={styles.metricUnit}>created</span> : null}
+              <div className={styles.playerLine}>
+                <div className={styles.playerIdentity}>
+                  <span className={styles.playerName}>{player?.player_name ?? "Data unavailable"}</span>
+                  {context ? <span className={styles.playerContext}>{context}</span> : null}
+                </div>
+                <div className={styles.metricOutput}>
+                  <span className={styles.metricValue}>{formatValue(player?.value ?? null)}</span>
+                  <span className={styles.metricUnit}>{metricUnit(metric)}</span>
+                </div>
               </div>
               {secondary ? <div className={styles.secondaryLine}>{secondary}</div> : null}
-            </article>
+            </div>
           );
         })}
       </div>
