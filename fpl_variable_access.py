@@ -14,10 +14,16 @@ ROOT = Path(__file__).resolve().parent
 PLAYER_GW = ROOT / "data" / "fpl_player_gw_evidence.csv"
 FIXTURE = ROOT / "data" / "fpl_fixture_evidence.csv"
 FPL_REGISTRY = ROOT / "data" / "fpl_canonical_variable_registry_v1.csv"
+HISTORICAL_PLAYER_FIXTURES = ROOT / "_merged" / "players"
 
 
 class FPLVariableUnavailableError(ValueError):
     """Raised when an FPL variable is not exposed by the FPL registry."""
+
+
+HISTORICAL_PLAYER_FIXTURE_FIELDS = {
+    "dribbles",
+}
 
 
 def _load(path: Path) -> tuple[dict[str, str], ...]:
@@ -71,13 +77,7 @@ def player_gameweek_values(
     gameweek: str | None = None,
     fixture_id: str | None = None,
 ) -> dict:
-    """Resolve an FPL player/gameweek variable from approved evidence.
-
-    ``fixture_id`` is supported because the historical FPL player evidence
-    contains the canonical fixture relationship via its ``source_fixture``
-    column. This allows fixture-level consumers to access player variables
-    without creating a second data pathway.
-    """
+    """Resolve an FPL player/gameweek variable from approved evidence."""
     definition = fpl_variable_definition(field_name)
     rows = _load(PLAYER_GW)
     candidate_rows = tuple(
@@ -125,14 +125,75 @@ def player_gameweek_values(
     }
 
 
-def player_fixture_values(*, season: str, fixture_id: str, field_name: str) -> dict:
-    """Resolve an FPL player variable for one historical fixture.
+def historical_player_fixture_values(*, season: str, fixture_id: str, field_name: str) -> dict:
+    """Resolve an approved historical FPL player-fixture field.
 
-    The FPL player evidence stores the player/gameweek observations, including
-    their fixture relationship. Results retain the FPL season-local player key
-    and the source fixture so downstream consumers can apply the existing
-    verified identity bridge.
+    The decade-spanning historical player/gameweek materialisation stores its
+    fixture relationship directly in ``fixture``. This function keeps that
+    evidence behind the FPL access seam so GUI consumers do not read the CSV.
     """
+    if field_name not in HISTORICAL_PLAYER_FIXTURE_FIELDS:
+        raise FPLVariableUnavailableError(
+            f"Historical FPL player-fixture field '{field_name}' is not supported by this access seam."
+        )
+
+    path = HISTORICAL_PLAYER_FIXTURES / f"{season}_all_players_gw.csv"
+    rows = _load(path)
+    candidate_rows = tuple(
+        row
+        for row in rows
+        if str(row.get("fixture", "")).strip() == str(fixture_id)
+    )
+
+    results = []
+    for row in candidate_rows:
+        raw_value = row.get(field_name)
+        if raw_value in (None, ""):
+            continue
+        try:
+            value = float(raw_value)
+        except (TypeError, ValueError):
+            continue
+        results.append(
+            {
+                "season": season,
+                "fixture_id": str(fixture_id),
+                "player_id": str(row.get("element", "")).strip(),
+                "player_name": row.get("name", ""),
+                "minutes": row.get("minutes", ""),
+                "team": row.get("team", ""),
+                "opponent_team": row.get("opponent_team", ""),
+                "was_home": row.get("was_home", ""),
+                "source_field": field_name,
+                "value": value,
+            }
+        )
+
+    return {
+        "query_type": "frl_fpl_variable",
+        "research_family": "FPL",
+        "variable": field_name,
+        "subclass": "PERFORMANCE",
+        "season": season,
+        "fixture_id": str(fixture_id),
+        "results": results,
+        "provenance": {
+            "evidence_table": str(path),
+            "source_field": field_name,
+            "relationship": "historical FPL player-fixture evidence",
+        },
+    }
+
+
+def player_fixture_values(*, season: str, fixture_id: str, field_name: str) -> dict:
+    """Resolve an FPL player variable for one historical fixture."""
+    if field_name in HISTORICAL_PLAYER_FIXTURE_FIELDS:
+        return historical_player_fixture_values(
+            season=season,
+            fixture_id=fixture_id,
+            field_name=field_name,
+        )
+
     definition = fpl_variable_definition(field_name)
     rows = _load(PLAYER_GW)
     candidate_rows = tuple(
@@ -213,6 +274,7 @@ __all__ = [
     "fixture_values",
     "fpl_catalogue",
     "fpl_variable_definition",
+    "historical_player_fixture_values",
     "player_fixture_values",
     "player_gameweek_values",
 ]
