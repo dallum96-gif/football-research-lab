@@ -1,150 +1,150 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 23 August 2026, 22:21 BST
+**Last updated:** 26 August 2026
 
-## Active branch
+## Current platform state
 
-`design/player-filter-tiles`
+The Universal Research Access backend is complete and has been promoted into `main`.
 
-This remains the development line. `main` is the stable integration line.
+Backend closeout recorded in `FRL_BACKEND_CLOSEOUT_2026-08-26.md`:
 
-## Current platform checkpoint
+- Universal Research Access: **9/9 implementation steps complete**
+- Closeout suite: **30/30**
+- Cross-domain acceptance: **27/27**
+- Contract hardening: **17/17**
+- Coverage / temporal / provenance gates: **passed**
+- Broader backend validation: **passed**
+- Project health: **passed**
+- Core Query Lab: **passed**
+- Player Research V0.2 gate: **passed**
 
-The FRL data-platform work is deliberately additive and local-first.
+This marks the governed research-access layer as ready for frontend consumption.
 
-Validated:
+## Current architectural position
 
-- canonical relationship-integrity proof: green;
-- temporary Parquet/DuckDB analytical materialisation for `fixtures` and `team_fixtures`: green;
-- analytical/query-equivalence proof: prototype corrected after two test-environment issues; latest corrected CI run is being validated.
+The frontend should consume governed research results through the universal research-access layer rather than reaching directly into source-specific storage mechanisms.
 
-## Player identity milestone — 23 August 2026
-
-**Milestone timestamp:** 23 August 2026, 21:46 BST.
-
-The Player-Match player-attachment reconciliation is complete:
-
-- **145,571** Player-Match observations
-- **145,571 VERIFIED** player attachments
-- **0 REVIEW**
-- **0 UNRESOLVED**
-
-The final identity layer uses explicit bridges rather than assuming all source systems share the same player namespace.
-
-The reconciliation established:
-
-- canonical cross-source player identity through the verified player registry and relevant Player-Season / Research evidence;
-- a longitudinal Player-Match `source_player_id` / `pl_code` → Player-Season bridge;
-- a source-native Player-Match player bridge for identities absent from downstream Player-Season / Research namespaces.
-
-The source-native bridge is stored in:
-
-`data/player_source_identity_bridge.csv`
-
-At this milestone it contains **26 source-native player identities covering 225 Player-Match observations**.
-
-## Default identity contract
-
-The default FRL identity schema is:
-
-`FRL_DEFAULT_IDENTITY_SCHEMA_V1.md`
-
-The detailed identity/relationship architecture contract is:
-
-`FRL_IDENTITY_RELATIONSHIP_CONTRACT_V1.md`
-
-Fresh sessions must read both contracts before modifying player, team, fixture or source-variable identity logic.
-
-Historical milestone record:
-
-`docs/IDENTITY_MILESTONE_2026-08-23.md`
-
-Milestone commit:
-
-`3fee450` — `milestone: complete player-match identity attachment reconciliation`
-
-## Current strategy — Match Variable Universe Expansion
-
-**Status: ACTIVE — execution phase.**
-
-Strategy contract:
-
-`FRL_MATCH_VARIABLE_UNIVERSE_EXPANSION_STRATEGY_V1.md`
-
-Objective: build the richest possible validated match evidence layer from every usable facet in the approved source universe.
-
-Baseline:
-
-- **477 variables mapped**
-- approximately **900 additional variables/fields** previously identified as an unmapped expansion frontier
-
-The ~900 figure is a working estimate only. The authoritative frontier count must be regenerated from the source census.
-
-### Execution order
+The durable conceptual flow is:
 
 ```text
-A. Recover complete source-variable universe
+SOURCE / VALIDATED DATA
         ↓
-B. Reconcile against the 477 mapped baseline
+CANONICAL + HISTORICAL STATE
         ↓
-C. Classify the full unmapped frontier
+UNIVERSAL RESEARCH ACCESS
         ↓
-D. Map every structurally valid facet
-        ↓
-E. Validate grain / identity / temporal semantics / provenance
-        ↓
-F. Build match-data completeness matrix
-        ↓
-G. Only then decide research-facing / GUI exposure
+FRONTEND / VISUALISATION / FUTURE LLM INTERFACE
 ```
 
-### Immediate execution task
+The underlying variable universe is deliberately richer than the UI. Preserve atomic source-backed facets and expose them through focused research experiences rather than turning the interface into a data dump.
 
-Recover the existing source inventory and mapped-variable artefacts from the local research workspace and compute the authoritative mapped-vs-unmapped census.
+## Current product phase
 
-Do **not** scrape new sources until the existing inventory is reconciled.
+The immediate priority has shifted from backend construction to **frontend/productisation**.
 
-Do **not** delete or rewrite the existing 477 mappings during discovery.
+The project is now focused on the **Next.js + React** application. Streamlit is legacy and should not be treated as the active frontend architecture.
 
-All new mappings must use the default identity schema and identity/relationship contract.
+The first major UI target is the **fixture/result experience**:
 
-## Foundational identity rule
+```text
+Fixtures
+    ↓
+select fixture
+    ↓
+Fixture / Match Result workspace
+```
 
-Source identifiers are not automatically interchangeable. In particular:
+The objective is to finish the established fixture/result design and apply it consistently across fixtures.
 
-- FPL `element` is season-local;
-- Player-Match `source_player_id` / `pl_code` is treated as a longitudinal source-native identity where continuity is verified;
-- Player-Season `playerId` is a source-specific identity and must be bridged explicitly;
-- Player Research has its own namespace and is enrichment/evidence, not the universal FRL identity key;
-- team identity is season-aware and must use `identity/team_seasons.csv` rather than bare names or unscoped IDs;
-- fixture identity is canonicalised as `(season, fixture_id)` and source match IDs are bridged into it.
+## Fixture/result UX direction
 
-No identity attachment may silently create a cross-source identity merely to make a field resolve.
+The fixture page should feel like a polished desktop-first **web application**, not a traditional football statistics website.
 
-## Foundational visualisation principle
+Desired interaction model:
 
-**Data visualisation is a first-class FRL research output.**
+- focused sections/tabs rather than one long information wall;
+- easy movement between categories of match information;
+- strong visual hierarchy;
+- rich information available on demand;
+- minimal unnecessary interface chrome.
 
-Charts, tables, comparisons, timelines and other visualisations must be generated from validated analytical/research outputs rather than maintaining separate presentation-specific truth.
+The primary match view should immediately communicate:
 
-Visualisations must inherit:
+- score and match identity;
+- goals / key events;
+- who played;
+- basic match statistics.
 
-- the same population and filters;
-- the same temporal/as-of semantics;
-- the same provenance and source lineage;
-- the same uncertainty/limitations;
-- the same identity and relationship semantics;
-- the same reproducibility/version information where practical.
+Deeper match information can then be accessed through focused sections such as:
 
-The GUI remains governed by `GUI_DESIGN_CONTRACT.md` and `UI_DESIGN_SYSTEM.md`. Rich analytical visualisation must remain within that visual language rather than becoming generic dashboard clutter.
+```text
+MATCH | TIMELINE | LINEUPS | STATS | PLAYERS | CONTEXT
+```
 
-The durable visualisation rule is recorded in `FRL_VISUALISATION_DATA_CONTRACT.md`.
+Exact labels and final navigation should follow the established UI design decisions in the active frontend work.
 
-## Immediate next steps
+The visual target is informed by:
 
-1. Execute the source-variable census against the existing local source universe.
-2. Reconcile the authoritative universe against the 477 mapped baseline.
-3. Produce the unmapped frontier inventory.
-4. Begin systematic field-by-field mapping using the new identity/relationship contracts.
-5. Preserve all atomic facets and defer GUI exposure decisions until mapping is complete.
-6. Validate the expanded match evidence layer before changing research/query or GUI consumers.
+- Linear / Vercel for clean, premium software aesthetics;
+- FotMob app for compact, category-based sports-app interaction;
+- Football Manager / FBref / analytical football products for depth of information.
+
+Do not reproduce any of these products literally. The FRL should develop its own visual language.
+
+## Research direction after frontend milestone
+
+Once the fixture experience is stable and usable, the next phase should increasingly exploit the universal research-access layer for real investigation:
+
+- historical precedent and comparable situations;
+- arbitrary derived conditions;
+- statistical analysis;
+- predictive modelling;
+- probabilistic reasoning;
+- model evaluation;
+- eventual market/betting analysis where justified.
+
+The system must preserve historical/as-of semantics so questions such as “who was top scorer on date X?” or “how many goals had team Y conceded by date X?” can be reconstructed from information available at that time.
+
+## Research and commercial priorities
+
+The FRL is intended to support both football understanding and predictive research. Betting is a downstream application, not the definition of the platform.
+
+Commercial discovery is also an active strategic concern. The project should remain open to revenue opportunities both inside and outside FRL where evidence suggests a materially stronger probability of success.
+
+Commercial hypotheses should be treated like research hypotheses: investigate demand, test cheaply, preserve evidence, and avoid committing substantial resources merely because an idea is exciting.
+
+## Working method
+
+For substantial workstreams, establish:
+
+- objective;
+- definition of done;
+- necessary steps;
+- current step;
+- review point.
+
+Separate **research mode** (explore, question, test, decide) from **build mode** (implement an established decision).
+
+When new ideas appear, distinguish between:
+
+- required for the current objective;
+- important to the long-term architecture;
+- worth recording and parking for later.
+
+The highest-value next action is not necessarily code. It may be research, validation, product work, customer discovery, or deliberately deciding not to build something.
+
+## Repository and state discipline
+
+Treat `main` as the stable integration line and preserve branch/local experiments unless explicitly asked to clean them up.
+
+Before substantive changes:
+
+1. establish the current branch/state;
+2. inspect the relevant code and documentation;
+3. preserve trusted backend/query contracts unless the task genuinely requires changes;
+4. make the smallest sensible change;
+5. validate targeted behaviour and regression safety.
+
+`FRL_BACKEND_CLOSEOUT_2026-08-26.md` is the authoritative closeout record for the completed Universal Research Access backend milestone.
+
+`CURRENT_WORK.md` is the short-lived current checkpoint and should be updated when the project's phase or immediate objective materially changes.
