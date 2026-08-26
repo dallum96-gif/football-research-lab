@@ -24,6 +24,7 @@ from relationship_enforcement import (
     evaluate_identity,
     require_verified,
     classify_observation,
+    decision_dict,
 )
 
 ROOT = Path(__file__).resolve().parent
