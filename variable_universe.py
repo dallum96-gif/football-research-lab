@@ -1,18 +1,21 @@
 """Context-aware discovery over the FRL source variable universe.
 
-This is a consumer facade, not a second source adapter. It discovers native
-fields empirically for the requested season and delegates value retrieval to
-``variable_resolver`` and the existing generic research-field layer.
+This is a consumer facade, not a second source adapter. Core football variables
+are discovered empirically for the requested season. FPL variables are exposed
+through the separate FPL evidence registry/access layer and remain isolated from
+core football source families.
 """
 from __future__ import annotations
 
 from dataclasses import asdict
 from typing import Iterable
 
+from fpl_variable_access import fpl_catalogue
 from research_field_query import available_fields
-from variable_resolver import VariableDefinition, variable_definition, resolve_variable
+from variable_resolver import VariableDefinition, resolve_variable, variable_definition
 
-FAMILIES = ("team_match", "player_match", "player_season", "squad")
+FAMILIES = ("team_match", "player_match", "player_season", "squad", "fpl")
+CORE_FAMILIES = ("team_match", "player_match", "player_season", "squad")
 
 
 def _families_for_context(
@@ -34,7 +37,21 @@ def _families_for_context(
         return ("team_match", "player_match")
     if player_id is not None:
         return ("player_season", "squad")
-    return FAMILIES
+    return CORE_FAMILIES
+
+
+def _fpl_definitions() -> tuple[VariableDefinition, ...]:
+    return tuple(
+        VariableDefinition(
+            name=row["field_name"],
+            label=row["field_name"],
+            family="fpl",
+            source_field=row["field_name"],
+            status="exposed",
+            definition=row.get("subclass"),
+        )
+        for row in fpl_catalogue()
+    )
 
 
 def list_variables(
@@ -45,12 +62,7 @@ def list_variables(
     player_id: str | None = None,
     family: str | None = None,
 ) -> tuple[VariableDefinition, ...]:
-    """Return variables empirically available in a requested FRL context.
-
-    Native source fields are listed from the requested season. Canonical aliases
-    that represent derived metrics are added separately where their underlying
-    fields are empirically available.
-    """
+    """Return variables available in the requested FRL context/domain."""
     selected = _families_for_context(
         fixture_id=fixture_id,
         team_id=team_id,
@@ -60,6 +72,11 @@ def list_variables(
     found: dict[tuple[str, str], VariableDefinition] = {}
 
     for selected_family in selected:
+        if selected_family == "fpl":
+            for definition in _fpl_definitions():
+                found[(selected_family, definition.name)] = definition
+            continue
+
         for field in available_fields(selected_family, season):
             definition = variable_definition(
                 field,
@@ -68,7 +85,6 @@ def list_variables(
             )
             found[(selected_family, field)] = definition
 
-    # Add canonical derived variables only when both source inputs are present.
     derived = {
         "wonTacklePct": ("player_match", "wonTackle", "totalTackle"),
         "passCompletionPct": ("player_match", "accuratePass", "totalPass"),
@@ -108,18 +124,14 @@ def variable_catalogue(
 def resolve_all(
     *,
     season: str,
-    fixture_id: str,
+    fixture_id: str | None = None,
     team_id: str | None = None,
     player_id: str | None = None,
+    gameweek: str | None = None,
     family: str | None = None,
     variables: Iterable[str] | None = None,
 ) -> dict[str, dict]:
-    """Resolve a selected or complete context variable set.
-
-    ``variables=None`` resolves every variable available for the requested
-    context. Callers can supply a subset when a UI section needs only a few
-    fields.
-    """
+    """Resolve a selected or complete context variable set."""
     available = list_variables(
         season=season,
         fixture_id=fixture_id,
@@ -144,10 +156,11 @@ def resolve_all(
             fixture_id=fixture_id,
             team_id=team_id,
             player_id=player_id,
+            gameweek=gameweek,
             family=family,
         )
         for name in selected
     }
 
 
-__all__ = ["FAMILIES", "list_variables", "variable_catalogue", "resolve_all"]
+__all__ = ["CORE_FAMILIES", "FAMILIES", "list_variables", "variable_catalogue", "resolve_all"]
