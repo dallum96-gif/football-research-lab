@@ -1,9 +1,4 @@
-"""Universal FRL research access seam.
-
-This module is the governed consumer boundary above the existing variable
-resolver and evidence adapters. It does not perform source-specific joins,
-identity inference, or independent metric calculations.
-"""
+"""Universal FRL research access seam."""
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -37,7 +32,7 @@ from variable_resolver import (
 
 CORE_FAMILIES = ("team_match", "player_match", "player_season", "squad")
 ALL_FAMILIES = CORE_FAMILIES + ("fpl",)
-ACCESS_VERSION = "0.3.1"
+ACCESS_VERSION = "0.3.2"
 
 
 class ResearchAccessError(ValueError):
@@ -66,10 +61,28 @@ class ResearchRequest:
         return data
 
 
+def _catalogue_family(row: dict[str, str]) -> str:
+    """Map the canonical catalogue's relationship/grain metadata to a consumer family."""
+    grain = str(row.get("grain") or "").strip()
+    if grain in CORE_FAMILIES:
+        return grain
+    relationship = str(row.get("relationship") or "").strip()
+    if relationship in CORE_FAMILIES:
+        return relationship
+    attachment = str(row.get("canonical_attachment") or "").strip()
+    mapping = {
+        "player_fixture": "player_match",
+        "team_fixture": "team_match",
+        "player_season": "player_season",
+        "squad": "squad",
+    }
+    return mapping.get(attachment, "")
+
+
 def _core_capabilities() -> tuple[dict[str, Any], ...]:
     rows: dict[tuple[str, str], dict[str, Any]] = {}
     for row in canonical_variables():
-        family = str(row.get("family") or row.get("relationship") or "").strip()
+        family = _catalogue_family(row)
         name = str(row.get("field_name") or "").strip()
         if family not in CORE_FAMILIES or not name:
             continue
@@ -78,7 +91,7 @@ def _core_capabilities() -> tuple[dict[str, Any], ...]:
             "family": family,
             "label": row.get("label") or name,
             "status": row.get("semantic_status") or row.get("status") or "catalogued",
-            "source_field": row.get("field_name") or name,
+            "source_field": name,
             "provenance": {"registry": "FRL canonical variable catalogue"},
         }
     return tuple(sorted(rows.values(), key=lambda item: (item["family"], item["variable"])))
@@ -107,7 +120,7 @@ def discover(*, family: str | None = None, search: str | None = None) -> dict[st
     if family == "fpl":
         capabilities = _fpl_capabilities()
     elif family in CORE_FAMILIES:
-        capabilities = _core_capabilities()
+        capabilities = tuple(item for item in _core_capabilities() if item["family"] == family)
     else:
         capabilities = _core_capabilities() + _fpl_capabilities()
 
@@ -161,12 +174,23 @@ def _provenance_context(definition: Any) -> dict[str, Any]:
 
 def validate(request: ResearchRequest) -> dict[str, Any]:
     """Validate a research request without executing evidence retrieval."""
-    if not request.variable.strip():
+    variable = request.variable.strip() if isinstance(request.variable, str) else ""
+    season = request.season.strip() if isinstance(request.season, str) else ""
+    if not variable:
         raise ResearchAccessError("variable is required")
-    if not request.season.strip():
+    if not season:
         raise ResearchAccessError("season is required")
     if request.family is not None and request.family not in ALL_FAMILIES:
         raise ResearchAccessError(f"Unknown research family: {request.family}")
+
+    for field_name, value in {
+        "fixture_id": request.fixture_id,
+        "team_id": request.team_id,
+        "player_id": request.player_id,
+        "gameweek": request.gameweek,
+    }.items():
+        if value is not None and not str(value).strip():
+            raise ResearchAccessError(f"{field_name} cannot be empty")
 
     try:
         definition = variable_definition(
