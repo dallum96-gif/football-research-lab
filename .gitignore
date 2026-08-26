@@ -1,0 +1,30 @@
+# Python generated files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test/tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local environment
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Temporary/local generated files
+*.tmp
+*.tmp.*
+*.bak
+*.swp
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
