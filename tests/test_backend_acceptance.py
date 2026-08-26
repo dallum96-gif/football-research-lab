@@ -25,7 +25,7 @@ def test_backend_acceptance_all_public_families(monkeypatch):
         variable_resolver.resolve_variable("goalsFor", season="2024-25", fixture_id="1", family="team_match", team_id="t1"),
         variable_resolver.resolve_variable("appearances", season="2024-25", family="player_season", player_id="p1"),
         variable_resolver.resolve_variable("playerId", season="2024-25", family="squad", player_id="p1"),
-        variable_resolver.resolve_variable("assists", season="2024-25", family="fpl", player_id="p1", gameweek="1"),
+        variable_resolver.resolve_variable("elements[].assists", season="2024-25", family="fpl", player_id="p1", gameweek="1"),
     )
 
     for result in results:
