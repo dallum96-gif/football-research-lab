@@ -65,12 +65,7 @@ def _percentage(numerator: object, denominator: object) -> float | None:
 
 
 def _fixture_player_identity(fixture: dict) -> dict[str, dict[str, Any]]:
-    """Build display identity from the same fixture's Player–Fixture evidence.
-
-    The Universal Variable Resolver supplies statistic values. This mapping only
-    supplies the historical display metadata for source player IDs already
-    attached to this canonical fixture.
-    """
+    """Build display identity from the same fixture's Player–Fixture evidence."""
     identity: dict[str, dict[str, Any]] = {}
     for row in source_family_adapters.player_match_source_rows(
         str(fixture["season"]), str(fixture["fixture_id"])
@@ -97,16 +92,23 @@ def _fixture_player_identity(fixture: dict) -> dict[str, dict[str, Any]]:
     return identity
 
 
-def _resolved_values(name: str, season: str, fixture_id: str) -> dict[str, dict]:
+def _resolved_values(name: str, season: str, fixture_id: str, *, family: str = "player_match") -> dict:
     try:
         result = variable_resolver.resolve_variable(
             name,
             season=season,
             fixture_id=fixture_id,
-            family="player_match",
+            family=family,
         )
     except (variable_resolver.VariableResolutionError, ValueError) as exc:
         return {"__error__": {"error": str(exc)}}
+
+    if family == "fpl":
+        return {
+            str(item.get("player_id")): item
+            for item in result.get("results", [])
+            if item.get("player_id") not in (None, "")
+        }
 
     return {
         str(item.get("source_player_id")): item
@@ -126,7 +128,8 @@ def _leader(
     for source_player_id, item in values.items():
         if source_player_id == "__error__":
             continue
-        if str(item.get("source_team_id", "")).strip() != team_source_id:
+        item_team_id = str(item.get("source_team_id", "")).strip()
+        if item_team_id and item_team_id != team_source_id:
             continue
 
         value = _number(item.get("value"))
@@ -161,6 +164,39 @@ def _leader(
     )
 
 
+def _fpl_dribbles_leader(values: dict[str, dict], *, home: bool) -> PlayerLeader | None:
+    candidates: list[tuple[float, str, str, dict]] = []
+    for player_id, item in values.items():
+        raw_home = str(item.get("was_home", "")).strip().lower()
+        row_home = raw_home in {"true", "1", "yes"}
+        if row_home != home:
+            continue
+
+        value = _number(item.get("value"))
+        name = str(item.get("player_name") or "").strip()
+        if value is None or not name:
+            continue
+
+        selected = {
+            "id": f"fpl:{player_id}",
+            "name": name,
+            "minutes": _number(item.get("minutes")),
+            "value": value,
+        }
+        candidates.append((value, name.casefold(), str(player_id), selected))
+
+    if not candidates:
+        return None
+
+    _, _, _, selected = max(candidates, key=lambda item: (item[0], item[1], item[2]))
+    return PlayerLeader(
+        player_id=selected["id"],
+        player_name=selected["name"],
+        minutes=selected["minutes"],
+        value=selected["value"],
+    )
+
+
 def _side(
     side: str,
     team_name: str,
@@ -168,36 +204,12 @@ def _side(
     identity_by_player: dict[str, dict[str, Any]],
     resolved: dict[str, dict[str, dict]],
 ) -> PlayerPerformanceSide:
-    passes = _leader(
-        resolved["totalPass"],
-        team_source_id=team_source_id,
-        identity_by_player=identity_by_player,
-    )
-    tackles = _leader(
-        resolved["totalTackle"],
-        team_source_id=team_source_id,
-        identity_by_player=identity_by_player,
-    )
-    interceptions = _leader(
-        resolved["interceptionWon"],
-        team_source_id=team_source_id,
-        identity_by_player=identity_by_player,
-    )
-    key_passes = _leader(
-        resolved["keyPass"],
-        team_source_id=team_source_id,
-        identity_by_player=identity_by_player,
-    )
-    dribbles = _leader(
-        resolved["successfulDribbles"],
-        team_source_id=team_source_id,
-        identity_by_player=identity_by_player,
-    )
-    shots = _leader(
-        resolved["onTargetScoringAttempt"],
-        team_source_id=team_source_id,
-        identity_by_player=identity_by_player,
-    )
+    passes = _leader(resolved["totalPass"], team_source_id=team_source_id, identity_by_player=identity_by_player)
+    tackles = _leader(resolved["totalTackle"], team_source_id=team_source_id, identity_by_player=identity_by_player)
+    interceptions = _leader(resolved["interceptionWon"], team_source_id=team_source_id, identity_by_player=identity_by_player)
+    key_passes = _leader(resolved["keyPass"], team_source_id=team_source_id, identity_by_player=identity_by_player)
+    shots = _leader(resolved["onTargetScoringAttempt"], team_source_id=team_source_id, identity_by_player=identity_by_player)
+    dribbles = _fpl_dribbles_leader(resolved["dribbles"], home=side == "home")
 
     if passes and passes.player_id:
         accurate_passes = resolved["accuratePass"].get(passes.player_id)
@@ -213,7 +225,7 @@ def _side(
         ("tackles_won", "Tackles", "Tackle won", tackles),
         ("interceptions_won", "Interceptions", None, interceptions),
         ("key_passes", "Key passes", None, key_passes),
-        ("successful_dribbles", "Successful dribbles", None, dribbles),
+        ("dribbles", "Dribbles", None, dribbles),
         ("shots_on_target", "Shots on target", None, shots),
     )
 
@@ -230,7 +242,7 @@ def _side(
                 status="AVAILABLE" if player else "UNAVAILABLE",
                 provenance={
                     "resolver": "variable_resolver.resolve_variable",
-                    "family": "player_match",
+                    "family": "fpl" if key == "dribbles" else "player_match",
                 },
             )
         )
@@ -242,7 +254,8 @@ def _side(
         status="AVAILABLE" if any(metric.player for metric in metrics) else "UNAVAILABLE",
         limitations=[
             "Values are retrieved through the Universal Variable Resolver; missing source observations remain unavailable.",
-            "Player display identity is taken from the same fixture's Player–Fixture evidence.",
+            "Player display identity is taken from the fixture's verified Player–Fixture evidence for PL player-match metrics.",
+            "Dribbles are retrieved from the historical FPL player-fixture evidence through the FPL Universal Variable Access seam.",
         ],
     )
 
@@ -269,10 +282,10 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
         "wonTackle",
         "interceptionWon",
         "keyPass",
-        "successfulDribbles",
         "onTargetScoringAttempt",
     ):
         resolved[variable_name] = _resolved_values(variable_name, season, fixture_id)
+    resolved["dribbles"] = _resolved_values("dribbles", season, fixture_id, family="fpl")
 
     home_source_id = str(resolved_match["home"].get("team_id", "")).strip()
     away_source_id = str(resolved_match["away"].get("team_id", "")).strip()
@@ -280,18 +293,6 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
     return FixturePlayerPerformanceResponse(
         season=season,
         fixture_id=str(fixture_id),
-        home=_side(
-            "home",
-            str(fixture["home_team_name"]),
-            home_source_id,
-            identity_by_player,
-            resolved,
-        ),
-        away=_side(
-            "away",
-            str(fixture["away_team_name"]),
-            away_source_id,
-            identity_by_player,
-            resolved,
-        ),
+        home=_side("home", str(fixture["home_team_name"]), home_source_id, identity_by_player, resolved),
+        away=_side("away", str(fixture["away_team_name"]), away_source_id, identity_by_player, resolved),
     )
