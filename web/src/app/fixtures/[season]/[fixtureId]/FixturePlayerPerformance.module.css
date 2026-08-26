@@ -7,8 +7,8 @@
 .panel {
   min-width: 0;
   align-self: stretch;
-  height: 100%;
   padding-top: 0;
+  padding-bottom: 0;
   display: flex;
   flex-direction: column;
 }
@@ -42,7 +42,7 @@
 
 .kicker {
   color: var(--frl-muted-soft);
-  font-size: .49rem;
+  font-size: .54rem;
   font-weight: 750;
   letter-spacing: .09em;
   line-height: 1;
@@ -51,24 +51,23 @@
 
 .teamName {
   color: var(--frl-text);
-  font-size: .72rem;
+  font-size: .76rem;
   font-weight: 800;
   letter-spacing: -.01em;
   line-height: 1;
 }
 
 .performanceList {
-  flex: 1;
+  flex: 1 1 auto;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(3, minmax(0, 1fr));
   column-gap: .8rem;
   row-gap: 0;
 }
 
 .performanceRow {
   min-width: 0;
-  padding: .34rem 0 .32rem;
+  padding: .36rem 0 .34rem;
   border-bottom: 1px solid color-mix(in srgb, var(--frl-border) 52%, transparent);
   display: flex;
   flex-direction: column;
@@ -82,9 +81,9 @@
 
 .metricLabel {
   color: var(--frl-muted-soft);
-  font-size: .42rem;
+  font-size: .45rem;
   font-weight: 750;
-  letter-spacing: .065em;
+  letter-spacing: .07em;
   line-height: 1.1;
   text-transform: uppercase;
 }
@@ -92,8 +91,8 @@
 .playerLine {
   display: flex;
   align-items: baseline;
-  gap: .38rem;
-  margin-top: .16rem;
+  gap: .42rem;
+  margin-top: .18rem;
 }
 
 .home .playerLine { justify-content: flex-end; }
@@ -103,15 +102,15 @@
   min-width: 0;
   display: inline-flex;
   align-items: baseline;
-  gap: .27rem;
+  gap: .29rem;
 }
 
 .playerName {
   min-width: 0;
   color: var(--frl-text);
-  font-size: .59rem;
+  font-size: .63rem;
   font-weight: 750;
-  letter-spacing: -.012em;
+  letter-spacing: -.014em;
   line-height: 1.03;
   white-space: nowrap;
   overflow: hidden;
@@ -121,7 +120,7 @@
 .playerContext {
   flex: 0 0 auto;
   color: var(--frl-muted-soft);
-  font-size: .37rem;
+  font-size: .39rem;
   font-weight: 650;
   letter-spacing: .025em;
   white-space: nowrap;
@@ -130,30 +129,30 @@
 .metricOutput {
   display: inline-flex;
   align-items: baseline;
-  gap: .2rem;
+  gap: .22rem;
   flex: 0 0 auto;
 }
 
 .metricValue {
   color: var(--frl-text);
-  font-size: .73rem;
+  font-size: .78rem;
   font-weight: 850;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -.025em;
+  letter-spacing: -.027em;
 }
 
 .metricUnit {
   color: var(--frl-muted);
-  font-size: .36rem;
+  font-size: .38rem;
   font-weight: 700;
-  letter-spacing: .025em;
+  letter-spacing: .028em;
   text-transform: uppercase;
 }
 
 .secondaryLine {
-  margin-top: .13rem;
+  margin-top: .14rem;
   color: var(--frl-muted-soft);
-  font-size: .37rem;
+  font-size: .39rem;
   font-weight: 650;
   line-height: 1.1;
 }
@@ -175,13 +174,8 @@
     gap: 1rem;
   }
 
-  .panel {
-    height: auto;
-  }
-
   .performanceList {
     grid-template-columns: 1fr;
-    grid-template-rows: none;
   }
 
   .performanceRow:nth-child(5),
