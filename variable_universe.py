@@ -1,4 +1,4 @@
-"""Context-aware discovery over the FRL source variable universe.
+﻿"""Context-aware discovery over the FRL source variable universe.
 
 This is a consumer facade, not a second source adapter. It discovers native
 fields empirically for the requested season and delegates value retrieval to
@@ -11,6 +11,7 @@ from typing import Iterable
 
 from research_field_query import available_fields
 from variable_resolver import VariableDefinition, variable_definition, resolve_variable
+from canonical_variable_catalogue import canonical_variables
 
 FAMILIES = ("team_match", "player_match", "player_season", "squad")
 
@@ -87,6 +88,10 @@ def list_variables(
     )
 
 
+
+def canonical_catalogue() -> tuple[dict, ...]:
+    """Return the authoritative 1,414-variable canonical catalogue."""
+    return tuple(canonical_variables())
 def variable_catalogue(
     *,
     season: str,
@@ -150,4 +155,6 @@ def resolve_all(
     }
 
 
-__all__ = ["FAMILIES", "list_variables", "variable_catalogue", "resolve_all"]
+__all__ = ["FAMILIES", "list_variables", "variable_catalogue", "canonical_catalogue", "resolve_all"]
+
+

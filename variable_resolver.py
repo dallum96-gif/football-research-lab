@@ -1,4 +1,4 @@
-"""Universal FRL variable runtime resolution.
+﻿"""Universal FRL variable runtime resolution.
 
 The resolver is a thin consumer seam over the existing generic research-field
 query layer. It deliberately does not create source-specific extraction or
@@ -265,13 +265,25 @@ def resolve_variable(
                 definition,
                 player_id=player_id,
             )
-        return player_match_field_values(
+        raw = player_match_field_values(
             season,
             str(fixture_id),
             definition.source_field or definition.name,
             player_id=player_id,
         )
-
+        return {
+            "query_type": "frl_variable",
+            "variable": definition.name,
+            "label": definition.label,
+            "family": definition.family,
+            "season": season,
+            "fixture_id": str(fixture_id),
+            "results": raw.get("results", []),
+            "provenance": {
+                "source_fields": [definition.source_field or definition.name],
+                "registry_status": "native",
+            },
+        }
     if definition.family == "team_match":
         if fixture_id is None:
             raise UnsupportedContextError("team_match resolution requires fixture_id")
@@ -290,12 +302,24 @@ def resolve_variable(
         )
 
     if definition.family == "squad":
-        return squad_field_values(
+        raw = squad_field_values(
             season,
             definition.source_field or definition.name,
             player_id=player_id,
         )
-
+        return {
+            "query_type": "frl_variable",
+            "variable": definition.name,
+            "label": definition.label,
+            "family": definition.family,
+            "season": season,
+            "fixture_id": None,
+            "results": raw.get("results", []),
+            "provenance": {
+                "source_fields": [definition.source_field or definition.name],
+                "registry_status": "native",
+            },
+        }
     raise UnsupportedContextError(f"Unsupported variable family: {definition.family}")
 
 
@@ -305,3 +329,7 @@ __all__ = [
     "resolve_variable",
     "variable_definition",
 ]
+
+
+
+
