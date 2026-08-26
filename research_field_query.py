@@ -112,7 +112,7 @@ def player_match_field_values(
     _require_field("player_match", season, field)
     values = []
     for row in player_match_source_rows(season, fixture_id):
-        source_player_id = str(row.get("playerId", "")).strip()
+        source_player_id = str(row.get("playerId", "") or row.get("pl_code", "")).strip()
         if player_id and source_player_id != str(player_id).strip():
             continue
         values.append({
@@ -120,9 +120,14 @@ def player_match_field_values(
             "fixture_id": str(fixture_id),
             "source_match_id": str(row.get("matchId", "")),
             "source_player_id": source_player_id,
-            "source_team_id": str(row.get("team_id", "")),
+            "source_team_id": str(row.get("team_id", "")).strip(),
             "source_field": field,
             "value": row.get(field),
+            # Display metadata belongs to the same Player–Fixture observation.
+            # It is context carried through the research result, not a new
+            # canonical variable or identity join.
+            "player_name": row.get("playerName") or row.get("displayName"),
+            "position": row.get("position"),
         })
     return _result("player_match", season, field, values)
 
