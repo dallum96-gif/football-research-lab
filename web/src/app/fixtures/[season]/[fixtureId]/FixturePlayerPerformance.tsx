@@ -10,6 +10,7 @@ type PlayerLeader = {
   minutes: number | null;
   value: number | null;
   secondary_value: number | null;
+  tie_count: number;
 };
 
 type PlayerMetric = {
@@ -66,13 +67,31 @@ function metricUnit(metric: PlayerMetric): string {
       return "won";
     case "key_passes":
       return "created";
-    case "successful_dribbles":
+    case "dribbles":
       return "dribbles";
     case "shots_on_target":
       return "on target";
     default:
       return metric.unit;
   }
+}
+
+function playerDisplay(metric: PlayerMetric): string {
+  const player = metric.player;
+  if (!player) return "Data unavailable";
+  if (player.tie_count > 1) return `${player.tie_count} players`;
+  return player.player_name ?? "Data unavailable";
+}
+
+function playerContext(metric: PlayerMetric): string | null {
+  const player = metric.player;
+  if (!player || player.tie_count > 1) return null;
+  if (player.position || player.minutes != null) {
+    return [player.position, player.minutes != null ? `${Math.round(player.minutes)}'` : null]
+      .filter(Boolean)
+      .join(" · ");
+  }
+  return null;
 }
 
 function PlayerPanel({ side }: { side: PlayerPerformanceSide }) {
@@ -95,19 +114,14 @@ function PlayerPanel({ side }: { side: PlayerPerformanceSide }) {
             player?.secondary_value != null && metric.secondary_label
               ? `${metric.secondary_label} ${formatRate(player.secondary_value, metric.secondary_unit)}`
               : null;
-          const context =
-            player?.position || player?.minutes != null
-              ? [player.position, player.minutes != null ? `${Math.round(player.minutes)}'` : null]
-                  .filter(Boolean)
-                  .join(" · ")
-              : null;
+          const context = playerContext(metric);
 
           return (
             <div className={styles.performanceRow} key={metric.key}>
               <div className={styles.metricLabel}>{metric.label}</div>
               <div className={styles.playerLine}>
                 <div className={styles.playerIdentity}>
-                  <span className={styles.playerName}>{player?.player_name ?? "Data unavailable"}</span>
+                  <span className={styles.playerName}>{playerDisplay(metric)}</span>
                   {context ? <span className={styles.playerContext}>{context}</span> : null}
                 </div>
                 <div className={styles.metricOutput}>
