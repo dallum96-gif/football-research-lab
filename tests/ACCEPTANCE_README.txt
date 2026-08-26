@@ -1,0 +1,1 @@
+The corrected acceptance fixture is staged in this branch under tests/test_backend_acceptance_final_gold.py.
