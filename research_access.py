@@ -7,11 +7,15 @@ identity inference, or independent metric calculations.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Any
 from pathlib import Path
+from typing import Any
 
 from canonical_variable_catalogue import canonical_variables
-from fpl_variable_access import fpl_catalogue, _load as _fpl_load, _source_field as _fpl_source_field
+from fpl_variable_access import (
+    fpl_catalogue,
+    _load as _fpl_load,
+    _source_field as _fpl_source_field,
+)
 from research_field_query import (
     player_match_source_fields,
     player_season_source_fields,
@@ -19,9 +23,11 @@ from research_field_query import (
     squad_source_fields,
     squad_source_rows,
     team_match_source_fields,
+)
+from source_family_adapters import (
+    player_match_source_rows_for_season,
     team_match_source_rows_for_season,
 )
-from source_family_adapters import player_match_source_rows_for_season
 from variable_resolver import (
     VariableResolutionError,
     resolve_variable,
@@ -32,8 +38,10 @@ CORE_FAMILIES = ("team_match", "player_match", "player_season", "squad")
 ALL_FAMILIES = CORE_FAMILIES + ("fpl",)
 ACCESS_VERSION = "0.2.1"
 
+
 class ResearchAccessError(ValueError):
     """Base error for invalid research-access requests."""
+
 
 @dataclass(frozen=True)
 class ResearchRequest:
@@ -47,6 +55,7 @@ class ResearchRequest:
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
+
 
 def _core_capabilities() -> tuple[dict[str, Any], ...]:
     rows: dict[tuple[str, str], dict[str, Any]] = {}
@@ -65,29 +74,44 @@ def _core_capabilities() -> tuple[dict[str, Any], ...]:
         }
     return tuple(sorted(rows.values(), key=lambda item: (item["family"], item["variable"])))
 
+
 def _fpl_capabilities() -> tuple[dict[str, Any], ...]:
-    return tuple({
-        "variable": row.get("field_name", ""),
-        "family": "fpl",
-        "label": row.get("field_name", ""),
-        "subclass": row.get("subclass"),
-        "status": row.get("semantic_status") or row.get("status") or "research_exposed",
-        "source_field": row.get("field_name", ""),
-        "provenance": {"registry": "authoritative FPL variable registry"},
-    } for row in fpl_catalogue())
+    return tuple(
+        {
+            "variable": row.get("field_name", ""),
+            "family": "fpl",
+            "label": row.get("field_name", ""),
+            "subclass": row.get("subclass"),
+            "status": row.get("semantic_status") or row.get("status") or "research_exposed",
+            "source_field": row.get("field_name", ""),
+            "provenance": {"registry": "authoritative FPL variable registry"},
+        }
+        for row in fpl_catalogue()
+    )
+
 
 def discover(*, family: str | None = None, search: str | None = None) -> dict[str, Any]:
+    """Discover research capabilities without exposing storage details."""
     if family is not None and family not in ALL_FAMILIES:
         raise ResearchAccessError(f"Unknown research family: {family}")
+
     if family == "fpl":
         capabilities = _fpl_capabilities()
     elif family in CORE_FAMILIES:
         capabilities = _core_capabilities()
     else:
         capabilities = _core_capabilities() + _fpl_capabilities()
+
     if search:
         target = search.strip().casefold()
-        capabilities = tuple(item for item in capabilities if target in str(item.get("variable", "")).casefold() or target in str(item.get("label", "")).casefold() or target in str(item.get("subclass", "")).casefold())
+        capabilities = tuple(
+            item
+            for item in capabilities
+            if target in str(item.get("variable", "")).casefold()
+            or target in str(item.get("label", "")).casefold()
+            or target in str(item.get("subclass", "")).casefold()
+        )
+
     return {
         "query_type": "capability_discovery",
         "access_version": ACCESS_VERSION,
@@ -95,33 +119,53 @@ def discover(*, family: str | None = None, search: str | None = None) -> dict[st
         "search": search,
         "count": len(capabilities),
         "results": list(capabilities),
-        "provenance": {"core_registry": "FRL canonical variable catalogue", "fpl_registry": "authoritative FPL variable registry"},
+        "provenance": {
+            "core_registry": "FRL canonical variable catalogue",
+            "fpl_registry": "authoritative FPL variable registry",
+        },
     }
 
+
 def validate(request: ResearchRequest) -> dict[str, Any]:
+    """Validate a research request without executing evidence retrieval."""
     if not request.variable.strip():
         raise ResearchAccessError("variable is required")
     if not request.season.strip():
         raise ResearchAccessError("season is required")
     if request.family is not None and request.family not in ALL_FAMILIES:
         raise ResearchAccessError(f"Unknown research family: {request.family}")
+
     try:
-        definition = variable_definition(request.variable, family=request.family, season=request.season)
+        definition = variable_definition(
+            request.variable,
+            family=request.family,
+            season=request.season,
+        )
     except VariableResolutionError as exc:
         raise ResearchAccessError(str(exc)) from exc
+
     if definition.family in {"player_match", "team_match"} and request.fixture_id is None:
         raise ResearchAccessError(f"family '{definition.family}' requires fixture_id")
     if definition.family == "fpl" and request.player_id is None and request.fixture_id is None:
         raise ResearchAccessError("fpl research requires player_id or fixture_id")
+
     return {
         "valid": True,
         "request": request.as_dict(),
-        "definition": {"name": definition.name, "label": definition.label, "family": definition.family, "source_field": definition.source_field, "status": definition.status},
+        "definition": {
+            "name": definition.name,
+            "label": definition.label,
+            "family": definition.family,
+            "source_field": definition.source_field,
+            "status": definition.status,
+        },
         "access_version": ACCESS_VERSION,
     }
 
+
 def _safe_value(value: Any) -> bool:
     return value not in (None, "", "null", "None")
+
 
 def _coverage_core(family: str, season: str, field: str) -> dict[str, Any]:
     if family == "player_match":
@@ -138,28 +182,71 @@ def _coverage_core(family: str, season: str, field: str) -> dict[str, Any]:
         rows = squad_source_rows(season) if field in fields else ()
     else:
         raise ResearchAccessError(f"Unsupported core family: {family}")
+
     if field not in fields:
-        return {"season": season, "family": family, "variable": field, "field_present": False, "population": 0, "observed": 0, "missing": 0, "coverage_pct": 0.0}
+        return {
+            "season": season,
+            "family": family,
+            "variable": field,
+            "field_present": False,
+            "population": 0,
+            "observed": 0,
+            "missing": 0,
+            "coverage_pct": 0.0,
+        }
+
     populated = sum(1 for row in rows if _safe_value(row.get(field)))
     population = len(rows)
     missing = population - populated
-    return {"season": season, "family": family, "variable": field, "field_present": True, "population": population, "observed": populated, "missing": missing, "coverage_pct": round((populated / population) * 100.0, 3) if population else 0.0}
+    return {
+        "season": season,
+        "family": family,
+        "variable": field,
+        "field_present": True,
+        "population": population,
+        "observed": populated,
+        "missing": missing,
+        "coverage_pct": round((populated / population) * 100.0, 3) if population else 0.0,
+    }
+
 
 def _coverage_fpl(season: str, field: str) -> dict[str, Any]:
     definitions = {row.get("field_name") for row in fpl_catalogue()}
     if field not in definitions:
-        return {"season": season, "family": "fpl", "variable": field, "field_present": False, "population": 0, "observed": 0, "missing": 0, "coverage_pct": 0.0}
+        return {
+            "season": season,
+            "family": "fpl",
+            "variable": field,
+            "field_present": False,
+            "population": 0,
+            "observed": 0,
+            "missing": 0,
+            "coverage_pct": 0.0,
+        }
+
     rows = _fpl_load(Path(__file__).resolve().parent / "data" / "fpl_player_gw_evidence.csv")
     candidate = tuple(row for row in rows if str(row.get("frl_season", "")) == season)
     source_key = f"source_{_fpl_source_field(field)}"
     population = len(candidate)
     observed = sum(1 for row in candidate if _safe_value(row.get(source_key)))
     missing = population - observed
-    return {"season": season, "family": "fpl", "variable": field, "field_present": True, "population": population, "observed": observed, "missing": missing, "coverage_pct": round((observed / population) * 100.0, 3) if population else 0.0}
+    return {
+        "season": season,
+        "family": "fpl",
+        "variable": field,
+        "field_present": True,
+        "population": population,
+        "observed": observed,
+        "missing": missing,
+        "coverage_pct": round((observed / population) * 100.0, 3) if population else 0.0,
+    }
+
 
 def coverage(*, variable: str, seasons: list[str] | tuple[str, ...], family: str | None = None) -> dict[str, Any]:
+    """Return season-by-season evidence coverage for one research variable."""
     if not seasons:
         raise ResearchAccessError("at least one season is required")
+
     rows: list[dict[str, Any]] = []
     for season in seasons:
         definition = variable_definition(variable, family=family, season=season)
@@ -168,11 +255,13 @@ def coverage(*, variable: str, seasons: list[str] | tuple[str, ...], family: str
         else:
             row = _coverage_core(definition.family, season, definition.source_field or definition.name)
         rows.append(row)
+
     population = sum(row["population"] for row in rows)
     observed = sum(row["observed"] for row in rows)
     missing = sum(row["missing"] for row in rows)
     seasons_with_field = sum(1 for row in rows if row["field_present"])
     seasons_with_observations = sum(1 for row in rows if row["observed"] > 0)
+
     return {
         "query_type": "research_coverage",
         "access_version": ACCESS_VERSION,
@@ -187,11 +276,16 @@ def coverage(*, variable: str, seasons: list[str] | tuple[str, ...], family: str
         "missing": missing,
         "coverage_pct": round((observed / population) * 100.0, 3) if population else 0.0,
         "results": rows,
-        "provenance": {"method": "existing FRL source-family evidence adapters", "no_identity_inference": True},
+        "provenance": {
+            "method": "existing FRL source-family evidence adapters",
+            "no_identity_inference": True,
+        },
         "temporal_note": "Coverage describes evidence present in each declared season; it does not by itself establish historical information availability time.",
     }
 
+
 def query(request: ResearchRequest) -> dict[str, Any]:
+    """Execute a governed research request through the existing resolver."""
     validation = validate(request)
     raw = resolve_variable(**request.as_dict())
     return {
@@ -208,4 +302,15 @@ def query(request: ResearchRequest) -> dict[str, Any]:
         "provenance": raw.get("provenance", {}),
     }
 
-__all__ = ["ACCESS_VERSION", "ALL_FAMILIES", "CORE_FAMILIES", "ResearchAccessError", "ResearchRequest", "coverage", "discover", "query", "validate"]
+
+__all__ = [
+    "ACCESS_VERSION",
+    "ALL_FAMILIES",
+    "CORE_FAMILIES",
+    "ResearchAccessError",
+    "ResearchRequest",
+    "coverage",
+    "discover",
+    "query",
+    "validate",
+]
