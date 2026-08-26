@@ -11,29 +11,32 @@
   padding-bottom: 0;
   display: flex;
   flex-direction: column;
+  border-top: 1px solid color-mix(in srgb, var(--frl-border-strong) 82%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--frl-border) 60%, transparent);
 }
 
 .home {
   grid-column: 1;
   grid-row: 3;
-  padding-right: .85rem;
+  padding-right: .95rem;
   text-align: right;
 }
 
 .away {
   grid-column: 3;
   grid-row: 3;
-  padding-left: .85rem;
+  padding-left: .95rem;
   text-align: left;
 }
 
 .heading {
   display: flex;
   align-items: baseline;
-  gap: .55rem;
-  min-height: 1.05rem;
-  margin-bottom: .36rem;
-  padding-bottom: .3rem;
+  gap: .65rem;
+  min-height: 1.15rem;
+  margin-bottom: .38rem;
+  padding-top: .28rem;
+  padding-bottom: .34rem;
   border-bottom: 1px solid color-mix(in srgb, var(--frl-border-strong) 82%, transparent);
 }
 
@@ -42,8 +45,8 @@
 
 .kicker {
   color: var(--frl-muted-soft);
-  font-size: .54rem;
-  font-weight: 750;
+  font-size: .61rem;
+  font-weight: 760;
   letter-spacing: .09em;
   line-height: 1;
   text-transform: uppercase;
@@ -51,24 +54,26 @@
 
 .teamName {
   color: var(--frl-text);
-  font-size: .76rem;
+  font-size: .86rem;
   font-weight: 800;
-  letter-spacing: -.01em;
+  letter-spacing: -.012em;
   line-height: 1;
 }
 
 .performanceList {
   flex: 1 1 auto;
+  min-height: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  column-gap: .8rem;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  column-gap: .95rem;
   row-gap: 0;
 }
 
 .performanceRow {
   min-width: 0;
-  padding: .36rem 0 .34rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--frl-border) 52%, transparent);
+  padding: .48rem .1rem .44rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--frl-border) 58%, transparent);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -81,9 +86,9 @@
 
 .metricLabel {
   color: var(--frl-muted-soft);
-  font-size: .45rem;
-  font-weight: 750;
-  letter-spacing: .07em;
+  font-size: .56rem;
+  font-weight: 760;
+  letter-spacing: .075em;
   line-height: 1.1;
   text-transform: uppercase;
 }
@@ -91,8 +96,8 @@
 .playerLine {
   display: flex;
   align-items: baseline;
-  gap: .42rem;
-  margin-top: .18rem;
+  gap: .5rem;
+  margin-top: .24rem;
 }
 
 .home .playerLine { justify-content: flex-end; }
@@ -102,16 +107,16 @@
   min-width: 0;
   display: inline-flex;
   align-items: baseline;
-  gap: .29rem;
+  gap: .34rem;
 }
 
 .playerName {
   min-width: 0;
   color: var(--frl-text);
-  font-size: .63rem;
-  font-weight: 750;
-  letter-spacing: -.014em;
-  line-height: 1.03;
+  font-size: .78rem;
+  font-weight: 760;
+  letter-spacing: -.016em;
+  line-height: 1.05;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -120,8 +125,8 @@
 .playerContext {
   flex: 0 0 auto;
   color: var(--frl-muted-soft);
-  font-size: .39rem;
-  font-weight: 650;
+  font-size: .48rem;
+  font-weight: 660;
   letter-spacing: .025em;
   white-space: nowrap;
 }
@@ -129,31 +134,31 @@
 .metricOutput {
   display: inline-flex;
   align-items: baseline;
-  gap: .22rem;
+  gap: .25rem;
   flex: 0 0 auto;
 }
 
 .metricValue {
   color: var(--frl-text);
-  font-size: .78rem;
-  font-weight: 850;
+  font-size: 1rem;
+  font-weight: 870;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -.027em;
+  letter-spacing: -.03em;
 }
 
 .metricUnit {
   color: var(--frl-muted);
-  font-size: .38rem;
+  font-size: .46rem;
   font-weight: 700;
   letter-spacing: .028em;
   text-transform: uppercase;
 }
 
 .secondaryLine {
-  margin-top: .14rem;
+  margin-top: .16rem;
   color: var(--frl-muted-soft);
-  font-size: .39rem;
-  font-weight: 650;
+  font-size: .48rem;
+  font-weight: 660;
   line-height: 1.1;
 }
 
@@ -176,11 +181,12 @@
 
   .performanceList {
     grid-template-columns: 1fr;
+    grid-template-rows: repeat(6, minmax(0, auto));
   }
 
   .performanceRow:nth-child(5),
   .performanceRow:nth-child(6) {
-    border-bottom: 1px solid color-mix(in srgb, var(--frl-border) 52%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--frl-border) 58%, transparent);
   }
 
   .performanceRow:last-child {
