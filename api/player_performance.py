@@ -19,6 +19,7 @@ class PlayerLeader(BaseModel):
     minutes: float | None = None
     value: float | None = None
     secondary_value: float | None = None
+    tie_count: int = 1
 
 
 class PlayerMetric(BaseModel):
@@ -154,13 +155,16 @@ def _leader(
     if not candidates:
         return None
 
+    max_value = max(candidate[0] for candidate in candidates)
+    tied = [candidate for candidate in candidates if candidate[0] == max_value]
     _, _, _, selected = max(candidates, key=lambda item: (item[0], item[1], item[2]))
     return PlayerLeader(
-        player_id=selected["id"],
-        player_name=selected["name"],
-        position=selected["position"],
-        minutes=selected["minutes"],
+        player_id=selected["id"] if len(tied) == 1 else None,
+        player_name=selected["name"] if len(tied) == 1 else None,
+        position=selected["position"] if len(tied) == 1 else None,
+        minutes=selected["minutes"] if len(tied) == 1 else None,
         value=selected["value"],
+        tie_count=len(tied),
     )
 
 
@@ -188,12 +192,15 @@ def _fpl_dribbles_leader(values: dict[str, dict], *, home: bool) -> PlayerLeader
     if not candidates:
         return None
 
+    max_value = max(candidate[0] for candidate in candidates)
+    tied = [candidate for candidate in candidates if candidate[0] == max_value]
     _, _, _, selected = max(candidates, key=lambda item: (item[0], item[1], item[2]))
     return PlayerLeader(
-        player_id=selected["id"],
-        player_name=selected["name"],
-        minutes=selected["minutes"],
+        player_id=selected["id"] if len(tied) == 1 else None,
+        player_name=selected["name"] if len(tied) == 1 else None,
+        minutes=selected["minutes"] if len(tied) == 1 else None,
         value=selected["value"],
+        tie_count=len(tied),
     )
 
 
@@ -256,6 +263,7 @@ def _side(
             "Values are retrieved through the Universal Variable Resolver; missing source observations remain unavailable.",
             "Player display identity is taken from the fixture's verified Player–Fixture evidence for PL player-match metrics.",
             "Dribbles are retrieved from the historical FPL player-fixture evidence through the FPL Universal Variable Access seam.",
+            "When multiple players share the highest value, the metric reports the tie count rather than selecting a unique leader.",
         ],
     )
 
