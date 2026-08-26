@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from fpl_variable_access import fixture_values as fpl_fixture_values
+from fpl_variable_access import player_fixture_values as fpl_player_fixture_values
 from fpl_variable_access import player_gameweek_values as fpl_player_gameweek_values
 from fpl_variable_access import fpl_variable_definition
 from research_field_query import (
@@ -70,10 +71,10 @@ ALIASES: dict[str, VariableDefinition] = {
         source_field="keyPass",
         definition="Key passes credited to the player in the fixture.",
     ),
-    "successfulDribbles": VariableDefinition(
-        name="successfulDribbles", label="Successful dribbles", family="player_match",
-        source_field="successfulDribbles",
-        definition="Successful dribbles credited to the player in the fixture.",
+    "dribbles": VariableDefinition(
+        name="dribbles", label="Dribbles", family="fpl",
+        source_field="dribbles",
+        definition="Dribbles recorded for the player in the historical fixture-level FPL evidence.",
     ),
     "onTargetScoringAttempt": VariableDefinition(
         name="onTargetScoringAttempt", label="Shots on target", family="player_match",
@@ -193,9 +194,6 @@ def _native_result(*, definition: VariableDefinition, season: str, fixture_id: s
         },
     }
 
-    # Preserve the generic research/query layer's coverage and temporal
-    # semantics so downstream research/GUI consumers cannot lose them merely
-    # by passing through the universal resolver.
     for key in ("coverage", "source_rows", "temporal_note", "limitations"):
         if key in raw:
             result[key] = raw[key]
@@ -222,6 +220,12 @@ def resolve_variable(
         )
 
     if definition.family == "fpl":
+        if name == "dribbles" and fixture_id is not None and player_id is None:
+            return fpl_player_fixture_values(
+                season=season,
+                fixture_id=str(fixture_id),
+                field_name="dribbles",
+            )
         if player_id is not None:
             return fpl_player_gameweek_values(
                 season=season,
