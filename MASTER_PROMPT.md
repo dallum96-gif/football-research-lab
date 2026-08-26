@@ -94,6 +94,28 @@ The Master Prompt should contain the recovery rule and point to the authoritativ
 
 Repository documentation is the project’s durable memory. Conversation is working context.
 
+## Universal variable accessibility
+
+Every **validated** FRL variable should be discoverable and retrievable through one standard programmatic access seam without requiring downstream consumers, including the GUI, to know the variable’s source schema, storage location or source-family-specific retrieval mechanism.
+
+The governing contract is:
+
+`FRL_UNIVERSAL_VARIABLE_ACCESS_CONTRACT.md`
+
+The intended flow is:
+
+```text
+VARIABLE CATALOGUE
+      ↓
+VARIABLE RESOLVER
+      ↓
+QUERY / RESEARCH SERVICES
+      ↓
+GUI / OTHER CONSUMERS
+```
+
+This does **not** mean every discovered source field is automatically GUI-visible. The FRL retains explicit lifecycle states such as discovered, catalogued, validated, resolvable and GUI-accessible. The GUI may expose variables progressively, but it must not become a second variable registry or analytical engine.
+
 ## Project-state recovery
 
 Treat `dallum96-gif/football-research-lab` as the **source of truth**.
