@@ -64,6 +64,39 @@ def _percentage(numerator: object, denominator: object) -> float | None:
     return numerator_value / denominator_value * 100.0
 
 
+def _fixture_player_identity(fixture: dict) -> dict[str, dict[str, Any]]:
+    """Build display identity from the same fixture's Player–Fixture evidence.
+
+    The Universal Variable Resolver supplies statistic values. This mapping only
+    supplies the historical display metadata for source player IDs already
+    attached to this canonical fixture.
+    """
+    identity: dict[str, dict[str, Any]] = {}
+    for row in source_family_adapters.player_match_source_rows(
+        str(fixture["season"]), str(fixture["fixture_id"])
+    ):
+        player_id = str(row.get("playerId") or row.get("pl_code") or "").strip()
+        if not player_id:
+            continue
+
+        name = row.get("playerName") or row.get("displayName")
+        position = row.get("position")
+        minutes = _number(row.get("minutesPlayed"))
+        team_source_id = str(row.get("team_id") or "").strip()
+
+        identity.setdefault(
+            player_id,
+            {
+                "name": str(name).strip() if name not in (None, "") else None,
+                "position": str(position).strip() if position not in (None, "") else None,
+                "minutes": minutes,
+                "team_source_id": team_source_id,
+            },
+        )
+
+    return identity
+
+
 def _resolved_values(name: str, season: str, fixture_id: str) -> dict[str, dict]:
     try:
         result = variable_resolver.resolve_variable(
@@ -86,6 +119,7 @@ def _leader(
     values: dict[str, dict],
     *,
     team_source_id: str,
+    identity_by_player: dict[str, dict[str, Any]],
 ) -> PlayerLeader | None:
     candidates: list[tuple[float, str, str, dict]] = []
 
@@ -99,21 +133,20 @@ def _leader(
         if value is None:
             continue
 
-        # Player identity/display metadata is carried by the same generic
-        # Player–Fixture research result. Do not perform a second identity join.
-        name = item.get("player_name")
-        position = item.get("position")
-        if not name:
+        identity = identity_by_player.get(source_player_id)
+        if not identity or not identity.get("name"):
+            continue
+        if identity.get("team_source_id") not in ("", team_source_id):
             continue
 
         selected = {
             "id": source_player_id,
             "value": value,
-            "minutes": None,
-            "position": str(position).strip() if position not in (None, "") else None,
-            "name": str(name).strip(),
+            "minutes": identity.get("minutes"),
+            "position": identity.get("position"),
+            "name": identity.get("name"),
         }
-        candidates.append((value, str(name).casefold(), source_player_id, selected))
+        candidates.append((value, str(selected["name"]).casefold(), source_player_id, selected))
 
     if not candidates:
         return None
@@ -132,49 +165,48 @@ def _side(
     side: str,
     team_name: str,
     team_source_id: str,
+    identity_by_player: dict[str, dict[str, Any]],
     resolved: dict[str, dict[str, dict]],
 ) -> PlayerPerformanceSide:
-    # The display leader for passing is the player with the most total passes;
-    # completion percentage is then derived from that player's accurate/total pass values.
     passes = _leader(
         resolved["totalPass"],
         team_source_id=team_source_id,
+        identity_by_player=identity_by_player,
     )
     tackles = _leader(
         resolved["totalTackle"],
         team_source_id=team_source_id,
+        identity_by_player=identity_by_player,
     )
     interceptions = _leader(
         resolved["interceptionWon"],
         team_source_id=team_source_id,
+        identity_by_player=identity_by_player,
     )
     key_passes = _leader(
         resolved["keyPass"],
         team_source_id=team_source_id,
+        identity_by_player=identity_by_player,
     )
     dribbles = _leader(
         resolved["successfulDribbles"],
         team_source_id=team_source_id,
+        identity_by_player=identity_by_player,
     )
     shots = _leader(
         resolved["onTargetScoringAttempt"],
         team_source_id=team_source_id,
+        identity_by_player=identity_by_player,
     )
 
     if passes and passes.player_id:
         accurate_passes = resolved["accuratePass"].get(passes.player_id)
         if accurate_passes:
-            passes.secondary_value = _percentage(
-                accurate_passes.get("value"),
-                passes.value,
-            )
+            passes.secondary_value = _percentage(accurate_passes.get("value"), passes.value)
     if tackles and tackles.player_id:
         won_tackle = resolved["wonTackle"].get(tackles.player_id)
         if won_tackle:
-            tackles.secondary_value = _percentage(
-                won_tackle.get("value"),
-                tackles.value,
-            )
+            tackles.secondary_value = _percentage(won_tackle.get("value"), tackles.value)
 
     definitions = (
         ("passes_completed", "Passes", "Pass completion", passes),
@@ -210,7 +242,7 @@ def _side(
         status="AVAILABLE" if any(metric.player for metric in metrics) else "UNAVAILABLE",
         limitations=[
             "Values are retrieved through the Universal Variable Resolver; missing source observations remain unavailable.",
-            "Player display metadata is carried by the same Player–Fixture research result as each metric.",
+            "Player display identity is taken from the same fixture's Player–Fixture evidence.",
         ],
     )
 
@@ -223,6 +255,7 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
     try:
         fixture = query_api.fixture_detail(season, fixture_id)["fixture"]
         resolved_match = source_family_adapters.resolve_source_match(season, fixture_id)
+        identity_by_player = _fixture_player_identity(fixture)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
@@ -230,7 +263,6 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
 
     resolved: dict[str, dict[str, dict]] = {}
     for variable_name in (
-        "minutesPlayed",
         "totalPass",
         "accuratePass",
         "totalTackle",
@@ -252,12 +284,14 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
             "home",
             str(fixture["home_team_name"]),
             home_source_id,
+            identity_by_player,
             resolved,
         ),
         away=_side(
             "away",
             str(fixture["away_team_name"]),
             away_source_id,
+            identity_by_player,
             resolved,
         ),
     )
