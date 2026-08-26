@@ -64,21 +64,40 @@ def _percentage(numerator: object, denominator: object) -> float | None:
     return numerator_value / denominator_value * 100.0
 
 
-def _identity_details(season: str, source_player_id: str | None) -> tuple[str | None, str | None]:
-    if not source_player_id:
-        return None, None
-    try:
-        resolved = source_family_adapters.source_player_season_identity(season, source_player_id)
-    except (FileNotFoundError, ValueError):
-        return None, None
+def _fixture_player_identity(fixture: dict) -> dict[str, dict[str, Any]]:
+    """Build display identity from the fixture's own Player–Fixture evidence.
 
-    player_season = resolved.get("player_season") or {}
-    name = player_season.get("playerName") or player_season.get("displayName")
-    position = player_season.get("position")
-    return (
-        str(name).strip() if name not in (None, "") else None,
-        str(position).strip() if position not in (None, "") else None,
-    )
+    Statistics remain sourced through Universal Variable Access; this mapping
+    only supplies historical player display metadata already attached to the
+    same canonical fixture relationship.
+    """
+    identity: dict[str, dict[str, Any]] = {}
+    for row in source_family_adapters.player_match_source_rows(
+        str(fixture["season"]), str(fixture["fixture_id"])
+    ):
+        player_id = str(row.get("playerId") or row.get("pl_code") or "").strip()
+        if not player_id:
+            continue
+
+        name = row.get("playerName") or row.get("displayName")
+        position = row.get("position")
+        minutes = _number(row.get("minutesPlayed"))
+        team_source_id = str(row.get("team_id") or "").strip()
+
+        # The canonical direct per-club Player–Fixture materialisation contains
+        # one historical observation per player/match. Keep the first verified
+        # display record rather than inventing continuity across seasons.
+        identity.setdefault(
+            player_id,
+            {
+                "name": str(name).strip() if name not in (None, "") else None,
+                "position": str(position).strip() if position not in (None, "") else None,
+                "minutes": minutes,
+                "team_source_id": team_source_id,
+            },
+        )
+
+    return identity
 
 
 def _resolved_values(name: str, season: str, fixture_id: str) -> dict[str, dict]:
@@ -100,11 +119,10 @@ def _resolved_values(name: str, season: str, fixture_id: str) -> dict[str, dict]
 
 
 def _leader(
-    season: str,
     values: dict[str, dict],
     *,
     team_source_id: str,
-    minutes_by_player: dict[str, float | None],
+    identity_by_player: dict[str, dict[str, Any]],
 ) -> PlayerLeader | None:
     candidates: list[tuple[float, str, str, dict]] = []
 
@@ -118,20 +136,24 @@ def _leader(
         if value is None:
             continue
 
-        minutes = minutes_by_player.get(source_player_id)
-        if minutes is not None and minutes <= 0:
+        identity = identity_by_player.get(source_player_id)
+        if not identity:
+            continue
+        if identity.get("team_source_id") not in ("", team_source_id):
             continue
 
-        name, position = _identity_details(season, source_player_id)
-        display_name = name or source_player_id
+        name = identity.get("name")
+        if not name:
+            continue
+
         selected = {
             "id": source_player_id,
             "value": value,
-            "minutes": minutes,
-            "position": position,
+            "minutes": identity.get("minutes"),
+            "position": identity.get("position"),
             "name": name,
         }
-        candidates.append((value, display_name.casefold(), source_player_id, selected))
+        candidates.append((value, str(name).casefold(), source_player_id, selected))
 
     if not candidates:
         return None
@@ -147,76 +169,57 @@ def _leader(
 
 
 def _side(
-    season: str,
     side: str,
     team_name: str,
     team_source_id: str,
-    minutes_by_player: dict[str, float | None],
+    identity_by_player: dict[str, dict[str, Any]],
     resolved: dict[str, dict[str, dict]],
 ) -> PlayerPerformanceSide:
     passes = _leader(
-        season,
         resolved["accuratePass"],
         team_source_id=team_source_id,
-        minutes_by_player=minutes_by_player,
+        identity_by_player=identity_by_player,
     )
     tackles = _leader(
-        season,
         resolved["wonTackle"],
         team_source_id=team_source_id,
-        minutes_by_player=minutes_by_player,
+        identity_by_player=identity_by_player,
     )
     interceptions = _leader(
-        season,
         resolved["interceptionWon"],
         team_source_id=team_source_id,
-        minutes_by_player=minutes_by_player,
+        identity_by_player=identity_by_player,
     )
     key_passes = _leader(
-        season,
         resolved["keyPass"],
         team_source_id=team_source_id,
-        minutes_by_player=minutes_by_player,
+        identity_by_player=identity_by_player,
     )
     dribbles = _leader(
-        season,
         resolved["successfulDribbles"],
         team_source_id=team_source_id,
-        minutes_by_player=minutes_by_player,
+        identity_by_player=identity_by_player,
     )
     shots = _leader(
-        season,
         resolved["onTargetScoringAttempt"],
         team_source_id=team_source_id,
-        minutes_by_player=minutes_by_player,
+        identity_by_player=identity_by_player,
     )
 
     total_passes = resolved["totalPass"].get(passes.player_id) if passes and passes.player_id else None
     total_tackles = resolved["totalTackle"].get(tackles.player_id) if tackles and tackles.player_id else None
-    unsuccessful_dribbles = (
-        resolved["unsuccessfulDribbles"].get(dribbles.player_id)
-        if dribbles and dribbles.player_id
-        else None
-    )
 
     if passes and total_passes:
         passes.secondary_value = _percentage(passes.value, total_passes.get("value"))
     if tackles and total_tackles:
         tackles.secondary_value = _percentage(tackles.value, total_tackles.get("value"))
-    if dribbles and unsuccessful_dribbles:
-        unsuccessful_value = _number(unsuccessful_dribbles.get("value"))
-        if unsuccessful_value is not None and dribbles.value is not None:
-            dribbles.secondary_value = _percentage(
-                dribbles.value,
-                dribbles.value + unsuccessful_value,
-            )
 
     definitions = (
         ("passes_completed", "Passes completed", "Pass completion", passes),
         ("tackles_won", "Tackles won", "Tackle won", tackles),
         ("interceptions_won", "Interceptions", None, interceptions),
         ("key_passes", "Key passes", None, key_passes),
-        ("successful_dribbles", "Successful dribbles", "Dribble success", dribbles),
+        ("successful_dribbles", "Successful dribbles", None, dribbles),
         ("shots_on_target", "Shots on target", None, shots),
     )
 
@@ -245,6 +248,7 @@ def _side(
         status="AVAILABLE" if any(metric.player for metric in metrics) else "UNAVAILABLE",
         limitations=[
             "Values are retrieved through the Universal Variable Resolver; missing source observations remain unavailable.",
+            "Player display identity is taken from the same fixture's Player–Fixture evidence.",
         ],
     )
 
@@ -257,6 +261,7 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
     try:
         fixture = query_api.fixture_detail(season, fixture_id)["fixture"]
         resolved_match = source_family_adapters.resolve_source_match(season, fixture_id)
+        identity_by_player = _fixture_player_identity(fixture)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except Exception as exc:
@@ -277,12 +282,6 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
     ):
         resolved[variable_name] = _resolved_values(variable_name, season, fixture_id)
 
-    minutes_by_player = {
-        player_id: _number(item.get("value"))
-        for player_id, item in resolved["minutesPlayed"].items()
-        if player_id != "__error__"
-    }
-
     home_source_id = str(resolved_match["home"].get("team_id", "")).strip()
     away_source_id = str(resolved_match["away"].get("team_id", "")).strip()
 
@@ -290,19 +289,17 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
         season=season,
         fixture_id=str(fixture_id),
         home=_side(
-            season,
             "home",
             str(fixture["home_team_name"]),
             home_source_id,
-            minutes_by_player,
+            identity_by_player,
             resolved,
         ),
         away=_side(
-            season,
             "away",
             str(fixture["away_team_name"]),
             away_source_id,
-            minutes_by_player,
+            identity_by_player,
             resolved,
         ),
     )
