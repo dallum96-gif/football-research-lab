@@ -298,7 +298,14 @@ def player_total(season, player, metric="goals"):
 
 
 def fixture_detail(season, fixture_id):
-    return query_lab.fixture_detail(season=season, fixture_id=fixture_id)
+    return query_lab.fixture_detail(season, fixture_id)
+
+
+def fixture_evidence(season, fixture_id):
+    """Return governed event/lineup/formation/manager evidence for one fixture."""
+    from fixture_research_access import fixture_research_result
+
+    return fixture_research_result(season, str(fixture_id))
 
 
 def list_seasons():
@@ -316,6 +323,7 @@ def dispatch(query, **kwargs):
         "team-summary": team_summary,
         "team-compare": team_compare,
         "fixtures": fixtures,
+        "fixture-evidence": fixture_evidence,
         "head-to-head": head_to_head,
         "team-form": team_form,
         "top-players": top_players,
