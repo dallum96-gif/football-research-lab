@@ -178,7 +178,8 @@ def _derive_player_match(season: str, fixture_id: str, metric: VariableDefinitio
 
 
 def _native_result(*, definition: VariableDefinition, season: str, fixture_id: str | None, raw: dict) -> dict:
-    return {
+    """Wrap a generic research result without discarding research semantics."""
+    result = {
         "query_type": "frl_variable",
         "variable": definition.name,
         "label": definition.label,
@@ -191,6 +192,15 @@ def _native_result(*, definition: VariableDefinition, season: str, fixture_id: s
             "registry_status": "native",
         },
     }
+
+    # Preserve the generic research/query layer's coverage and temporal
+    # semantics so downstream research/GUI consumers cannot lose them merely
+    # by passing through the universal resolver.
+    for key in ("coverage", "source_rows", "temporal_note", "limitations"):
+        if key in raw:
+            result[key] = raw[key]
+
+    return result
 
 
 def resolve_variable(
