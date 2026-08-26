@@ -36,7 +36,7 @@ from variable_resolver import (
 
 CORE_FAMILIES = ("team_match", "player_match", "player_season", "squad")
 ALL_FAMILIES = CORE_FAMILIES + ("fpl",)
-ACCESS_VERSION = "0.2.1"
+ACCESS_VERSION = "0.3.0"
 
 
 class ResearchAccessError(ValueError):
@@ -52,9 +52,17 @@ class ResearchRequest:
     team_id: str | None = None
     player_id: str | None = None
     gameweek: str | None = None
+    as_of_date: str | None = None
+    information_available_as_of: str | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    def resolver_dict(self) -> dict[str, Any]:
+        data = self.as_dict()
+        data.pop("as_of_date", None)
+        data.pop("information_available_as_of", None)
+        return data
 
 
 def _core_capabilities() -> tuple[dict[str, Any], ...]:
@@ -123,6 +131,30 @@ def discover(*, family: str | None = None, search: str | None = None) -> dict[st
             "core_registry": "FRL canonical variable catalogue",
             "fpl_registry": "authoritative FPL variable registry",
         },
+        "temporal_note": "Capability discovery describes what the registry exposes; it does not establish evidence coverage or historical information availability.",
+    }
+
+
+def _temporal_context(request: ResearchRequest) -> dict[str, Any]:
+    return {
+        "season_state_requested": request.season,
+        "as_of_date": request.as_of_date,
+        "information_available_as_of": request.information_available_as_of,
+        "historical_state_and_information_availability_distinct": True,
+        "information_availability_status": (
+            "requested" if request.information_available_as_of else "not_assessed"
+        ),
+    }
+
+
+def _provenance_context(definition: Any) -> dict[str, Any]:
+    return {
+        "variable": definition.name,
+        "family": definition.family,
+        "source_field": definition.source_field,
+        "status": definition.status,
+        "canonical_registry": "FRL canonical variable catalogue" if definition.family != "fpl" else "authoritative FPL variable registry",
+        "access_layer": "FRL universal research access",
     }
 
 
@@ -160,6 +192,8 @@ def validate(request: ResearchRequest) -> dict[str, Any]:
             "status": definition.status,
         },
         "access_version": ACCESS_VERSION,
+        "temporal": _temporal_context(request),
+        "provenance": _provenance_context(definition),
     }
 
 
@@ -248,8 +282,10 @@ def coverage(*, variable: str, seasons: list[str] | tuple[str, ...], family: str
         raise ResearchAccessError("at least one season is required")
 
     rows: list[dict[str, Any]] = []
+    definitions: list[Any] = []
     for season in seasons:
         definition = variable_definition(variable, family=family, season=season)
+        definitions.append(definition)
         if definition.family == "fpl":
             row = _coverage_fpl(season, definition.source_field or definition.name)
         else:
@@ -262,6 +298,7 @@ def coverage(*, variable: str, seasons: list[str] | tuple[str, ...], family: str
     seasons_with_field = sum(1 for row in rows if row["field_present"])
     seasons_with_observations = sum(1 for row in rows if row["observed"] > 0)
 
+    provenance = _provenance_context(definitions[0])
     return {
         "query_type": "research_coverage",
         "access_version": ACCESS_VERSION,
@@ -277,8 +314,14 @@ def coverage(*, variable: str, seasons: list[str] | tuple[str, ...], family: str
         "coverage_pct": round((observed / population) * 100.0, 3) if population else 0.0,
         "results": rows,
         "provenance": {
+            **provenance,
             "method": "existing FRL source-family evidence adapters",
             "no_identity_inference": True,
+        },
+        "temporal": {
+            "seasons_requested": list(seasons),
+            "historical_state_and_information_availability_distinct": True,
+            "information_availability_status": "not_assessed",
         },
         "temporal_note": "Coverage describes evidence present in each declared season; it does not by itself establish historical information availability time.",
     }
@@ -287,7 +330,7 @@ def coverage(*, variable: str, seasons: list[str] | tuple[str, ...], family: str
 def query(request: ResearchRequest) -> dict[str, Any]:
     """Execute a governed research request through the existing resolver."""
     validation = validate(request)
-    raw = resolve_variable(**request.as_dict())
+    raw = resolve_variable(**request.resolver_dict())
     return {
         "query_type": "research_access",
         "access_version": ACCESS_VERSION,
@@ -297,9 +340,13 @@ def query(request: ResearchRequest) -> dict[str, Any]:
         "coverage": raw.get("coverage"),
         "population": raw.get("population"),
         "source_rows": raw.get("source_rows"),
-        "temporal_note": raw.get("temporal_note"),
+        "temporal": validation["temporal"],
+        "temporal_note": raw.get("temporal_note") or "Historical state and information availability are distinct; information availability is not inferred from source evidence alone.",
         "limitations": raw.get("limitations", []),
-        "provenance": raw.get("provenance", {}),
+        "provenance": {
+            **validation["provenance"],
+            **raw.get("provenance", {}),
+        },
     }
 
 
