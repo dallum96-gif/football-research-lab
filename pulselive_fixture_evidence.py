@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from pathlib import Path
 from typing import Any
 
@@ -106,9 +107,28 @@ def _number(value: Any) -> int | float | None:
     return int(number) if number.is_integer() else number
 
 
+def _event_sort_seconds(value: Any) -> int | float | None:
+    """Convert source minute labels such as ``45+1`` into a sortable value."""
+    if value in (None, ""):
+        return None
+    numeric = _number(value)
+    if numeric is not None:
+        return numeric
+    match = re.match(r"^\s*(\d+(?:\.\d+)?)(?:\s*\+\s*(\d+(?:\.\d+)?))?", str(value))
+    if not match:
+        return None
+    base = float(match.group(1))
+    added = float(match.group(2) or 0)
+    return base + added / 1000.0
+
+
 def _event_time(item: dict[str, Any]) -> tuple[str | None, int | float | None]:
-    label = _text(item.get("time"))
-    seconds = _number(item.get("seconds")) or _number(item.get("elapsedSeconds"))
+    label = _text(item.get("time")) or _text(item.get("minute")) or _text(item.get("timestamp"))
+    seconds = _number(item.get("seconds"))
+    if seconds is None:
+        seconds = _number(item.get("elapsedSeconds"))
+    if seconds is None:
+        seconds = _event_sort_seconds(label)
     return label, seconds
 
 
@@ -169,9 +189,9 @@ def _formation_value(team: dict[str, Any]) -> str | None:
 def _explicit_placement(team: dict[str, Any]) -> list[dict[str, Any]]:
     formation = team.get("formation")
     lineup = formation.get("lineup") if isinstance(formation, dict) else None
-    entries = _as_list(lineup)
+    entries = lineup.get("players") if isinstance(lineup, dict) else lineup
     output: list[dict[str, Any]] = []
-    for entry in entries:
+    for entry in _as_list(entries):
         x = _number(entry.get("x"))
         y = _number(entry.get("y"))
         source_player_id = _text(entry.get("playerId")) or _text(entry.get("id"))
