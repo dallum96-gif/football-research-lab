@@ -6,8 +6,11 @@
 
 .panel {
   min-width: 0;
-  align-self: start;
-  padding-top: .42rem;
+  align-self: stretch;
+  height: 100%;
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .home {
@@ -55,8 +58,10 @@
 }
 
 .performanceList {
+  flex: 1;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
   column-gap: .8rem;
   row-gap: 0;
 }
@@ -65,6 +70,9 @@
   min-width: 0;
   padding: .34rem 0 .32rem;
   border-bottom: 1px solid color-mix(in srgb, var(--frl-border) 52%, transparent);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .performanceRow:nth-child(5),
@@ -167,8 +175,13 @@
     gap: 1rem;
   }
 
+  .panel {
+    height: auto;
+  }
+
   .performanceList {
     grid-template-columns: 1fr;
+    grid-template-rows: none;
   }
 
   .performanceRow:nth-child(5),
