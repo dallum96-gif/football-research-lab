@@ -12,6 +12,7 @@ from typing import Any
 
 from canonical_variable_catalogue import canonical_variables
 from fpl_variable_access import (
+    FPLVariableUnavailableError,
     fpl_catalogue,
     _load as _fpl_load,
     _source_field as _fpl_source_field,
@@ -36,7 +37,7 @@ from variable_resolver import (
 
 CORE_FAMILIES = ("team_match", "player_match", "player_season", "squad")
 ALL_FAMILIES = CORE_FAMILIES + ("fpl",)
-ACCESS_VERSION = "0.3.0"
+ACCESS_VERSION = "0.3.1"
 
 
 class ResearchAccessError(ValueError):
@@ -173,7 +174,7 @@ def validate(request: ResearchRequest) -> dict[str, Any]:
             family=request.family,
             season=request.season,
         )
-    except VariableResolutionError as exc:
+    except (VariableResolutionError, FPLVariableUnavailableError) as exc:
         raise ResearchAccessError(str(exc)) from exc
 
     if definition.family in {"player_match", "team_match"} and request.fixture_id is None:
@@ -284,7 +285,10 @@ def coverage(*, variable: str, seasons: list[str] | tuple[str, ...], family: str
     rows: list[dict[str, Any]] = []
     definitions: list[Any] = []
     for season in seasons:
-        definition = variable_definition(variable, family=family, season=season)
+        try:
+            definition = variable_definition(variable, family=family, season=season)
+        except (VariableResolutionError, FPLVariableUnavailableError) as exc:
+            raise ResearchAccessError(str(exc)) from exc
         definitions.append(definition)
         if definition.family == "fpl":
             row = _coverage_fpl(season, definition.source_field or definition.name)
