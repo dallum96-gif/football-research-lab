@@ -3,6 +3,13 @@
 The canonical FPL player dataset and fixture master remain authoritative.
 This module reuses the existing verified fixture/team identity mechanism and
 adds player-match evidence without rewriting established research contracts.
+
+Important source-layout rule:
+``players_match_stats/by_position`` contains partitioned copies of the source
+rows, while ``pl_stats/_merged/players_match_stats`` contains another merged
+materialisation. Neither is an additional evidence source. The canonical scan
+must use the direct per-club seasonal files only so a player-match row is not
+loaded multiple times.
 """
 
 from __future__ import annotations
@@ -78,20 +85,37 @@ def _open_csv(path: Path):
 
 @lru_cache(maxsize=20)
 def _season_player_match_files(season: str) -> tuple[Path, ...]:
+    """Return canonical per-club player-match files for one season.
+
+    The upstream repository also stores partitioned copies below
+    ``players_match_stats/by_position`` and a merged materialisation below
+    ``_merged/players_match_stats``. Those are not additional evidence rows
+    and must not be included in the canonical scan.
+    """
     if not PL_ROOT.is_dir():
         raise FileNotFoundError(f"Player-match source root not found: {PL_ROOT}")
+
     expected = f"{season}_players_match_stats.csv"
-    return tuple(sorted(PL_ROOT.rglob(expected)))
+    paths = []
+    for club_dir in sorted(PL_ROOT.iterdir()):
+        if not club_dir.is_dir() or club_dir.name.startswith("_"):
+            continue
+        candidate = club_dir / "players_match_stats" / expected
+        if candidate.is_file():
+            paths.append(candidate)
+    return tuple(paths)
 
 
 def available_seasons() -> tuple[str, ...]:
     if not PL_ROOT.is_dir():
         return tuple()
-    seasons = [
-        path.name.replace("_players_match_stats.csv", "")
-        for path in PL_ROOT.rglob("*_players_match_stats.csv")
-    ]
-    return tuple(sorted(set(seasons)))
+    seasons = set()
+    for club_dir in PL_ROOT.iterdir():
+        if not club_dir.is_dir() or club_dir.name.startswith("_"):
+            continue
+        for path in (club_dir / "players_match_stats").glob("*_players_match_stats.csv"):
+            seasons.add(path.name.replace("_players_match_stats.csv", ""))
+    return tuple(sorted(seasons))
 
 
 @lru_cache(maxsize=20)
@@ -160,10 +184,7 @@ def _player_match_pair_index(season: str) -> dict[tuple[str, str], tuple[str, ..
             for away_id in away_by_match[match_id]:
                 index[(home_id, away_id)].append(match_id)
 
-    return {
-        key: tuple(sorted(values))
-        for key, values in index.items()
-    }
+    return {key: tuple(sorted(values)) for key, values in index.items()}
 
 
 def _source_team_ids_for_fixture(fixture: dict) -> tuple[str, str]:
@@ -197,7 +218,7 @@ def player_match_id_for_fixture(fixture: dict) -> str | None:
 
 
 def fixture_player_match_rows(fixture: dict) -> tuple[dict, ...]:
-    """Return raw player-match rows attached to a canonical fixture."""
+    """Return source-native player-match rows attached to a canonical fixture."""
     match_id = player_match_id_for_fixture(fixture)
     if match_id is None:
         return tuple()
@@ -207,6 +228,32 @@ def fixture_player_match_rows(fixture: dict) -> tuple[dict, ...]:
         for row in _source_match_records(fixture["season"])
         if str(row.get("matchId", "")).strip() == match_id
     )
+
+
+def classify_participation(row: dict) -> str:
+    """Classify participation from source ``substitute`` + ``minutesPlayed``."""
+    substitute = str(row.get("substitute", "")).strip().lower()
+    minutes_raw = row.get("minutesPlayed")
+    try:
+        minutes = float(minutes_raw) if minutes_raw not in (None, "") else 0.0
+    except (TypeError, ValueError):
+        minutes = 0.0
+
+    is_substitute = substitute in {"true", "1", "yes"}
+    if not is_substitute and minutes > 0:
+        return "starting"
+    if is_substitute and minutes > 0:
+        return "sub_in"
+    if is_substitute and minutes == 0:
+        return "bench"
+    return "unknown"
+
+
+def source_player_id(row: dict) -> str | None:
+    """Return the upstream player ID without promoting it to an FRL identity."""
+    value = row.get("playerId") or row.get("pl_code")
+    value = str(value).strip() if value not in (None, "") else ""
+    return value or None
 
 
 def aggregate_rows(rows: Iterable[dict]) -> dict[str, float | None]:
@@ -235,21 +282,16 @@ def player_season_totals(season: str) -> dict[str, dict[str, float | None]]:
     """Aggregate player-match evidence for every player in one season."""
     grouped: dict[str, list[dict]] = defaultdict(list)
     for row in _source_match_records(season):
-        player_id = str(row.get("playerId") or row.get("pl_code") or "").strip()
+        player_id = source_player_id(row)
         if player_id:
             grouped[player_id].append(row)
     return {player_id: aggregate_rows(rows) for player_id, rows in grouped.items()}
 
 
-
 def player_match_records_for_player(player_id: str, season: str) -> tuple[dict, ...]:
     """Return source rows for one player in one season."""
     key = str(player_id).strip()
-    return tuple(
-        row
-        for row in _source_match_records(season)
-        if str(row.get("playerId") or row.get("pl_code") or "").strip() == key
-    )
+    return tuple(row for row in _source_match_records(season) if source_player_id(row) == key)
 
 
 def player_season_total(player_id: str, season: str) -> dict[str, float | None]:
