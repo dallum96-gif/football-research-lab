@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from functools import lru_cache
 
-import player_identity_audit
 from player_identity_registry import build_registry as build_player_identity_registry
 from relationship_enforcement import (
     classify_observation,
@@ -33,10 +32,7 @@ def _identity_rows() -> tuple[dict[str, str], ...]:
 def resolve_fpl_player_identity(season: str, fpl_element: str) -> dict:
     """Resolve a seasonal FPL element only when its verified registry row is unique."""
     registry = _identity_rows()
-    # Source-context availability is determined by the canonical audit seam,
-    # not by whether the promoted registry happens to contain rows.
-    audit = player_identity_audit.audit_season(season)
-    source_context_available = bool(player_identity_audit.fpl_player_index(season))
+    season_context_available = any(row.get("season") == season for row in registry)
     candidates = [
         row for row in registry
         if row.get("season") == season
@@ -45,15 +41,12 @@ def resolve_fpl_player_identity(season: str, fpl_element: str) -> dict:
 
     decision = evaluate_identity(
         "fpl_player_to_frl_player_identity",
-        source_context_available=source_context_available,
+        source_context_available=season_context_available,
         candidates=candidates,
     )
     result = {
         "season": season,
         "fpl_element": str(fpl_element),
-        "audit_exact_candidates": len(audit["exact"]),
-        "audit_missing_candidates": len(audit["missing"]),
-        "audit_ambiguous_candidates": len(audit["ambiguous"]),
         **decision_dict(decision),
     }
     if decision.verified:
