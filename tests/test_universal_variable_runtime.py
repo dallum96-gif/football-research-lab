@@ -81,3 +81,36 @@ def test_ambiguous_native_field_requires_family():
     except UnsupportedContextError:
         return
     raise AssertionError("Ambiguous source field did not require explicit family")
+
+
+def test_native_result_preserves_research_semantics(monkeypatch):
+    def fake_player_match_field_values(season, fixture_id, field, *, player_id=None):
+        return {
+            "coverage": {
+                "family": "player_match",
+                "season": season,
+                "source_field": field,
+                "present": True,
+            },
+            "source_rows": 11,
+            "temporal_note": "Source retrieval does not by itself establish historical availability time.",
+            "limitations": ["identity bridge not performed"],
+            "results": [{"source_player_id": "p1", "value": "3"}],
+        }
+
+    monkeypatch.setattr(
+        "variable_resolver.player_match_field_values",
+        fake_player_match_field_values,
+    )
+
+    result = resolve_variable(
+        "successfulDribbles",
+        season="2024-25",
+        fixture_id="123",
+        player_id="p1",
+    )
+
+    assert result["coverage"]["present"] is True
+    assert result["source_rows"] == 11
+    assert result["temporal_note"].startswith("Source retrieval")
+    assert result["limitations"] == ["identity bridge not performed"]
