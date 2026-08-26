@@ -19,9 +19,8 @@ def test_fpl_is_a_separate_variable_family(monkeypatch):
 
 def test_fpl_definition_does_not_enter_core_family_resolution(monkeypatch):
     monkeypatch.setattr(
-        "variable_resolver.fpl_variable_definition",
+        "fpl_variable_access.fpl_variable_definition",
         lambda name: {"field_name": name, "subclass": "POINTS"},
-        raising=False,
     )
 
     definition = variable_definition("total_points", family="fpl", season="2025-26")
@@ -32,9 +31,8 @@ def test_fpl_definition_does_not_enter_core_family_resolution(monkeypatch):
 
 def test_fpl_player_resolution_uses_fpl_evidence_seam(monkeypatch):
     monkeypatch.setattr(
-        "variable_resolver.fpl_variable_definition",
+        "fpl_variable_access.fpl_variable_definition",
         lambda name: {"field_name": name, "subclass": "POINTS"},
-        raising=False,
     )
     monkeypatch.setattr(
         "variable_resolver.fpl_player_gameweek_values",
