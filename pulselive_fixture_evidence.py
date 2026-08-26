@@ -1,8 +1,8 @@
 """Read and normalise preserved PulseLive match-centre evidence.
 
-This module is deliberately source-adapter code. It accepts preserved raw
-PulseLive snapshots and produces a stable fixture-evidence representation while
-keeping source identifiers separate from FRL canonical identities.
+This module is source-adapter code. It accepts preserved raw PulseLive snapshots
+and produces a stable fixture-evidence representation while keeping source IDs
+separate from FRL canonical identities.
 """
 from __future__ import annotations
 
@@ -10,7 +10,6 @@ import json
 import os
 from pathlib import Path
 from typing import Any
-
 
 ROOT = Path(__file__).resolve().parent
 ARCHIVE_ENV = "FRL_PULSELIVE_ARCHIVE_ROOT"
@@ -22,7 +21,6 @@ DEFAULT_ROOTS = (
 
 
 def archive_root() -> Path | None:
-    """Return the configured/local preserved PulseLive archive root."""
     configured = os.environ.get(ARCHIVE_ENV)
     if configured:
         path = Path(configured).expanduser().resolve()
@@ -43,10 +41,7 @@ def snapshot_path(source_match_id: str) -> Path | None:
         root / f"match_{source_match_id}.json",
         root / f"{source_match_id}.json",
     )
-    for candidate in candidates:
-        if candidate.is_file():
-            return candidate
-    return None
+    return next((path for path in candidates if path.is_file()), None)
 
 
 def load_snapshot(source_match_id: str) -> tuple[dict[str, Any] | None, Path | None]:
@@ -112,10 +107,8 @@ def _number(value: Any) -> int | float | None:
 
 
 def _event_time(item: dict[str, Any]) -> tuple[str | None, int | float | None]:
-    label = _text(item.get("time")) or _text(item.get("timestamp"))
-    seconds = _number(item.get("seconds"))
-    if seconds is None:
-        seconds = _number(item.get("elapsedSeconds"))
+    label = _text(item.get("time"))
+    seconds = _number(item.get("seconds")) or _number(item.get("elapsedSeconds"))
     return label, seconds
 
 
@@ -158,8 +151,6 @@ def normalise_events(payload: Any) -> list[dict[str, Any]]:
     for event_type, key in (("goal", "goals"), ("card", "cards"), ("substitution", "subs")):
         for side in ("home", "away"):
             events.extend(_event_rows(payload, event_type, side, key))
-
-    # A source event ID is preserved when supplied. We do not invent one.
     events.sort(key=lambda row: (
         row["seconds"] is None,
         row["seconds"] if row["seconds"] is not None else 0,
@@ -175,14 +166,23 @@ def _formation_value(team: dict[str, Any]) -> str | None:
     return _text(formation.get("formation"))
 
 
+def _explicit_placement(team: dict[str, Any]) -> list[dict[str, Any]]:
+    formation = team.get("formation")
+    lineup = formation.get("lineup") if isinstance(formation, dict) else None
+    entries = _as_list(lineup)
+    output: list[dict[str, Any]] = []
+    for entry in entries:
+        x = _number(entry.get("x"))
+        y = _number(entry.get("y"))
+        source_player_id = _text(entry.get("playerId")) or _text(entry.get("id"))
+        if source_player_id and x is not None and y is not None:
+            output.append({"source_player_id": source_player_id, "x": x, "y": y})
+    return output
+
+
 def _player_rows(team: dict[str, Any], side: str) -> list[dict[str, Any]]:
-    players = team.get("players")
-    if not isinstance(players, list):
-        return []
     rows: list[dict[str, Any]] = []
-    for player in players:
-        if not isinstance(player, dict):
-            continue
+    for player in _as_list(team.get("players")):
         rows.append({
             "side": side,
             "source_player_id": _text(player.get("playerId")) or _text(player.get("id")),
@@ -197,42 +197,45 @@ def _player_rows(team: dict[str, Any], side: str) -> list[dict[str, Any]]:
 
 
 def _manager_rows(team: dict[str, Any], side: str) -> list[dict[str, Any]]:
-    managers = team.get("managers")
-    rows: list[dict[str, Any]] = []
-    for manager in _as_list(managers):
-        rows.append({
+    output: list[dict[str, Any]] = []
+    for manager in _as_list(team.get("managers")):
+        output.append({
             "side": side,
             "source_manager_id": _text(manager.get("id")),
             "first_name": _text(manager.get("firstName")),
             "last_name": _text(manager.get("lastName")),
             "type": _text(manager.get("type")),
         })
-    return rows
+    return output
 
 
 def normalise_lineups(payload: Any) -> dict[str, Any]:
     home, away = _team_sections(payload)
-    teams = (("home", home), ("away", away))
     players: list[dict[str, Any]] = []
-    formations: dict[str, Any] = {}
     managers: list[dict[str, Any]] = []
+    formations: dict[str, dict[str, Any]] = {}
+    placements: dict[str, list[dict[str, Any]]] = {}
+    team_context: dict[str, str | None] = {}
 
-    for side, team in teams:
+    for side, team in (("home", home), ("away", away)):
         if team is None:
             formations[side] = {"status": "UNAVAILABLE", "value": None}
+            placements[side] = []
+            team_context[side] = None
             continue
+        team_context[side] = _text(team.get("teamId")) or _text(team.get("id"))
         players.extend(_player_rows(team, side))
         managers.extend(_manager_rows(team, side))
         value = _formation_value(team)
         formations[side] = {"status": "AVAILABLE" if value else "UNAVAILABLE", "value": value}
+        placements[side] = _explicit_placement(team)
 
     return {
         "players": players,
         "formations": formations,
-        "managers": {
-            "status": "AVAILABLE" if managers else "UNAVAILABLE",
-            "items": managers,
-        },
+        "placements": placements,
+        "managers": {"status": "AVAILABLE" if managers else "UNAVAILABLE", "items": managers},
+        "team_context": team_context,
         "raw_team_payload_present": {"home": home is not None, "away": away is not None},
     }
 
