@@ -95,7 +95,9 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
                 "unknown": sum(item["participation"] == "unknown" for item in lineup),
             },
         },
-        "status": "AVAILABLE" if lineup and not participation_missing else "KNOWN_EXCEPTION" if lineup else evidence["status"],
+        # Unknown participation is a partial-evidence condition, not itself a
+        # known exception. The individual row remains explicitly "unknown".
+        "status": evidence["status"],
         "limitations": list(evidence.get("limitations") or []) + (
             [f"{participation_missing} lineup players lacked a reusable Player-Match participation observation; participation remains unknown."]
             if participation_missing else []
