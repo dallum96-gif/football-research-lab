@@ -9,6 +9,7 @@ from __future__ import annotations
 import csv
 from collections import Counter
 from pathlib import Path
+from typing import Any
 
 import query_api
 
@@ -19,6 +20,25 @@ FIXTURE_FILE = ROOT / "fixtures_master_corrected.csv"
 def _load_fixtures() -> list[dict[str, str]]:
     with FIXTURE_FILE.open("r", encoding="utf-8-sig", newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def _coverage_status(value: Any) -> str | None:
+    """Read the status from either a scalar status or an object envelope."""
+    if isinstance(value, dict):
+        status = value.get("status")
+        return str(status) if status is not None else None
+    if value is None:
+        return None
+    return str(value)
+
+
+def _formation_status(value: Any, side: str) -> str | None:
+    if not isinstance(value, dict):
+        return None
+    side_value = value.get(side)
+    if isinstance(side_value, dict):
+        return _coverage_status(side_value)
+    return _coverage_status(side_value)
 
 
 def validate() -> dict[str, int]:
@@ -37,22 +57,22 @@ def validate() -> dict[str, int]:
 
         counts[f"status:{result.get('status', 'UNKNOWN')}"] += 1
         coverage = result.get("coverage", {})
-        if coverage.get("events", {}).get("status") == "AVAILABLE":
+        if _coverage_status(coverage.get("events")) == "AVAILABLE":
             counts["fixtures_with_event_evidence"] += 1
         else:
             counts["fixtures_without_event_evidence"] += 1
-        if coverage.get("lineup", {}).get("status") == "AVAILABLE":
+
+        if _coverage_status(coverage.get("lineup")) == "AVAILABLE":
             counts["fixtures_with_lineup_evidence"] += 1
         else:
             counts["fixtures_without_lineup_evidence"] += 1
 
-        formation = coverage.get("formation", {})
-        if all(formation.get(side) == "AVAILABLE" for side in ("home", "away")):
+        if all(_formation_status(coverage.get("formation"), side) == "AVAILABLE" for side in ("home", "away")):
             counts["fixtures_with_both_formations"] += 1
         else:
             counts["fixtures_without_both_formations"] += 1
 
-        if coverage.get("managers") == "AVAILABLE":
+        if _coverage_status(coverage.get("managers")) == "AVAILABLE":
             counts["fixtures_with_managers"] += 1
         else:
             counts["fixtures_without_managers"] += 1
