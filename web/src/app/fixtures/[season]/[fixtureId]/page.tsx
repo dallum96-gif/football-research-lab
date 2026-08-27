@@ -10,114 +10,161 @@ type FixtureDetailProps = {
   }>;
 };
 
-type Event = {
-  minute: string;
-  side: "home" | "away";
-  kind: "goal" | "card";
-  player: string;
-  assist?: string;
-  card?: "yellow" | "red";
-};
-
 type Player = {
   name: string;
   role: string;
-  x: number;
-  y: number;
+  number: string | null;
+  x: number | null;
+  y: number | null;
 };
 
-const events: Event[] = [
-  { minute: "26'", side: "away", kind: "card", player: "Adam Lallana", card: "yellow" },
-  { minute: "29'", side: "away", kind: "card", player: "Alberto Moreno", card: "yellow" },
-  { minute: "31'", side: "home", kind: "goal", player: "Theo Walcott", assist: "Alex Iwobi" },
-  { minute: "37'", side: "home", kind: "card", player: "Francis Coquelin", card: "yellow" },
-  { minute: "41'", side: "away", kind: "card", player: "Dejan Lovren", card: "yellow" },
-  { minute: "45+1'", side: "away", kind: "goal", player: "Philippe Coutinho" },
-  { minute: "49'", side: "away", kind: "goal", player: "Adam Lallana", assist: "Georginio Wijnaldum" },
-  { minute: "56'", side: "away", kind: "goal", player: "Philippe Coutinho", assist: "Nathaniel Clyne" },
-  { minute: "57'", side: "home", kind: "card", player: "Alex Iwobi", card: "yellow" },
-  { minute: "63'", side: "away", kind: "goal", player: "Sadio Mané", assist: "Adam Lallana" },
-  { minute: "64'", side: "home", kind: "goal", player: "Alex Oxlade-Chamberlain", assist: "Santi Cazorla" },
-  { minute: "75'", side: "home", kind: "goal", player: "Calum Chambers", assist: "Santi Cazorla" },
-  { minute: "86'", side: "home", kind: "card", player: "Granit Xhaka", card: "yellow" },
-];
+type FixtureEventPlayer = {
+  source_player_id: string | null;
+  name: string | null;
+  identity_status: string;
+};
 
-const stats: [string, string, string, number, number][] = [
-  ["50%", "Possession", "50%", 50, 50],
-  ["5", "Shots on target", "7", 42, 58],
-  ["9", "Shots", "16", 36, 64],
-  ["5", "Corners", "4", 56, 44],
-  ["13", "Fouls", "17", 43, 57],
-  ["3", "Yellow cards", "3", 50, 50],
-];
+type FixtureEvent = {
+  event_id: string | null;
+  type: "goal" | "card" | "substitution" | string;
+  side: "home" | "away";
+  minute: string | null;
+  seconds: number | null;
+  primary_player: FixtureEventPlayer;
+  secondary_player: FixtureEventPlayer;
+  assist: FixtureEventPlayer | null;
+  detail: {
+    goal_type: string | null;
+    card_type: string | null;
+    period: string | null;
+    timestamp: string | null;
+  };
+};
 
-const metadata = [
-  ["Competition", "Premier League"],
-  ["Matchweek", "1"],
-  ["Date", "14 August 2016"],
-  ["Kick-off", "16:00"],
-  ["Venue", "Emirates Stadium"],
-  ["Attendance", "60,033"],
-  ["Referee", "Michael Oliver"],
-];
+type FixtureEvidenceResponse = {
+  status: string;
+  season: string;
+  fixture_id: string;
+  fixture: {
+    home_team_id?: string;
+    away_team_id?: string;
+    source_match_id?: string;
+  };
+  metadata?: {
+    source_match_id?: string | null;
+    ground?: string | null;
+    attendance?: number | null;
+    referee?: string | null;
+    source_kickoff?: string | null;
+  };
+  events: FixtureEvent[];
+  lineup: Array<{
+    player: {
+      source_player_id: string | null;
+      name: string | null;
+      identity_status: string;
+    };
+    side: "home" | "away" | null;
+    position: string | null;
+    shirt_number: string | null;
+    placement: { source_player_id: string; x: number; y: number } | null;
+    participation: "starting" | "sub_in" | "bench" | "unknown";
+    minutes: number | null;
+  }>;
+  formation: {
+    home: { status: string; value: string | null };
+    away: { status: string; value: string | null };
+  };
+  managers: {
+    status: string;
+    items: Array<{
+      side: "home" | "away";
+      source_manager_id: string | null;
+      first_name: string | null;
+      last_name: string | null;
+      type: string | null;
+    }>;
+  };
+  limitations: string[];
+};
 
-const arsenalPlayers: Player[] = [
-  { name: "Čech", role: "GK", x: 50, y: 8 },
-  { name: "Bellerín", role: "RB", x: 20, y: 28.75 },
-  { name: "Koscielny", role: "CB", x: 40, y: 28.75 },
-  { name: "Holding", role: "CB", x: 60, y: 28.75 },
-  { name: "Monreal", role: "LB", x: 80, y: 28.75 },
-  { name: "Coquelin", role: "DM", x: 38, y: 49.5 },
-  { name: "Cazorla", role: "DM", x: 62, y: 49.5 },
-  { name: "Iwobi", role: "LW", x: 22, y: 70.25 },
-  { name: "Özil", role: "AM", x: 50, y: 70.25 },
-  { name: "Walcott", role: "RW", x: 78, y: 70.25 },
-  { name: "Giroud", role: "ST", x: 50, y: 91 },
-];
+type FixtureDetailResponse = {
+  fixture: {
+    fixture_id: string;
+    season: string;
+    gameweek: number | null;
+    kickoff_time: string | null;
+    home_team_id: string;
+    away_team_id: string;
+    home_team_name: string;
+    away_team_name: string;
+    home_score: number | null;
+    away_score: number | null;
+  };
+  stats: {
+    home_possession: number | null;
+    away_possession: number | null;
+    home_shots_on_target: number | null;
+    away_shots_on_target: number | null;
+    home_shots: number | null;
+    away_shots: number | null;
+    home_corners: number | null;
+    away_corners: number | null;
+    home_fouls: number | null;
+    away_fouls: number | null;
+    home_yellow_cards: number | null;
+    away_yellow_cards: number | null;
+    attendance: number | null;
+  } | null;
+};
 
-const liverpoolPlayers: Player[] = [
-  { name: "Mignolet", role: "GK", x: 50, y: 8 },
-  { name: "Clyne", role: "RB", x: 20, y: 35.67 },
-  { name: "Lovren", role: "CB", x: 40, y: 35.67 },
-  { name: "Klavan", role: "CB", x: 60, y: 35.67 },
-  { name: "Moreno", role: "LB", x: 80, y: 35.67 },
-  { name: "Wijnaldum", role: "CM", x: 25, y: 63.33 },
-  { name: "Henderson", role: "CM", x: 50, y: 63.33 },
-  { name: "Lallana", role: "CM", x: 75, y: 63.33 },
-  { name: "Mané", role: "RW", x: 20, y: 91 },
-  { name: "Firmino", role: "ST", x: 50, y: 91 },
-  { name: "Coutinho", role: "LW", x: 80, y: 91 },
-];
+const API_BASE = (process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
-function Kit({ team }: { team: "arsenal" | "liverpool" }) {
-  return (
-    <span className={`${styles.kit} ${team === "arsenal" ? styles.arsenal : styles.liverpool}`} aria-hidden="true">
-      <span className={styles.kitSleeve} />
-      <span className={styles.kitSleeveRight} />
-      <span className={styles.kitBody} />
-    </span>
-  );
+async function getJson<T>(path: string): Promise<T> {
+  const response = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
+  if (!response.ok) {
+    throw new Error(`FRL fixture request failed: ${response.status}`);
+  }
+  return response.json() as Promise<T>;
 }
 
-function EventCell({ event }: { event: Event }) {
-  const isGoal = event.kind === "goal";
-  const isRed = event.card === "red";
-  const icon = isGoal ? "⚽" : isRed ? "■" : "■";
-  const className = isGoal
-    ? styles.eventGoal
-    : isRed
-      ? styles.eventRed
-      : styles.eventCard;
+function dateParts(kickoff: string | null): { date: string; time: string } {
+  if (!kickoff) return { date: "Date unavailable", time: "Time unavailable" };
+  const value = new Date(kickoff);
+  if (Number.isNaN(value.getTime())) return { date: "Date unavailable", time: "Time unavailable" };
 
-  return (
-    <div className={`${styles.event} ${event.side === "home" ? styles.eventHome : styles.eventAway} ${className}`}>
-      <span className={styles.icon}>{icon}</span>
-      <span>
-        {event.player}
-        {event.assist ? <span className={styles.eventAssist}> — {event.assist} assist</span> : null}
-      </span>
-    </div>
-  );
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/London",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(value);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
+  return {
+    date: `${get("day")} ${get("month")} ${get("year")}`,
+    time: `${get("hour")}:${get("minute")}`,
+  };
+}
+
+function formatStat(value: number | null, suffix = ""): string {
+  return value == null || Number.isNaN(value) ? "—" : `${Number.isInteger(value) ? value : value.toFixed(1)}${suffix}`;
+}
+
+function share(home: number | null, away: number | null): [number, number] {
+  if (home == null || away == null) return [0, 0];
+  const total = home + away;
+  if (total <= 0) return [0, 0];
+  return [(home / total) * 100, (away / total) * 100];
+}
+
+function managerName(evidence: FixtureEvidenceResponse, side: "home" | "away"): string {
+  const manager = evidence.managers.items.find((item) => item.side === side);
+  if (!manager) return "Manager unavailable";
+  return [manager.first_name, manager.last_name].filter(Boolean).join(" ") || "Manager unavailable";
 }
 
 function LineupSide({
@@ -128,7 +175,7 @@ function LineupSide({
   team,
 }: {
   title: string;
-  formation: string;
+  formation: string | null;
   manager: string;
   players: Player[];
   team: "home" | "away";
@@ -152,24 +199,56 @@ function LineupSide({
     <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}>
       <div className={styles.lineupSideHeader}>
         <span>{title}</span>
-        <span>{formation}</span>
+        <span>{formation ?? "—"}</span>
       </div>
       <div className={styles.tacticalBoard}>
         <div className={styles.boardHalfLine} />
         <div className={styles.boardCenterLine} />
-        <span style={managerStyle}>{manager}</span>
-        {players.map((player) => (
-          <div
-            className={styles.playerNode}
-            key={player.name}
-            style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}
-          >
-            <span className={styles.playerDot} />
-            <span className={styles.playerRole}>{player.role}</span>
-            <span className={styles.playerName}>{player.name}</span>
-          </div>
-        ))}
+        <span style={managerStyle}>
+          {manager}
+          {formation ? ` · ${formation}` : ""}
+        </span>
+        {players.map((player) => {
+          if (player.x == null || player.y == null) return null;
+          return (
+            <div
+              className={styles.playerNode}
+              key={`${player.name}-${player.number ?? ""}`}
+              style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}
+            >
+              <span className={styles.playerDot} />
+              <span className={styles.playerRole}>{player.role}</span>
+              <span className={styles.playerName}>{player.name}</span>
+            </div>
+          );
+        })}
       </div>
+    </div>
+  );
+}
+
+function eventLabel(event: FixtureEvent): string {
+  const primary = event.primary_player.name || "Player unavailable";
+  const secondary = event.secondary_player.name;
+  if (event.type === "goal") {
+    return event.assist?.name ? `${primary} — ${event.assist.name} assist` : primary;
+  }
+  if (event.type === "substitution") {
+    return secondary ? `${primary} ↔ ${secondary}` : primary;
+  }
+  return primary;
+}
+
+function EventCell({ event }: { event: FixtureEvent }) {
+  const isGoal = event.type === "goal";
+  const isRed = event.detail.card_type?.toUpperCase() === "RED";
+  const icon = isGoal ? "⚽" : event.type === "substitution" ? "↕" : "■";
+  const className = isGoal ? styles.eventGoal : isRed ? styles.eventRed : styles.eventCard;
+
+  return (
+    <div className={`${styles.event} ${event.side === "home" ? styles.eventHome : styles.eventAway} ${className}`}>
+      <span className={styles.icon}>{icon}</span>
+      <span>{eventLabel(event)}</span>
     </div>
   );
 }
@@ -193,56 +272,130 @@ function FrlBrand() {
   );
 }
 
+export const dynamic = "force-dynamic";
+
 export default async function FixtureDetailPage({ params }: FixtureDetailProps) {
   const { season, fixtureId } = await params;
+
+  const [detail, evidence] = await Promise.all([
+    getJson<FixtureDetailResponse>(`/api/v1/fixtures/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}`),
+    getJson<FixtureEvidenceResponse>(`/api/v1/fixtures/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}/evidence`),
+  ]);
+
+  const fixture = detail.fixture;
+  const stats = detail.stats;
+  const { date, time } = dateParts(fixture.kickoff_time);
+
+  const events = evidence.events;
+  const startingPlayers = (side: "home" | "away"): Player[] =>
+    evidence.lineup
+      .filter((row) => row.side === side && row.participation === "starting")
+      .map((row) => ({
+        name: row.player.name || "Player unavailable",
+        role: row.position || "—",
+        number: row.shirt_number,
+        x: row.placement?.x ?? null,
+        y: row.placement?.y ?? null,
+      }));
+
+  const [possessionHome, possessionAway] = stats
+    ? [stats.home_possession, stats.away_possession]
+    : [null, null];
+
+  const statRows = [
+    [stats?.home_possession, "Possession", stats?.away_possession, stats?.home_possession, stats?.away_possession, true],
+    [stats?.home_shots_on_target, "Shots on target", stats?.away_shots_on_target, ...share(stats?.home_shots_on_target ?? null, stats?.away_shots_on_target ?? null), false],
+    [stats?.home_shots, "Shots", stats?.away_shots, ...share(stats?.home_shots ?? null, stats?.away_shots ?? null), false],
+    [stats?.home_corners, "Corners", stats?.away_corners, ...share(stats?.home_corners ?? null, stats?.away_corners ?? null), false],
+    [stats?.home_fouls, "Fouls", stats?.away_fouls, ...share(stats?.home_fouls ?? null, stats?.away_fouls ?? null), false],
+    [stats?.home_yellow_cards, "Yellow cards", stats?.away_yellow_cards, ...share(stats?.home_yellow_cards ?? null, stats?.away_yellow_cards ?? null), false],
+  ] as Array<[number | null, string, number | null, number, number, boolean]>;
+
+  const metadata = [
+    ["Competition", "Premier League"],
+    ["Matchweek", fixture.gameweek == null ? "Unavailable" : String(fixture.gameweek)],
+    ["Date", date],
+    ["Kick-off", time],
+    ["Venue", evidence.metadata?.ground || "Unavailable"],
+    ["Attendance", evidence.metadata?.attendance == null ? "Unavailable" : evidence.metadata.attendance.toLocaleString("en-GB")],
+    ["Referee", evidence.metadata?.referee || "Unavailable"],
+  ];
 
   return (
     <AppShell>
       <div className={styles.overview}>
         <header className={styles.pageHeader}>
           <div className={styles.pageHeaderCompetition}>Premier League</div>
-          <div className={styles.pageHeaderDate}>14 August 2016</div>
+          <div className={styles.pageHeaderDate}>{date}</div>
           <FrlBrand />
         </header>
 
         <section className={styles.matchHeader} aria-label="Match result">
           <div className={styles.teams}>
             <div className={`${styles.team} ${styles.teamHome}`}>
-              <span className={styles.teamName}>Arsenal</span>
-              <Kit team="arsenal" />
+              <span className={styles.teamName}>{fixture.home_team_name}</span>
+              <span className={`${styles.kit} ${styles.arsenal}`} aria-hidden="true">
+                <span className={styles.kitSleeve} />
+                <span className={styles.kitSleeveRight} />
+                <span className={styles.kitBody} />
+              </span>
             </div>
 
             <div className={styles.scoreBlock}>
-              <div className={styles.score} aria-label="Arsenal 3 Liverpool 4">
-                <span className={styles.scoreNumber}>3</span>
+              <div className={styles.score} aria-label={`${fixture.home_team_name} ${fixture.home_score ?? ""} ${fixture.away_team_name} ${fixture.away_score ?? ""}`}>
+                <span className={styles.scoreNumber}>{fixture.home_score ?? "—"}</span>
                 <span className={styles.scoreDash}>–</span>
-                <span className={styles.scoreNumber}>4</span>
+                <span className={styles.scoreNumber}>{fixture.away_score ?? "—"}</span>
               </div>
-              <div className={styles.status}>Full time</div>
+              <div className={styles.status}>
+                {fixture.home_score != null && fixture.away_score != null ? "Full time" : "Fixture status unavailable"}
+              </div>
             </div>
 
             <div className={`${styles.team} ${styles.teamAway}`}>
-              <Kit team="liverpool" />
-              <span className={styles.teamName}>Liverpool</span>
+              <span className={`${styles.kit} ${styles.liverpool}`} aria-hidden="true">
+                <span className={styles.kitSleeve} />
+                <span className={styles.kitSleeveRight} />
+                <span className={styles.kitBody} />
+              </span>
+              <span className={styles.teamName}>{fixture.away_team_name}</span>
             </div>
           </div>
 
           <div className={styles.timelineWrap}>
             <div className={styles.timeline} aria-label="Goals and cards timeline">
-              {events.map((event) => (
-                <div key={`${event.minute}-${event.player}`} className={styles.timelineRow}>
+              {events.length ? events.map((event) => (
+                <div key={`${event.event_id ?? "event"}-${event.minute ?? ""}-${event.primary_player.source_player_id ?? ""}`} className={styles.timelineRow}>
                   {event.side === "home" ? <EventCell event={event} /> : <span className={styles.eventEmpty} />}
-                  <div className={styles.minute}>{event.minute}</div>
+                  <div className={styles.minute}>{event.minute ?? "—"}</div>
                   {event.side === "away" ? <EventCell event={event} /> : <span className={styles.eventEmpty} />}
                 </div>
-              ))}
+              )) : (
+                <div className={styles.timelineRow}>
+                  <span className={styles.eventEmpty} />
+                  <div className={styles.minute}>Events unavailable</div>
+                  <span className={styles.eventEmpty} />
+                </div>
+              )}
             </div>
           </div>
         </section>
 
         <section className={styles.lineupSection} aria-label="Starting lineups">
-          <LineupSide title="Arsenal" formation="4–2–3–1" manager="Arsène Wenger" players={arsenalPlayers} team="home" />
-          <LineupSide title="Liverpool" formation="4–3–3" manager="Jürgen Klopp" players={liverpoolPlayers} team="away" />
+          <LineupSide
+            title={fixture.home_team_name}
+            formation={evidence.formation.home.status === "AVAILABLE" ? evidence.formation.home.value : null}
+            manager={managerName(evidence, "home")}
+            players={startingPlayers("home")}
+            team="home"
+          />
+          <LineupSide
+            title={fixture.away_team_name}
+            formation={evidence.formation.away.status === "AVAILABLE" ? evidence.formation.away.value : null}
+            manager={managerName(evidence, "away")}
+            players={startingPlayers("away")}
+            team="away"
+          />
         </section>
 
         <FixturePlayerPerformance season={season} fixtureId={fixtureId} />
@@ -254,16 +407,16 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
             <span className={styles.sectionArrow} aria-hidden="true">→</span>
           </div>
           <div className={styles.stats}>
-            {stats.map(([home, label, away, homeShare, awayShare]) => (
+            {statRows.map(([home, label, away, homeShare, awayShare, possession]) => (
               <div className={styles.statRow} key={label}>
                 <div className={`${styles.statValue} ${styles.statHome}`}>
-                  <span>{home}</span>
-                  <span className={styles.statTrack} style={{ "--home-share": `${homeShare}%` } as CSSProperties} />
+                  <span>{possession ? formatStat(home, "%") : formatStat(home)}</span>
+                  <span className={styles.statTrack} style={{ "--home-share": `${possession ? Number(home ?? 0) : homeShare}%` } as CSSProperties} />
                 </div>
                 <div className={styles.statLabel}>{label}</div>
                 <div className={`${styles.statValue} ${styles.statAway}`}>
-                  <span className={styles.statTrack} style={{ "--away-share": `${awayShare}%` } as CSSProperties} />
-                  <span>{away}</span>
+                  <span className={styles.statTrack} style={{ "--away-share": `${possession ? Number(away ?? 0) : awayShare}%` } as CSSProperties} />
+                  <span>{possession ? formatStat(away, "%") : formatStat(away)}</span>
                 </div>
               </div>
             ))}
