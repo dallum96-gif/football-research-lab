@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "season": "2016-17",
+  "fixture_id": "8",
+  "source_match_id": "855173",
+  "player_match_source_id": "7089871",
+  "source_family": "Premier_League_PulseLive_archive",
+  "materialization_type": "derived_from_preserved_pulselive_archive",
+  "historical": true,
+  "retrieved_at": null,
+  "notes": [
+    "This is a local evidence snapshot materialised from the committed Premier League/PulseLive-derived player-match archive.",
+    "It is not a byte-for-byte reconstruction of the original PulseLive HTTP response.",
+    "Formation, tactical x/y placement and manager records are intentionally unavailable because they are not present in the materialised source evidence used here.",
+    "Team-match source ID 855173 and player-match source ID 7089871 are distinct source namespaces and are retained separately."
+  ],
+  "resources": {
+    "lineups": {
+      "endpoint": "Premier-League-Stats/pl_stats/Arsenal_3/players_match_stats/2016-17_players_match_stats.csv + Premier-League-Stats/pl_stats/Liverpool_14/players_match_stats/2016-17_players_match_stats.csv",
+      "retrieved_at": null,
+      "materialization_type": "derived_from_preserved_pulselive_archive",
+      "payload": {
+        "homeTeam": {
+          "teamId": "3",
+          "team": "Arsenal",
+          "players": [
+            {"playerId":"1185","pl_code":"11334","displayName":"Petr Čech","position":"G","substitute":false,"minutesPlayed":90},
+            {"playerId":"10501","pl_code":"20467","displayName":"Theo Walcott","position":"M","substitute":false,"minutesPlayed":90},
+            {"playerId":"10577","pl_code":"81880","displayName":"Alex Oxlade-Chamberlain","position":"M","substitute":true,"minutesPlayed":31},
+            {"playerId":"17088","pl_code":"38411","displayName":"Nacho Monreal","position":"D","substitute":false,"minutesPlayed":90},
+            {"playerId":"17651","pl_code":"19524","displayName":"Santi Cazorla","position":"M","substitute":true,"minutesPlayed":29},
+            {"playerId":"23571","pl_code":"41792","displayName":"Aaron Ramsey","position":"M","substitute":false,"minutesPlayed":61},
+            {"playerId":"24814","pl_code":"42427","displayName":"Kieran Gibbs","position":"D","substitute":true,"minutesPlayed":0},
+            {"playerId":"33596","pl_code":"48844","displayName":"David Ospina","position":"G","substitute":true,"minutesPlayed":0},
+            {"playerId":"34120","pl_code":"37265","displayName":"Alexis Sánchez","position":"F","substitute":false,"minutesPlayed":90},
+            {"playerId":"38094","pl_code":"54102","displayName":"Jack Wilshere","position":"M","substitute":true,"minutesPlayed":0},
+            {"playerId":"40672","pl_code":"56864","displayName":"Francis Coquelin","position":"M","substitute":false,"minutesPlayed":90},
+            {"playerId":"117777","pl_code":"84450","displayName":"Granit Xhaka","position":"M","substitute":true,"minutesPlayed":23},
+            {"playerId":"159675","pl_code":"153256","displayName":"Mohamed Elneny","position":"M","substitute":false,"minutesPlayed":67},
+            {"playerId":"188365","pl_code":"98745","displayName":"Héctor Bellerín","position":"D","substitute":false,"minutesPlayed":90},
+            {"playerId":"190867","pl_code":"147675","displayName":"Chuba Akpom","position":"F","substitute":true,"minutesPlayed":0},
+            {"playerId":"227942","pl_code":"101184","displayName":"Calum Chambers","position":"D","substitute":false,"minutesPlayed":90},
+            {"playerId":"352770","pl_code":"153133","displayName":"Alex Iwobi","position":"M","substitute":false,"minutesPlayed":59},
+            {"playerId":"793228","pl_code":"156074","displayName":"Rob Holding","position":"D","substitute":false,"minutesPlayed":90}
+          ]
+        },
+        "awayTeam": {
+          "teamId": "14",
+          "team": "Liverpool",
+          "players": [
+            {"playerId":"2921","pl_code":"1616","displayName":"Alex Manninger","position":"G","substitute":true,"minutesPlayed":0},
+            {"playerId":"10122","pl_code":"33871","displayName":"Ragnar Klavan","position":"D","substitute":false,"minutesPlayed":90},
+            {"playerId":"10406","pl_code":"66797","displayName":"Simon Mignolet","position":"G","substitute":false,"minutesPlayed":90},
+            {"playerId":"17054","pl_code":"39155","displayName":"Adam Lallana","position":"M","substitute":false,"minutesPlayed":76},
+            {"playerId":"22126","pl_code":"41733","displayName":"Georginio Wijnaldum","position":"M","substitute":false,"minutesPlayed":88},
+            {"playerId":"39480","pl_code":"38454","displayName":"Dejan Lovren","position":"D","substitute":false,"minutesPlayed":90},
+            {"playerId":"42694","pl_code":"56979","displayName":"Jordan Henderson","position":"M","substitute":false,"minutesPlayed":90},
+            {"playerId":"43215","pl_code":"57328","displayName":"Nathaniel Clyne","position":"D","substitute":false,"minutesPlayed":90},
+            {"playerId":"51501","pl_code":"60914","displayName":"Joël Matip","position":"D","substitute":true,"minutesPlayed":0},
+            {"playerId":"119159","pl_code":"84583","displayName":"Philippe Coutinho","position":"M","substitute":false,"minutesPlayed":70},
+            {"playerId":"138156","pl_code":"112338","displayName":"Emre Can","position":"D","substitute":true,"minutesPlayed":20},
+            {"playerId":"143697","pl_code":"92217","displayName":"Roberto Firmino","position":"M","substitute":false,"minutesPlayed":90},
+            {"playerId":"180011","pl_code":"106449","displayName":"Kevin Stewart","position":"M","substitute":true,"minutesPlayed":2},
+            {"playerId":"190399","pl_code":"152760","displayName":"Divock Origi","position":"F","substitute":true,"minutesPlayed":14},
+            {"playerId":"217704","pl_code":"110979","displayName":"Sadio Mané","position":"M","substitute":false,"minutesPlayed":90},
+            {"playerId":"229740","pl_code":"100059","displayName":"Alberto Moreno","position":"D","substitute":false,"minutesPlayed":90},
+            {"playerId":"280835","pl_code":"210237","displayName":"Marko Grujić","position":"M","substitute":true,"minutesPlayed":0},
+            {"playerId":"795064","pl_code":"169187","displayName":"Trent Alexander-Arnold","position":"D","substitute":true,"minutesPlayed":0}
+          ]
+        }
+      }
+    },
+    "events": {
+      "endpoint": null,
+      "retrieved_at": null,
+      "materialization_type": "not_materialized",
+      "payload": null
+    },
+    "formation": {
+      "endpoint": null,
+      "retrieved_at": null,
+      "materialization_type": "not_materialized",
+      "payload": null
+    },
+    "managers": {
+      "endpoint": null,
+      "retrieved_at": null,
+      "materialization_type": "not_materialized",
+      "payload": null
+    }
+  }
+}
