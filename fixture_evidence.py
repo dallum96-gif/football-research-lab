@@ -1,4 +1,4 @@
-"""Universal fixture-level evidence adapter over preserved PulseLive snapshots."""
+﻿"""Universal fixture-level evidence adapter over preserved PulseLive snapshots."""
 from __future__ import annotations
 
 from typing import Any
@@ -92,7 +92,7 @@ def _attach_placement(lineup_data: dict, player: dict) -> dict[str, Any] | None:
 
 
 def fixture_evidence(season: str, fixture_id: str) -> dict:
-    """Return fixture-level events, lineup, formation, manager and metadata evidence."""
+    """Return fixture-level events, lineup, formation and manager evidence."""
     fixture = canonical_fixture(season, fixture_id)
     if fixture is None:
         raise ValueError(f"Canonical fixture not found: {season}/{fixture_id}")
@@ -193,7 +193,6 @@ def _unavailable_result(season: str, fixture_id: str, source_match_id: str, sour
         "season": season,
         "fixture_id": str(fixture_id),
         "fixture": {"source_match_id": source_match_id},
-        "metadata": {},
         "events": [],
         "lineup": [],
         "formation": {
