@@ -1,4 +1,4 @@
-"""Common access layer for the FRL's broad Premier League source families.
+﻿"""Common access layer for the FRL's broad Premier League source families.
 
 This module does not replace the existing verified identity bridges or curated
 query adapters. It exposes source-native records through one reusable seam so
@@ -155,6 +155,7 @@ def team_match_source_rows_for_season(season: str) -> tuple[dict, ...]:
     return tuple(rows)
 
 
+@lru_cache(maxsize=16)
 def team_match_source_fields(season: str) -> tuple[str, ...]:
     fields: set[str] = set()
     root = Path(PL_ROOT)
@@ -199,6 +200,7 @@ def player_match_source_rows_for_season(season: str) -> tuple[dict, ...]:
     return tuple(records)
 
 
+@lru_cache(maxsize=16)
 def player_match_source_fields(season: str) -> tuple[str, ...]:
     fields: set[str] = set()
     root = Path(PL_ROOT)
@@ -236,6 +238,7 @@ def player_match_records(season: str, fixture_id: str) -> tuple[dict, ...]:
     return tuple(rows)
 
 
+@lru_cache(maxsize=16)
 def player_season_source_rows(season: str) -> tuple[dict, ...]:
     """Return complete native players_stats rows for one season."""
     records: list[dict] = []
@@ -258,6 +261,7 @@ def player_season_source_rows(season: str) -> tuple[dict, ...]:
     return tuple(records)
 
 
+@lru_cache(maxsize=16)
 def player_season_source_fields(season: str) -> tuple[str, ...]:
     rows = player_season_source_rows(season)
     fields: set[str] = set()
@@ -345,3 +349,5 @@ def player_match_observation_status(
         "relationship_status": status,
         "observation_present": bool(rows),
     }
+
+
