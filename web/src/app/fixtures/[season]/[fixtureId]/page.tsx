@@ -334,7 +334,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
           <div className={styles.teams}>
             <div className={`${styles.team} ${styles.teamHome}`}>
               <span className={styles.teamName}>{fixture.home_team_name}</span>
-              <span className={`${styles.kit} ${styles.arsenal}`} aria-hidden="true">
+              <span className={styles.kit} aria-hidden="true">
                 <span className={styles.kitSleeve} />
                 <span className={styles.kitSleeveRight} />
                 <span className={styles.kitBody} />
@@ -353,7 +353,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
             </div>
 
             <div className={`${styles.team} ${styles.teamAway}`}>
-              <span className={`${styles.kit} ${styles.liverpool}`} aria-hidden="true">
+              <span className={styles.kit} aria-hidden="true">
                 <span className={styles.kitSleeve} />
                 <span className={styles.kitSleeveRight} />
                 <span className={styles.kitBody} />
