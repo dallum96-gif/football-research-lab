@@ -19,7 +19,8 @@ def test_research_request_keeps_temporal_context_out_of_resolver_payload():
         information_available_as_of="2024-12-01",
     )
     payload = request.resolver_dict()
-    assert payload["variable"] == "successfulDribbles"
+    assert payload["name"] == "successfulDribbles"
+    assert "variable" not in payload
     assert payload["season"] == "2024-25"
     assert "as_of_date" not in payload
     assert "information_available_as_of" not in payload

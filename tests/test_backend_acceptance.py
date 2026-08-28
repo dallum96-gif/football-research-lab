@@ -21,7 +21,11 @@ def test_backend_acceptance_all_public_families(monkeypatch):
     monkeypatch.setattr(variable_resolver, "fpl_player_gameweek_values", lambda **k: _raw(research_family="FPL"))
 
     player_match = variable_resolver.resolve_variable(
-        "successfulDribbles", season="2024-25", fixture_id="1", player_id="p1"
+        "successfulDribbles",
+        season="2024-25",
+        fixture_id="1",
+        family="player_match",
+        player_id="p1",
     )
     team_match = variable_resolver.resolve_variable(
         "goalsFor", season="2024-25", fixture_id="1", family="team_match", team_id="t1"
@@ -33,7 +37,7 @@ def test_backend_acceptance_all_public_families(monkeypatch):
         "playerId", season="2024-25", family="squad", player_id="p1"
     )
     fpl = variable_resolver.resolve_variable(
-        "total_points", season="2024-25", family="fpl", player_id="p1", gameweek="1"
+        "history[].total_points", season="2024-25", family="fpl", player_id="p1", gameweek="1"
     )
 
     for result in (player_match, team_match, player_season, squad, fpl):
