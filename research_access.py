@@ -58,6 +58,7 @@ class ResearchRequest:
         data = self.as_dict()
         data.pop("as_of_date", None)
         data.pop("information_available_as_of", None)
+        data["name"] = data.pop("variable")
         return data
 
 
