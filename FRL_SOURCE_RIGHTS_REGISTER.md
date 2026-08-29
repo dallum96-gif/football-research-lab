@@ -7,6 +7,22 @@
 
 A public endpoint or a public GitHub repository is not, by itself, proof that unrestricted bulk reuse or redistribution is permitted. FRL should prefer sources with explicit, source-appropriate reuse terms and should preserve provenance for every source family.
 
+### Default sourcing policy
+
+FRL should **not make recurring or large-scale direct API extraction a foundational dependency unless the intended automated use is expressly permitted or has been reviewed and accepted for the intended FRL use case**.
+
+Ambiguous sources are considered **case-by-case exceptions**, not default infrastructure.
+
+Before adopting or extending a new acquisition path, distinguish:
+
+1. the distribution/acquisition channel (GitHub, API, download, archive);
+2. the original data producer/provider;
+3. the licence or terms that apply to repository code/collection work;
+4. the licence or terms that apply to the underlying data;
+5. the intended FRL use (private research, internal analysis, public display, redistribution, commercial use).
+
+Where those questions are unresolved, preserve the uncertainty explicitly and avoid turning the source into a recurring operational dependency until the position is understood.
+
 Recommended acquisition preference:
 
 1. Explicitly open/licensed downloadable dataset
@@ -107,5 +123,6 @@ Before adopting any source, record:
 
 1. Complete a source-by-source terms review before FRL is publicly released or commercialised.
 2. Verify the intended licence status of `imadeddine-belkat/Premier-League-Stats`, including the discrepancy between the README's MIT statement and the missing `LICENSE` file.
-3. Avoid new recurring direct PulseLive acquisition until the relevant terms are understood; prefer preserved historical evidence and clearly licensed sources where possible.
-4. Build the forthcoming FRL Variable Capability Inventory so each variable family can be linked to both its technical provenance and its source-rights classification.
+3. Avoid making new recurring direct PulseLive acquisition a foundational dependency until the relevant terms are understood; assess ambiguous direct API use case by case.
+4. Prefer preserved historical evidence and clearly licensed/open sources where practical.
+5. Build the forthcoming FRL Variable Capability Inventory so each variable family can be linked to both its technical provenance and its source-rights classification.
