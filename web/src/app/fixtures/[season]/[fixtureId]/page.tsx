@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { FixturePlayerPerformance } from "./FixturePlayerPerformance";
 import styles from "./FixtureOverview.module.css";
@@ -120,12 +121,25 @@ type FixtureDetailResponse = {
 
 const API_BASE = (process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
-async function getJson<T>(path: string): Promise<T> {
+type ApiResult<T> =
+  | { ok: true; data: T }
+  | { ok: false; status: number };
+
+async function getJson<T>(path: string): Promise<ApiResult<T>> {
   const response = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
   if (!response.ok) {
-    throw new Error(`FRL fixture request failed: ${response.status}`);
+    return { ok: false, status: response.status };
   }
-  return response.json() as Promise<T>;
+  return { ok: true, data: await response.json() as T };
+}
+
+async function getOptionalJson<T>(path: string): Promise<T | null> {
+  try {
+    const result = await getJson<T>(path);
+    return result.ok ? result.data : null;
+  } catch {
+    return null;
+  }
 }
 
 function dateParts(kickoff: string | null): { date: string; time: string } {
@@ -161,8 +175,8 @@ function share(home: number | null, away: number | null): [number, number] {
   return [(home / total) * 100, (away / total) * 100];
 }
 
-function managerName(evidence: FixtureEvidenceResponse, side: "home" | "away"): string {
-  const manager = evidence.managers.items.find((item) => item.side === side);
+function managerName(evidence: FixtureEvidenceResponse | null, side: "home" | "away"): string {
+  const manager = evidence?.managers.items.find((item) => item.side === side);
   if (!manager) return "Manager unavailable";
   return [manager.first_name, manager.last_name].filter(Boolean).join(" ") || "Manager unavailable";
 }
@@ -173,13 +187,16 @@ function LineupSide({
   manager,
   players,
   team,
+  emptyLabel,
 }: {
   title: string;
   formation: string | null;
   manager: string;
   players: Player[];
   team: "home" | "away";
+  emptyLabel: string;
 }) {
+  const placedPlayers = players.filter((player) => player.x != null && player.y != null);
   const managerStyle: CSSProperties = {
     position: "absolute",
     top: "-.35rem",
@@ -208,8 +225,7 @@ function LineupSide({
           {manager}
           {formation ? ` · ${formation}` : ""}
         </span>
-        {players.map((player) => {
-          if (player.x == null || player.y == null) return null;
+        {placedPlayers.length ? placedPlayers.map((player) => {
           return (
             <div
               className={styles.playerNode}
@@ -221,7 +237,7 @@ function LineupSide({
               <span className={styles.playerName}>{player.name}</span>
             </div>
           );
-        })}
+        }) : <span className={styles.lineupUnavailable}>{emptyLabel}</span>}
       </div>
     </div>
   );
@@ -277,18 +293,23 @@ export const dynamic = "force-dynamic";
 export default async function FixtureDetailPage({ params }: FixtureDetailProps) {
   const { season, fixtureId } = await params;
 
-  const [detail, evidence] = await Promise.all([
-    getJson<FixtureDetailResponse>(`/api/v1/fixtures/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}`),
-    getJson<FixtureEvidenceResponse>(`/api/v1/fixtures/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}/evidence`),
-  ]);
+  const fixturePath = `/api/v1/fixtures/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}`;
+  const detailResult = await getJson<FixtureDetailResponse>(fixturePath);
+  if (!detailResult.ok) {
+    if (detailResult.status === 404) notFound();
+    throw new Error(`FRL fixture detail request failed: ${detailResult.status}`);
+  }
+
+  const detail = detailResult.data;
+  const evidence = await getOptionalJson<FixtureEvidenceResponse>(`${fixturePath}/evidence`);
 
   const fixture = detail.fixture;
   const stats = detail.stats;
   const { date, time } = dateParts(fixture.kickoff_time);
 
-  const events = evidence.events;
+  const events = evidence?.events ?? [];
   const startingPlayers = (side: "home" | "away"): Player[] =>
-    evidence.lineup
+    (evidence?.lineup ?? [])
       .filter((row) => row.side === side && row.participation === "starting")
       .map((row) => ({
         name: row.player.name || "Player unavailable",
@@ -297,6 +318,18 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
         x: row.placement?.x ?? null,
         y: row.placement?.y ?? null,
       }));
+
+  const evidenceNotice = evidence?.status === "AVAILABLE"
+    ? null
+    : evidence?.status === "KNOWN_EXCEPTION"
+      ? {
+          title: "Fixture evidence partial",
+          detail: "Some event, lineup, formation or manager evidence could not be verified.",
+        }
+      : {
+          title: "Fixture evidence unavailable",
+          detail: "Events, lineups, formations and managers could not be verified for this fixture.",
+        };
 
   const [possessionHome, possessionAway] = stats
     ? [stats.home_possession, stats.away_possession]
@@ -316,9 +349,9 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
     ["Matchweek", fixture.gameweek == null ? "Unavailable" : String(fixture.gameweek)],
     ["Date", date],
     ["Kick-off", time],
-    ["Venue", evidence.metadata?.ground || "Unavailable"],
-    ["Attendance", evidence.metadata?.attendance == null ? "Unavailable" : evidence.metadata.attendance.toLocaleString("en-GB")],
-    ["Referee", evidence.metadata?.referee || "Unavailable"],
+    ["Venue", evidence?.metadata?.ground || "Unavailable"],
+    ["Attendance", evidence?.metadata?.attendance == null ? "Unavailable" : evidence.metadata.attendance.toLocaleString("en-GB")],
+    ["Referee", evidence?.metadata?.referee || "Unavailable"],
   ];
 
   return (
@@ -362,6 +395,13 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
             </div>
           </div>
 
+          {evidenceNotice ? (
+            <div className={styles.evidenceNotice} role="status">
+              <span className={styles.evidenceNoticeTitle}>{evidenceNotice.title}</span>
+              <span>{evidenceNotice.detail}</span>
+            </div>
+          ) : null}
+
           <div className={styles.timelineWrap}>
             <div className={styles.timeline} aria-label="Goals and cards timeline">
               {events.length ? events.map((event) => (
@@ -384,17 +424,19 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
         <section className={styles.lineupSection} aria-label="Starting lineups">
           <LineupSide
             title={fixture.home_team_name}
-            formation={evidence.formation.home.status === "AVAILABLE" ? evidence.formation.home.value : null}
+            formation={evidence?.formation.home.status === "AVAILABLE" ? evidence.formation.home.value : null}
             manager={managerName(evidence, "home")}
             players={startingPlayers("home")}
             team="home"
+            emptyLabel={(evidence?.lineup ?? []).some((row) => row.side === "home") ? "Formation & placement unavailable" : "Lineup & formation unavailable"}
           />
           <LineupSide
             title={fixture.away_team_name}
-            formation={evidence.formation.away.status === "AVAILABLE" ? evidence.formation.away.value : null}
+            formation={evidence?.formation.away.status === "AVAILABLE" ? evidence.formation.away.value : null}
             manager={managerName(evidence, "away")}
             players={startingPlayers("away")}
             team="away"
+            emptyLabel={(evidence?.lineup ?? []).some((row) => row.side === "away") ? "Formation & placement unavailable" : "Lineup & formation unavailable"}
           />
         </section>
 
