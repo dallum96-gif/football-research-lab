@@ -4,6 +4,21 @@ import fixture_evidence
 import fixture_research_access
 
 
+def _verified_bridge(pulselive_player_id: str, player_match_source_player_id: str) -> dict:
+    return {
+        "pulselive_source_player_id": pulselive_player_id,
+        "pulselive_source_player_id_namespace": "pulselive_match.playerId",
+        "player_match_source_player_id": player_match_source_player_id,
+        "player_match_source_player_id_namespace": "players_match_stats.playerId",
+        "identity_route": "PULSELIVE_PLAYER_ID_TO_PLAYER_MATCH_PL_CODE_TO_SOURCE_PLAYER_ID",
+        "bridge_source_field": "players_match_stats.pl_code",
+        "relationship_contract": "source_player_match_to_source_player_identity",
+        "relationship_status": "VERIFIED",
+        "identity_status": "VERIFIED",
+        "verified": True,
+    }
+
+
 def _snapshot() -> dict:
     return {
         "retrieved_at": "2026-08-27T00:00:00Z",
@@ -58,6 +73,21 @@ def test_reference_fixture_contract_keeps_formation_events_and_managers(monkeypa
         "home": {"team_id": "1"}, "away": {"team_id": "2"},
     })
     monkeypatch.setattr(fixture_evidence, "load_snapshot", lambda source_match_id: (_snapshot(), None))
+    monkeypatch.setattr(
+        fixture_evidence,
+        "resolve_pulselive_player_identity",
+        lambda season, fixture_id, player_id: _verified_bridge(
+            str(player_id),
+            f"pm-{player_id}",
+        ) if player_id else {
+            **_verified_bridge("", ""),
+            "relationship_status": "UNAVAILABLE",
+            "identity_status": "UNAVAILABLE",
+            "verified": False,
+            "player_match_source_player_id": None,
+            "player_match_source_player_id_namespace": None,
+        },
+    )
     monkeypatch.setattr(fixture_evidence, "source_player_season_identity", lambda season, player_id: {"verified": True, "status": "VERIFIED"})
 
     result = fixture_evidence.fixture_evidence("2016-17", "8")
@@ -67,24 +97,80 @@ def test_reference_fixture_contract_keeps_formation_events_and_managers(monkeypa
     assert result["formation"]["away"]["value"] == "4-3-3"
     assert result["managers"]["status"] == "AVAILABLE"
     assert result["events"][0]["assist"]["source_player_id"] == "12"
+    assert result["events"][0]["assist"]["source_player_id_namespace"] == "pulselive_match.playerId"
+    assert result["events"][0]["assist"]["player_match_source_player_id"] == "pm-12"
+    assert result["lineup"][0]["player"]["source_player_id"] == "11"
+    assert result["lineup"][0]["player"]["player_match_source_player_id"] == "pm-11"
+    assert result["lineup"][0]["provenance"]["identity_bridge_status"] == "VERIFIED"
 
 
 def test_reference_composition_uses_ura_for_participation(monkeypatch) -> None:
     monkeypatch.setattr(fixture_research_access, "fixture_evidence", lambda season, fixture_id: {
         "status": "AVAILABLE",
-        "lineup": [{"player": {"source_player_id": "11", "name": "Home Player"}, "side": "home", "provenance": {}}],
+        "lineup": [{
+            "player": {"source_player_id": "11", "name": "Home Player"},
+            "side": "home",
+            "provenance": {"source_family": "pulselive_match_lineups"},
+        }],
         "events": [], "coverage": {"lineup": {"status": "AVAILABLE", "count": 1}},
         "limitations": [], "provenance": {},
     })
+    monkeypatch.setattr(
+        fixture_research_access,
+        "resolve_pulselive_player_identity",
+        lambda season, fixture_id, player_id: _verified_bridge(str(player_id), "pm-11"),
+    )
 
     def fake_query(request):
         values = {"minutesPlayed": 90, "substitute": "false", "venue": "home"}
-        return {"results": [{"source_player_id": "11", "value": values[request.variable]}]}
+        return {"results": [{"source_player_id": "pm-11", "value": values[request.variable]}]}
 
     monkeypatch.setattr(fixture_research_access.research_access, "query", fake_query)
     result = fixture_research_access.fixture_research_result("2016-17", "8")
     assert result["lineup"][0]["participation"] == "starting"
     assert result["lineup"][0]["minutes"] == 90
+    assert result["lineup"][0]["player"]["source_player_id"] == "11"
+    assert result["lineup"][0]["player"]["player_match_source_player_id"] == "pm-11"
+    assert result["lineup"][0]["provenance"]["participation_lookup_source_player_id"] == "pm-11"
+
+
+def test_reference_composition_rejects_ambiguous_bridge_for_ura(monkeypatch) -> None:
+    monkeypatch.setattr(fixture_research_access, "fixture_evidence", lambda season, fixture_id: {
+        "status": "AVAILABLE",
+        "lineup": [{
+            "player": {"source_player_id": "11", "name": "Home Player"},
+            "side": "home",
+            "provenance": {"source_family": "pulselive_match_lineups"},
+        }],
+        "events": [], "coverage": {"lineup": {"status": "AVAILABLE", "count": 1}},
+        "limitations": [], "provenance": {},
+    })
+    monkeypatch.setattr(
+        fixture_research_access,
+        "resolve_pulselive_player_identity",
+        lambda season, fixture_id, player_id: {
+            **_verified_bridge(str(player_id), ""),
+            "relationship_status": "AMBIGUOUS",
+            "identity_status": "AMBIGUOUS",
+            "verified": False,
+            "candidate_source_player_ids": ["pm-11", "pm-12"],
+            "player_match_source_player_id": None,
+            "player_match_source_player_id_namespace": None,
+        },
+    )
+    monkeypatch.setattr(
+        fixture_research_access.research_access,
+        "query",
+        lambda request: {"results": [{"source_player_id": "pm-11", "value": 90}]},
+    )
+
+    result = fixture_research_access.fixture_research_result("2016-17", "8")
+
+    assert result["lineup"][0]["participation"] == "unknown"
+    assert result["lineup"][0]["minutes"] is None
+    assert result["lineup"][0]["player"]["source_player_id"] == "11"
+    assert result["lineup"][0]["player"]["player_match_source_player_id"] is None
+    assert result["lineup"][0]["provenance"]["identity_bridge_status"] == "AMBIGUOUS"
 
 
 def test_player_match_fallback_keeps_source_match_namespaces_distinct(monkeypatch) -> None:

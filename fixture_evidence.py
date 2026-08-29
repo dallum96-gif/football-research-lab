@@ -8,6 +8,7 @@ from relationship_contracts import get_relationship_contract
 from source_family_adapters import (
     canonical_fixture,
     fixture_metadata,
+    resolve_pulselive_player_identity,
     resolve_source_match,
     source_player_season_identity,
 )
@@ -69,22 +70,74 @@ def _player_name_index(lineup_data: dict) -> dict[str, str]:
     }
 
 
-def _decorate_events(events: list[dict], names: dict[str, str], season: str) -> list[dict]:
+def _decorate_pulselive_player(
+    season: str,
+    fixture_id: str,
+    pulselive_player_id: str | None,
+    name: str | None,
+) -> dict[str, Any]:
+    bridge = resolve_pulselive_player_identity(season, fixture_id, pulselive_player_id)
+    player_match_source_id = _text(bridge.get("player_match_source_player_id"))
+    bridge_status = _text(bridge.get("relationship_status")) or "UNRESOLVED"
+    player_season_identity_status = (
+        # The exact bridge proves that this PulseLive ID is PM ``pl_code``;
+        # that is the established Player-Season-facing namespace.  The
+        # distinct PM source_player_id is retained for URA observation lookup.
+        _identity_status(season, pulselive_player_id)
+        if bridge_status == "VERIFIED" and pulselive_player_id
+        else bridge_status
+    )
+    identity_status = (
+        player_season_identity_status
+        if player_season_identity_status == "VERIFIED"
+        else "SOURCE_NATIVE_VERIFIED"
+        if bridge_status == "VERIFIED" and player_match_source_id
+        else player_season_identity_status
+    )
+    return {
+        # Backward-compatible source ID: this remains the original PulseLive ID.
+        "source_player_id": pulselive_player_id,
+        "source_player_id_namespace": bridge["pulselive_source_player_id_namespace"],
+        "player_match_source_player_id": player_match_source_id,
+        "player_match_source_player_id_namespace": bridge.get(
+            "player_match_source_player_id_namespace"
+        ),
+        "player_season_identity_source_player_id": (
+            pulselive_player_id if bridge_status == "VERIFIED" else None
+        ),
+        "player_season_identity_source_player_id_namespace": (
+            "players_match_stats.pl_code" if bridge_status == "VERIFIED" else None
+        ),
+        "name": name,
+        "identity_status": identity_status,
+        "player_season_identity_status": player_season_identity_status,
+        "identity_bridge": bridge,
+    }
+
+
+def _decorate_events(
+    events: list[dict],
+    names: dict[str, str],
+    season: str,
+    fixture_id: str,
+) -> list[dict]:
     output: list[dict] = []
     for event in events:
         item = dict(event)
         primary_id = _text(item.get("primary_source_player_id"))
         secondary_id = _text(item.get("secondary_source_player_id"))
-        item["primary_player"] = {
-            "source_player_id": primary_id,
-            "name": names.get(primary_id) if primary_id else None,
-            "identity_status": _identity_status(season, primary_id),
-        }
-        secondary = {
-            "source_player_id": secondary_id,
-            "name": names.get(secondary_id) if secondary_id else None,
-            "identity_status": _identity_status(season, secondary_id) if secondary_id else "UNAVAILABLE",
-        }
+        item["primary_player"] = _decorate_pulselive_player(
+            season,
+            fixture_id,
+            primary_id,
+            names.get(primary_id) if primary_id else None,
+        )
+        secondary = _decorate_pulselive_player(
+            season,
+            fixture_id,
+            secondary_id,
+            names.get(secondary_id) if secondary_id else None,
+        )
         item["secondary_player"] = secondary
         item["assist"] = secondary if event["type"] == "goal" and secondary_id else None
         output.append(item)
@@ -216,22 +269,24 @@ def fixture_evidence(season: str, fixture_id: str) -> dict:
     lineup_data = normalise_lineups(lineups_payload)
     _validate_team_context(source_match, lineup_data)
     names = _player_name_index(lineup_data)
-    events = _decorate_events(events, names, season)
+    events = _decorate_events(events, names, season, str(fixture_id))
 
     lineup: list[dict[str, Any]] = []
     identity_failures = 0
     for player in lineup_data.get("players", []):
-        source_player_id = _text(player.get("source_player_id"))
-        status = _identity_status(season, source_player_id)
-        if status != "VERIFIED":
+        pulselive_player_id = _text(player.get("source_player_id"))
+        player_identity = _decorate_pulselive_player(
+            season,
+            str(fixture_id),
+            pulselive_player_id,
+            player.get("name"),
+        )
+        status = str(player_identity["identity_status"])
+        if status not in {"VERIFIED", "SOURCE_NATIVE_VERIFIED"}:
             identity_failures += 1
         placement = _attach_placement(lineup_data, player)
         lineup.append({
-            "player": {
-                "source_player_id": source_player_id,
-                "name": player.get("name"),
-                "identity_status": status,
-            },
+            "player": player_identity,
             "side": player.get("side"),
             "position": player.get("position"),
             "shirt_number": player.get("shirt_number"),
@@ -243,8 +298,29 @@ def fixture_evidence(season: str, fixture_id: str) -> dict:
                 "fixture_id": str(fixture_id),
                 "source_match_id": source_match_id,
                 "source_family": "pulselive_match_lineups",
+                "pulselive_source_player_id": pulselive_player_id,
+                "pulselive_source_player_id_namespace": player_identity[
+                    "source_player_id_namespace"
+                ],
+                "player_match_source_player_id": player_identity[
+                    "player_match_source_player_id"
+                ],
+                "player_match_source_player_id_namespace": player_identity[
+                    "player_match_source_player_id_namespace"
+                ],
+                "identity_bridge_route": player_identity["identity_bridge"][
+                    "identity_route"
+                ],
+                "identity_bridge_contract": player_identity["identity_bridge"][
+                    "relationship_contract"
+                ],
+                "identity_bridge_status": player_identity["identity_bridge"][
+                    "relationship_status"
+                ],
                 "relationship_contract": "source_player_identity_to_player_season",
-                "relationship_status": status,
+                "relationship_status": player_identity[
+                    "player_season_identity_status"
+                ],
             },
         })
 
@@ -291,6 +367,13 @@ def fixture_evidence(season: str, fixture_id: str) -> dict:
             "resources": {
                 "events": resource_meta(snapshot, "events"),
                 "lineups": resource_meta(snapshot, "lineups"),
+            },
+            "player_identity_bridge": {
+                "identity_route": "PULSELIVE_PLAYER_ID_TO_PLAYER_MATCH_PL_CODE_TO_SOURCE_PLAYER_ID",
+                "source_namespace": "pulselive_match.playerId",
+                "bridge_source_field": "players_match_stats.pl_code",
+                "target_namespace": "player_match_stats.source_player_id()",
+                "relationship_contract": "source_player_match_to_source_player_identity",
             },
         },
         "limitations": limitations,

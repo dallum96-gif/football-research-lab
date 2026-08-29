@@ -202,6 +202,98 @@ def player_match_source_rows(season: str, fixture_id: str) -> tuple[dict, ...]:
     return tuple(fixture_player_match_rows(fixture))
 
 
+@lru_cache(maxsize=4096)
+def _fixture_pulselive_player_candidates(
+    season: str,
+    fixture_id: str,
+) -> tuple[bool, dict[str, tuple[dict[str, object], ...]]]:
+    """Index exact PulseLive ``playerId`` candidates through PM ``pl_code``.
+
+    The Player-Match fixture relationship is already governed by
+    ``player_match_source_rows``.  This index adds no name or numeric-namespace
+    inference: it uses only exact, non-empty ``pl_code`` evidence and retains
+    the established ``source_player_id()`` result as the target identity.
+    """
+    rows = player_match_source_rows(season, fixture_id)
+    candidates: dict[str, dict[str, set[str]]] = {}
+
+    for row in rows:
+        pl_code = str(row.get("pl_code") or "").strip()
+        player_match_id = source_player_id(row)
+        if not pl_code or not player_match_id:
+            continue
+
+        player_id = str(row.get("playerId") or "").strip()
+        namespace = (
+            "players_match_stats.playerId"
+            if player_id and player_id == player_match_id
+            else "players_match_stats.pl_code"
+        )
+        candidates.setdefault(pl_code, {}).setdefault(player_match_id, set()).add(namespace)
+
+    frozen: dict[str, tuple[dict[str, object], ...]] = {}
+    for pl_code, identities in candidates.items():
+        frozen[pl_code] = tuple(
+            {
+                "player_match_source_player_id": player_match_id,
+                "player_match_source_player_id_namespace": (
+                    next(iter(namespaces))
+                    if len(namespaces) == 1
+                    else "player_match_stats.source_player_id()"
+                ),
+                "source_fields": tuple(sorted(namespaces)),
+            }
+            for player_match_id, namespaces in sorted(identities.items())
+        )
+    return bool(rows), frozen
+
+
+def resolve_pulselive_player_identity(
+    season: str,
+    fixture_id: str,
+    pulselive_player_id: str | int | None,
+) -> dict[str, object]:
+    """Resolve one PulseLive player ID to the fixture's Player-Match identity.
+
+    Route: PulseLive ``playerId`` -> exact Player-Match ``pl_code`` -> the
+    existing ``source_player_id()`` result.  Missing and ambiguous evidence is
+    returned without a promoted target identity.
+    """
+    source_id = str(pulselive_player_id or "").strip()
+    source_context_available, by_pl_code = _fixture_pulselive_player_candidates(
+        season,
+        str(fixture_id),
+    )
+    candidates = by_pl_code.get(source_id, ()) if source_id else ()
+    decision = evaluate_identity(
+        "source_player_match_to_source_player_identity",
+        source_context_available=source_context_available and bool(source_id),
+        candidates=candidates,
+    )
+    result: dict[str, object] = {
+        "season": season,
+        "fixture_id": str(fixture_id),
+        "pulselive_source_player_id": source_id or None,
+        "pulselive_source_player_id_namespace": "pulselive_match.playerId",
+        "identity_route": "PULSELIVE_PLAYER_ID_TO_PLAYER_MATCH_PL_CODE_TO_SOURCE_PLAYER_ID",
+        "bridge_source_field": "players_match_stats.pl_code",
+        "evidence_basis": (
+            "Exact non-empty PulseLive playerId equality with Player-Match pl_code "
+            "inside the verified canonical fixture relationship."
+        ),
+        "candidate_source_player_ids": [
+            str(candidate["player_match_source_player_id"])
+            for candidate in candidates
+        ],
+        "player_match_source_player_id": None,
+        "player_match_source_player_id_namespace": None,
+        **decision_dict(decision),
+    }
+    if decision.verified:
+        result.update(candidates[0])
+    return result
+
+
 def player_match_source_rows_for_season(season: str) -> tuple[dict, ...]:
     """Return complete player-match records with canonical fixture context."""
     records: list[dict] = []

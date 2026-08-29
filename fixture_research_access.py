@@ -11,6 +11,7 @@ from typing import Any
 
 import research_access
 from fixture_evidence import fixture_evidence
+from source_family_adapters import resolve_pulselive_player_identity
 
 PLAYER_MATCH_VARIABLES = ("minutesPlayed", "substitute", "venue")
 
@@ -50,6 +51,33 @@ def _participation(values: dict[str, Any]) -> str:
     return "unknown"
 
 
+def _player_match_lookup_identity(
+    season: str,
+    fixture_id: str,
+    row: dict[str, Any],
+) -> tuple[str, dict[str, Any] | None]:
+    """Return the governed Player-Match ID used for the URA lookup."""
+    player = row.get("player") or {}
+    source_family = str((row.get("provenance") or {}).get("source_family") or "").strip()
+    source_id = str(player.get("source_player_id") or "").strip()
+
+    if source_family == "pulselive_match_lineups":
+        bridge = resolve_pulselive_player_identity(season, fixture_id, source_id)
+        if bridge.get("relationship_status") != "VERIFIED":
+            return "", bridge
+        player_match_source_id = str(
+            bridge.get("player_match_source_player_id") or ""
+        ).strip()
+        return player_match_source_id, bridge
+
+    # Player-Match fallback rows already use the established source_player_id
+    # namespace and therefore do not pass through the PulseLive bridge.
+    player_match_source_id = str(
+        player.get("player_match_source_player_id") or source_id
+    ).strip()
+    return player_match_source_id, None
+
+
 def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
     """Return the governed fixture evidence result for a canonical fixture."""
     evidence = fixture_evidence(season, fixture_id)
@@ -61,8 +89,12 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
     participation_missing = 0
 
     for row in evidence.get("lineup", []):
-        source_id = str(row.get("player", {}).get("source_player_id") or "").strip()
-        values = ura_rows.get(source_id, {})
+        player_match_source_id, bridge = _player_match_lookup_identity(
+            season,
+            str(fixture_id),
+            row,
+        )
+        values = ura_rows.get(player_match_source_id, {})
         if values:
             participation = _participation(values)
             side = str(values.get("venue") or row.get("side") or "").strip().casefold() or None
@@ -72,6 +104,18 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
             participation_missing += 1
 
         item = dict(row)
+        item["player"] = {
+            **dict(row.get("player") or {}),
+            "player_match_source_player_id": player_match_source_id or None,
+            "player_match_source_player_id_namespace": (
+                bridge.get("player_match_source_player_id_namespace")
+                if bridge is not None
+                else (row.get("player") or {}).get(
+                    "player_match_source_player_id_namespace"
+                )
+            ),
+            **({"identity_bridge": bridge} if bridge is not None else {}),
+        }
         item["side"] = side
         item["participation"] = participation
         item["minutes"] = values.get("minutesPlayed") if values else None
@@ -79,6 +123,21 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
             **dict(row.get("provenance") or {}),
             "access_layer": "FRL Universal Research Access",
             "participation_variables": list(PLAYER_MATCH_VARIABLES),
+            "participation_lookup_source_player_id": player_match_source_id or None,
+            "participation_lookup_source_player_id_namespace": (
+                bridge.get("player_match_source_player_id_namespace")
+                if bridge is not None
+                else "player_match_stats.source_player_id()"
+            ),
+            **(
+                {
+                    "identity_bridge_route": bridge["identity_route"],
+                    "identity_bridge_contract": bridge["relationship_contract"],
+                    "identity_bridge_status": bridge["relationship_status"],
+                }
+                if bridge is not None
+                else {}
+            ),
         }
         lineup.append(item)
 
