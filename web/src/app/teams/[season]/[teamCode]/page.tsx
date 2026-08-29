@@ -2,6 +2,7 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { TeamSeasonSelect } from "./TeamSeasonSelect";
+import { TeamKit } from "../../TeamKit";
 import { OverviewDetailTabs } from "./OverviewDetailTabs";
 import styles from "./TeamProfile.module.css";
 
@@ -30,6 +31,24 @@ type TeamOverview = {
   goals_against: number;
   goal_difference: number;
   points: number;
+};
+
+type TeamEraRecordItem = {
+  label: string;
+  value: string;
+  detail: string | null;
+};
+
+type TeamEraOverview = {
+  persistent_team_code: string;
+  display_name: string;
+  first_season: string;
+  last_season: string;
+  season_count: number;
+  across_seasons: TeamEraRecordItem[];
+  team_records: TeamEraRecordItem[];
+  player_records_status: "UNAVAILABLE";
+  player_records_note: string;
 };
 
 type SeasonOption = {
@@ -192,7 +211,7 @@ export default async function TeamProfilePage({
 
   const overview = overviewResult.data;
 
-  const [seasonResult, fixtureResult] = await Promise.all([
+  const [seasonResult, fixtureResult, eraResult] = await Promise.all([
     getJson<SeasonOption[]>(
       `/api/v1/team-seasons?persistent_team_code=${encodeURIComponent(teamCode)}`
     ),
@@ -200,6 +219,9 @@ export default async function TeamProfilePage({
       `/api/v1/fixtures/${encodeURIComponent(season)}?team=${encodeURIComponent(
         overview.display_name
       )}&limit=100`
+    ),
+    getJson<TeamEraOverview>(
+      `/api/v1/teams/${encodeURIComponent(teamCode)}/era-overview`
     ),
   ]);
 
@@ -220,14 +242,15 @@ export default async function TeamProfilePage({
       : [];
 
   const finalFive = fixtures.slice(-5);
+  const era = eraResult.ok ? eraResult.data ?? null : null;
 
   return (
     <AppShell>
       <div className={styles.profile}>
         <header className={styles.profileHeader}>
           <div className={styles.identity}>
-            <div className={styles.monogram} aria-hidden="true">
-              {overview.display_name.slice(0, 1).toUpperCase()}
+            <div className={styles.profileKit}>
+              <TeamKit teamName={overview.display_name} />
             </div>
 
             <div>
@@ -392,6 +415,92 @@ export default async function TeamProfilePage({
                   date: shortDate(fixture.kickoff_time),
                 }))}
               />
+
+              {era && (
+                <section className={styles.eraSection}>
+                  <header className={styles.eraHeading}>
+                    <div>
+                      <p className={styles.sectionKicker}>Across the FRL era</p>
+                      <h2>{era.first_season} to {era.last_season}</h2>
+                    </div>
+                    <span>{era.season_count} Premier League seasons</span>
+                  </header>
+
+                  <div className={styles.eraGrid}>
+                    <article className={styles.eraPanel}>
+                      <div className={styles.eraPanelHeader}>
+                        <span>01</span>
+                        <div>
+                          <p>Across seasons</p>
+                          <small>Best single-season marks</small>
+                        </div>
+                      </div>
+
+                      <div className={styles.eraRecords}>
+                        {era.across_seasons.map((record) => (
+                          <div className={styles.eraRecord} key={record.label}>
+                            <span>{record.label}</span>
+                            <strong>{record.value}</strong>
+                            <small>{record.detail}</small>
+                          </div>
+                        ))}
+                      </div>
+                    </article>
+
+                    <article className={styles.eraPanel}>
+                      <div className={styles.eraPanelHeader}>
+                        <span>02</span>
+                        <div>
+                          <p>Team records</p>
+                          <small>Results and runs across our dataset</small>
+                        </div>
+                      </div>
+
+                      <div className={styles.eraRecords}>
+                        {era.team_records.map((record) => (
+                          <div className={styles.eraRecord} key={record.label}>
+                            <span>{record.label}</span>
+                            <strong>{record.value.replaceAll("?", "-")}</strong>
+                            <small>{record.detail?.replaceAll("?", "/")}</small>
+                          </div>
+                        ))}
+                      </div>
+
+                      <Link
+                        className={styles.eraPanelLink}
+                        href={`/teams/${encodeURIComponent(season)}/${encodeURIComponent(
+                          teamCode
+                        )}?view=records`}
+                      >
+                        Open record book <span>?</span>
+                      </Link>
+                    </article>
+
+                    <article className={`${styles.eraPanel} ${styles.playerEraPanel}`}>
+                      <div className={styles.eraPanelHeader}>
+                        <span>03</span>
+                        <div>
+                          <p>Player records</p>
+                          <small>Across Arsenal's FRL-era seasons</small>
+                        </div>
+                      </div>
+
+                      <div className={styles.playerEraPreview}>
+                        <strong>Player record book</strong>
+                        <p>
+                          Goals, appearances, starts, minutes and other
+                          cross-season player records will live here once
+                          team-scoped identity comparison is governed.
+                        </p>
+                      </div>
+
+                      <span className={styles.evidenceLabel}>
+                        Evidence boundary preserved
+                      </span>
+                    </article>
+                  </div>
+                </section>
+              )}
             </div>
           ) : (
             <EmptyView view={activeView} />

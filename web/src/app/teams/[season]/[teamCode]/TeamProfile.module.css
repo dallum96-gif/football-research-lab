@@ -772,3 +772,256 @@
     border-bottom: 0;
   }
 }
+
+/* FRL-era editorial record panels */
+
+.eraSection {
+  display: grid;
+  gap: .62rem;
+}
+
+.eraHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  padding: 0 .1rem;
+}
+
+.eraHeading h2 {
+  margin: .16rem 0 0;
+  font-size: .92rem;
+  font-weight: 810;
+  letter-spacing: -.02em;
+}
+
+.eraHeading > span {
+  color: var(--frl-muted-soft);
+  font-size: .56rem;
+  font-weight: 730;
+  letter-spacing: .05em;
+}
+
+.eraGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+}
+
+.eraPanel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 188px;
+  overflow: hidden;
+  padding: .9rem 1rem .8rem;
+  border: 1px solid var(--frl-border);
+  border-radius: 10px;
+  background: var(--frl-surface);
+  transition:
+    transform .14s ease,
+    box-shadow .14s ease,
+    border-color .14s ease;
+}
+
+.eraPanel:hover {
+  transform: translateY(-2px);
+  border-color: var(--frl-border-strong);
+  box-shadow: 0 7px 20px rgba(23, 23, 20, .045);
+}
+
+.eraPanelHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: .62rem;
+  padding-bottom: .68rem;
+  border-bottom: 1px solid var(--frl-border);
+}
+
+.eraPanelHeader > span {
+  color: var(--frl-accent);
+  font-size: .53rem;
+  font-weight: 880;
+  letter-spacing: .08em;
+  line-height: 1.5;
+}
+
+.eraPanelHeader p {
+  margin: 0;
+  font-size: .72rem;
+  font-weight: 820;
+}
+
+.eraPanelHeader small {
+  display: block;
+  margin-top: .08rem;
+  color: var(--frl-muted-soft);
+  font-size: .51rem;
+  font-weight: 640;
+}
+
+.eraRecords {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
+}
+
+.eraRecord {
+  min-width: 0;
+  padding: .78rem .7rem .35rem;
+  border-right: 1px solid var(--frl-border);
+}
+
+.eraRecord:first-child {
+  padding-left: 0;
+}
+
+.eraRecord:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+
+.eraRecord > span {
+  display: block;
+  min-height: 2.2em;
+  color: var(--frl-muted);
+  font-size: .5rem;
+  font-weight: 740;
+  letter-spacing: .035em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.eraRecord strong {
+  display: block;
+  margin-top: .24rem;
+  overflow: hidden;
+  font-size: 1.12rem;
+  font-weight: 850;
+  letter-spacing: -.035em;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.eraRecord small {
+  display: block;
+  margin-top: .28rem;
+  overflow: hidden;
+  color: var(--frl-muted-soft);
+  font-size: .49rem;
+  font-weight: 650;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+}
+
+.eraPanelLink {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: .3rem;
+  margin-top: auto;
+  padding-top: .35rem;
+  color: var(--frl-accent);
+  text-decoration: none;
+  font-size: .56rem;
+  font-weight: 790;
+}
+
+.eraPanelLink span {
+  transition: transform .12s ease;
+}
+
+.eraPanelLink:hover span {
+  transform: translateX(3px);
+}
+
+.playerEraPanel {
+  background:
+    radial-gradient(
+      circle at 95% 0%,
+      rgba(154, 170, 66, .09),
+      transparent 44%
+    ),
+    var(--frl-surface);
+}
+
+.playerEraPreview {
+  display: grid;
+  align-content: center;
+  flex: 1;
+  padding: .75rem 0 .4rem;
+}
+
+.playerEraPreview strong {
+  font-size: 1rem;
+  font-weight: 830;
+  letter-spacing: -.025em;
+}
+
+.playerEraPreview p {
+  max-width: 31em;
+  margin: .35rem 0 0;
+  color: var(--frl-muted);
+  font-size: .56rem;
+  line-height: 1.45;
+}
+
+.evidenceLabel {
+  display: inline-flex;
+  align-self: flex-start;
+  color: var(--frl-secondary);
+  font-size: .49rem;
+  font-weight: 810;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1080px) {
+  .eraGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .eraPanel {
+    min-height: 150px;
+  }
+}
+
+@media (max-width: 650px) {
+  .eraHeading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: .25rem;
+  }
+
+  .eraRecords {
+    grid-template-columns: 1fr;
+  }
+
+  .eraRecord,
+  .eraRecord:first-child,
+  .eraRecord:last-child {
+    padding: .55rem 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--frl-border);
+  }
+
+  .eraRecord:last-child {
+    border-bottom: 0;
+  }
+
+  .eraRecord > span {
+    min-height: auto;
+  }
+}
+
+
+.profileKit {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+}

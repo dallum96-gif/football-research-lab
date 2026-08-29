@@ -143,6 +143,26 @@ class TeamOverviewResult(BaseModel):
     limitations: list[str] = Field(default_factory=list)
 
 
+class TeamEraRecordItem(BaseModel):
+    label: str
+    value: str
+    detail: str | None = None
+
+
+class TeamEraOverviewResult(BaseModel):
+    persistent_team_code: str
+    display_name: str
+    first_season: str
+    last_season: str
+    season_count: int
+    across_seasons: list[TeamEraRecordItem]
+    team_records: list[TeamEraRecordItem]
+    player_records_status: Literal["UNAVAILABLE"]
+    player_records_note: str
+    provenance: ResearchProvenance
+    limitations: list[str] = Field(default_factory=list)
+
+
 app = FastAPI(title="Football Research Laboratory API", version="0.1.0")
 
 app.add_middleware(
@@ -409,6 +429,240 @@ def get_team_overview(season: str, persistent_team_code: str) -> TeamOverviewRes
         limitations=[
             "Season record reflects completed fixtures represented in the canonical fixture master.",
             "No historical information-availability as-of claim is made by this endpoint.",
+        ],
+    )
+
+
+
+def _ordinal(value: int) -> str:
+    mod100 = value % 100
+    if 11 <= mod100 <= 13:
+        return f"{value}th"
+    suffix = {1: "st", 2: "nd", 3: "rd"}.get(value % 10, "th")
+    return f"{value}{suffix}"
+
+
+def _longest_result_streak(matches: list[dict], allowed: set[str]) -> int:
+    longest = 0
+    current = 0
+
+    for match in matches:
+        if str(match.get("result")) in allowed:
+            current += 1
+            longest = max(longest, current)
+        else:
+            current = 0
+
+    return longest
+
+
+@app.get(
+    "/api/v1/teams/{persistent_team_code}/era-overview",
+    response_model=TeamEraOverviewResult,
+)
+def get_team_era_overview(persistent_team_code: str) -> TeamEraOverviewResult:
+    requested_code = persistent_team_code.strip()
+
+    try:
+        available = get_team_seasons(requested_code)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="Team FRL-era overview failed safely.",
+        ) from exc
+
+    if not available:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Team {persistent_team_code} is unavailable in the FRL dataset.",
+        )
+
+    season_records: list[dict] = []
+    biggest_win: dict | None = None
+    longest_win = {"value": 0, "season": None}
+    longest_unbeaten = {"value": 0, "season": None}
+
+    for option in available:
+        table = query_api.league_table(option.season)
+        row = next(
+            (
+                item
+                for item in table["teams"]
+                if str(item.get("persistent_team_code") or "").strip()
+                == requested_code
+            ),
+            None,
+        )
+        if row is None:
+            continue
+
+        season_records.append(
+            {
+                "season": option.season,
+                "position": int(row["position"]),
+                "points": int(row["points"]),
+                "wins": int(row["wins"]),
+                "goals_for": int(row["goals_for"]),
+                "goal_difference": int(row["goal_difference"]),
+            }
+        )
+
+        fixtures = query_api.fixtures(
+            season=option.season,
+            team=option.display_name,
+            limit=500,
+        )["results"]
+
+        for fixture in fixtures:
+            if fixture.get("home_score") in (None, "") or fixture.get("away_score") in (None, ""):
+                continue
+
+            home_score = int(fixture["home_score"])
+            away_score = int(fixture["away_score"])
+            home_id = str(fixture["home_team_id"])
+            away_id = str(fixture["away_team_id"])
+
+            if str(option.local_team_id) == home_id:
+                goals_for = home_score
+                goals_against = away_score
+                opponent = str(fixture["away_team_name"])
+            elif str(option.local_team_id) == away_id:
+                goals_for = away_score
+                goals_against = home_score
+                opponent = str(fixture["home_team_name"])
+            else:
+                continue
+
+            margin = goals_for - goals_against
+            if margin <= 0:
+                continue
+
+            candidate = {
+                "margin": margin,
+                "goals_for": goals_for,
+                "goals_against": goals_against,
+                "opponent": opponent,
+                "season": option.season,
+            }
+
+            if biggest_win is None or (
+                candidate["margin"],
+                candidate["goals_for"],
+            ) > (
+                biggest_win["margin"],
+                biggest_win["goals_for"],
+            ):
+                biggest_win = candidate
+
+        form = query_api.team_form(
+            season=option.season,
+            team=option.display_name,
+        )
+
+        win_streak = _longest_result_streak(
+            form["matches"],
+            {"W"},
+        )
+        unbeaten_streak = _longest_result_streak(
+            form["matches"],
+            {"W", "D"},
+        )
+
+        if win_streak > longest_win["value"]:
+            longest_win = {
+                "value": win_streak,
+                "season": option.season,
+            }
+
+        if unbeaten_streak > longest_unbeaten["value"]:
+            longest_unbeaten = {
+                "value": unbeaten_streak,
+                "season": option.season,
+            }
+
+    if not season_records:
+        raise HTTPException(
+            status_code=404,
+            detail="No verified FRL-era season records are available for this team.",
+        )
+
+    best_finish = min(
+        season_records,
+        key=lambda row: (row["position"], -row["points"]),
+    )
+    most_points = max(
+        season_records,
+        key=lambda row: (row["points"], row["goal_difference"]),
+    )
+    most_goals = max(
+        season_records,
+        key=lambda row: (row["goals_for"], row["points"]),
+    )
+
+    return TeamEraOverviewResult(
+        persistent_team_code=requested_code,
+        display_name=available[0].display_name,
+        first_season=available[-1].season,
+        last_season=available[0].season,
+        season_count=len(season_records),
+        across_seasons=[
+            TeamEraRecordItem(
+                label="Best league finish",
+                value=_ordinal(best_finish["position"]),
+                detail=best_finish["season"],
+            ),
+            TeamEraRecordItem(
+                label="Most points",
+                value=str(most_points["points"]),
+                detail=most_points["season"],
+            ),
+            TeamEraRecordItem(
+                label="Most league goals",
+                value=str(most_goals["goals_for"]),
+                detail=most_goals["season"],
+            ),
+        ],
+        team_records=[
+            TeamEraRecordItem(
+                label="Biggest league win",
+                value=(
+                    f'{biggest_win["goals_for"]}?{biggest_win["goals_against"]}'
+                    if biggest_win
+                    else "Unavailable"
+                ),
+                detail=(
+                    f'vs {biggest_win["opponent"]} ? {biggest_win["season"]}'
+                    if biggest_win
+                    else None
+                ),
+            ),
+            TeamEraRecordItem(
+                label="Longest winning run",
+                value=f'{longest_win["value"]} matches',
+                detail=str(longest_win["season"] or ""),
+            ),
+            TeamEraRecordItem(
+                label="Longest unbeaten run",
+                value=f'{longest_unbeaten["value"]} matches',
+                detail=str(longest_unbeaten["season"] or ""),
+            ),
+        ],
+        player_records_status="UNAVAILABLE",
+        player_records_note=(
+            "Team-scoped cross-season player career records are withheld until "
+            "the governed player identity layer exposes that comparison safely."
+        ),
+        provenance=ResearchProvenance(
+            source=(
+                "query_api.league_table + query_api.fixtures + "
+                "query_api.team_form + governed persistent team identity"
+            ),
+            transformation_version="team-era-overview-v1",
+        ),
+        limitations=[
+            "FRL-era means the Premier League seasons currently represented in the governed FRL dataset, not club all-time history.",
+            "Winning and unbeaten streak records are the best single-season league streaks in the represented FRL era.",
+            "Player career records are intentionally not inferred from league-wide player leader queries.",
         ],
     )
 
