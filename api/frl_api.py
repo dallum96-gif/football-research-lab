@@ -124,6 +124,25 @@ class TeamSeasonOption(BaseModel):
     local_team_id: str
 
 
+class TeamOverviewResult(BaseModel):
+    persistent_team_code: str
+    display_name: str
+    season: str
+    local_team_id: str
+    competition: str
+    position: int
+    played: int
+    wins: int
+    draws: int
+    losses: int
+    goals_for: int
+    goals_against: int
+    goal_difference: int
+    points: int
+    provenance: ResearchProvenance
+    limitations: list[str] = Field(default_factory=list)
+
+
 app = FastAPI(title="Football Research Laboratory API", version="0.1.0")
 
 app.add_middleware(
@@ -339,6 +358,59 @@ def get_team_seasons(
 
     available.sort(key=lambda item: item.season, reverse=True)
     return available
+
+
+@app.get(
+    "/api/v1/teams/{season}/{persistent_team_code}/overview",
+    response_model=TeamOverviewResult,
+)
+def get_team_overview(season: str, persistent_team_code: str) -> TeamOverviewResult:
+    try:
+        table = query_api.league_table(season)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Team overview failed safely.") from exc
+
+    requested_code = persistent_team_code.strip()
+    row = next(
+        (
+            item
+            for item in table["teams"]
+            if str(item.get("persistent_team_code") or "").strip() == requested_code
+        ),
+        None,
+    )
+    if row is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Team {persistent_team_code} is unavailable in {season}.",
+        )
+
+    return TeamOverviewResult(
+        persistent_team_code=requested_code,
+        display_name=str(row["team"]),
+        season=season,
+        local_team_id=str(row["team_id"]),
+        competition="Premier League",
+        position=int(row["position"]),
+        played=int(row["played"]),
+        wins=int(row["wins"]),
+        draws=int(row["draws"]),
+        losses=int(row["losses"]),
+        goals_for=int(row["goals_for"]),
+        goals_against=int(row["goals_against"]),
+        goal_difference=int(row["goal_difference"]),
+        points=int(row["points"]),
+        provenance=ResearchProvenance(
+            source="query_api.league_table ? canonical fixtures + governed team identity",
+            transformation_version=str(table.get("query_version", "unknown")),
+        ),
+        limitations=[
+            "Season record reflects completed fixtures represented in the canonical fixture master.",
+            "No historical information-availability as-of claim is made by this endpoint.",
+        ],
+    )
 
 
 @app.get("/api/v1/fixtures/{season}", response_model=FixtureResearchResult)
