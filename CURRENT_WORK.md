@@ -148,3 +148,21 @@ Before substantive changes:
 `FRL_BACKEND_CLOSEOUT_2026-08-26.md` is the authoritative closeout record for the completed Universal Research Access backend milestone.
 
 `CURRENT_WORK.md` is the short-lived current checkpoint and should be updated when the project's phase or immediate objective materially changes.
+
+## Active short-term product roadmap
+
+The next several product sessions should use `FRL_SHORT_TERM_PRODUCT_ROADMAP.md` as the active near-term planning spine.
+
+The current sequence is deliberately product-facing:
+
+1. finish Fixture Workspace V1 with the rich historical evidence and repair the PulseLive → Player-Match identity join;
+2. generate a structured FRL Variable Capability Inventory and a human-readable FRL Data Capability Brochure;
+3. build Team Profile and Team Stats surfaces;
+4. build Player Profile and Player Stats surfaces;
+5. build League Table and League Stats surfaces;
+6. productise the existing Poisson model in a Next.js Prediction Lab;
+7. build a Head-to-Head / Match Research workspace that distinguishes descriptive patterns from predictive evidence;
+8. extend the governed data pipeline to 2026/27;
+9. preserve the architecture for later cross-league expansion described in `FUTURE_LEAGUE_COMBINE_PLAN.md`.
+
+This roadmap is intentionally a short-term priority spine rather than a permanent architecture contract. The variable capability inventory should inform which statistics and research experiences are genuinely supported before Team, Player, League and model pages are populated.
