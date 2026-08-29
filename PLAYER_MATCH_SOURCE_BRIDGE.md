@@ -409,3 +409,52 @@ When a future task involves player-match source data, passing, chance creation, 
 10. follow the project's Non-Destruction Assurance and Risk Strategy Framework before modifying the data layer.
 
 This document is a source-of-truth record of the **audited bridge**, not permission to bypass the existing research/data contracts.
+
+---
+
+## 15. PulseLive player namespace bridge — verified 29 August 2026
+
+The preserved PulseLive fixture snapshots introduced a second source-native player namespace in match-centre lineups and events. A direct numeric join from PulseLive `playerId` to Player-Match `playerId` is incorrect.
+
+Cross-season fixture checks established the exact relationship:
+
+```text
+PulseLive match-centre playerId
+        ↓ exact equality
+players_match_stats.pl_code
+        ↓ existing Player-Match identity helper
+Player-Match source_player_id
+        ↓
+existing Player-Season identity / Universal Research Access pathways
+```
+
+Verified representative fixtures:
+
+| Fixture | PulseLive lineup players | overlap with PM `playerId` | overlap with PM `pl_code` |
+|---|---:|---:|---:|
+| 2016-17/8 | 36 | 0 | 36 |
+| 2019-20/275 | 40 | 0 | 40 |
+| 2020-21/1 | 36 | 0 | 36 |
+| 2024-25/1 | 40 | 0 | 40 |
+| 2025-26/1 | 40 | 0 | 40 |
+
+The governed implementation is intentionally fixture-scoped and fail-closed:
+
+- exact non-empty `pl_code` evidence only;
+- one distinct Player-Match target → `VERIFIED`;
+- no target → `UNRESOLVED`;
+- multiple distinct targets → `AMBIGUOUS`;
+- duplicate observations resolving to the same target are deduplicated;
+- no display-name/fuzzy matching;
+- no assumption that similarly shaped numeric IDs share a namespace;
+- original PulseLive `playerId` remains preserved as `pulselive_match.playerId` evidence;
+- the bridged Player-Match identity is exposed separately with provenance;
+- `player_match_stats.source_player_id()` semantics are unchanged.
+
+The implementation lives at the established source/fixture seams in `source_family_adapters.py`, `fixture_evidence.py`, and `fixture_research_access.py`, with focused contract coverage in `tests/test_fixture_player_identity_bridge.py`.
+
+Validation on 29 August 2026 produced **65 passing relevant backend tests**. Across the five representative fixtures above, all **192/192 lineup players** and all **132/132 populated event-player references** bridged successfully, and no lineup participation remained unknown because of the namespace mismatch. The known 2019-20 Manchester City v Arsenal correction continued to resolve through `VERIFIED_FIXTURE_CORRECTION` / `VERIFIED_CORRECTION`.
+
+A verified fixture-scoped Player-Match bridge does not imply that every player also has a verified Player-Season relationship. Where the downstream Player-Season anchor is absent, retain the player as `SOURCE_NATIVE_VERIFIED`; do not guess or weaken the bridge.
+
+Future fixture enrichment must therefore **never join PulseLive `playerId` directly to Player-Match `playerId`**. Use the governed route above.
