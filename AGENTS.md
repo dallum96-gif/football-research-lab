@@ -38,6 +38,15 @@ These rules apply to all work in this repository. They summarise operating const
 - Preserve event time, information-availability time, and ingestion time as distinct concepts. Historical/as-of results may use only information available at the relevant cutoff; do not infer availability from final source evidence.
 - Preserve source lineage, transformation/version metadata, limitations, coverage, and correction history. Never convert missing evidence into zero without an explicit semantic contract.
 
+## Source acquisition and rights guardrails
+
+- Read `FRL_SOURCE_RIGHTS_REGISTER.md` before adding, extending, or operationalising a new external data-acquisition path.
+- Do not treat a public endpoint, unauthenticated API, public GitHub repository, or downloadable file as proof that bulk reuse, redistribution, or commercial use is permitted.
+- Prefer explicitly open/licensed downloadable data, official APIs with clearly permitted automated use, and providers with explicit research/reuse terms.
+- Do not make recurring or large-scale direct API extraction a foundational FRL dependency unless the intended automated use is expressly permitted or has been reviewed and accepted for the intended use case.
+- Treat ambiguous sources case by case. Record the acquisition channel, original provider, applicable repository/code licence, underlying-data terms, intended FRL use, attribution requirements, redistribution restrictions, and commercial-use status where known.
+- Preserve already-acquired source evidence and its provenance, but do not infer public/commercial redistribution rights merely because FRL can technically access or store it.
+
 ## Change and repository safety
 
 - Prefer the smallest sensible, reversible change at an established seam. Preserve trusted query/data contracts for presentation-only work.
