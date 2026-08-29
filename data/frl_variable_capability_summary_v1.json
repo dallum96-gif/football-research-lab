@@ -1,0 +1,107 @@
+{
+  "by_capability_area": {
+    "context": 539,
+    "derived_metrics": 72,
+    "events": 101,
+    "fixture": 353,
+    "historical_as_of": 57,
+    "infrastructure": 145,
+    "league_season": 10,
+    "models": 13,
+    "odds_markets": 19,
+    "player_match": 170,
+    "player_season": 297,
+    "team_match": 399,
+    "team_season": 32
+  },
+  "by_coverage_status": {
+    "DECLARED_FULL": 411,
+    "DECLARED_PARTIAL": 37,
+    "DISCOVERY_SAMPLE_ONLY": 961,
+    "FIXED_MODEL_SCOPE": 13,
+    "INHERITS_INPUT_COVERAGE": 2,
+    "MATERIALISED": 76,
+    "NOT_PRESERVED": 16,
+    "PROVENANCE_ONLY": 6
+  },
+  "by_grain": {
+    "acquisition-metadata": 145,
+    "ephemeral-fixture-market-comparison": 16,
+    "fixture": 45,
+    "fixture-commentary": 8,
+    "fixture-commentary-entry": 4,
+    "fixture-event": 32,
+    "fixture-event-collection": 17,
+    "fixture-lineup-manager": 8,
+    "fixture-lineup-player": 12,
+    "fixture-pre-match-state": 57,
+    "fixture-team-lineup": 21,
+    "fpl-configuration-snapshot": 232,
+    "model-fixture-output": 13,
+    "player-fixture-forecast": 14,
+    "player-fixture-gameweek": 42,
+    "player-gameweek-live": 40,
+    "player-match": 88,
+    "player-season": 169,
+    "player-season-profile": 16,
+    "player-snapshot": 112,
+    "team-league-season": 10,
+    "team-match": 399,
+    "team-snapshot": 22
+  },
+  "by_meaning_status": {
+    "ESTABLISHED": 296,
+    "REVIEW_REQUIRED": 1226
+  },
+  "by_origin_kind": {
+    "DERIVED": 82,
+    "INFRASTRUCTURE": 145,
+    "MARKET_INPUT": 3,
+    "MODEL_OUTPUT": 13,
+    "SOURCE": 1279
+  },
+  "by_primary_family": {
+    "context": 305,
+    "derived_metrics": 2,
+    "events": 61,
+    "fixture": 100,
+    "infrastructure": 145,
+    "league_season": 1,
+    "models": 13,
+    "odds_markets": 16,
+    "player_match": 168,
+    "player_season": 281,
+    "team_match": 399,
+    "team_season": 31
+  },
+  "by_rights_status": {
+    "INHERITS SOURCE DEPENDENCIES": 110,
+    "NOT_APPLICABLE_TO_PERSISTED_SOURCE": 3,
+    "REVIEW REQUIRED": 940,
+    "REVIEW REQUIRED / DO NOT ASSUME REDISTRIBUTION RIGHTS": 469
+  },
+  "by_source_family": {
+    "FRL Poisson V0.1": 13,
+    "FRL acquisition manifest": 6,
+    "FRL canonical fixture layer": 9,
+    "FRL governed derivation": 82,
+    "Fantasy Premier League payload": 492,
+    "IMadeddine historical FPL gameweek archive": 1,
+    "IMadeddine historical Premier League statistics": 447,
+    "Premier League / PulseLive match centre": 469,
+    "User-supplied market observation": 3
+  },
+  "canonical_catalogue_variable_count": 1414,
+  "family_count": 13,
+  "interpretation_notes": [
+    "Variable records are capabilities, not a claim that every value is materialised for every fixture/season.",
+    "Capability-area counts overlap because one variable may serve more than one governed area.",
+    "DISCOVERY_SAMPLE_ONLY is not historical coverage.",
+    "UNKNOWN and REVIEW_REQUIRED are intentional fail-closed metadata values."
+  ],
+  "inventory_version": "FRL_VARIABLE_CAPABILITY_INVENTORY_V1",
+  "meaning_unknown_or_review_count": 1226,
+  "supplemental_existing_capability_count": 108,
+  "ura_discoverable_capability_count": 688,
+  "variable_record_count": 1522
+}
