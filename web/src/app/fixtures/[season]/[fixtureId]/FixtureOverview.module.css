@@ -101,7 +101,8 @@
   transform: translate(-50%, -50%);
   display: grid;
   justify-items: center;
-  min-width: 72px;
+  min-width: 0;
+  width: 3.35rem;
   text-align: center;
 }
 .playerDot {
@@ -127,11 +128,14 @@
 .playerName {
   margin-top: .05rem;
   color: var(--frl-text);
-  font-size: .66rem;
+  max-width: 100%;
+  overflow: hidden;
+  font-size: .56rem;
   font-weight: 750;
   letter-spacing: -.01em;
   line-height: 1.05;
   white-space: nowrap;
+  text-overflow: ellipsis;
   text-shadow: 0 1px 0 color-mix(in srgb, var(--frl-bg) 85%, transparent);
   transform: translateY(-2px);
 }

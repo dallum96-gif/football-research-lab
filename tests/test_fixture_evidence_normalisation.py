@@ -62,3 +62,47 @@ def test_lineup_placement_requires_explicit_coordinates() -> None:
     }
     result = normalise_lineups(payload)
     assert result["placements"]["home"] == []
+
+
+def test_lineup_normalisation_preserves_source_formation_line_order() -> None:
+    payload = {
+        "home_team": {
+            "teamId": "10",
+            "formation": {
+                "formation": "4-2-3-1",
+                "lineup": [
+                    ["101"],
+                    ["102", "103", "104", "105"],
+                    ["106", "107"],
+                    ["108", "109", "110"],
+                    ["111"],
+                ],
+            },
+            "players": [
+                {"id": str(player_id), "firstName": f"Player {player_id}", "position": "Goalkeeper" if player_id == 101 else "Outfield"}
+                for player_id in range(101, 112)
+            ],
+        },
+        "away_team": {"teamId": "20", "players": []},
+    }
+
+    result = normalise_lineups(payload)
+    by_player = {row["source_player_id"]: row for row in result["players"]}
+
+    assert result["formations"]["home"] == {"status": "AVAILABLE", "value": "4-2-3-1"}
+    assert by_player["101"]["source_formation_order"] == {
+        "line_index": 0,
+        "slot_index": 0,
+        "line_size": 1,
+    }
+    assert by_player["104"]["source_formation_order"] == {
+        "line_index": 1,
+        "slot_index": 2,
+        "line_size": 4,
+    }
+    assert by_player["111"]["source_formation_order"] == {
+        "line_index": 4,
+        "slot_index": 0,
+        "line_size": 1,
+    }
+    assert result["placements"]["home"] == []

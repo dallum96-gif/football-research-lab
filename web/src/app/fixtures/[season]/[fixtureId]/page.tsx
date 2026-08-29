@@ -68,7 +68,16 @@ type FixtureEvidenceResponse = {
     side: "home" | "away" | null;
     position: string | null;
     shirt_number: string | null;
-    placement: { source_player_id: string; x: number; y: number } | null;
+    placement: {
+      source_player_id: string;
+      x: number;
+      y: number;
+      status: "SOURCE_EXPLICIT" | "DERIVED_FORMATION_LAYOUT" | string;
+      provenance: {
+        classification: "SOURCE_EVIDENCE" | "PRESENTATION_ONLY" | string;
+        explicit_source_coordinates: boolean;
+      };
+    } | null;
     participation: "starting" | "sub_in" | "bench" | "unknown";
     minutes: number | null;
   }>;
@@ -231,6 +240,7 @@ function LineupSide({
               className={styles.playerNode}
               key={`${player.name}-${player.number ?? ""}`}
               style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}
+              title={`${player.name} · ${player.role}`}
             >
               <span className={styles.playerDot} />
               <span className={styles.playerRole}>{player.role}</span>
@@ -245,12 +255,8 @@ function LineupSide({
 
 function eventLabel(event: FixtureEvent): string {
   const primary = event.primary_player.name || "Player unavailable";
-  const secondary = event.secondary_player.name;
   if (event.type === "goal") {
     return event.assist?.name ? `${primary} — ${event.assist.name} assist` : primary;
-  }
-  if (event.type === "substitution") {
-    return secondary ? `${primary} ↔ ${secondary}` : primary;
   }
   return primary;
 }
@@ -258,7 +264,7 @@ function eventLabel(event: FixtureEvent): string {
 function EventCell({ event }: { event: FixtureEvent }) {
   const isGoal = event.type === "goal";
   const isRed = event.detail.card_type?.toUpperCase() === "RED";
-  const icon = isGoal ? "⚽" : event.type === "substitution" ? "↕" : "■";
+  const icon = isGoal ? "⚽" : "■";
   const className = isGoal ? styles.eventGoal : isRed ? styles.eventRed : styles.eventCard;
 
   return (
@@ -308,6 +314,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
   const { date, time } = dateParts(fixture.kickoff_time);
 
   const events = evidence?.events ?? [];
+  const timelineEvents = events.filter((event) => event.type === "goal" || event.type === "card");
   const startingPlayers = (side: "home" | "away"): Player[] =>
     (evidence?.lineup ?? [])
       .filter((row) => row.side === side && row.participation === "starting")
@@ -404,7 +411,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
 
           <div className={styles.timelineWrap}>
             <div className={styles.timeline} aria-label="Goals and cards timeline">
-              {events.length ? events.map((event) => (
+              {timelineEvents.length ? timelineEvents.map((event) => (
                 <div key={`${event.event_id ?? "event"}-${event.minute ?? ""}-${event.primary_player.source_player_id ?? ""}`} className={styles.timelineRow}>
                   {event.side === "home" ? <EventCell event={event} /> : <span className={styles.eventEmpty} />}
                   <div className={styles.minute}>{event.minute ?? "—"}</div>

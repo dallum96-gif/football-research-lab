@@ -147,7 +147,19 @@ def _decorate_events(
 def _attach_placement(lineup_data: dict, player: dict) -> dict[str, Any] | None:
     placements = lineup_data.get("placements", {}).get(player.get("side"), [])
     source_id = player.get("source_player_id")
-    return next((row for row in placements if row.get("source_player_id") == source_id), None)
+    placement = next((row for row in placements if row.get("source_player_id") == source_id), None)
+    if placement is None:
+        return None
+    return {
+        **placement,
+        "status": "SOURCE_EXPLICIT",
+        "provenance": {
+            "classification": "SOURCE_EVIDENCE",
+            "source_field": "pulselive_match.lineups.formation.lineup",
+            "source_coordinate_fields": ["x", "y"],
+            "explicit_source_coordinates": True,
+        },
+    }
 
 
 def _lineup_from_player_match(fixture: dict, season: str, fixture_id: str, source_match_id: str) -> list[dict[str, Any]]:
@@ -291,6 +303,7 @@ def fixture_evidence(season: str, fixture_id: str) -> dict:
             "position": player.get("position"),
             "shirt_number": player.get("shirt_number"),
             "placement": placement,
+            "source_formation_order": player.get("source_formation_order"),
             "participation": player.get("participation"),
             "minutes": player.get("minutes"),
             "provenance": {
@@ -329,7 +342,8 @@ def fixture_evidence(season: str, fixture_id: str) -> dict:
     status = "AVAILABLE" if (events or lineup) else "UNAVAILABLE"
     limitations = [
         "PulseLive source identifiers remain source-native and are never promoted to canonical FRL IDs by this adapter.",
-        "Lineup placement is returned only when explicit numeric x/y coordinates are present in the preserved formation lineup object.",
+        "Explicit tactical coordinates are source evidence only when numeric x/y values are present in the preserved formation lineup object.",
+        "Source formation-line ordering is preserved separately so the frontend research-result seam may derive a clearly labelled presentation-only layout.",
     ]
     if identity_failures:
         limitations.append(f"{identity_failures} source-player relationships did not resolve uniquely and remain fail-closed.")

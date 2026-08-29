@@ -173,6 +173,85 @@ def test_reference_composition_rejects_ambiguous_bridge_for_ura(monkeypatch) -> 
     assert result["lineup"][0]["provenance"]["identity_bridge_status"] == "AMBIGUOUS"
 
 
+def _formation_starting_lineup(line_sizes: tuple[int, ...]) -> list[dict]:
+    rows: list[dict] = []
+    player_number = 1
+    for line_index, line_size in enumerate(line_sizes):
+        for slot_index in range(line_size):
+            source_player_id = f"p{player_number}"
+            rows.append({
+                "player": {"source_player_id": source_player_id, "name": source_player_id},
+                "side": "home",
+                "position": "Goalkeeper" if line_index == 0 else "Outfield",
+                "participation": "starting",
+                "placement": None,
+                "source_formation_order": {
+                    "line_index": line_index,
+                    "slot_index": slot_index,
+                    "line_size": line_size,
+                },
+            })
+            player_number += 1
+    return rows
+
+
+def test_derived_formation_layout_is_presentation_only() -> None:
+    lineup = _formation_starting_lineup((1, 4, 2, 3, 1))
+
+    result, coverage = fixture_research_access._apply_presentation_placements(
+        lineup,
+        {"home": {"status": "AVAILABLE", "value": "4-2-3-1"}},
+    )
+
+    assert coverage["home"] == {"status": "DERIVED_FORMATION_LAYOUT", "count": 11}
+    assert result[0]["placement"] == {
+        "source_player_id": "p1",
+        "x": 50.0,
+        "y": 8.0,
+        "status": "DERIVED_FORMATION_LAYOUT",
+        "provenance": {
+            "classification": "PRESENTATION_ONLY",
+            "explicit_source_coordinates": False,
+            "source_formation": "4-2-3-1",
+            "source_formation_field": "pulselive_match.lineups.formation.formation",
+            "source_order_field": "pulselive_match.lineups.formation.lineup",
+            "source_line_index": 0,
+            "source_slot_index": 0,
+            "source_line_size": 1,
+            "starting_xi_status": "VERIFIED_PLAYER_MATCH_PARTICIPATION",
+            "side": "home",
+        },
+    }
+    assert result[-1]["placement"]["x"] == 50.0
+    assert result[-1]["placement"]["y"] == 91.0
+
+
+def test_derived_formation_layout_fails_closed_when_line_sizes_disagree() -> None:
+    lineup = _formation_starting_lineup((1, 4, 2, 3, 1))
+
+    result, coverage = fixture_research_access._apply_presentation_placements(
+        lineup,
+        {"home": {"status": "AVAILABLE", "value": "4-4-2"}},
+    )
+
+    assert coverage["home"] == {"status": "UNAVAILABLE", "count": 0}
+    assert all(row["placement"] is None for row in result)
+
+
+def test_common_formation_lines_are_supported_generically() -> None:
+    for formation in ("4-3-3", "4-4-2", "3-4-3", "3-5-2"):
+        line_sizes = (1, *(int(part) for part in formation.split("-")))
+        lineup = _formation_starting_lineup(line_sizes)
+
+        result, coverage = fixture_research_access._apply_presentation_placements(
+            lineup,
+            {"home": {"status": "AVAILABLE", "value": formation}},
+        )
+
+        assert coverage["home"] == {"status": "DERIVED_FORMATION_LAYOUT", "count": 11}
+        assert all(row["placement"]["status"] == "DERIVED_FORMATION_LAYOUT" for row in result)
+
+
 def test_player_match_fallback_keeps_source_match_namespaces_distinct(monkeypatch) -> None:
     monkeypatch.setattr(fixture_evidence, "canonical_fixture", lambda season, fixture_id: {
         "season": season,

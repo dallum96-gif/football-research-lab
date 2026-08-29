@@ -200,18 +200,53 @@ def _explicit_placement(team: dict[str, Any]) -> list[dict[str, Any]]:
     return output
 
 
+def _source_formation_order(team: dict[str, Any]) -> dict[str, dict[str, int]]:
+    """Preserve the provider's formation-line ordering without deriving geometry."""
+    formation = team.get("formation")
+    lineup = formation.get("lineup") if isinstance(formation, dict) else None
+    if not isinstance(lineup, list):
+        return {}
+
+    candidates: dict[str, list[dict[str, int]]] = {}
+    for line_index, line in enumerate(lineup):
+        if not isinstance(line, list) or not line:
+            return {}
+        for slot_index, entry in enumerate(line):
+            source_player_id = (
+                _text(entry.get("playerId")) or _text(entry.get("id"))
+                if isinstance(entry, dict)
+                else _text(entry)
+            )
+            if source_player_id:
+                candidates.setdefault(source_player_id, []).append({
+                    "line_index": line_index,
+                    "slot_index": slot_index,
+                    "line_size": len(line),
+                })
+
+    # Duplicate source IDs make the ordering ambiguous and therefore unusable.
+    return {
+        source_player_id: orders[0]
+        for source_player_id, orders in candidates.items()
+        if len(orders) == 1
+    }
+
+
 def _player_rows(team: dict[str, Any], side: str) -> list[dict[str, Any]]:
+    formation_order = _source_formation_order(team)
     rows: list[dict[str, Any]] = []
     for player in _as_list(team.get("players")):
+        source_player_id = _text(player.get("playerId")) or _text(player.get("id"))
         rows.append({
             "side": side,
-            "source_player_id": _text(player.get("playerId")) or _text(player.get("id")),
+            "source_player_id": source_player_id,
             "name": _text(player.get("displayName")) or " ".join(
                 part for part in (_text(player.get("firstName")), _text(player.get("lastName"))) if part
             ) or None,
             "position": _text(player.get("position")),
             "shirt_number": _text(player.get("shirtNum")) or _text(player.get("shirtNumber")),
             "source_team_id": _text(team.get("teamId")) or _text(team.get("id")),
+            "source_formation_order": formation_order.get(source_player_id or ""),
         })
     return rows
 

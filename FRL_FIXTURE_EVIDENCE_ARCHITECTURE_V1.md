@@ -55,7 +55,16 @@ Source player IDs are separately checked through the existing season-aware playe
 
 ## Formation and placement
 
-Formation is exposed when the preserved PulseLive lineup payload contains a formation value. Tactical placement is exposed only when the preserved formation lineup contains explicit numeric x/y coordinates. No placement is derived from formation strings or position labels.
+Formation is exposed when the preserved PulseLive lineup payload contains a formation value. Explicit tactical placement remains source evidence only when the preserved formation lineup contains numeric x/y coordinates.
+
+The frontend-facing fixture research result may additionally expose presentation-only placement with status `DERIVED_FORMATION_LAYOUT`. That layout is permitted only when all of the following agree deterministically:
+
+- the verified Player-Match participation identifies exactly eleven starters for the side;
+- the source formation string describes exactly ten outfield positions;
+- the preserved PulseLive formation lineup supplies one goalkeeper line followed by line sizes matching that formation;
+- the source formation order contains exactly the same eleven source-native players as the verified starting XI.
+
+Derived x/y values are diagram geometry, not football/source evidence. Their provenance must identify the source formation and ordering fields, state that explicit source coordinates were absent, and classify the output as `PRESENTATION_ONLY`. If these checks do not close, placement remains unavailable; player positions or names must not be used to guess a layout.
 
 ## Managers
 
