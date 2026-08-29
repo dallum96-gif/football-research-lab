@@ -107,6 +107,7 @@ def _lineup_from_player_match(fixture: dict, season: str, fixture_id: str, sourc
     rows = fixture_player_match_rows(fixture)
     output: list[dict[str, Any]] = []
     for row in rows:
+        player_match_source_match_id = _text(row.get("matchId"))
         source_id = source_player_id(row)
         side = _text(row.get("venue"))
         if side:
@@ -138,6 +139,9 @@ def _lineup_from_player_match(fixture: dict, season: str, fixture_id: str, sourc
                 "season": season,
                 "fixture_id": str(fixture_id),
                 "source_match_id": source_match_id,
+                "source_match_id_namespace": "events_stats.matchId",
+                "player_match_source_match_id": player_match_source_match_id,
+                "player_match_source_match_id_namespace": "players_match_stats.matchId",
                 "source_family": "player_match_stats",
                 "source_file": row.get("_source_file"),
                 "relationship_contract": "source_player_identity_to_player_season",
@@ -158,6 +162,11 @@ def fixture_evidence(season: str, fixture_id: str) -> dict:
 
     if snapshot is None:
         lineup = _lineup_from_player_match(fixture, season, fixture_id, source_match_id)
+        player_match_source_match_ids = sorted({
+            _text((row.get("provenance") or {}).get("player_match_source_match_id"))
+            for row in lineup
+            if _text((row.get("provenance") or {}).get("player_match_source_match_id"))
+        })
         return {
             "query_type": "fixture_evidence",
             "status": "AVAILABLE" if lineup else "UNAVAILABLE",
@@ -185,9 +194,15 @@ def fixture_evidence(season: str, fixture_id: str) -> dict:
             "provenance": {
                 "source_family": "player_match_stats",
                 "source_match_id": source_match_id,
+                "source_match_id_namespace": "events_stats.matchId",
+                "player_match_source_match_id": player_match_source_match_ids[0] if len(player_match_source_match_ids) == 1 else None,
+                "player_match_source_match_ids": player_match_source_match_ids,
+                "player_match_source_match_id_namespace": "players_match_stats.matchId",
                 "source_path": "per-club seasonal player-match files",
                 "relationship_contract": get_relationship_contract("canonical_fixture_to_source_match").name,
                 "relationship_status": source_match["relationship_status"],
+                "resolution_basis": source_match.get("resolution_basis"),
+                "fixture_correction": source_match.get("fixture_correction"),
             },
             "limitations": [
                 "Lineup is supplied from the existing Playerâ€“Match evidence source because no preserved PulseLive lineup snapshot is available.",
@@ -270,6 +285,8 @@ def fixture_evidence(season: str, fixture_id: str) -> dict:
             "source_path": str(path),
             "relationship_contract": get_relationship_contract("canonical_fixture_to_source_match").name,
             "relationship_status": source_match["relationship_status"],
+            "resolution_basis": source_match.get("resolution_basis"),
+            "fixture_correction": source_match.get("fixture_correction"),
             "snapshot_retrieved_at": snapshot.get("retrieved_at"),
             "resources": {
                 "events": resource_meta(snapshot, "events"),

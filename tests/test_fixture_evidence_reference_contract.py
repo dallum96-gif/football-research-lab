@@ -85,3 +85,44 @@ def test_reference_composition_uses_ura_for_participation(monkeypatch) -> None:
     result = fixture_research_access.fixture_research_result("2016-17", "8")
     assert result["lineup"][0]["participation"] == "starting"
     assert result["lineup"][0]["minutes"] == 90
+
+
+def test_player_match_fallback_keeps_source_match_namespaces_distinct(monkeypatch) -> None:
+    monkeypatch.setattr(fixture_evidence, "canonical_fixture", lambda season, fixture_id: {
+        "season": season,
+        "fixture_id": fixture_id,
+        "home_team_id": "100",
+        "away_team_id": "200",
+    })
+    monkeypatch.setattr(fixture_evidence, "resolve_source_match", lambda season, fixture_id: {
+        "source_match_id": "1059976",
+        "relationship_status": "VERIFIED",
+        "resolution_basis": "VERIFIED_FIXTURE_CORRECTION",
+        "fixture_correction": {"status": "VERIFIED_CORRECTION"},
+        "home": {"team_id": "1"},
+        "away": {"team_id": "2"},
+    })
+    monkeypatch.setattr(fixture_evidence, "load_snapshot", lambda source_match_id: (None, None))
+    monkeypatch.setattr(fixture_evidence, "fixture_metadata", lambda season, fixture_id: {})
+    monkeypatch.setattr(fixture_evidence, "fixture_player_match_rows", lambda fixture: ({
+        "matchId": "8674008",
+        "playerId": "11",
+        "playerName": "Home Player",
+        "venue": "Home",
+        "position": "M",
+        "substitute": "false",
+        "minutesPlayed": "90",
+        "_source_file": "player-match.csv",
+    },))
+
+    result = fixture_evidence.fixture_evidence("2019-20", "275")
+
+    assert result["status"] == "AVAILABLE"
+    assert result["provenance"]["source_match_id"] == "1059976"
+    assert result["provenance"]["source_match_id_namespace"] == "events_stats.matchId"
+    assert result["provenance"]["player_match_source_match_id"] == "8674008"
+    assert result["provenance"]["player_match_source_match_id_namespace"] == "players_match_stats.matchId"
+    assert result["provenance"]["resolution_basis"] == "VERIFIED_FIXTURE_CORRECTION"
+    assert result["provenance"]["fixture_correction"]["status"] == "VERIFIED_CORRECTION"
+    assert result["lineup"][0]["provenance"]["source_match_id"] == "1059976"
+    assert result["lineup"][0]["provenance"]["player_match_source_match_id"] == "8674008"

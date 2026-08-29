@@ -12,7 +12,13 @@ import csv
 from functools import lru_cache
 from pathlib import Path
 
-from match_stats import PL_ROOT, fixture_source_match
+from match_stats import (
+    PL_ROOT,
+    canonical_to_utc,
+    fixture_source_match,
+    source_to_utc,
+    verified_fixture_correction,
+)
 from query_lab import load_identity_registry
 from player_match_stats import (
     fixture_player_match_rows,
@@ -89,6 +95,16 @@ def resolve_source_match(season: str, fixture_id: str) -> dict:
         raise ValueError(f"No verified source match for {season}/{fixture_id}")
 
     match_id, home_row, away_row = resolved
+    correction = verified_fixture_correction(fixture)
+    correction_applied = False
+    if correction is not None:
+        try:
+            source_kickoff = source_to_utc(home_row["kickoff"])
+            actual_kickoff = canonical_to_utc(correction["actual_kickoff"])
+            canonical_kickoff = canonical_to_utc(fixture["kickoff_time"])
+            correction_applied = source_kickoff == actual_kickoff and source_kickoff != canonical_kickoff
+        except (KeyError, TypeError, ValueError):
+            correction_applied = False
     decision = evaluate_identity(
         "canonical_fixture_to_source_match",
         source_context_available=True,
@@ -104,6 +120,8 @@ def resolve_source_match(season: str, fixture_id: str) -> dict:
         "away": dict(away_row),
         "relationship_contract": decision.contract,
         "relationship_status": decision.status,
+        "resolution_basis": "VERIFIED_FIXTURE_CORRECTION" if correction_applied else "CANONICAL_FIXTURE",
+        "fixture_correction": dict(correction) if correction_applied else None,
     }
 
 
@@ -122,6 +140,8 @@ def fixture_metadata(season: str, fixture_id: str) -> dict:
         "home_source_result": home.get("result"),
         "away_source_result": away.get("result"),
         "source_kickoff": home.get("kickoff") or away.get("kickoff"),
+        "source_resolution_basis": resolved.get("resolution_basis"),
+        "fixture_correction": resolved.get("fixture_correction"),
     }
     metadata["metadata_consistent"] = (
         home.get("ground") in (None, "", away.get("ground"))

@@ -1,11 +1,14 @@
 ﻿import os
 import sys
 
+import pytest
+
 ROOT = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
 sys.path.insert(0, ROOT)
 
+import match_stats
 import player_match_stats
 
 
@@ -101,17 +104,47 @@ def test_known_fixture_exception():
         "away_team_id": "1",
     }
 
-    # The canonical resolver intentionally treats this as a known correction
-    # state, so the player-match adapter must not invent a match through a
-    # guessed scheduled date.
-    try:
-        player_match_stats.player_match_id_for_fixture(fixture)
-    except (ValueError, KeyError):
-        return
+    # The resolver may use only the existing VERIFIED_CORRECTION actual kickoff;
+    # it must not guess from the scheduled date, scoreline or display names.
+    match_id = player_match_stats.player_match_id_for_fixture(fixture)
+    assert match_id
+    assert match_id.isdigit()
 
-    # If a future correction-aware resolver can resolve it, that is also valid;
-    # the important invariant is that the adapter never raises an ambiguous
-    # source match or silently fabricates an identity.
+    rows = player_match_stats.fixture_player_match_rows(fixture)
+    assert rows
+    assert {str(row["matchId"]) for row in rows} == {match_id}
+
+    from source_family_adapters import resolve_source_match
+
+    resolved = resolve_source_match("2019-20", "275")
+    assert resolved["relationship_status"] == "VERIFIED"
+    assert resolved["resolution_basis"] == "VERIFIED_FIXTURE_CORRECTION"
+    assert resolved["fixture_correction"]["status"] == "VERIFIED_CORRECTION"
+    assert resolved["fixture_correction"]["scheduled_kickoff"] == fixture["kickoff_time"]
+
+
+def test_verified_fixture_correction_rejects_canonical_contradiction(monkeypatch):
+    fixture = {
+        "season": "2019-20",
+        "fixture_id": "275",
+        "kickoff_time": "2020-03-11T19:30:00Z",
+        "home_team_id": "11",
+        "away_team_id": "1",
+    }
+    monkeypatch.setattr(match_stats, "fixture_corrections", lambda: {
+        ("2019-20", "275"): {
+            "season": "2019-20",
+            "fixture_id": "275",
+            "scheduled_kickoff": "2020-03-11T19:30:00Z",
+            "actual_kickoff": "2020-06-17T19:15:00Z",
+            "home_team_id": "999",
+            "away_team_id": "1",
+            "status": "VERIFIED_CORRECTION",
+        }
+    })
+
+    with pytest.raises(ValueError, match="contradicts canonical fixture"):
+        match_stats.verified_fixture_correction(fixture)
 
 
 def test_aggregate_rows():

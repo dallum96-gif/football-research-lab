@@ -11,6 +11,12 @@ PACKAGED_STATS_FILE = (
     / "data"
     / "fixture_match_stats.csv"
 )
+FIXTURE_CORRECTIONS_FILE = (
+    Path(__file__).resolve().parent
+    / "identity"
+    / "data_quality"
+    / "fixture_corrections.csv"
+)
 
 CORE_FIELDS = {
     "Possession": "possessionPercentage",
@@ -98,6 +104,51 @@ def season_matches(season):
 
     return matches
 
+
+@lru_cache(maxsize=1)
+def fixture_corrections():
+    if not FIXTURE_CORRECTIONS_FILE.is_file():
+        return {}
+    return {
+        (row["season"], row["fixture_id"]): row
+        for row in load_csv(str(FIXTURE_CORRECTIONS_FILE))
+    }
+
+
+def verified_fixture_correction(fixture):
+    """Return a correction only when it agrees with the canonical fixture.
+
+    Corrections are additive relationship evidence.  They may supply an actual
+    kickoff for source resolution, but never replace the canonical fixture key
+    or silently override contradictory fixture/team context.
+    """
+    correction = fixture_corrections().get(
+        (str(fixture.get("season", "")).strip(), str(fixture.get("fixture_id", "")).strip())
+    )
+    if correction is None or correction.get("status") != "VERIFIED_CORRECTION":
+        return None
+
+    checks = (
+        ("home_team_id", "home_team_id"),
+        ("away_team_id", "away_team_id"),
+        ("scheduled_kickoff", "kickoff_time"),
+    )
+    for correction_field, fixture_field in checks:
+        expected = str(correction.get(correction_field, "")).strip()
+        observed = str(fixture.get(fixture_field, "")).strip()
+        if expected and observed and expected != observed:
+            raise ValueError(
+                "Verified fixture correction contradicts canonical fixture "
+                f"{fixture.get('season')}/{fixture.get('fixture_id')}: "
+                f"{correction_field}={expected!r}, {fixture_field}={observed!r}"
+            )
+    if not str(correction.get("actual_kickoff", "")).strip():
+        raise ValueError(
+            "Verified fixture correction has no actual kickoff: "
+            f"{fixture.get('season')}/{fixture.get('fixture_id')}"
+        )
+    return correction
+
 def fixture_source_match(fixture, identity_rows):
     season = fixture["season"]
 
@@ -132,52 +183,57 @@ def fixture_source_match(fixture, identity_rows):
             f"{season}/{fixture['fixture_id']}"
         )
 
-    target_time = canonical_to_utc(
-        fixture["kickoff_time"]
-    )
+    def candidates_for(kickoff):
+        target_time = canonical_to_utc(kickoff)
+        candidates = []
 
-    candidates = []
+        for match_id, rows in season_matches(season).items():
 
-    for match_id, rows in season_matches(season).items():
-
-        home = next(
-            (
-                row for row in rows
-                if row.get("venue", "").strip().lower() == "home"
-            ),
-            None,
-        )
-
-        away = next(
-            (
-                row for row in rows
-                if row.get("venue", "").strip().lower() == "away"
-            ),
-            None,
-        )
-
-        if home is None or away is None:
-            continue
-
-        try:
-            source_time = source_to_utc(
-                home["kickoff"]
+            home = next(
+                (
+                    row for row in rows
+                    if row.get("venue", "").strip().lower() == "home"
+                ),
+                None,
             )
-        except (KeyError, TypeError, ValueError):
-            continue
 
-        if source_time != target_time:
-            continue
+            away = next(
+                (
+                    row for row in rows
+                    if row.get("venue", "").strip().lower() == "away"
+                ),
+                None,
+            )
 
-        if str(home.get("team_id", "")).strip() != home_persistent:
-            continue
+            if home is None or away is None:
+                continue
 
-        if str(away.get("team_id", "")).strip() != away_persistent:
-            continue
+            try:
+                source_time = source_to_utc(
+                    home["kickoff"]
+                )
+            except (KeyError, TypeError, ValueError):
+                continue
 
-        candidates.append(
-            (match_id, home, away)
-        )
+            if source_time != target_time:
+                continue
+
+            if str(home.get("team_id", "")).strip() != home_persistent:
+                continue
+
+            if str(away.get("team_id", "")).strip() != away_persistent:
+                continue
+
+            candidates.append(
+                (match_id, home, away)
+            )
+        return candidates
+
+    candidates = candidates_for(fixture["kickoff_time"])
+    if not candidates:
+        correction = verified_fixture_correction(fixture)
+        if correction is not None:
+            candidates = candidates_for(correction["actual_kickoff"])
 
     if len(candidates) > 1:
         raise ValueError(
