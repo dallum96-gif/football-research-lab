@@ -56,6 +56,7 @@ type FamilyKey =
   | "discipline";
 
 type FamilyGroup = {
+  key: string;
   title: string;
   description: string;
   metricKeys: string[];
@@ -77,6 +78,7 @@ const families: { key: FamilyKey; label: string }[] = [
 const familyGroups: Record<FamilyKey, FamilyGroup[]> = {
   overview: [
     {
+      key: "snapshot",
       title: "League snapshot",
       description:
         "A compact view of the six governed Overview rankings already shared with Team View.",
@@ -92,25 +94,29 @@ const familyGroups: Record<FamilyKey, FamilyGroup[]> = {
   ],
   attack: [
     {
+      key: "scoring",
       title: "Scoring",
-      description: "League position by scoring output.",
+      description: "Full league ranking by scoring output.",
       metricKeys: ["goals_for_per_match"],
     },
     {
+      key: "shooting",
       title: "Shooting",
-      description: "League position by shot volume and on-target volume.",
+      description: "Full league ranking by shot volume and on-target volume.",
       metricKeys: ["Shots_per_match", "Shots on target_per_match"],
     },
   ],
   possession: [
     {
+      key: "ball-share",
       title: "Ball share",
-      description: "League position by average possession share.",
+      description: "Full league ranking by average possession share.",
       metricKeys: ["Possession_per_match"],
     },
   ],
   passing: [
     {
+      key: "passing",
       title: "Passing",
       description:
         "This family is reserved for governed passing rankings rather than placeholder metrics.",
@@ -119,13 +125,15 @@ const familyGroups: Record<FamilyKey, FamilyGroup[]> = {
   ],
   defence: [
     {
+      key: "goal-prevention",
       title: "Goal prevention",
-      description: "League position by goals conceded per match.",
+      description: "Full league ranking by goals conceded per match.",
       metricKeys: ["goals_against_per_match"],
     },
   ],
   discipline: [
     {
+      key: "discipline",
       title: "Discipline",
       description:
         "This family is reserved for governed disciplinary rankings rather than placeholder metrics.",
@@ -202,9 +210,13 @@ function representationLabel(value: string) {
 function rankingsHref(
   season: string,
   family: FamilyKey,
+  category?: string,
   metric?: string
 ) {
   const params = new URLSearchParams({ season, family });
+  if (category) {
+    params.set("category", category);
+  }
   if (metric) {
     params.set("metric", metric);
   }
@@ -222,11 +234,9 @@ function teamHref(season: string, entry: RankingEntry) {
 function RankingCard({
   metric,
   season,
-  family,
 }: {
   metric: RankingMetric;
   season: string;
-  family: FamilyKey;
 }) {
   const leaders = metric.entries
     .filter((entry) => entry.rank !== null)
@@ -239,7 +249,7 @@ function RankingCard({
           <span>{metric.label}</span>
           <small>{metric.unit}</small>
         </div>
-        <Link href={rankingsHref(season, family, metric.key)}>
+        <Link href={rankingsHref(season, "overview", "snapshot", metric.key)}>
           Full ranking
         </Link>
       </header>
@@ -273,12 +283,81 @@ function RankingCard({
   );
 }
 
+function FullRanking({
+  metric,
+  rankings,
+}: {
+  metric: RankingMetric;
+  rankings: LeagueRankingsResponse;
+}) {
+  return (
+    <section className={styles.tablePanel}>
+      <div className={styles.tableHeader}>
+        <span>Rank</span>
+        <span>Team</span>
+        <span>Value</span>
+        <span>Percentile</span>
+      </div>
+
+      <div className={styles.rows}>
+        {metric.entries.map((entry) => (
+          <Link
+            className={styles.row}
+            key={entry.persistent_team_code}
+            href={teamHref(rankings.season, entry)}
+            aria-label={`Analyse ${entry.display_name}`}
+          >
+            <strong className={styles.rank}>{ordinal(entry.rank)}</strong>
+
+            <div className={styles.team}>
+              <span className={styles.teamKit}>
+                <TeamKit teamName={entry.display_name} />
+              </span>
+              <div>
+                <strong>{entry.display_name}</strong>
+                <small>{entry.persistent_team_code}</small>
+              </div>
+            </div>
+
+            <strong className={styles.value}>
+              {formatValue(metric, entry.value)}
+            </strong>
+
+            <div className={styles.percentile}>
+              <div
+                className={styles.percentileTrack}
+                aria-label={
+                  entry.percentile === null
+                    ? "Percentile unavailable"
+                    : `${entry.percentile} percentile`
+                }
+              >
+                <span
+                  style={{
+                    width: `${entry.percentile ?? 0}%`,
+                  }}
+                />
+              </div>
+              <span>
+                {entry.percentile === null
+                  ? "—"
+                  : `P${Math.round(entry.percentile)}`}
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default async function TeamStatsRankingsPage({
   searchParams,
 }: {
   searchParams: Promise<{
     season?: string;
     family?: string;
+    category?: string;
     metric?: string;
   }>;
 }) {
@@ -318,14 +397,19 @@ export default async function TeamStatsRankingsPage({
     families.find((family) => family.key === activeFamily)?.label ??
     "Overview";
   const groups = familyGroups[activeFamily];
-  const familyMetricKeys = new Set(
-    groups.flatMap((group) => group.metricKeys)
-  );
-  const selectedMetric =
-    rankings?.metrics.find(
-      (metric) =>
-        metric.key === query.metric && familyMetricKeys.has(metric.key)
-    ) ?? null;
+  const activeGroup =
+    groups.find((group) => group.key === query.category) ?? groups[0];
+  const activeGroupMetrics = activeGroup.metricKeys
+    .map((key) => rankings?.metrics.find((metric) => metric.key === key))
+    .filter((metric): metric is RankingMetric => Boolean(metric));
+  const activeMetric =
+    activeGroupMetrics.find((metric) => metric.key === query.metric) ??
+    activeGroupMetrics[0] ??
+    null;
+  const overviewMetric =
+    activeFamily === "overview" && query.metric
+      ? rankings?.metrics.find((metric) => metric.key === query.metric) ?? null
+      : null;
   const teamViewCode = governedTeams[0]?.persistent_team_code;
 
   return (
@@ -397,130 +481,117 @@ export default async function TeamStatsRankingsPage({
               </span>
             </section>
 
-            {groups.map((group) => {
-              const metrics = group.metricKeys
-                .map((key) =>
-                  rankings.metrics.find((metric) => metric.key === key)
-                )
-                .filter(
-                  (metric): metric is RankingMetric => Boolean(metric)
-                );
-
-              return (
-                <section className={styles.familySection} key={group.title}>
-                  <header className={styles.sectionHeading}>
-                    <div>
-                      <h3>{group.title}</h3>
-                      <p>{group.description}</p>
-                    </div>
-                  </header>
-
-                  {metrics.length > 0 ? (
-                    <div className={styles.cardGrid}>
-                      {metrics.map((metric) => (
-                        <RankingCard
-                          key={metric.key}
-                          metric={metric}
-                          season={rankings.season}
-                          family={activeFamily}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={styles.unavailableFamily}>
-                      <strong>No governed ranking metric here yet.</strong>
-                      <span>
-                        FRL will populate this section only when the metric
-                        family is analytically ready.
-                      </span>
-                    </div>
-                  )}
-                </section>
-              );
-            })}
-
-            {selectedMetric && (
-              <section className={styles.fullRanking}>
-                <header className={styles.fullRankingHeader}>
-                  <div>
-                    <p className={teamStyles.kicker}>Full ranking</p>
-                    <h2>{selectedMetric.label}</h2>
-                    <p>
-                      Ranked across the governed {rankings.season} Premier
-                      League population. Ties use competition ranking.
-                    </p>
-                  </div>
-                  <Link href={rankingsHref(rankings.season, activeFamily)}>
-                    Close
-                  </Link>
-                </header>
-
-                <section className={styles.tablePanel}>
-                  <div className={styles.tableHeader}>
-                    <span>Rank</span>
-                    <span>Team</span>
-                    <span>Value</span>
-                    <span>Percentile</span>
-                  </div>
-
-                  <div className={styles.rows}>
-                    {selectedMetric.entries.map((entry) => (
-                      <Link
-                        className={styles.row}
-                        key={entry.persistent_team_code}
-                        href={teamHref(rankings.season, entry)}
-                        aria-label={`Analyse ${entry.display_name}`}
-                      >
-                        <strong className={styles.rank}>
-                          {ordinal(entry.rank)}
-                        </strong>
-
-                        <div className={styles.team}>
-                          <span className={styles.teamKit}>
-                            <TeamKit teamName={entry.display_name} />
-                          </span>
-                          <div>
-                            <strong>{entry.display_name}</strong>
-                            <small>{entry.persistent_team_code}</small>
-                          </div>
-                        </div>
-
-                        <strong className={styles.value}>
-                          {formatValue(selectedMetric, entry.value)}
-                        </strong>
-
-                        <div className={styles.percentile}>
-                          <div
-                            className={styles.percentileTrack}
-                            aria-label={
-                              entry.percentile === null
-                                ? "Percentile unavailable"
-                                : `${entry.percentile} percentile`
-                            }
-                          >
-                            <span
-                              style={{
-                                width: `${entry.percentile ?? 0}%`,
-                              }}
-                            />
-                          </div>
-                          <span>
-                            {entry.percentile === null
-                              ? "—"
-                              : `P${Math.round(entry.percentile)}`}
-                          </span>
-                        </div>
-                      </Link>
+            {activeFamily === "overview" ? (
+              <>
+                <section className={styles.familySection}>
+                  <div className={styles.cardGrid}>
+                    {rankings.metrics.map((metric) => (
+                      <RankingCard
+                        key={metric.key}
+                        metric={metric}
+                        season={rankings.season}
+                      />
                     ))}
                   </div>
                 </section>
 
-                <footer className={styles.detailMeta}>
-                  <span>
-                    {representationLabel(selectedMetric.representation)}
-                  </span>
-                  <span>{rankings.ranking_policy}</span>
-                </footer>
+                {overviewMetric && (
+                  <section className={styles.fullRanking}>
+                    <header className={styles.fullRankingHeader}>
+                      <div>
+                        <p className={teamStyles.kicker}>Full ranking</p>
+                        <h2>{overviewMetric.label}</h2>
+                        <p>
+                          Ranked across the governed {rankings.season} Premier
+                          League population. Ties use competition ranking.
+                        </p>
+                      </div>
+                      <Link href={rankingsHref(rankings.season, "overview")}>
+                        Close
+                      </Link>
+                    </header>
+                    <FullRanking metric={overviewMetric} rankings={rankings} />
+                  </section>
+                )}
+              </>
+            ) : (
+              <section className={styles.familyRankingWorkspace}>
+                <nav
+                  className={styles.categoryNav}
+                  aria-label={`${activeFamilyLabel} ranking categories`}
+                >
+                  {groups.map((group) => (
+                    <Link
+                      key={group.key}
+                      href={rankingsHref(
+                        rankings.season,
+                        activeFamily,
+                        group.key
+                      )}
+                      className={
+                        group.key === activeGroup.key
+                          ? styles.activeCategory
+                          : styles.categoryLink
+                      }
+                    >
+                      {group.title}
+                    </Link>
+                  ))}
+                </nav>
+
+                <header className={styles.rankingHeading}>
+                  <div>
+                    <p className={teamStyles.kicker}>{activeFamilyLabel}</p>
+                    <h2>{activeGroup.title}</h2>
+                    <p>{activeGroup.description}</p>
+                  </div>
+                </header>
+
+                {activeGroupMetrics.length > 1 && (
+                  <nav
+                    className={styles.metricToggle}
+                    aria-label={`${activeGroup.title} metrics`}
+                  >
+                    {activeGroupMetrics.map((metric) => (
+                      <Link
+                        key={metric.key}
+                        href={rankingsHref(
+                          rankings.season,
+                          activeFamily,
+                          activeGroup.key,
+                          metric.key
+                        )}
+                        className={
+                          metric.key === activeMetric?.key
+                            ? styles.activeMetricToggle
+                            : styles.metricToggleLink
+                        }
+                      >
+                        {metric.label}
+                      </Link>
+                    ))}
+                  </nav>
+                )}
+
+                {activeMetric ? (
+                  <>
+                    <FullRanking metric={activeMetric} rankings={rankings} />
+                    <footer className={styles.detailMeta}>
+                      <span>
+                        {representationLabel(activeMetric.representation)}
+                      </span>
+                      <span>{rankings.ranking_policy}</span>
+                    </footer>
+                  </>
+                ) : (
+                  <div className={styles.unavailableFamily}>
+                    <strong>No governed ranking metric here yet.</strong>
+                    <span>
+                      FRL will populate this category only when the metric
+                      family is analytically ready.
+                    </span>
+                  </div>
+                )}
               </section>
             )}
 
