@@ -1,7 +1,7 @@
 {
   "artifact_compression": "gzip",
   "artifact_path": "data/frl_player_derived_expected_metrics_v1.csv.gz",
-  "artifact_sha256": "1a56770ea908abffeafeed87bb65e9b75e02de37679dbb91206eaf9dfb8b871d",
+  "artifact_sha256": "5f8c19aa0d511a1c264a3fdc183008ec95731ad42ee1caf490bef21b709175fa",
   "construction_version": "FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1",
   "coverage_fixtures": {
     "Expected assists": {
