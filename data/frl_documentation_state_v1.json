@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-08-30",
-  "checkpoint_id": "TEAM_STATS_OVERVIEW_KERNEL",
+  "checkpoint_id": "TEAM_STATS_LEAGUE_RANKINGS",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "League Rankings from the shared Team Stats analytical result, followed by selective governed Team Stats family expansion",
+  "active_product_phase": "Selective governed Team Stats family expansion after shared Team View and League Rankings",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -55,6 +55,8 @@
     "expected_metric_routing.py",
     "expected_metric_artifact.py",
     "api/frl_api.py",
+    "api/team_stats_rankings.py",
+    "web/src/app/team-stats/",
     "data/player_derived_expected_goals_v1/"
   ],
   "checkpoint_files": [
