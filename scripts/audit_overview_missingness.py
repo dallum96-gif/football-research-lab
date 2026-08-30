@@ -63,6 +63,7 @@ def season_audit(root: Path, season: str) -> dict:
                     "match_id": match_id,
                     "venue": side,
                     "team_id": str(row.get("team_id", "")),
+                    "team": row.get("team"),
                     "total": values[SHOT_TOTAL],
                     "components_sum": expected,
                     "difference": difference,
@@ -71,38 +72,48 @@ def season_audit(root: Path, season: str) -> dict:
 
     blank_inference = {}
     for target in SHOT_FIELDS:
-        blanks = inferable = zero = nonzero = negative = 0
+        blanks = inferable = zero = positive = negative = explicit_zero = 0
         max_abs_nonzero = 0.0
         examples = []
         for match_id, side, row in rows:
-            if target not in fields or num(row.get(target)) is not None:
+            observed_value = num(row.get(target))
+            if observed_value is not None:
+                if abs(observed_value) <= EPSILON:
+                    explicit_zero += 1
                 continue
+            if target not in fields:
+                continue
+
             blanks += 1
             inferred = shot_identity_value(row, target)
             if inferred is None:
                 continue
             inferable += 1
-            if inferred < -EPSILON:
-                negative += 1
             if abs(inferred) <= EPSILON:
                 zero += 1
+                continue
+            if inferred > EPSILON:
+                positive += 1
             else:
-                nonzero += 1
-                max_abs_nonzero = max(max_abs_nonzero, abs(inferred))
-                if len(examples) < 10:
-                    examples.append(
-                        {
-                            "match_id": match_id,
-                            "venue": side,
-                            "team_id": str(row.get("team_id", "")),
-                            "inferred_value": inferred,
-                        }
-                    )
+                negative += 1
+            max_abs_nonzero = max(max_abs_nonzero, abs(inferred))
+            if len(examples) < 10:
+                examples.append(
+                    {
+                        "match_id": match_id,
+                        "venue": side,
+                        "team_id": str(row.get("team_id", "")),
+                        "team": row.get("team"),
+                        "inferred_value": inferred,
+                    }
+                )
+
         blank_inference[target] = {
             "blank_team_sides": blanks,
+            "explicit_numeric_zero_team_sides": explicit_zero,
             "inferable_from_other_shot_fields": inferable,
             "inferred_zero": zero,
-            "inferred_nonzero": nonzero,
+            "inferred_positive": positive,
             "inferred_negative": negative,
             "max_abs_nonzero": max_abs_nonzero,
             "nonzero_examples": examples,
@@ -135,6 +146,18 @@ def season_audit(root: Path, season: str) -> dict:
     }
 
 
+def field_diagnostic(*, inferable: int, zero: int, positive: int, negative: int) -> str:
+    if not inferable:
+        return "REVIEW_REQUIRED"
+    if zero == inferable:
+        return "BLANK_ZERO_STRONGLY_SUPPORTED_BY_SHOT_IDENTITY"
+
+    zero_rate = zero / inferable
+    if zero_rate >= 0.99 and positive == 0 and negative > 0:
+        return "SPARSE_ZERO_STRONGLY_SUPPORTED_WITH_SOURCE_ANOMALIES"
+    return "REVIEW_REQUIRED"
+
+
 def summary(seasons: dict) -> dict:
     fully_observed = sum(
         seasons[season]["shot_identity"]["fully_observed_team_sides"]
@@ -151,6 +174,10 @@ def summary(seasons: dict) -> dict:
             seasons[season]["blank_inference"][target]["blank_team_sides"]
             for season in SEASONS
         )
+        explicit_zero = sum(
+            seasons[season]["blank_inference"][target]["explicit_numeric_zero_team_sides"]
+            for season in SEASONS
+        )
         inferable = sum(
             seasons[season]["blank_inference"][target]["inferable_from_other_shot_fields"]
             for season in SEASONS
@@ -159,8 +186,8 @@ def summary(seasons: dict) -> dict:
             seasons[season]["blank_inference"][target]["inferred_zero"]
             for season in SEASONS
         )
-        nonzero = sum(
-            seasons[season]["blank_inference"][target]["inferred_nonzero"]
+        positive = sum(
+            seasons[season]["blank_inference"][target]["inferred_positive"]
             for season in SEASONS
         )
         negative = sum(
@@ -169,15 +196,17 @@ def summary(seasons: dict) -> dict:
         )
         fields[target] = {
             "blank_team_sides": blanks,
+            "explicit_numeric_zero_team_sides": explicit_zero,
             "inferable_from_other_shot_fields": inferable,
             "inferred_zero": zero,
-            "inferred_nonzero": nonzero,
+            "inferred_positive": positive,
             "inferred_negative": negative,
             "zero_rate_when_inferable": zero / inferable if inferable else None,
-            "diagnostic": (
-                "BLANK_ZERO_STRONGLY_SUPPORTED_BY_SHOT_IDENTITY"
-                if inferable and zero == inferable and negative == 0
-                else "REVIEW_REQUIRED"
+            "diagnostic": field_diagnostic(
+                inferable=inferable,
+                zero=zero,
+                positive=positive,
+                negative=negative,
             ),
             "production_rule_approved": False,
         }
@@ -193,6 +222,10 @@ def summary(seasons: dict) -> dict:
             "fully_observed_team_sides": fully_observed,
             "identity_exact_team_sides": exact,
             "identity_exact_rate": exact / fully_observed if fully_observed else None,
+            "by_season": {
+                season: seasons[season]["shot_identity"]
+                for season in SEASONS
+            },
         },
         "shot_fields": fields,
         "possession_missing_team_sides": len(possession_missing),
@@ -209,7 +242,7 @@ def markdown(report: dict) -> str:
         "",
         "## Shot identity",
         "",
-        "The tested identity is:",
+        "The tested historical identity is:",
         "",
         "`totalScoringAtt = ontargetScoringAtt + shotOffTarget + blockedScoringAtt`",
         "",
@@ -217,18 +250,23 @@ def markdown(report: dict) -> str:
         f"Exact identity matches: **{identity['identity_exact_team_sides']}**  ",
         f"Exact rate: **{identity['identity_exact_rate']:.4%}**",
         "",
+        "The identity is exact on every fully observed row from 2016-17 through 2024-25. The audit preserves 2025-26 exceptions as source anomalies rather than forcing the historical partition onto them.",
+        "",
         "## Blank shot-field inference",
         "",
-        "| Field | Blank sides | Inferable | Inferred zero | Inferred non-zero | Negative | Zero rate | Diagnostic |",
-        "|---|---:|---:|---:|---:|---:|---:|---|",
+        "Negative inferred values are treated as evidence that the source row violates the partition identity, not as evidence that the missing count is negative.",
+        "",
+        "| Field | Blank sides | Explicit zero | Inferable | Inferred zero | Positive | Negative/anomaly | Zero rate | Diagnostic |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
     for field, item in report["summary"]["shot_fields"].items():
         rate = item["zero_rate_when_inferable"]
         rate_text = "" if rate is None else f"{rate:.2%}"
         lines.append(
-            f"| `{field}` | {item['blank_team_sides']} | {item['inferable_from_other_shot_fields']} | "
-            f"{item['inferred_zero']} | {item['inferred_nonzero']} | {item['inferred_negative']} | "
-            f"{rate_text} | `{item['diagnostic']}` |"
+            f"| `{field}` | {item['blank_team_sides']} | {item['explicit_numeric_zero_team_sides']} | "
+            f"{item['inferable_from_other_shot_fields']} | {item['inferred_zero']} | "
+            f"{item['inferred_positive']} | {item['inferred_negative']} | {rate_text} | "
+            f"`{item['diagnostic']}` |"
         )
 
     lines += ["", "## Possession gaps", ""]
@@ -248,7 +286,7 @@ def markdown(report: dict) -> str:
         "",
         "## Interpretation",
         "",
-        "A blank shot field is only labelled strongly supported as zero when the shot identity is independently validated on fully observed rows and every inferable blank resolves exactly to zero. Production adoption still requires an explicit governed field-level missingness rule.",
+        "A field can be labelled as strongly supporting sparse-zero encoding when a large set of blank observations is independently resolved to zero by the validated shot identity and there are no inferred positive missing values. Isolated negative residuals are preserved as source-row anomalies. Production adoption still requires an explicit governed field-level missingness rule.",
     ]
     return "\n".join(lines) + "\n"
 
@@ -267,7 +305,7 @@ def main() -> int:
 
     seasons = {season: season_audit(args.pl_root, season) for season in SEASONS}
     report = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "scope": "2016-17_to_2025-26",
         "live_api_calls": False,
         "seasons": seasons,
@@ -290,7 +328,8 @@ def main() -> int:
     for field, item in report["summary"]["shot_fields"].items():
         print(
             f"{field}: blanks={item['blank_team_sides']} inferable={item['inferable_from_other_shot_fields']} "
-            f"zero={item['inferred_zero']} nonzero={item['inferred_nonzero']} {item['diagnostic']}"
+            f"zero={item['inferred_zero']} positive={item['inferred_positive']} "
+            f"negative={item['inferred_negative']} {item['diagnostic']}"
         )
     print(f"possession missing team-sides: {report['summary']['possession_missing_team_sides']}")
     print(f"JSON: {args.json_out}")
