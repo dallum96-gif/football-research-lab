@@ -105,48 +105,172 @@ def team_season_stats(season: str, team_code: str) -> dict:
     if not rows:
         return {"status": "UNAVAILABLE", "matches": 0}
 
+    eligible_matches = len(rows)
+    context_fields = {"fixture_id", "kickoff_time", "home"}
+    metric_fields = sorted(
+        {
+            key
+            for row in rows
+            for key in row
+            if key not in context_fields
+        }
+    )
     sums = defaultdict(float)
-    for row in rows:
-        for key, value in row.items():
-            if key in {"fixture_id", "kickoff_time", "home"} or value is None:
+    observed_rows: dict[str, set[int]] = {
+        key: set() for key in metric_fields
+    }
+
+    for index, row in enumerate(rows):
+        for key in metric_fields:
+            value = row.get(key)
+            if value is None:
                 continue
             sums[key] += float(value)
+            observed_rows[key].add(index)
 
-    out = {"status": "AVAILABLE", "matches": len(rows)}
-    for key, value in sums.items():
-        out[key] = value
-        out[f"{key}_per_match"] = value / len(rows)
+    out = {
+        "status": "AVAILABLE",
+        "matches": eligible_matches,
+        "metric_coverage": {},
+    }
+    for key in metric_fields:
+        observed_matches = len(observed_rows[key])
+        missing_matches = eligible_matches - observed_matches
+        observed_total = sums[key] if observed_matches else None
+        per_observed_match = (
+            observed_total / observed_matches
+            if observed_total is not None
+            else None
+        )
+        coverage_status = (
+            "COMPLETE"
+            if observed_matches == eligible_matches
+            else "PARTIAL"
+            if observed_matches
+            else "UNAVAILABLE"
+        )
 
-    wins = sum(1 for row in rows if row.get("goals_for") is not None and row.get("goals_against") is not None and row["goals_for"] > row["goals_against"])
-    draws = sum(1 for row in rows if row.get("goals_for") is not None and row.get("goals_against") is not None and row["goals_for"] == row["goals_against"])
-    losses = sum(1 for row in rows if row.get("goals_for") is not None and row.get("goals_against") is not None and row["goals_for"] < row["goals_against"])
-    clean_sheets = sum(1 for row in rows if row.get("goals_against") == 0)
-    failed_to_score = sum(1 for row in rows if row.get("goals_for") == 0)
+        out["metric_coverage"][key] = {
+            "eligible_matches": eligible_matches,
+            "observed_matches": observed_matches,
+            "missing_matches": missing_matches,
+            "observed_total": observed_total,
+            "per_observed_match": per_observed_match,
+            "coverage_complete": observed_matches == eligible_matches,
+            "coverage_status": coverage_status,
+        }
+
+        if observed_total is not None:
+            # Compatibility aliases: totals retain their established keys,
+            # while per-match values now use the explicit observed population.
+            out[key] = observed_total
+            out[f"{key}_per_match"] = per_observed_match
+
+    score_rows = [
+        row
+        for row in rows
+        if row.get("goals_for") is not None
+        and row.get("goals_against") is not None
+    ]
+    result_observed_matches = len(score_rows)
+    out["result_coverage"] = {
+        "eligible_matches": eligible_matches,
+        "observed_matches": result_observed_matches,
+        "missing_matches": eligible_matches - result_observed_matches,
+        "coverage_complete": result_observed_matches == eligible_matches,
+        "coverage_status": (
+            "COMPLETE"
+            if result_observed_matches == eligible_matches
+            else "PARTIAL"
+            if result_observed_matches
+            else "UNAVAILABLE"
+        ),
+    }
+
+    wins = sum(1 for row in score_rows if row["goals_for"] > row["goals_against"])
+    draws = sum(1 for row in score_rows if row["goals_for"] == row["goals_against"])
+    losses = sum(1 for row in score_rows if row["goals_for"] < row["goals_against"])
+    clean_sheets = sum(1 for row in score_rows if row["goals_against"] == 0)
+    failed_to_score = sum(1 for row in score_rows if row["goals_for"] == 0)
 
     out["wins"] = wins
     out["draws"] = draws
     out["losses"] = losses
-    out["win_rate"] = wins / len(rows)
+    out["win_rate"] = (
+        wins / result_observed_matches
+        if result_observed_matches
+        else None
+    )
     out["points"] = wins * 3 + draws
-    out["points_per_match"] = out["points"] / len(rows)
-    out["goal_difference"] = out.get("goals_for", 0) - out.get("goals_against", 0)
+    out["points_per_match"] = (
+        out["points"] / result_observed_matches
+        if result_observed_matches
+        else None
+    )
+    score_population_comparable = (
+        observed_rows.get("goals_for")
+        == observed_rows.get("goals_against")
+        and bool(observed_rows.get("goals_for"))
+    )
+    out["goal_difference"] = (
+        out["goals_for"] - out["goals_against"]
+        if score_population_comparable
+        else None
+    )
     out["clean_sheets"] = clean_sheets
-    out["clean_sheet_rate"] = clean_sheets / len(rows)
-    out["failed_to_score_rate"] = failed_to_score / len(rows)
+    out["clean_sheet_rate"] = (
+        clean_sheets / result_observed_matches
+        if result_observed_matches
+        else None
+    )
+    out["failed_to_score_rate"] = (
+        failed_to_score / result_observed_matches
+        if result_observed_matches
+        else None
+    )
+
+    def comparable_population(*keys: str, complete: bool = False) -> bool:
+        populations = [observed_rows.get(key, set()) for key in keys]
+        if not populations or not populations[0]:
+            return False
+        if any(population != populations[0] for population in populations[1:]):
+            return False
+        return not complete or len(populations[0]) == eligible_matches
 
     shots = out.get("Shots", 0)
     sot = out.get("Shots on target", 0)
     goals = out.get("goals_for", 0)
     xg = out.get("Expected goals")
-    out["shot_accuracy"] = (sot / shots) if shots else None
-    out["goals_per_shot"] = (goals / shots) if shots else None
-    out["xg_overperformance"] = (goals - xg) if xg is not None else None
+    out["shot_accuracy"] = (
+        sot / shots
+        if shots
+        and comparable_population("Shots on target", "Shots")
+        else None
+    )
+    out["goals_per_shot"] = (
+        goals / shots
+        if shots
+        and comparable_population("goals_for", "Shots")
+        else None
+    )
+    out["xg_overperformance"] = (
+        goals - xg
+        if xg is not None
+        and comparable_population(
+            "goals_for",
+            "Expected goals",
+            complete=True,
+        )
+        else None
+    )
     out["pass_accuracy"] = (
         out.get("Accurate passes", 0) / out.get("Passes", 0)
-        if out.get("Passes") else None
+        if out.get("Passes")
+        and comparable_population("Accurate passes", "Passes")
+        else None
     )
     out["home_matches"] = sum(1 for r in rows if r["home"])
-    out["away_matches"] = len(rows) - out["home_matches"]
+    out["away_matches"] = eligible_matches - out["home_matches"]
     return out
 
 

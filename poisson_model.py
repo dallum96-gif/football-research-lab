@@ -82,13 +82,23 @@ def fair_odds(
     return 1.0 / probability
 
 
+def _completed_score(value):
+    if value is None:
+        return False
+
+    if isinstance(value, str):
+        return bool(value.strip())
+
+    return True
+
+
 def load_source_fixtures():
     return [
         row
         for row in query_lab.load_fixtures()
         if row["season"] == SOURCE_SEASON
-        and row["home_score"]
-        and row["away_score"]
+        and _completed_score(row.get("home_score"))
+        and _completed_score(row.get("away_score"))
     ]
 
 
