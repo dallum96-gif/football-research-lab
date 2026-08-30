@@ -50,7 +50,6 @@ type LeagueRankingsResponse = {
 type FamilyKey =
   | "overview"
   | "attack"
-  | "possession"
   | "passing"
   | "defence"
   | "discipline";
@@ -62,7 +61,6 @@ const API_BASE =
 const families: { key: FamilyKey; label: string }[] = [
   { key: "overview", label: "Overview" },
   { key: "attack", label: "Attack" },
-  { key: "possession", label: "Possession" },
   { key: "passing", label: "Passing" },
   { key: "defence", label: "Defence" },
   { key: "discipline", label: "Discipline" },
@@ -81,9 +79,9 @@ const familyMetricKeys: Record<FamilyKey, string[]> = {
     "goals_for_per_match",
     "Shots_per_match",
     "Shots on target_per_match",
+    "Corners_per_match",
   ],
-  possession: ["Possession_per_match"],
-  passing: [],
+  passing: ["Possession_per_match"],
   defence: ["goals_against_per_match"],
   discipline: [],
 };
@@ -339,7 +337,7 @@ export default async function TeamStatsRankingsPage({
     null;
   const overviewMetric =
     activeFamily === "overview" && query.metric
-      ? rankings?.metrics.find((metric) => metric.key === query.metric) ?? null
+      ? activeFamilyMetrics.find((metric) => metric.key === query.metric) ?? null
       : null;
   const teamViewCode = governedTeams[0]?.persistent_team_code;
 
@@ -412,7 +410,7 @@ export default async function TeamStatsRankingsPage({
 
                 <section className={styles.familySection}>
                   <div className={styles.cardGrid}>
-                    {rankings.metrics.map((metric) => (
+                    {activeFamilyMetrics.map((metric) => (
                       <RankingCard
                         key={metric.key}
                         metric={metric}
