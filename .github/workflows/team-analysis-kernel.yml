@@ -1,0 +1,35 @@
+name: Team analysis kernel
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "team_analysis_kernel.py"
+      - "team_research_stats.py"
+      - "expected_metric_routing.py"
+      - "expected_metric_artifact.py"
+      - "data/player_derived_expected_goals_v1/**"
+      - "tests/test_team_analysis_kernel.py"
+      - "api/frl_api.py"
+      - ".github/workflows/team-analysis-kernel.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  team-analysis-kernel:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: python -m pip install pytest fastapi pydantic
+
+      - name: Run analytical kernel regressions
+        run: python -m pytest -q tests/test_team_analysis_kernel.py tests/test_expected_metric_artifact.py tests/test_team_research_stats.py
