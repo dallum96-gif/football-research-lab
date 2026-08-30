@@ -82,7 +82,22 @@ OVERVIEW_METRICS = (
     ),
 )
 
-METRIC_DEFINITIONS = {metric.key: metric for metric in OVERVIEW_METRICS}
+# Family-level rankings may extend beyond the deliberately compact Team View
+# Overview. Keep these definitions separate so a betting/research-friendly
+# metric can become rankable without silently becoming another Overview card.
+ADDITIONAL_RANKING_METRICS = (
+    MetricDefinition(
+        key="Corners_per_match",
+        label="Corners per match",
+        unit="corners",
+        higher_is_better=True,
+        coverage_key="Corners",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+)
+
+RANKING_METRICS = (*OVERVIEW_METRICS, *ADDITIONAL_RANKING_METRICS)
+METRIC_DEFINITIONS = {metric.key: metric for metric in RANKING_METRICS}
 
 
 def _coverage(stats: dict, definition: MetricDefinition) -> dict:
@@ -272,7 +287,7 @@ def expected_goals_observation(season: str, team_code: str, stats: dict | None =
 
 @lru_cache(maxsize=16)
 def season_overview_analysis(season: str) -> dict:
-    """Build the one governed season result consumed by Team View and Rankings."""
+    """Build the governed season result shared by Team View and family Rankings."""
     population = _team_population(season)
     team_stats: dict[str, dict] = {}
 
@@ -283,7 +298,7 @@ def season_overview_analysis(season: str) -> dict:
             team_stats[code] = stats
 
     metrics: dict[str, dict] = {}
-    for definition in OVERVIEW_METRICS:
+    for definition in RANKING_METRICS:
         entries: list[dict] = []
         for team in population:
             code = team["persistent_team_code"]
@@ -360,11 +375,7 @@ def team_overview_analysis(season: str, team_code: str) -> dict | None:
     if not selected_metrics and xg is None:
         return None
 
-    identity = (
-        selected_metrics[0]
-        if selected_metrics
-        else xg
-    )
+    identity = selected_metrics[0] if selected_metrics else xg
     return {
         "analysis_version": analysis["analysis_version"],
         "season": season,
@@ -377,11 +388,13 @@ def team_overview_analysis(season: str, team_code: str) -> dict | None:
 
 
 __all__ = [
+    "ADDITIONAL_RANKING_METRICS",
     "ANALYSIS_VERSION",
     "CANONICAL_FIXTURE_RESULT",
     "COMPETITION_RANK",
     "METRIC_DEFINITIONS",
     "OVERVIEW_METRICS",
+    "RANKING_METRICS",
     "RANK_POSITION_PERCENTILE",
     "MetricDefinition",
     "expected_goals_observation",
