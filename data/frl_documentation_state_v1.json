@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-08-30",
-  "checkpoint_id": "SOURCE_ROUTE_COVERAGE_AUDIT",
+  "checkpoint_id": "SOURCE_ROUTE_MISSINGNESS_GOVERNANCE",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Empirical source-route coverage audit before governed analytical-kernel implementation",
+  "active_product_phase": "Source-route and field-level missingness governance before governed analytical-kernel implementation",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -20,6 +20,7 @@
     "RISK_STRATEGY_FRAMEWORK.md",
     "FRL_SOURCE_NORMALISATION_CONTRACT.md",
     "FRL_SOURCE_ROUTING_CONTRACT.md",
+    "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "NON_DESTRUCTION_ASSURANCE.md",
     "FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md"
   ],
@@ -38,13 +39,16 @@
   "architecture_sensitive_paths": [
     "FRL_SOURCE_NORMALISATION_CONTRACT.md",
     "FRL_SOURCE_ROUTING_CONTRACT.md",
+    "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "FRL_DATA_PLATFORM_ARCHITECTURE_V1.md",
     "FRL_ANALYTICAL_DATA_LAYOUT_V1.md",
     "FRL_RESEARCH_RESULT_CONTRACT_V1.md",
     "FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md",
     "canonical_route_registry.py",
     "variable_capability_inventory.py",
-    "research_access.py"
+    "research_access.py",
+    "team_metric_missingness.py",
+    "team_research_stats.py"
   ],
   "checkpoint_files": [
     "CURRENT_WORK.md",
