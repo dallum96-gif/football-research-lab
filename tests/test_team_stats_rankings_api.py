@@ -3,6 +3,7 @@ from fastapi import HTTPException
 
 import team_analysis_kernel
 from api.team_stats_rankings import get_team_stats_league_rankings
+from expected_metric_routing import DIRECT_TEAM_MATCH
 
 
 def _metric_map(response):
@@ -65,7 +66,7 @@ def test_corners_are_rankings_only_and_preserve_kernel_coverage():
 
     assert corners.label == "Corners per match"
     assert corners.unit == "corners"
-    assert corners.representation == team_analysis_kernel.DIRECT_TEAM_MATCH
+    assert corners.representation == DIRECT_TEAM_MATCH
     assert any(row.coverage["missing_matches"] > 0 for row in corners.entries)
 
     sample = next(row for row in corners.entries if row.value is not None)
