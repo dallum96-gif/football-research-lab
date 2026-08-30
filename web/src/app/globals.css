@@ -176,3 +176,253 @@ a { color: inherit; }
 /* FRL heading identity: the entity name is the control, not a boxed input. */
 .frl-team-title-control { position:relative; }
 .frl-team-title-control button { border:0; background:transparent; color:inherit; padding:0; font:inherit; cursor:pointer; }
+
+
+/* FIXTURE_EXPLORER_LEDGER_V2 */
+
+.frl-fixture-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.frl-fixture-month {
+  overflow: hidden;
+  padding: 0 10px 9px;
+  background: var(--frl-surface-raised);
+  border: 1px solid var(--frl-border);
+  border-radius: 14px;
+}
+
+.frl-fixture-month + .frl-fixture-month {
+  margin-top: 0;
+}
+
+.frl-month-heading {
+  margin: 0 -10px 2px;
+  padding: 9px 12px 8px;
+  background: var(--frl-surface);
+  border-bottom: 1px solid var(--frl-border);
+  color: var(--frl-text);
+  font-size: .6rem;
+  letter-spacing: .11em;
+}
+
+.frl-month-heading span {
+  width: 7px;
+  height: 3px;
+  border-radius: 99px;
+  background: linear-gradient(
+    90deg,
+    var(--frl-secondary) 0 50%,
+    var(--frl-accent) 50% 100%
+  );
+}
+
+.frl-fixture-header,
+.frl-fixture-row {
+  grid-template-columns:
+    108px
+    minmax(220px, 1fr)
+    72px
+    82px
+    58px;
+  column-gap: 12px;
+}
+
+.frl-fixture-header {
+  padding: 7px 12px 6px 16px;
+  border-bottom: 0;
+  color: var(--frl-muted-soft);
+  font-size: .54rem;
+}
+
+.frl-fixture-row {
+  position: relative;
+  min-height: 54px;
+  margin-top: 5px;
+  padding: 7px 12px 7px 16px;
+  overflow: hidden;
+  background: var(--frl-surface);
+  border: 1px solid rgba(24, 23, 20, .075);
+  border-radius: 10px;
+  font-size: .75rem;
+  transition:
+    transform .14s ease,
+    box-shadow .14s ease,
+    border-color .14s ease;
+}
+
+.frl-fixture-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 0;
+  background: var(--frl-muted-soft);
+}
+
+.frl-fixture-row[data-result="W"]::before {
+  background: var(--frl-secondary);
+}
+
+.frl-fixture-row[data-result="L"]::before {
+  background: var(--frl-accent);
+}
+
+.frl-fixture-row[data-result="D"]::before {
+  background: #aaa59b;
+}
+
+.frl-fixture-row[data-result="UNPLAYED"]::before {
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      var(--frl-warning) 0 5px,
+      transparent 5px 8px
+    );
+}
+
+.frl-fixture-row:hover {
+  transform: translateY(-1px);
+  background: var(--frl-surface);
+  border-color: var(--frl-border-strong);
+  box-shadow: 0 5px 15px rgba(24, 23, 20, .065);
+}
+
+.frl-fixture-row:hover::before {
+  width: 4px;
+}
+
+.frl-fixture-date {
+  gap: 2px;
+  color: var(--frl-text);
+  font-size: .68rem;
+  font-weight: 720;
+}
+
+.frl-fixture-date small {
+  color: var(--frl-muted-soft);
+  font-size: .52rem;
+  letter-spacing: .07em;
+}
+
+.frl-fixture-opponent {
+  gap: 9px;
+  font-weight: 760;
+}
+
+.frl-fixture-opponent strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.frl-fixture-opponent-kit {
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+}
+
+.frl-fixture-opponent-kit > span,
+.frl-fixture-opponent-kit svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.frl-fixture-venue {
+  display: inline-grid;
+  place-items: center;
+  justify-self: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--frl-border);
+  border-radius: 50%;
+  color: var(--frl-muted);
+  font-size: .55rem;
+  font-weight: 800;
+}
+
+.frl-fixture-score {
+  color: var(--frl-text);
+  font-size: .82rem;
+  font-weight: 850;
+  letter-spacing: -.02em;
+}
+
+.frl-fixture-result {
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: .58rem;
+  font-weight: 900;
+}
+
+.frl-result-w {
+  color: #556013;
+  background: rgba(154, 170, 66, .18);
+}
+
+.frl-result-d {
+  color: var(--frl-muted);
+  background: rgba(104, 100, 92, .10);
+}
+
+.frl-result-l {
+  color: #a53f2a;
+  background: rgba(232, 93, 63, .15);
+}
+
+.frl-result-unplayed {
+  width: auto;
+  padding: 0 7px;
+  color: var(--frl-warning);
+  background: rgba(198, 138, 53, .10);
+  border-radius: 99px;
+  font-size: .48rem;
+}
+
+@media (max-width: 650px) {
+  .frl-fixture-month {
+    padding: 0 7px 7px;
+  }
+
+  .frl-fixture-row {
+    grid-template-columns: 90px minmax(0, 1fr) 48px;
+    gap: 5px 8px;
+    padding: 8px 9px 8px 14px;
+  }
+
+  .frl-fixture-date {
+    grid-column: 1;
+    grid-row: 1 / 3;
+  }
+
+  .frl-fixture-opponent {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .frl-fixture-venue {
+    display: none;
+  }
+
+  .frl-fixture-score {
+    grid-column: 2;
+    grid-row: 2;
+    text-align: left;
+  }
+
+  .frl-fixture-result {
+    grid-column: 3;
+    grid-row: 1 / 3;
+  }
+}

@@ -217,17 +217,35 @@ def player_match_id_for_fixture(fixture: dict) -> str | None:
     return matches[0] if matches else None
 
 
+@lru_cache(maxsize=20)
+def _player_match_rows_by_match(
+    season: str,
+) -> dict[str, tuple[dict, ...]]:
+    """Index one season's player-match rows by source matchId once."""
+    grouped: dict[str, list[dict]] = defaultdict(list)
+
+    for row in _source_match_records(season):
+        match_id = str(row.get("matchId", "")).strip()
+
+        if match_id:
+            grouped[match_id].append(row)
+
+    return {
+        match_id: tuple(rows)
+        for match_id, rows in grouped.items()
+    }
+
+
 def fixture_player_match_rows(fixture: dict) -> tuple[dict, ...]:
     """Return source-native player-match rows attached to a canonical fixture."""
     match_id = player_match_id_for_fixture(fixture)
+
     if match_id is None:
         return tuple()
 
-    return tuple(
-        row
-        for row in _source_match_records(fixture["season"])
-        if str(row.get("matchId", "")).strip() == match_id
-    )
+    return _player_match_rows_by_match(
+        fixture["season"]
+    ).get(match_id, tuple())
 
 
 def classify_participation(row: dict) -> str:
@@ -254,6 +272,45 @@ def source_player_id(row: dict) -> str | None:
     value = row.get("playerId") or row.get("pl_code")
     value = str(value).strip() if value not in (None, "") else ""
     return value or None
+
+
+@lru_cache(maxsize=20)
+def pulselive_player_bridge_index(
+    season: str,
+) -> dict[str, dict]:
+    """Map PulseLive player ID (PM pl_code) to exact Player-Match identity.
+
+    Ambiguous mappings fail closed.
+    """
+    candidates: dict[str, dict[str, dict]] = defaultdict(dict)
+
+    for row in _source_match_records(season):
+        pulselive_id = str(
+            row.get("pl_code", "")
+        ).strip()
+
+        player_id = source_player_id(row)
+
+        if not pulselive_id or not player_id:
+            continue
+
+        candidates[pulselive_id][player_id] = {
+            "player_id": player_id,
+            "player_name": str(
+                row.get("playerName", "")
+                or player_id
+            ).strip(),
+            "position": (
+                str(row.get("position", "")).strip()
+                or None
+            ),
+        }
+
+    return {
+        pulselive_id: next(iter(players.values()))
+        for pulselive_id, players in candidates.items()
+        if len(players) == 1
+    }
 
 
 def aggregate_rows(rows: Iterable[dict]) -> dict[str, float | None]:
@@ -297,6 +354,163 @@ def player_match_records_for_player(player_id: str, season: str) -> tuple[dict, 
 def player_season_total(player_id: str, season: str) -> dict[str, float | None]:
     """Return audited source totals for one player/season."""
     return aggregate_rows(player_match_records_for_player(player_id, season))
+
+
+def competition_player_totals(
+    seasons: tuple[str, ...] | list[str],
+) -> tuple[dict, ...]:
+    """Aggregate league-wide player totals across the requested seasons."""
+    grouped: dict[str, dict] = {}
+
+    for season in seasons:
+        for row in _source_match_records(season):
+            player_id = source_player_id(row)
+
+            if not player_id:
+                continue
+
+            record = grouped.setdefault(
+                player_id,
+                {
+                    "player_id": player_id,
+                    "player_name": "",
+                    "goals": 0.0,
+                    "assists": 0.0,
+                    "minutes": 0.0,
+                    "appearance_matches": set(),
+                },
+            )
+
+            name = str(row.get("playerName", "") or "").strip()
+
+            if name:
+                record["player_name"] = name
+
+            match_id = str(row.get("matchId", "") or "").strip()
+
+            try:
+                minutes = float(row.get("minutesPlayed") or 0)
+            except (TypeError, ValueError):
+                minutes = 0.0
+
+            record["goals"] += _number(row.get("goals"))
+            record["assists"] += _number(row.get("goalAssist"))
+            record["minutes"] += minutes
+
+            if match_id and minutes > 0:
+                record["appearance_matches"].add(
+                    (season, match_id)
+                )
+
+    results = []
+
+    for record in grouped.values():
+        goals = int(record["goals"])
+        assists = int(record["assists"])
+
+        results.append(
+            {
+                "player_id": record["player_id"],
+                "player_name": (
+                    record["player_name"]
+                    or record["player_id"]
+                ),
+                "goals": goals,
+                "assists": assists,
+                "goal_involvements": goals + assists,
+                "minutes": int(round(record["minutes"])),
+                "appearances": len(
+                    record["appearance_matches"]
+                ),
+            }
+        )
+
+    return tuple(results)
+
+
+def team_player_totals(
+    seasons: tuple[str, ...] | list[str],
+    persistent_team_code: str,
+) -> tuple[dict, ...]:
+    """Aggregate era-wide player records only for one verified persistent club.
+
+    Player-Match ``team_id`` uses the upstream persistent club identity reached
+    through the governed Team-Season bridge. Grouping remains source-native at
+    player level and club membership is taken from each match row, so transfers
+    cannot leak another club's observations into these totals.
+    """
+    team_id = str(persistent_team_code).strip()
+    grouped: dict[str, dict] = {}
+
+    for season in seasons:
+        for row in _source_match_records(season):
+            if str(row.get("team_id", "")).strip() != team_id:
+                continue
+
+            player_id = source_player_id(row)
+            if not player_id:
+                continue
+
+            record = grouped.setdefault(
+                player_id,
+                {
+                    "player_id": player_id,
+                    "player_name": "",
+                    "position": "",
+                    "goals": 0.0,
+                    "assists": 0.0,
+                    "minutes": 0.0,
+                    "appearance_matches": set(),
+                    "start_matches": set(),
+                    "seasons": set(),
+                },
+            )
+
+            name = str(row.get("playerName", "") or "").strip()
+            if name:
+                record["player_name"] = name
+
+            position = str(row.get("position", "") or "").strip()
+            if position:
+                record["position"] = position
+
+            match_id = str(row.get("matchId", "") or "").strip()
+            minutes = _number(row.get("minutesPlayed"))
+            substitute = str(row.get("substitute", "")).strip().lower()
+
+            record["goals"] += _number(row.get("goals"))
+            record["assists"] += _number(row.get("goalAssist"))
+            record["minutes"] += minutes
+            record["seasons"].add(season)
+
+            if match_id and minutes > 0:
+                record["appearance_matches"].add((season, match_id))
+
+                if substitute not in {"true", "1", "yes"}:
+                    record["start_matches"].add((season, match_id))
+
+    results = []
+
+    for record in grouped.values():
+        results.append(
+            {
+                "player_id": record["player_id"],
+                "player_name": record["player_name"] or record["player_id"],
+                "position": record["position"],
+                "goals": int(record["goals"]),
+                "assists": int(record["assists"]),
+                "goal_involvements": int(
+                    record["goals"] + record["assists"]
+                ),
+                "minutes": int(round(record["minutes"])),
+                "appearances": len(record["appearance_matches"]),
+                "starts": len(record["start_matches"]),
+                "seasons": tuple(sorted(record["seasons"])),
+                "season_count": len(record["seasons"]),
+            }
+        )
+
+    return tuple(results)
 
 
 def _number(value):

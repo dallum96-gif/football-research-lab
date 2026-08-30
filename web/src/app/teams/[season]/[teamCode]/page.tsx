@@ -1,9 +1,16 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { TeamSeasonSelect } from "./TeamSeasonSelect";
 import { TeamKit } from "../../TeamKit";
 import { OverviewDetailTabs } from "./OverviewDetailTabs";
+import { TeamXIView, type TeamXIResult } from "./TeamXIView";
+import { TeamFixturesView } from "./TeamFixturesView";
+import { TeamFormView } from "./TeamFormView";
+import {
+  TeamRecordsView,
+  type TeamSeasonRecords,
+} from "./TeamRecordsView";
 import styles from "./TeamProfile.module.css";
 
 type TeamProfileProps = {
@@ -13,6 +20,7 @@ type TeamProfileProps = {
   }>;
   searchParams: Promise<{
     view?: string | string[];
+    scope?: string | string[];
   }>;
 };
 
@@ -79,7 +87,7 @@ const API_BASE = (
   process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000"
 ).replace(/\/$/, "");
 
-const VIEWS = ["overview", "records", "xi", "fixtures", "stats"] as const;
+const VIEWS = ["overview", "records", "xi", "fixtures", "form"] as const;
 type View = (typeof VIEWS)[number];
 
 async function getJson<T>(path: string): Promise<{ ok: boolean; status: number; data?: T }> {
@@ -169,9 +177,9 @@ function EmptyView({ view }: { view: Exclude<View, "overview"> }) {
       "Season fixtures",
       "The complete compact fixture record will live here with links into Fixture Workspace.",
     ],
-    stats: [
-      "Team stats",
-      "The analytical layer will use focused sub-views rather than one enormous statistics page.",
+    form: [
+      "Form snapshot",
+      "Recent performance and season baselines will live here.",
     ],
   };
 
@@ -199,6 +207,16 @@ export default async function TeamProfilePage({
   const activeView: View = VIEWS.includes(requestedView as View)
     ? (requestedView as View)
     : "overview";
+
+
+  const requestedScope = Array.isArray(query.scope)
+    ? query.scope[0]
+    : query.scope;
+
+  const recordScope: "season" | "overall" =
+    activeView === "records" && requestedScope === "overall"
+      ? "overall"
+      : "season";
 
   const overviewResult = await getJson<TeamOverview>(
     `/api/v1/teams/${encodeURIComponent(season)}/${encodeURIComponent(teamCode)}/overview`
@@ -236,13 +254,65 @@ export default async function TeamProfilePage({
         },
       ];
 
-  const fixtures =
+  const allFixtures =
     fixtureResult.ok && fixtureResult.data
-      ? fixtureResult.data.data.filter((fixture) => fixture.result !== "UNPLAYED")
+      ? fixtureResult.data.data
       : [];
+
+  const fixtures = allFixtures.filter(
+    (fixture) => fixture.result !== "UNPLAYED"
+  );
 
   const finalFive = fixtures.slice(-5);
   const era = eraResult.ok ? eraResult.data ?? null : null;
+
+
+  const recordsResult =
+    activeView === "records"
+      ? await getJson<TeamSeasonRecords>(
+          `/api/v1/teams/${encodeURIComponent(
+            season
+          )}/${encodeURIComponent(
+            teamCode
+          )}/records?scope=${encodeURIComponent(recordScope)}`
+        )
+      : null;
+
+  const records =
+    recordsResult?.ok && recordsResult.data
+      ? recordsResult.data
+      : null;
+
+  const rawXiScope = Array.isArray(
+    (query as { scope?: string | string[] }).scope
+  )
+    ? (query as { scope?: string[] }).scope?.[0]
+    : (query as { scope?: string }).scope;
+
+  const xiScope: "season" | "overall" =
+    rawXiScope === "overall" ? "overall" : "season";
+
+  const xiResult =
+    activeView === "xi"
+      ? await getJson<TeamXIResult>(
+          `/api/v1/teams/${encodeURIComponent(
+            season
+          )}/${encodeURIComponent(
+            teamCode
+          )}/xi?scope=${xiScope}`
+        )
+      : null;
+
+  if (
+    activeView === "xi" &&
+    (!xiResult || !xiResult.ok || !xiResult.data)
+  ) {
+    throw new Error(
+      `FRL Team XI request failed: ${xiResult?.status ?? 503}`
+    );
+  }
+
+  const xiData = xiResult?.data ?? null;
 
   return (
     <AppShell>
@@ -268,6 +338,10 @@ export default async function TeamProfilePage({
               teamCode={teamCode}
               currentView={activeView}
               seasons={seasonOptions}
+              disabled={
+                activeView === "records" &&
+                recordScope === "overall"
+              }
             />
           </div>
         </header>
@@ -284,7 +358,9 @@ export default async function TeamProfilePage({
             >
               {view === "xi"
                 ? "XI"
-                : view.charAt(0).toUpperCase() + view.slice(1)}
+                : view === "fixtures"
+                  ? "Fixtures & Results"
+                  : view.charAt(0).toUpperCase() + view.slice(1)}
             </Link>
           ))}
         </nav>
@@ -502,8 +578,44 @@ export default async function TeamProfilePage({
                 </section>
               )}
             </div>
+          ) : activeView === "records" ? (
+            records ? (
+              <TeamRecordsView
+                records={records}
+                teamCode={teamCode}
+              />
+            ) : (
+              <section className={styles.pendingView}>
+                <p className={styles.sectionKicker}>Season record book</p>
+                <h2>Records unavailable</h2>
+                <p>
+                  The governed record seam could not be resolved safely for
+                  this team-season.
+                </p>
+              </section>
+            )
           ) : (
-            <EmptyView view={activeView} />
+            activeView === "xi" && xiData ? (
+              <TeamXIView
+                data={xiData}
+                season={season}
+                teamCode={teamCode}
+              />
+            ) : activeView === "fixtures" ? (
+              <TeamFixturesView
+                fixtures={allFixtures}
+                teamName={overview.display_name}
+                season={season}
+              />
+            ) : activeView === "form" ? (
+              <TeamFormView
+                fixtures={allFixtures}
+                teamName={overview.display_name}
+                season={season}
+              />
+            ) : (
+              <EmptyView view={activeView} />
+            )
           )}
         </main>
       </div>

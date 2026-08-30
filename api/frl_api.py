@@ -14,6 +14,13 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import player_match_stats
+import fixture_evidence as fixture_evidence_module
+from source_family_adapters import resolve_source_match as xi_resolve_source_match
+from pulselive_fixture_evidence import (
+    load_snapshot as xi_load_snapshot,
+    normalise_lineups as xi_normalise_lineups,
+    resource_payload as xi_resource_payload,
+)
 import query_api
 
 
@@ -159,6 +166,115 @@ class TeamEraOverviewResult(BaseModel):
     team_records: list[TeamEraRecordItem]
     player_records_status: Literal["UNAVAILABLE"]
     player_records_note: str
+    provenance: ResearchProvenance
+    limitations: list[str] = Field(default_factory=list)
+
+
+class TeamXIPlayer(BaseModel):
+    player_id: str
+    player_name: str
+    position: str | None = None
+    appearances: int
+    starts: int
+    minutes: int
+    goals: int
+    assists: int
+    season_count: int
+
+
+class TeamXISlot(BaseModel):
+    slot_id: str
+    line_index: int
+    slot_index: int
+    line_size: int
+    x: float
+    y: float
+    role: Literal["GK", "DEF", "MID", "FWD"]
+    player_id: str | None = None
+    player_name: str | None = None
+    position: str | None = None
+    role_starts: int = 0
+    appearances: int = 0
+
+
+class TeamXIResult(BaseModel):
+    persistent_team_code: str
+    display_name: str
+    season: str
+    scope: Literal["season", "overall"]
+    scope_label: str
+    seasons_included: list[str]
+    competition: str
+    formation: str | None = None
+    formation_uses: int
+    formation_sample: int
+    squad: list[TeamXIPlayer]
+    xi: list[TeamXISlot]
+    provenance: ResearchProvenance
+    limitations: list[str]
+
+
+class TeamRecordSequenceItem(BaseModel):
+    result: Literal["W", "D", "L"]
+    fixture_id: str
+    season: str
+    opponent: str
+    venue: Literal["Home", "Away"]
+    kickoff_time: str
+    score: str
+
+
+class TeamRecordRankEntry(BaseModel):
+    rank: int
+    label: str
+    value: str
+    relative: float
+
+
+class TeamRecordItem(BaseModel):
+    key: str
+    label: str
+    value: str
+    detail: str | None = None
+    fixture_id: str | None = None
+    fixture_season: str | None = None
+    percentage: float | None = None
+    comparison_rank: int | None = None
+    comparison_population: int | None = None
+    top_percent: int | None = None
+    comparison_basis: str | None = None
+    ranking: list[TeamRecordRankEntry] = Field(default_factory=list)
+    result_sequence: list[TeamRecordSequenceItem] = Field(default_factory=list)
+
+
+class TeamPlayerLeaderboardRow(BaseModel):
+    rank: int
+    player_id: str
+    player_name: str
+    appearances: int
+    goals: int
+    assists: int
+    goal_involvements: int
+
+
+class TeamRecordCategory(BaseModel):
+    key: Literal["results", "runs", "goals", "players", "matchday"]
+    label: str
+    status: Literal["AVAILABLE", "UNAVAILABLE"]
+    items: list[TeamRecordItem] = Field(default_factory=list)
+    leaderboard: list[TeamPlayerLeaderboardRow] = Field(default_factory=list)
+    note: str | None = None
+
+
+class TeamSeasonRecordsResult(BaseModel):
+    persistent_team_code: str
+    display_name: str
+    season: str
+    scope: Literal["season", "overall"]
+    scope_label: str
+    seasons_included: list[str]
+    competition: str
+    categories: list[TeamRecordCategory]
     provenance: ResearchProvenance
     limitations: list[str] = Field(default_factory=list)
 
@@ -667,6 +783,1513 @@ def get_team_era_overview(persistent_team_code: str) -> TeamEraOverviewResult:
     )
 
 
+
+def _record_date(value: object) -> str:
+    if value in (None, ""):
+        return "Date unavailable"
+    return str(value).split("T", 1)[0]
+
+
+def _best_streak(matches: list[dict], predicate) -> list[dict]:
+    best: list[dict] = []
+    current: list[dict] = []
+    current_season: str | None = None
+
+    for match in matches:
+        match_season = str(match["season"])
+
+        # Overall records must never bridge the summer between seasons.
+        if current_season is not None and match_season != current_season:
+            current = []
+
+        current_season = match_season
+
+        if predicate(match):
+            current.append(match)
+
+            if len(current) > len(best):
+                best = list(current)
+        else:
+            current = []
+
+    return best
+
+
+def _fixture_record(
+    key: str,
+    label: str,
+    match: dict | None,
+    include_season: bool,
+) -> TeamRecordItem:
+    if match is None:
+        return TeamRecordItem(
+            key=key,
+            label=label,
+            value="Unavailable",
+        )
+
+    detail = (
+        f'{match["venue"]} vs {match["opponent"]}'
+        f' - {_record_date(match.get("kickoff_time"))}'
+    )
+
+    if include_season:
+        detail += f' - {match["season"]}'
+
+    return TeamRecordItem(
+        key=key,
+        label=label,
+        value=f'{match["goals_for"]}-{match["goals_against"]}',
+        detail=detail,
+        fixture_id=str(match["fixture_id"]),
+        fixture_season=str(match["season"]),
+    )
+
+
+def _streak_record(
+    key: str,
+    label: str,
+    streak: list[dict],
+    include_season: bool,
+) -> TeamRecordItem:
+    if not streak:
+        return TeamRecordItem(
+            key=key,
+            label=label,
+            value="0 matches",
+        )
+
+    start = _record_date(streak[0].get("kickoff_time"))
+    end = _record_date(streak[-1].get("kickoff_time"))
+
+    detail = start if start == end else f"{start} to {end}"
+
+    if include_season:
+        detail += f' - {streak[0]["season"]}'
+
+    sequence: list[TeamRecordSequenceItem] = []
+
+    for match in streak:
+        # Tooltip score follows actual home-away scoreboard orientation.
+        if match["venue"] == "Home":
+            score = f'{match["goals_for"]}-{match["goals_against"]}'
+        else:
+            score = f'{match["goals_against"]}-{match["goals_for"]}'
+
+        sequence.append(
+            TeamRecordSequenceItem(
+                result=match["result"],
+                fixture_id=str(match["fixture_id"]),
+                season=str(match["season"]),
+                opponent=str(match["opponent"]),
+                venue=match["venue"],
+                kickoff_time=_record_date(match.get("kickoff_time")),
+                score=score,
+            )
+        )
+
+    return TeamRecordItem(
+        key=key,
+        label=label,
+        value=f"{len(streak)} matches",
+        detail=detail,
+        result_sequence=sequence,
+    )
+
+
+
+def _goal_comparison_profiles(
+    seasons: list[str],
+) -> dict[str, dict]:
+    profiles: dict[str, dict] = {}
+
+    for comparison_season in seasons:
+        options = get_teams(comparison_season)
+
+        by_local_id = {
+            str(option.local_team_id): option
+            for option in options
+            if option.persistent_team_code
+        }
+
+        payload = query_api.fixtures(
+            season=comparison_season,
+            team=None,
+            limit=500,
+        )
+
+        for fixture in payload["results"]:
+            if (
+                fixture.get("home_score") in (None, "")
+                or fixture.get("away_score") in (None, "")
+            ):
+                continue
+
+            home_option = by_local_id.get(
+                str(fixture["home_team_id"])
+            )
+            away_option = by_local_id.get(
+                str(fixture["away_team_id"])
+            )
+
+            if home_option is None or away_option is None:
+                continue
+
+            home_score = int(fixture["home_score"])
+            away_score = int(fixture["away_score"])
+
+            for option, goals_for, goals_against in (
+                (home_option, home_score, away_score),
+                (away_option, away_score, home_score),
+            ):
+                code = str(option.persistent_team_code)
+
+                profile = profiles.setdefault(
+                    code,
+                    {
+                        "display_name": option.display_name,
+                        "matches": 0,
+                        "goals_for": 0,
+                        "goals_against": 0,
+                        "clean_sheets": 0,
+                        "scored_2_plus": 0,
+                        "scored_3_plus": 0,
+                        "scored_4_plus": 0,
+                        "conceded_2_plus": 0,
+                    },
+                )
+
+                profile["display_name"] = option.display_name
+                profile["matches"] += 1
+                profile["goals_for"] += goals_for
+                profile["goals_against"] += goals_against
+                profile["clean_sheets"] += int(goals_against == 0)
+                profile["scored_2_plus"] += int(goals_for >= 2)
+                profile["scored_3_plus"] += int(goals_for >= 3)
+                profile["scored_4_plus"] += int(goals_for >= 4)
+                profile["conceded_2_plus"] += int(goals_against >= 2)
+
+    return profiles
+
+
+def _goal_comparison_value(
+    profile: dict,
+    metric: str,
+) -> float:
+    matches = int(profile["matches"])
+
+    if matches <= 0:
+        return 0.0
+
+    if metric == "goals_for":
+        return float(profile["goals_for"]) / matches
+
+    if metric == "goals_against":
+        return float(profile["goals_against"]) / matches
+
+    return float(profile[metric]) / matches
+
+
+def _apply_goal_comparisons(
+    category: TeamRecordCategory,
+    profiles: dict[str, dict],
+    persistent_team_code: str,
+) -> None:
+    target = profiles.get(persistent_team_code)
+
+    if target is None or int(target["matches"]) <= 0:
+        return
+
+    definitions = {
+        "goals-scored": (
+            "goals_for",
+            True,
+            "goals per match",
+        ),
+        "goals-conceded": (
+            "goals_against",
+            False,
+            "goals conceded per match",
+        ),
+        "clean-sheets": (
+            "clean_sheets",
+            True,
+            "clean-sheet rate",
+        ),
+        "scored-two-plus": (
+            "scored_2_plus",
+            True,
+            "matches scoring 2+",
+        ),
+        "scored-three-plus": (
+            "scored_3_plus",
+            True,
+            "matches scoring 3+",
+        ),
+        "scored-four-plus": (
+            "scored_4_plus",
+            True,
+            "matches scoring 4+",
+        ),
+        "conceded-two-plus": (
+            "conceded_2_plus",
+            False,
+            "matches conceding 2+",
+        ),
+    }
+
+    eligible = {
+        code: profile
+        for code, profile in profiles.items()
+        if int(profile["matches"]) > 0
+    }
+
+    population = len(eligible)
+
+    for record in category.items:
+        definition = definitions.get(record.key)
+
+        if definition is None or population == 0:
+            continue
+
+        metric, higher_is_better, label = definition
+
+        target_value = _goal_comparison_value(
+            target,
+            metric,
+        )
+
+        values = [
+            _goal_comparison_value(profile, metric)
+            for profile in eligible.values()
+        ]
+
+        if higher_is_better:
+            better = sum(
+                value > target_value + 1e-12
+                for value in values
+            )
+        else:
+            better = sum(
+                value < target_value - 1e-12
+                for value in values
+            )
+
+        rank = better + 1
+
+        # "Top X%" is based on competitive rank:
+        # 1st of 20 = Top 5%, 2nd = Top 10%, etc.
+        top_percent = max(
+            1,
+            (rank * 100 + population - 1) // population,
+        )
+
+        if metric in {"goals_for", "goals_against"}:
+            basis = f"{target_value:.2f} {label}"
+        else:
+            basis = f"{target_value * 100:.1f}% {label}"
+
+        record.comparison_rank = rank
+        record.comparison_population = population
+        record.top_percent = top_percent
+        record.comparison_basis = basis
+
+
+_PLAYER_RECORD_COMPARISON_CACHE: dict[
+    tuple[str, ...],
+    tuple[dict, ...],
+] = {}
+
+
+def _competition_player_record_profiles(
+    seasons: list[str],
+) -> list[dict]:
+    """Build league-wide player comparison profiles efficiently.
+
+    Each season is handled with:
+      1. one canonical fixture pass;
+      2. one cached Player-Match row pass.
+
+    This preserves the existing clean-sheet and personal scoring-streak
+    definitions without resolving every fixture independently.
+    """
+    cache_key = tuple(seasons)
+
+    cached = _PLAYER_RECORD_COMPARISON_CACHE.get(cache_key)
+
+    if cached is not None:
+        return [dict(player) for player in cached]
+
+    players = [
+        dict(player)
+        for player in player_match_stats.competition_player_totals(
+            seasons
+        )
+        if int(player.get("appearances", 0)) > 0
+    ]
+
+    players_by_id = {
+        str(player["player_id"]): player
+        for player in players
+    }
+
+    for player in players:
+        player["clean_sheets"] = 0
+        player["longest_scoring_streak"] = 0
+        player["_scoring_appearances"] = []
+
+    for selected_season in seasons:
+        team_options = get_teams(selected_season)
+
+        local_to_persistent = {
+            str(option.local_team_id):
+            str(option.persistent_team_code)
+            for option in team_options
+        }
+
+        # This index is already cached inside player_match_stats.
+        pair_index = (
+            player_match_stats._player_match_pair_index(
+                selected_season
+            )
+        )
+
+        fixture_payload = query_api.fixtures(
+            season=selected_season,
+            limit=500,
+        )
+
+        # Resolve canonical fixtures to source matchIds ONCE.
+        match_context: dict[str, dict] = {}
+
+        for fixture in fixture_payload["results"]:
+            if (
+                fixture.get("home_score") in (None, "")
+                or fixture.get("away_score") in (None, "")
+            ):
+                continue
+
+            home_team = local_to_persistent.get(
+                str(fixture.get("home_team_id", ""))
+            )
+            away_team = local_to_persistent.get(
+                str(fixture.get("away_team_id", ""))
+            )
+
+            if not home_team or not away_team:
+                continue
+
+            source_matches = pair_index.get(
+                (home_team, away_team),
+                (),
+            )
+
+            # Fail closed on absent/ambiguous evidence.
+            if len(source_matches) != 1:
+                continue
+
+            source_match_id = source_matches[0]
+
+            match_context[source_match_id] = {
+                "home_team": home_team,
+                "away_team": away_team,
+                "home_score": int(fixture["home_score"]),
+                "away_score": int(fixture["away_score"]),
+                "kickoff_time": str(
+                    fixture.get("kickoff_time") or ""
+                ),
+            }
+
+        seen_player_matches: set[
+            tuple[str, str]
+        ] = set()
+
+        # One linear pass over the season's cached source rows.
+        for row in player_match_stats._source_match_records(
+            selected_season
+        ):
+            player_id = (
+                player_match_stats.source_player_id(row)
+            )
+
+            if (
+                not player_id
+                or player_id not in players_by_id
+            ):
+                continue
+
+            match_id = str(
+                row.get("matchId", "")
+            ).strip()
+
+            context = match_context.get(match_id)
+
+            if context is None:
+                continue
+
+            try:
+                minutes = float(
+                    row.get("minutesPlayed") or 0
+                )
+            except (TypeError, ValueError):
+                minutes = 0.0
+
+            if minutes <= 0:
+                continue
+
+            dedupe_key = (
+                player_id,
+                match_id,
+            )
+
+            if dedupe_key in seen_player_matches:
+                continue
+
+            seen_player_matches.add(dedupe_key)
+
+            try:
+                goals = int(
+                    float(row.get("goals") or 0)
+                )
+            except (TypeError, ValueError):
+                goals = 0
+
+            player = players_by_id[player_id]
+
+            player["_scoring_appearances"].append(
+                {
+                    "season": selected_season,
+                    "kickoff_time": context[
+                        "kickoff_time"
+                    ],
+                    "goals": goals,
+                }
+            )
+
+            team_id = str(
+                row.get("team_id", "")
+            ).strip()
+
+            if team_id == context["home_team"]:
+                goals_against = context["away_score"]
+            elif team_id == context["away_team"]:
+                goals_against = context["home_score"]
+            else:
+                continue
+
+            if minutes >= 60 and goals_against == 0:
+                player["clean_sheets"] += 1
+
+    # Personal scoring streak:
+    # consecutive PLAYER appearances, with season boundaries resetting.
+    for player in players:
+        appearances = sorted(
+            player["_scoring_appearances"],
+            key=lambda item: (
+                item["season"],
+                item["kickoff_time"],
+            ),
+        )
+
+        best = 0
+        current = 0
+        current_season = None
+
+        for appearance in appearances:
+            season = appearance["season"]
+
+            if (
+                current_season is not None
+                and season != current_season
+            ):
+                current = 0
+
+            current_season = season
+
+            if appearance["goals"] > 0:
+                current += 1
+                best = max(best, current)
+            else:
+                current = 0
+
+        player["longest_scoring_streak"] = best
+        player.pop("_scoring_appearances", None)
+
+    cached_result = tuple(
+        dict(player)
+        for player in players
+    )
+
+    _PLAYER_RECORD_COMPARISON_CACHE[
+        cache_key
+    ] = cached_result
+
+    return [
+        dict(player)
+        for player in cached_result
+    ]
+
+
+def _team_player_records_category(
+    seasons: list[str],
+    persistent_team_code: str,
+    scope: Literal["season", "overall"],
+) -> TeamRecordCategory:
+    try:
+        players = list(
+            player_match_stats.team_player_totals(
+                seasons,
+                persistent_team_code,
+            )
+        )
+    except Exception:
+        return TeamRecordCategory(
+            key="players",
+            label="Players",
+            status="UNAVAILABLE",
+            note=(
+                "Player record evidence could not be resolved safely "
+                "through the governed Player-Match source."
+            ),
+        )
+
+    if not players:
+        return TeamRecordCategory(
+            key="players",
+            label="Players",
+            status="UNAVAILABLE",
+            note="No governed player-match observations are available.",
+        )
+
+    players_by_id = {
+        str(player["player_id"]): player
+        for player in players
+    }
+
+    for player in players:
+        player["clean_sheets"] = 0
+        player["longest_scoring_streak"] = 0
+        player["_scoring_appearances"] = []
+
+    # ------------------------------------------------------------
+    # Fixture-level enrichment:
+    #   - clean-sheet appearances
+    #   - chronological personal scoring appearances
+    #
+    # Player membership remains match-scoped, so transfers remain safe.
+    # ------------------------------------------------------------
+
+    seen_player_fixtures: set[tuple[str, str, str]] = set()
+
+    for selected_season in seasons:
+        option = next(
+            (
+                item
+                for item in get_teams(selected_season)
+                if str(item.persistent_team_code)
+                == str(persistent_team_code)
+            ),
+            None,
+        )
+
+        if option is None:
+            continue
+
+        fixture_payload = query_api.fixtures(
+            season=selected_season,
+            team=option.display_name,
+            limit=500,
+        )
+
+        for fixture in fixture_payload["results"]:
+            if (
+                fixture.get("home_score") in (None, "")
+                or fixture.get("away_score") in (None, "")
+            ):
+                continue
+
+            home_score = int(fixture["home_score"])
+            away_score = int(fixture["away_score"])
+
+            if str(fixture["home_team_id"]) == str(option.local_team_id):
+                goals_against = away_score
+            elif str(fixture["away_team_id"]) == str(option.local_team_id):
+                goals_against = home_score
+            else:
+                continue
+
+            try:
+                source_rows = (
+                    player_match_stats.fixture_player_match_rows(
+                        fixture
+                    )
+                )
+            except Exception:
+                # Fail closed at the individual fixture rather than
+                # inventing player evidence.
+                continue
+
+            for row in source_rows:
+                if (
+                    str(row.get("team_id", "")).strip()
+                    != str(persistent_team_code)
+                ):
+                    continue
+
+                player_id = player_match_stats.source_player_id(row)
+
+                if not player_id or player_id not in players_by_id:
+                    continue
+
+                try:
+                    minutes = float(
+                        row.get("minutesPlayed") or 0
+                    )
+                except (TypeError, ValueError):
+                    minutes = 0.0
+
+                if minutes <= 0:
+                    continue
+
+                fixture_key = (
+                    selected_season,
+                    str(fixture["fixture_id"]),
+                    player_id,
+                )
+
+                if fixture_key in seen_player_fixtures:
+                    continue
+
+                seen_player_fixtures.add(fixture_key)
+
+                try:
+                    goals = int(float(row.get("goals") or 0))
+                except (TypeError, ValueError):
+                    goals = 0
+
+                player = players_by_id[player_id]
+
+                player["_scoring_appearances"].append(
+                    {
+                        "season": selected_season,
+                        "kickoff_time": str(
+                            fixture.get("kickoff_time") or ""
+                        ),
+                        "goals": goals,
+                    }
+                )
+
+                # Conservative, reproducible definition:
+                # player completed at least 60 minutes in a fixture
+                # where the team finished with zero goals conceded.
+                if minutes >= 60 and goals_against == 0:
+                    player["clean_sheets"] += 1
+
+    # ------------------------------------------------------------
+    # Longest personal scoring streak
+    #
+    # Consecutive PLAYER appearances, not consecutive team fixtures.
+    # Missing a match therefore does not break the player's streak.
+    # Overall mode does not stitch separate seasons together.
+    # ------------------------------------------------------------
+
+    for player in players:
+        appearances = sorted(
+            player["_scoring_appearances"],
+            key=lambda item: (
+                item["season"],
+                item["kickoff_time"],
+            ),
+        )
+
+        best = 0
+        current = 0
+        current_season: str | None = None
+
+        for appearance in appearances:
+            appearance_season = appearance["season"]
+
+            if (
+                current_season is not None
+                and appearance_season != current_season
+            ):
+                current = 0
+
+            current_season = appearance_season
+
+            if appearance["goals"] > 0:
+                current += 1
+                best = max(best, current)
+            else:
+                current = 0
+
+        player["longest_scoring_streak"] = best
+
+    goal_involvement_leaders = sorted(
+        players,
+        key=lambda player: (
+            -int(player.get("goal_involvements", 0)),
+            -int(player.get("goals", 0)),
+            -int(player.get("assists", 0)),
+            -int(player.get("appearances", 0)),
+            player["player_name"].casefold(),
+        ),
+    )
+
+    leaderboard = [
+        TeamPlayerLeaderboardRow(
+            rank=index,
+            player_id=str(player["player_id"]),
+            player_name=player["player_name"],
+            appearances=int(player["appearances"]),
+            goals=int(player["goals"]),
+            assists=int(player["assists"]),
+            goal_involvements=int(
+                player["goal_involvements"]
+            ),
+        )
+        for index, player in enumerate(
+            goal_involvement_leaders[:20],
+            start=1,
+        )
+    ]
+
+    definitions = [
+        (
+            "top-scorer",
+            "Top scorer",
+            "goals",
+            "goals",
+        ),
+        (
+            "most-assists",
+            "Most assists",
+            "assists",
+            "assists",
+        ),
+        (
+            "goal-involvements",
+            "Most goal involvements",
+            "goal_involvements",
+            "goal involvements",
+        ),
+        (
+            "most-clean-sheets",
+            "Most clean sheets",
+            "clean_sheets",
+            "clean sheets",
+        ),
+        (
+            "most-appearances",
+            "Most appearances",
+            "appearances",
+            "appearances",
+        ),
+        (
+            "longest-scoring-streak",
+            "Longest scoring streak",
+            "longest_scoring_streak",
+            "appearances",
+        ),
+    ]
+
+    def display_amount(
+        metric: str,
+        amount: int,
+        unit: str,
+    ) -> str:
+        if metric == "longest_scoring_streak":
+            return (
+                f"{amount} consecutive "
+                f"{'appearance' if amount == 1 else 'appearances'}"
+            )
+
+        return f"{amount} {unit}"
+
+    competition_players = [
+        player
+        for player in player_match_stats.competition_player_totals(
+            seasons
+        )
+        if int(player.get("appearances", 0)) > 0
+    ]
+
+    items: list[TeamRecordItem] = []
+
+    for key, label, metric, unit in definitions:
+        ranked = sorted(
+            players,
+            key=lambda player: (
+                -int(player.get(metric, 0)),
+                -int(player.get("minutes", 0)),
+                -int(player.get("appearances", 0)),
+                player["player_name"].casefold(),
+            ),
+        )
+
+        leader = ranked[0]
+        leader_amount = int(leader.get(metric, 0))
+
+        ranking: list[TeamRecordRankEntry] = []
+
+        for index, player in enumerate(ranked[:3], start=1):
+            amount = int(player.get(metric, 0))
+
+            relative = (
+                round(
+                    (amount / leader_amount) * 100,
+                    1,
+                )
+                if leader_amount > 0
+                else 0.0
+            )
+
+            ranking.append(
+                TeamRecordRankEntry(
+                    rank=index,
+                    label=player["player_name"],
+                    value=display_amount(
+                        metric,
+                        amount,
+                        unit,
+                    ),
+                    relative=relative,
+                )
+            )
+
+        achievement = display_amount(
+            metric,
+            leader_amount,
+            unit,
+        )
+
+        if (
+            scope == "overall"
+            and metric != "longest_scoring_streak"
+        ):
+            seasons_played = leader["season_count"]
+
+            detail = (
+                f"{achievement} - "
+                f"{seasons_played} represented "
+                f"{'season' if seasons_played == 1 else 'seasons'}"
+            )
+        else:
+            detail = achievement
+
+        comparison_rank = None
+        comparison_population = None
+        top_percent = None
+        comparison_basis = None
+
+        if key == "top-scorer" and competition_players:
+            scoring_total = int(leader.get("goals", 0))
+
+            better = sum(
+                int(player.get("goals", 0)) > scoring_total
+                for player in competition_players
+            )
+
+            comparison_rank = better + 1
+            comparison_population = len(
+                competition_players
+            )
+
+            top_percent = max(
+                1,
+                (
+                    comparison_rank * 100
+                    + comparison_population
+                    - 1
+                )
+                // comparison_population,
+            )
+
+            comparison_basis = (
+                f"{scoring_total} goals - "
+                f"#{comparison_rank} of "
+                f"{comparison_population} "
+                f"Premier League players"
+            )
+
+        items.append(
+            TeamRecordItem(
+                key=key,
+                label=label,
+                value=leader["player_name"],
+                detail=detail,
+                ranking=ranking,
+                comparison_rank=comparison_rank,
+                comparison_population=comparison_population,
+                top_percent=top_percent,
+                comparison_basis=comparison_basis,
+            )
+        )
+
+    # PLAYER_ALL_SIX_COMPARISONS_START
+    competition_players = (
+        _competition_player_record_profiles(seasons)
+    )
+
+    metric_by_key = {
+        "top-scorer": "goals",
+        "most-assists": "assists",
+        "goal-involvements": "goal_involvements",
+        "most-clean-sheets": "clean_sheets",
+        "most-appearances": "appearances",
+        "longest-scoring-streak": "longest_scoring_streak",
+    }
+
+    basis_label = {
+        "goals": "goalscorers",
+        "assists": "players with an assist",
+        "goal_involvements": "players with a goal involvement",
+        "clean_sheets": "players with a qualifying clean sheet",
+        "appearances": "players with an appearance",
+        "longest_scoring_streak": "players with a scoring streak",
+    }
+
+    for item in items:
+        metric = metric_by_key.get(item.key)
+
+        if not metric:
+            continue
+
+        # Only compare against players who actually qualify
+        # for this particular record category.
+        qualified_players = [
+            player
+            for player in competition_players
+            if int(player.get(metric, 0)) > 0
+        ]
+
+        if not qualified_players:
+            continue
+
+        amount = max(
+            int(player.get(metric, 0))
+            for player in players
+        )
+
+        rank = (
+            sum(
+                int(player.get(metric, 0)) > amount
+                for player in qualified_players
+            )
+            + 1
+        )
+
+        population = len(qualified_players)
+
+        item.comparison_rank = rank
+        item.comparison_population = population
+        item.top_percent = max(
+            1,
+            (rank * 100 + population - 1) // population,
+        )
+
+        item.comparison_basis = (
+            f"#{rank} of {population} represented "
+            f"Premier League {basis_label[metric]}"
+        )
+    # PLAYER_ALL_SIX_COMPARISONS_END
+
+    return TeamRecordCategory(
+        key="players",
+        label="Players",
+        status="AVAILABLE",
+        items=items,
+        leaderboard=leaderboard,
+        note=(
+            "Clean sheets require 60+ minutes in a team clean-sheet fixture. "
+            "Scoring streaks use consecutive player appearances and do not "
+            "bridge separate seasons."
+        ),
+    )
+
+
+@app.get(
+    "/api/v1/teams/{season}/{persistent_team_code}/records",
+    response_model=TeamSeasonRecordsResult,
+)
+def get_team_season_records(
+    season: str,
+    persistent_team_code: str,
+    scope: Literal["season", "overall"] = Query("season"),
+) -> TeamSeasonRecordsResult:
+    requested_code = persistent_team_code.strip()
+
+    try:
+        if scope == "overall":
+            options = get_team_seasons(requested_code)
+        else:
+            selected = next(
+                (
+                    option
+                    for option in get_teams(season)
+                    if option.persistent_team_code == requested_code
+                ),
+                None,
+            )
+            options = [selected] if selected is not None else []
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="Team record book failed safely.",
+        ) from exc
+
+    if not options:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Team {persistent_team_code} is unavailable.",
+        )
+
+    # Chronological season order is important for deterministic records.
+    options = sorted(options, key=lambda option: option.season)
+
+    seasons_included = [option.season for option in options]
+    display_name = options[-1].display_name
+    include_season = scope == "overall"
+
+    scope_label = (
+        season
+        if scope == "season"
+        else (
+            f"{seasons_included[0]} to {seasons_included[-1]}"
+            f" - {len(seasons_included)} seasons"
+        )
+    )
+
+    matches: list[dict] = []
+
+    for option in options:
+        try:
+            payload = query_api.fixtures(
+                season=option.season,
+                team=option.display_name,
+                limit=500,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        except Exception as exc:
+            raise HTTPException(
+                status_code=500,
+                detail="Team record fixture query failed safely.",
+            ) from exc
+
+        for fixture in payload["results"]:
+            if (
+                fixture.get("home_score") in (None, "")
+                or fixture.get("away_score") in (None, "")
+            ):
+                continue
+
+            home_score = int(fixture["home_score"])
+            away_score = int(fixture["away_score"])
+
+            if str(option.local_team_id) == str(fixture["home_team_id"]):
+                goals_for = home_score
+                goals_against = away_score
+                opponent = str(fixture["away_team_name"])
+                venue: Literal["Home", "Away"] = "Home"
+
+            elif str(option.local_team_id) == str(fixture["away_team_id"]):
+                goals_for = away_score
+                goals_against = home_score
+                opponent = str(fixture["home_team_name"])
+                venue = "Away"
+
+            else:
+                continue
+
+            if goals_for > goals_against:
+                result: Literal["W", "D", "L"] = "W"
+            elif goals_for == goals_against:
+                result = "D"
+            else:
+                result = "L"
+
+            matches.append(
+                {
+                    "season": option.season,
+                    "fixture_id": str(fixture["fixture_id"]),
+                    "kickoff_time": fixture.get("kickoff_time"),
+                    "opponent": opponent,
+                    "venue": venue,
+                    "goals_for": goals_for,
+                    "goals_against": goals_against,
+                    "result": result,
+                }
+            )
+
+    matches.sort(
+        key=lambda match: (
+            match["season"],
+            str(match.get("kickoff_time") or ""),
+            match["fixture_id"],
+        )
+    )
+
+    if not matches:
+        unavailable = [
+            TeamRecordCategory(
+                key="results",
+                label="Results",
+                status="UNAVAILABLE",
+                note="No completed governed league fixtures are available.",
+            ),
+            TeamRecordCategory(
+                key="runs",
+                label="Runs & streaks",
+                status="UNAVAILABLE",
+                note="No completed governed league fixtures are available.",
+            ),
+            TeamRecordCategory(
+                key="goals",
+                label="Goals",
+                status="UNAVAILABLE",
+                note="No completed governed league fixtures are available.",
+            ),
+            TeamRecordCategory(
+                key="players",
+                label="Players",
+                status="UNAVAILABLE",
+                note="Team-scoped player records are not yet governed.",
+            ),
+            TeamRecordCategory(
+                key="matchday",
+                label="Matchday",
+                status="UNAVAILABLE",
+                note="Season-wide matchday comparison is not yet governed.",
+            ),
+        ]
+
+        return TeamSeasonRecordsResult(
+            persistent_team_code=requested_code,
+            display_name=display_name,
+            season=season,
+            scope=scope,
+            scope_label=scope_label,
+            seasons_included=seasons_included,
+            competition="Premier League",
+            categories=unavailable,
+            provenance=ResearchProvenance(
+                source="query_api.fixtures + governed persistent team identity",
+                transformation_version="team-records-v2",
+            ),
+        )
+
+    wins = [match for match in matches if match["result"] == "W"]
+    losses = [match for match in matches if match["result"] == "L"]
+
+    biggest_win = max(
+        wins,
+        key=lambda match: (
+            match["goals_for"] - match["goals_against"],
+            match["goals_for"],
+        ),
+        default=None,
+    )
+
+    biggest_defeat = max(
+        losses,
+        key=lambda match: (
+            match["goals_against"] - match["goals_for"],
+            match["goals_against"],
+        ),
+        default=None,
+    )
+
+    biggest_home_win = max(
+        (match for match in wins if match["venue"] == "Home"),
+        key=lambda match: (
+            match["goals_for"] - match["goals_against"],
+            match["goals_for"],
+        ),
+        default=None,
+    )
+
+    biggest_away_win = max(
+        (match for match in wins if match["venue"] == "Away"),
+        key=lambda match: (
+            match["goals_for"] - match["goals_against"],
+            match["goals_for"],
+        ),
+        default=None,
+    )
+
+    highest_scoring = max(
+        matches,
+        key=lambda match: (
+            match["goals_for"] + match["goals_against"],
+            match["goals_for"],
+        ),
+    )
+
+    longest_win = _best_streak(
+        matches,
+        lambda match: match["result"] == "W",
+    )
+
+    results_category = TeamRecordCategory(
+        key="results",
+        label="Results",
+        status="AVAILABLE",
+        items=[
+            _fixture_record(
+                "biggest-win",
+                "Biggest win",
+                biggest_win,
+                include_season,
+            ),
+            _fixture_record(
+                "biggest-defeat",
+                "Biggest defeat",
+                biggest_defeat,
+                include_season,
+            ),
+            _fixture_record(
+                "biggest-home-win",
+                "Biggest home win",
+                biggest_home_win,
+                include_season,
+            ),
+            _fixture_record(
+                "biggest-away-win",
+                "Biggest away win",
+                biggest_away_win,
+                include_season,
+            ),
+            _fixture_record(
+                "highest-scoring-match",
+                "Highest-scoring match",
+                highest_scoring,
+                include_season,
+            ),
+            _streak_record(
+                "winning-streak",
+                "Longest winning streak",
+                longest_win,
+                include_season,
+            ),
+        ],
+    )
+
+    runs_category = TeamRecordCategory(
+        key="runs",
+        label="Runs & streaks",
+        status="AVAILABLE",
+        items=[
+            _streak_record(
+                "winning-streak",
+                "Longest winning streak",
+                longest_win,
+                include_season,
+            ),
+            _streak_record(
+                "unbeaten-streak",
+                "Longest unbeaten streak",
+                _best_streak(matches, lambda match: match["result"] != "L"),
+                include_season,
+            ),
+            _streak_record(
+                "losing-streak",
+                "Longest losing streak",
+                _best_streak(matches, lambda match: match["result"] == "L"),
+                include_season,
+            ),
+            _streak_record(
+                "winless-streak",
+                "Longest winless streak",
+                _best_streak(matches, lambda match: match["result"] != "W"),
+                include_season,
+            ),
+            _streak_record(
+                "scoring-streak",
+                "Longest scoring streak",
+                _best_streak(matches, lambda match: match["goals_for"] > 0),
+                include_season,
+            ),
+            _streak_record(
+                "goalless-streak",
+                "Longest goalless streak",
+                _best_streak(matches, lambda match: match["goals_for"] == 0),
+                include_season,
+            ),
+            _streak_record(
+                "clean-sheet-streak",
+                "Longest clean-sheet streak",
+                _best_streak(matches, lambda match: match["goals_against"] == 0),
+                include_season,
+            ),
+            _streak_record(
+                "conceding-streak",
+                "Longest conceding streak",
+                _best_streak(matches, lambda match: match["goals_against"] > 0),
+                include_season,
+            ),
+        ],
+    )
+
+    total_matches = len(matches)
+    goals_for = sum(match["goals_for"] for match in matches)
+    goals_against = sum(match["goals_against"] for match in matches)
+
+    clean_sheets = sum(
+        match["goals_against"] == 0 for match in matches
+    )
+    scored_2_plus = sum(
+        match["goals_for"] >= 2 for match in matches
+    )
+    scored_3_plus = sum(
+        match["goals_for"] >= 3 for match in matches
+    )
+    scored_4_plus = sum(
+        match["goals_for"] >= 4 for match in matches
+    )
+    conceded_2_plus = sum(
+        match["goals_against"] >= 2 for match in matches
+    )
+
+    most_goals_match = max(
+        matches,
+        key=lambda match: (
+            match["goals_for"],
+            -match["goals_against"],
+        ),
+    )
+
+    def percentage(count: int) -> float:
+        return round((count / total_matches) * 100, 1)
+
+    goals_category = TeamRecordCategory(
+        key="goals",
+        label="Goals",
+        status="AVAILABLE",
+        items=[
+            TeamRecordItem(
+                key="goals-scored",
+                label="League goals scored",
+                value=str(goals_for),
+                detail=f"Across {total_matches} completed matches",
+            ),
+            TeamRecordItem(
+                key="goals-conceded",
+                label="League goals conceded",
+                value=str(goals_against),
+                detail=f"Across {total_matches} completed matches",
+            ),
+            TeamRecordItem(
+                key="clean-sheets",
+                label="Clean sheets",
+                value=str(clean_sheets),
+                detail=f"{clean_sheets} of {total_matches} matches",
+                percentage=percentage(clean_sheets),
+            ),
+            TeamRecordItem(
+                key="scored-two-plus",
+                label="Matches scoring 2+",
+                value=str(scored_2_plus),
+                detail=f"{scored_2_plus} of {total_matches} matches",
+                percentage=percentage(scored_2_plus),
+            ),
+            TeamRecordItem(
+                key="scored-three-plus",
+                label="Matches scoring 3+",
+                value=str(scored_3_plus),
+                detail=f"{scored_3_plus} of {total_matches} matches",
+                percentage=percentage(scored_3_plus),
+            ),
+            TeamRecordItem(
+                key="scored-four-plus",
+                label="Matches scoring 4+",
+                value=str(scored_4_plus),
+                detail=f"{scored_4_plus} of {total_matches} matches",
+                percentage=percentage(scored_4_plus),
+            ),
+            TeamRecordItem(
+                key="conceded-two-plus",
+                label="Matches conceding 2+",
+                value=str(conceded_2_plus),
+                detail=f"{conceded_2_plus} of {total_matches} matches",
+                percentage=percentage(conceded_2_plus),
+            ),
+            _fixture_record(
+                "most-goals-match",
+                "Most goals scored in a match",
+                most_goals_match,
+                include_season,
+            ),
+        ],
+    )
+
+    comparison_seasons = (
+        [season]
+        if scope == "season"
+        else sorted(query_api.list_seasons())
+    )
+
+    comparison_profiles = _goal_comparison_profiles(
+        comparison_seasons
+    )
+
+    _apply_goal_comparisons(
+        goals_category,
+        comparison_profiles,
+        requested_code,
+    )
+
+    return TeamSeasonRecordsResult(
+        persistent_team_code=requested_code,
+        display_name=display_name,
+        season=season,
+        scope=scope,
+        scope_label=scope_label,
+        seasons_included=seasons_included,
+        competition="Premier League",
+        categories=[
+            results_category,
+            runs_category,
+            goals_category,
+            _team_player_records_category(
+                seasons_included,
+                requested_code,
+                scope,
+            ),
+            TeamRecordCategory(
+                key="matchday",
+                label="Matchday",
+                status="UNAVAILABLE",
+                note=(
+                    "Attendance and event-level records remain withheld "
+                    "until season-wide comparison is governed."
+                ),
+            ),
+        ],
+        provenance=ResearchProvenance(
+            source=(
+                "query_api.fixtures + governed persistent team identity + "
+                "Player-Match club-scoped evidence"
+            ),
+            transformation_version="team-records-v3",
+        ),
+        limitations=[
+            (
+                "Individual season mode covers the selected Premier League season."
+                if scope == "season"
+                else
+                "Overall mode covers all represented Premier League seasons for this persistent club in FRL."
+            ),
+            "Overall streaks never join separate seasons together.",
+            "Tied records retain the first chronological occurrence.",
+            "FRL overall records are dataset-era records, not club all-time records.",
+        ],
+    )
+
+
 @app.get("/api/v1/fixtures/{season}", response_model=FixtureResearchResult)
 def get_fixtures(
     season: str,
@@ -801,3 +2424,963 @@ if __name__ == "__main__":
         port=int(os.getenv("FRL_API_PORT", "8000")),
         reload=True,
     )
+
+
+# TEAM_XI_V1
+
+_TEAM_XI_CACHE: dict[
+    tuple[str, str, str],
+    TeamXIResult,
+] = {}
+
+
+_TEAM_XI_SAMPLE_CACHE: dict[
+    tuple[tuple[str, ...], str],
+    list[dict],
+] = {}
+
+
+def _xi_formation_counts(
+    formation: str | None,
+) -> tuple[int, ...] | None:
+    parts = str(formation or "").strip().split("-")
+
+    if (
+        not parts
+        or any(not part.isdigit() for part in parts)
+    ):
+        return None
+
+    counts = tuple(int(part) for part in parts)
+
+    if (
+        any(count <= 0 for count in counts)
+        or sum(counts) != 10
+    ):
+        return None
+
+    return counts
+
+
+def _xi_coordinates(
+    line_index: int,
+    slot_index: int,
+    line_size: int,
+    outfield_lines: int,
+) -> tuple[float, float]:
+    if line_size == 1:
+        x = 50.0
+    else:
+        span = min(
+            64.0,
+            24.0 * (line_size - 1),
+        )
+
+        x = (
+            50.0
+            + span / 2.0
+            - span * slot_index / (line_size - 1)
+        )
+
+    y = (
+        8.0
+        if line_index == 0
+        else 8.0
+        + 83.0 * line_index / outfield_lines
+    )
+
+    return round(x, 2), round(y, 2)
+
+
+def _xi_role(
+    line_index: int,
+    outfield_lines: int,
+) -> Literal["GK", "DEF", "MID", "FWD"]:
+    if line_index == 0:
+        return "GK"
+
+    if line_index == 1:
+        return "DEF"
+
+    if line_index == outfield_lines:
+        return "FWD"
+
+    return "MID"
+
+
+def _xi_target_slots(
+    formation: str,
+) -> list[dict]:
+    counts = _xi_formation_counts(formation)
+
+    if counts is None:
+        return []
+
+    line_sizes = (1, *counts)
+    slots: list[dict] = []
+
+    for line_index, line_size in enumerate(line_sizes):
+        for slot_index in range(line_size):
+            x, y = _xi_coordinates(
+                line_index,
+                slot_index,
+                line_size,
+                len(counts),
+            )
+
+            slots.append(
+                {
+                    "slot_id": (
+                        f"{line_index}-"
+                        f"{slot_index}-"
+                        f"{line_size}"
+                    ),
+                    "line_index": line_index,
+                    "slot_index": slot_index,
+                    "line_size": line_size,
+                    "x": x,
+                    "y": y,
+                    "role": _xi_role(
+                        line_index,
+                        len(counts),
+                    ),
+                }
+            )
+
+    return slots
+
+
+def _xi_seasons_for_team(
+    persistent_team_code: str,
+) -> list[str]:
+    seasons: list[str] = []
+
+    for candidate in query_api.list_seasons():
+        if any(
+            str(option.persistent_team_code)
+            == str(persistent_team_code)
+            for option in get_teams(candidate)
+        ):
+            seasons.append(candidate)
+
+    return seasons
+
+
+def _xi_fixture_samples(
+    seasons: list[str],
+    persistent_team_code: str,
+) -> list[dict]:
+    """Read formation XIs directly from preserved lineup evidence.
+
+    The PulseLive source ID is bridged to the exact Player-Match
+    player identity through the established pl_code relationship.
+    """
+    cache_key = (
+        tuple(seasons),
+        str(persistent_team_code),
+    )
+
+    cached = _TEAM_XI_SAMPLE_CACHE.get(cache_key)
+
+    if cached is not None:
+        return cached
+
+    samples: list[dict] = []
+
+    for selected_season in seasons:
+        option = next(
+            (
+                option
+                for option in get_teams(selected_season)
+                if str(option.persistent_team_code)
+                == str(persistent_team_code)
+            ),
+            None,
+        )
+
+        if option is None:
+            continue
+
+        player_bridge = (
+            player_match_stats.pulselive_player_bridge_index(
+                selected_season
+            )
+        )
+
+        fixture_payload = query_api.fixtures(
+            season=selected_season,
+            team=option.display_name,
+            limit=500,
+        )
+
+        for fixture in fixture_payload["results"]:
+            if (
+                str(fixture.get("home_team_id"))
+                == str(option.local_team_id)
+            ):
+                side = "home"
+            elif (
+                str(fixture.get("away_team_id"))
+                == str(option.local_team_id)
+            ):
+                side = "away"
+            else:
+                continue
+
+            try:
+                source_match = xi_resolve_source_match(
+                    selected_season,
+                    str(fixture["fixture_id"]),
+                )
+
+                snapshot, _ = xi_load_snapshot(
+                    str(source_match["source_match_id"])
+                )
+            except Exception:
+                continue
+
+            if snapshot is None:
+                continue
+
+            lineup_data = xi_normalise_lineups(
+                xi_resource_payload(
+                    snapshot,
+                    "lineups",
+                )
+            )
+
+            formation_side = (
+                lineup_data.get(
+                    "formations",
+                    {},
+                ).get(side)
+                or {}
+            )
+
+            if (
+                formation_side.get("status")
+                != "AVAILABLE"
+            ):
+                continue
+
+            formation = str(
+                formation_side.get("value") or ""
+            ).strip()
+
+            counts = _xi_formation_counts(
+                formation
+            )
+
+            if counts is None:
+                continue
+
+            expected = (1, *counts)
+            starting: list[dict] = []
+
+            for row in lineup_data.get(
+                "players",
+                [],
+            ):
+                if row.get("side") != side:
+                    continue
+
+                order = row.get(
+                    "source_formation_order"
+                )
+
+                if not isinstance(order, dict):
+                    continue
+
+                pulselive_id = str(
+                    row.get("source_player_id")
+                    or ""
+                ).strip()
+
+                bridge = player_bridge.get(
+                    pulselive_id
+                )
+
+                if bridge is None:
+                    continue
+
+                try:
+                    line_index = int(
+                        order["line_index"]
+                    )
+                    slot_index = int(
+                        order["slot_index"]
+                    )
+                    line_size = int(
+                        order["line_size"]
+                    )
+                except (
+                    KeyError,
+                    TypeError,
+                    ValueError,
+                ):
+                    continue
+
+                if not (
+                    0 <= line_index < len(expected)
+                ):
+                    continue
+
+                if (
+                    line_size != expected[line_index]
+                    or not 0 <= slot_index < line_size
+                ):
+                    continue
+
+                x, y = _xi_coordinates(
+                    line_index,
+                    slot_index,
+                    line_size,
+                    len(counts),
+                )
+
+                starting.append(
+                    {
+                        "player_id":
+                            bridge["player_id"],
+                        "player_name":
+                            bridge["player_name"],
+                        "position":
+                            bridge.get("position"),
+                        "line_index": line_index,
+                        "slot_index": slot_index,
+                        "line_size": line_size,
+                        "x": x,
+                        "y": y,
+                        "role": _xi_role(
+                            line_index,
+                            len(counts),
+                        ),
+                    }
+                )
+
+            slot_keys = {
+                (
+                    row["line_index"],
+                    row["slot_index"],
+                    row["line_size"],
+                )
+                for row in starting
+            }
+
+            player_ids = {
+                row["player_id"]
+                for row in starting
+            }
+
+            if (
+                len(starting) != 11
+                or len(slot_keys) != 11
+                or len(player_ids) != 11
+            ):
+                continue
+
+            samples.append(
+                {
+                    "season": selected_season,
+                    "fixture_id": str(
+                        fixture["fixture_id"]
+                    ),
+                    "formation": formation,
+                    "players": starting,
+                }
+            )
+
+    _TEAM_XI_SAMPLE_CACHE[
+        cache_key
+    ] = samples
+
+    return samples
+
+
+def _xi_assign_season(
+    formation: str,
+    samples: list[dict],
+    squad_by_id: dict[str, dict],
+) -> list[TeamXISlot]:
+    target = _xi_target_slots(formation)
+
+    formation_samples = [
+        sample
+        for sample in samples
+        if sample["formation"] == formation
+    ]
+
+    counts: dict[
+        str,
+        dict[str, int],
+    ] = {}
+
+    names: dict[str, str] = {}
+    positions: dict[str, str | None] = {}
+
+    for sample in formation_samples:
+        for player in sample["players"]:
+            slot_id = (
+                f'{player["line_index"]}-'
+                f'{player["slot_index"]}-'
+                f'{player["line_size"]}'
+            )
+
+            counts.setdefault(
+                slot_id,
+                {},
+            )[player["player_id"]] = (
+                counts.setdefault(
+                    slot_id,
+                    {},
+                ).get(
+                    player["player_id"],
+                    0,
+                )
+                + 1
+            )
+
+            names[player["player_id"]] = (
+                player["player_name"]
+            )
+
+            positions[player["player_id"]] = (
+                player.get("position")
+            )
+
+    used: set[str] = set()
+    result: list[TeamXISlot] = []
+
+    for slot in target:
+        candidates = sorted(
+            counts.get(
+                slot["slot_id"],
+                {},
+            ).items(),
+            key=lambda item: (
+                -item[1],
+                -int(
+                    squad_by_id.get(
+                        item[0],
+                        {},
+                    ).get(
+                        "starts",
+                        0,
+                    )
+                ),
+                -int(
+                    squad_by_id.get(
+                        item[0],
+                        {},
+                    ).get(
+                        "appearances",
+                        0,
+                    )
+                ),
+                names.get(
+                    item[0],
+                    item[0],
+                ).casefold(),
+            ),
+        )
+
+        chosen = next(
+            (
+                item
+                for item in candidates
+                if item[0] not in used
+            ),
+            None,
+        )
+
+        player_id = (
+            chosen[0]
+            if chosen
+            else None
+        )
+
+        role_starts = (
+            chosen[1]
+            if chosen
+            else 0
+        )
+
+        if player_id:
+            used.add(player_id)
+
+        squad_player = (
+            squad_by_id.get(
+                player_id or "",
+                {},
+            )
+        )
+
+        result.append(
+            TeamXISlot(
+                **slot,
+                player_id=player_id,
+                player_name=(
+                    squad_player.get("player_name")
+                    or names.get(
+                        player_id or ""
+                    )
+                    if player_id
+                    else None
+                ),
+                position=(
+                    squad_player.get("position")
+                    or positions.get(
+                        player_id or ""
+                    )
+                    if player_id
+                    else None
+                ),
+                role_starts=role_starts,
+                appearances=int(
+                    squad_player.get(
+                        "appearances",
+                        0,
+                    )
+                ),
+            )
+        )
+
+    return result
+
+
+def _xi_assign_overall(
+    formation: str,
+    samples: list[dict],
+    squad_by_id: dict[str, dict],
+) -> list[TeamXISlot]:
+    """Era XI in the era's most-used exact formation.
+
+    Only starts made in the modal formation contribute. This means
+    every player competes for the exact source-backed tactical slot
+    shown on the pitch rather than being translated between shapes.
+    """
+    target = _xi_target_slots(formation)
+
+    formation_samples = [
+        sample
+        for sample in samples
+        if sample["formation"] == formation
+    ]
+
+    counts: dict[
+        str,
+        dict[str, int],
+    ] = {
+        slot["slot_id"]: {}
+        for slot in target
+    }
+
+    names: dict[str, str] = {}
+    positions: dict[str, str | None] = {}
+
+    for sample in formation_samples:
+        for player in sample["players"]:
+            slot_id = (
+                f'{player["line_index"]}-'
+                f'{player["slot_index"]}-'
+                f'{player["line_size"]}'
+            )
+
+            if slot_id not in counts:
+                continue
+
+            player_id = player["player_id"]
+
+            counts[slot_id][player_id] = (
+                counts[slot_id].get(
+                    player_id,
+                    0,
+                )
+                + 1
+            )
+
+            names[player_id] = (
+                player["player_name"]
+            )
+
+            positions[player_id] = (
+                player.get("position")
+            )
+
+    # Resolve the clearest slots first so a genuinely versatile
+    # player is not duplicated elsewhere in the XI.
+    def confidence(
+        slot: dict,
+    ) -> tuple[int, int]:
+        values = sorted(
+            counts[
+                slot["slot_id"]
+            ].values(),
+            reverse=True,
+        )
+
+        first = values[0] if values else 0
+        second = values[1] if len(values) > 1 else 0
+
+        return first, first - second
+
+    assignment_order = sorted(
+        target,
+        key=lambda slot: (
+            -confidence(slot)[0],
+            -confidence(slot)[1],
+            slot["line_index"],
+            slot["slot_index"],
+        ),
+    )
+
+    used: set[str] = set()
+    assigned: dict[str, TeamXISlot] = {}
+
+    for slot in assignment_order:
+        candidates = sorted(
+            counts[
+                slot["slot_id"]
+            ].items(),
+            key=lambda item: (
+                -item[1],
+                -int(
+                    squad_by_id.get(
+                        item[0],
+                        {},
+                    ).get(
+                        "appearances",
+                        0,
+                    )
+                ),
+                -int(
+                    squad_by_id.get(
+                        item[0],
+                        {},
+                    ).get(
+                        "starts",
+                        0,
+                    )
+                ),
+                names.get(
+                    item[0],
+                    item[0],
+                ).casefold(),
+            ),
+        )
+
+        chosen = next(
+            (
+                candidate
+                for candidate in candidates
+                if candidate[0] not in used
+            ),
+            None,
+        )
+
+        if chosen is None:
+            continue
+
+        player_id, slot_starts = chosen
+        used.add(player_id)
+
+        squad_player = squad_by_id.get(
+            player_id,
+            {},
+        )
+
+        assigned[
+            slot["slot_id"]
+        ] = TeamXISlot(
+            **slot,
+            player_id=player_id,
+            player_name=(
+                squad_player.get("player_name")
+                or names.get(player_id)
+            ),
+            position=(
+                squad_player.get("position")
+                or positions.get(player_id)
+            ),
+            role_starts=slot_starts,
+            appearances=int(
+                squad_player.get(
+                    "appearances",
+                    0,
+                )
+            ),
+        )
+
+    return [
+        assigned.get(
+            slot["slot_id"],
+            TeamXISlot(**slot),
+        )
+        for slot in target
+    ]
+
+
+def _team_xi_result(
+    season: str,
+    persistent_team_code: str,
+    scope: Literal["season", "overall"],
+) -> TeamXIResult:
+    cache_key = (
+        season,
+        str(persistent_team_code),
+        scope,
+    )
+
+    if cache_key in _TEAM_XI_CACHE:
+        return _TEAM_XI_CACHE[cache_key]
+
+    selected_option = next(
+        (
+            option
+            for option in get_teams(season)
+            if str(option.persistent_team_code)
+            == str(persistent_team_code)
+        ),
+        None,
+    )
+
+    if selected_option is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Team {persistent_team_code} "
+                f"is not represented in {season}."
+            ),
+        )
+
+    seasons = (
+        [season]
+        if scope == "season"
+        else _xi_seasons_for_team(
+            str(persistent_team_code)
+        )
+    )
+
+    raw_squad = list(
+        player_match_stats.team_player_totals(
+            seasons,
+            str(persistent_team_code),
+        )
+    )
+
+    raw_squad.sort(
+        key=lambda player: (
+            -int(
+                player.get(
+                    "appearances",
+                    0,
+                )
+            ),
+            -int(
+                player.get(
+                    "starts",
+                    0,
+                )
+            ),
+            -int(
+                player.get(
+                    "minutes",
+                    0,
+                )
+            ),
+            player["player_name"].casefold(),
+        )
+    )
+
+    squad = [
+        TeamXIPlayer(
+            player_id=str(
+                player["player_id"]
+            ),
+            player_name=player[
+                "player_name"
+            ],
+            position=player.get(
+                "position"
+            ),
+            appearances=int(
+                player.get(
+                    "appearances",
+                    0,
+                )
+            ),
+            starts=int(
+                player.get(
+                    "starts",
+                    0,
+                )
+            ),
+            minutes=int(
+                player.get(
+                    "minutes",
+                    0,
+                )
+            ),
+            goals=int(
+                player.get(
+                    "goals",
+                    0,
+                )
+            ),
+            assists=int(
+                player.get(
+                    "assists",
+                    0,
+                )
+            ),
+            season_count=int(
+                player.get(
+                    "season_count",
+                    1,
+                )
+            ),
+        )
+        for player in raw_squad
+    ]
+
+    squad_by_id = {
+        player["player_id"]: player
+        for player in raw_squad
+    }
+
+    samples = _xi_fixture_samples(
+        seasons,
+        str(persistent_team_code),
+    )
+
+    formation_counts: dict[
+        str,
+        int,
+    ] = {}
+
+    for sample in samples:
+        formation_counts[
+            sample["formation"]
+        ] = (
+            formation_counts.get(
+                sample["formation"],
+                0,
+            )
+            + 1
+        )
+
+    formation = (
+        sorted(
+            formation_counts.items(),
+            key=lambda item: (
+                -item[1],
+                item[0],
+            ),
+        )[0][0]
+        if formation_counts
+        else None
+    )
+
+    formation_uses = (
+        formation_counts.get(
+            formation,
+            0,
+        )
+        if formation
+        else 0
+    )
+
+    if formation:
+        xi = (
+            _xi_assign_season(
+                formation,
+                samples,
+                squad_by_id,
+            )
+            if scope == "season"
+            else _xi_assign_overall(
+                formation,
+                samples,
+                squad_by_id,
+            )
+        )
+    else:
+        xi = []
+
+    scope_label = (
+        season
+        if scope == "season"
+        else (
+            f"{seasons[0]} to "
+            f"{seasons[-1]} - "
+            f"{len(seasons)} seasons"
+            if seasons
+            else "Overall"
+        )
+    )
+
+    result = TeamXIResult(
+        persistent_team_code=str(
+            persistent_team_code
+        ),
+        display_name=(
+            selected_option.display_name
+        ),
+        season=season,
+        scope=scope,
+        scope_label=scope_label,
+        seasons_included=seasons,
+        competition="Premier League",
+        formation=formation,
+        formation_uses=formation_uses,
+        formation_sample=len(samples),
+        squad=squad,
+        xi=xi,
+        provenance=ResearchProvenance(
+            source=(
+                "governed Player-Match participation + "
+                "preserved PulseLive formation-line evidence"
+            ),
+            transformation_version="team-xi-v1",
+        ),
+        limitations=[
+            (
+                "Pitch positions use source formation-line "
+                "ordering with deterministic presentation "
+                "coordinates; they are not tracking coordinates."
+            ),
+            (
+                "Fixtures without a complete governed "
+                "formation XI are excluded from formation "
+                "and role aggregation."
+            ),
+            (
+                "Overall XI selects players by starts in "
+                "goalkeeper, defensive, midfield and forward "
+                "formation roles across represented FRL seasons."
+            ),
+        ],
+    )
+
+    _TEAM_XI_CACHE[
+        cache_key
+    ] = result
+
+    return result
+
+
+@app.get(
+    "/api/v1/teams/{season}/{persistent_team_code}/xi",
+    response_model=TeamXIResult,
+)
+def get_team_xi(
+    season: str,
+    persistent_team_code: str,
+    scope: Literal["season", "overall"] = "season",
+):
+    return _team_xi_result(
+        season,
+        persistent_team_code,
+        scope,
+    )
+

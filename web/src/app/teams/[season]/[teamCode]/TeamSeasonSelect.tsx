@@ -14,6 +14,7 @@ type Props = {
   teamCode: string;
   currentView: string;
   seasons: SeasonOption[];
+  disabled?: boolean;
 };
 
 export function TeamSeasonSelect({
@@ -21,15 +22,22 @@ export function TeamSeasonSelect({
   teamCode,
   currentView,
   seasons,
+  disabled = false,
 }: Props) {
   const router = useRouter();
 
   return (
-    <label className="frl-context-control frl-context-control-season">
+    <label
+      className={`frl-context-control frl-context-control-season${
+        disabled ? " frl-context-control-disabled" : ""
+      }`}
+      aria-disabled={disabled}
+    >
       <span>Season</span>
       <select
         aria-label="Team season"
         value={currentSeason}
+        disabled={disabled}
         onChange={(event) => {
           const season = event.target.value;
           router.push(

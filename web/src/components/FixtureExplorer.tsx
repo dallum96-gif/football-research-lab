@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { TeamKit } from "@/app/teams/TeamKit";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   fetchFixtureResearchResult,
@@ -140,9 +141,9 @@ async function loadFixtureQuerySet(
   }
 
   result.rows.sort((a, b) => {
-    const time = a.kickoffTime.localeCompare(b.kickoffTime);
+    const time = b.kickoffTime.localeCompare(a.kickoffTime);
     if (time !== 0) return time;
-    return `${a.season}-${a.fixtureId}`.localeCompare(`${b.season}-${b.fixtureId}`);
+    return `${b.season}-${b.fixtureId}`.localeCompare(`${a.season}-${a.fixtureId}`);
   });
 
   return result;
@@ -575,6 +576,7 @@ export function FixtureExplorer() {
               {groupRows.map((row) => (
                 <Link
                   className="frl-fixture-row"
+                  data-result={row.result}
                   href={`/fixtures/${row.season}/${row.fixtureId}`}
                   key={`${row.season}-${row.fixtureId}`}
                 >
@@ -583,8 +585,13 @@ export function FixtureExplorer() {
                     {row.gameweek ? <small>GW {row.gameweek}</small> : null}
                   </span>
                   <span className="frl-fixture-opponent">
-                    <i aria-hidden="true" />
-                    {row.opponent}
+                    <span
+                      className="frl-fixture-opponent-kit"
+                      aria-hidden="true"
+                    >
+                      <TeamKit teamName={row.opponent} />
+                    </span>
+                    <strong>{row.opponent}</strong>
                   </span>
                   <span className="frl-fixture-venue">{row.venue}</span>
                   <span className="frl-fixture-score">{row.score}</span>
