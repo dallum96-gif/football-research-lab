@@ -6,6 +6,10 @@ from pathlib import Path
 
 import query_lab
 from match_stats import CORE_FIELDS, OPTIONAL_FIELDS, load_csv, number
+from team_metric_missingness import (
+    normalise_team_match_observation,
+    team_match_missingness_semantics,
+)
 
 PACKAGED = Path(__file__).resolve().parent / "data" / "fixture_match_stats.csv"
 FIXTURES = Path(__file__).resolve().parent / "fixtures_master_corrected.csv"
@@ -92,10 +96,21 @@ def team_match_stats(season: str, team_code: str) -> tuple[dict, ...]:
         if selected is None:
             continue
         values, is_home = selected
-        row = dict(values)
+        row = {}
+        structural_zero_fields = []
+        for key, raw_value in values.items():
+            value, structural_zero = normalise_team_match_observation(
+                season,
+                key,
+                raw_value,
+            )
+            row[key] = value
+            if structural_zero:
+                structural_zero_fields.append(key)
         row["fixture_id"] = str(fixture.get("fixture_id"))
         row["kickoff_time"] = fixture.get("kickoff_time")
         row["home"] = is_home
+        row["_structural_zero_fields"] = tuple(structural_zero_fields)
         results.append(row)
     return tuple(results)
 
@@ -106,27 +121,53 @@ def team_season_stats(season: str, team_code: str) -> dict:
         return {"status": "UNAVAILABLE", "matches": 0}
 
     eligible_matches = len(rows)
-    context_fields = {"fixture_id", "kickoff_time", "home"}
+    context_fields = {
+        "fixture_id",
+        "kickoff_time",
+        "home",
+        "_structural_zero_fields",
+    }
     metric_fields = sorted(
         {
             key
             for row in rows
             for key in row
-            if key not in context_fields
+            if key not in context_fields and not key.startswith("_")
         }
     )
     sums = defaultdict(float)
     observed_rows: dict[str, set[int]] = {
         key: set() for key in metric_fields
     }
+    source_observed_rows: dict[str, set[int]] = {
+        key: set() for key in metric_fields
+    }
+    structural_zero_rows: dict[str, set[int]] = {
+        key: set() for key in metric_fields
+    }
 
     for index, row in enumerate(rows):
+        row_structural_zeros = set(row.get("_structural_zero_fields", ()))
         for key in metric_fields:
             value = row.get(key)
-            if value is None:
+            inferred_value, inferred_structural_zero = normalise_team_match_observation(
+                season,
+                key,
+                value,
+            )
+            if inferred_value is None:
                 continue
-            sums[key] += float(value)
+
+            is_structural_zero = (
+                inferred_structural_zero
+                or key in row_structural_zeros
+            )
+            sums[key] += float(inferred_value)
             observed_rows[key].add(index)
+            if is_structural_zero:
+                structural_zero_rows[key].add(index)
+            else:
+                source_observed_rows[key].add(index)
 
     out = {
         "status": "AVAILABLE",
@@ -135,6 +176,8 @@ def team_season_stats(season: str, team_code: str) -> dict:
     }
     for key in metric_fields:
         observed_matches = len(observed_rows[key])
+        source_observed_matches = len(source_observed_rows[key])
+        structural_zero_matches = len(structural_zero_rows[key])
         missing_matches = eligible_matches - observed_matches
         observed_total = sums[key] if observed_matches else None
         per_observed_match = (
@@ -152,17 +195,23 @@ def team_season_stats(season: str, team_code: str) -> dict:
 
         out["metric_coverage"][key] = {
             "eligible_matches": eligible_matches,
+            "source_observed_matches": source_observed_matches,
+            "structural_zero_matches": structural_zero_matches,
             "observed_matches": observed_matches,
             "missing_matches": missing_matches,
             "observed_total": observed_total,
             "per_observed_match": per_observed_match,
+            "missingness_semantics": team_match_missingness_semantics(
+                season,
+                key,
+            ),
             "coverage_complete": observed_matches == eligible_matches,
             "coverage_status": coverage_status,
         }
 
         if observed_total is not None:
             # Compatibility aliases: totals retain their established keys,
-            # while per-match values now use the explicit observed population.
+            # while per-match values use the governed observed population.
             out[key] = observed_total
             out[f"{key}_per_match"] = per_observed_match
 
