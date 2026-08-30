@@ -22,6 +22,7 @@ from pulselive_fixture_evidence import (
     resource_payload as xi_resource_payload,
 )
 import query_api
+import team_research_stats
 
 
 class CanonicalFixtureRef(BaseModel):
@@ -146,6 +147,55 @@ class TeamOverviewResult(BaseModel):
     goals_against: int
     goal_difference: int
     points: int
+    provenance: ResearchProvenance
+    limitations: list[str] = Field(default_factory=list)
+
+
+
+class TeamStatsMetric(BaseModel):
+    key: str
+    label: str
+    value: float
+    unit: str
+    rank: int
+    out_of: int
+    percentile: float
+    higher_is_better: bool
+
+
+class TeamStatsSplit(BaseModel):
+    label: str
+    matches: int
+    points_per_match: float | None = None
+    goals_for_per_match: float | None = None
+    goals_against_per_match: float | None = None
+
+
+class TeamStatsTrendPoint(BaseModel):
+    fixture_id: str
+    kickoff_time: str | None = None
+    home: bool
+    points: int
+    goals_for: float | None = None
+    goals_against: float | None = None
+    shots: float | None = None
+    shots_on_target: float | None = None
+    possession: float | None = None
+
+
+class TeamStatsOverviewResult(BaseModel):
+    persistent_team_code: str
+    display_name: str
+    season: str
+    matches: int
+    metrics: list[TeamStatsMetric]
+    pass_accuracy: float | None = None
+    clean_sheet_rate: float | None = None
+    failed_to_score_rate: float | None = None
+    expected_goals_per_match: float | None = None
+    xg_overperformance: float | None = None
+    splits: list[TeamStatsSplit]
+    trend: list[TeamStatsTrendPoint]
     provenance: ResearchProvenance
     limitations: list[str] = Field(default_factory=list)
 
@@ -546,6 +596,377 @@ def get_team_overview(season: str, persistent_team_code: str) -> TeamOverviewRes
             "Season record reflects completed fixtures represented in the canonical fixture master.",
             "No historical information-availability as-of claim is made by this endpoint.",
         ],
+    )
+
+
+
+
+def _team_stats_split(
+    label: str,
+    rows: list[dict],
+) -> TeamStatsSplit:
+    if not rows:
+        return TeamStatsSplit(
+            label=label,
+            matches=0,
+        )
+
+    points = 0
+    goals_for = 0.0
+    goals_against = 0.0
+    scored_matches = 0
+
+    for row in rows:
+        gf = row.get("goals_for")
+        ga = row.get("goals_against")
+
+        if gf is None or ga is None:
+            continue
+
+        gf_value = float(gf)
+        ga_value = float(ga)
+
+        goals_for += gf_value
+        goals_against += ga_value
+        scored_matches += 1
+
+        if gf_value > ga_value:
+            points += 3
+        elif gf_value == ga_value:
+            points += 1
+
+    matches = len(rows)
+
+    return TeamStatsSplit(
+        label=label,
+        matches=matches,
+        points_per_match=round(points / matches, 3),
+        goals_for_per_match=(
+            round(goals_for / scored_matches, 3)
+            if scored_matches
+            else None
+        ),
+        goals_against_per_match=(
+            round(goals_against / scored_matches, 3)
+            if scored_matches
+            else None
+        ),
+    )
+
+
+@app.get(
+    "/api/v1/team-stats/{season}/{persistent_team_code}/overview",
+    response_model=TeamStatsOverviewResult,
+)
+def get_team_stats_overview(
+    season: str,
+    persistent_team_code: str,
+) -> TeamStatsOverviewResult:
+    requested_code = persistent_team_code.strip()
+
+    try:
+        options = get_teams(season)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="Team Stats context failed safely.",
+        ) from exc
+
+    selected = next(
+        (
+            option
+            for option in options
+            if option.persistent_team_code == requested_code
+        ),
+        None,
+    )
+
+    if selected is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Team {persistent_team_code} "
+                f"is unavailable in {season}."
+            ),
+        )
+
+    try:
+        league_stats: list[tuple[TeamOption, dict]] = []
+
+        for option in options:
+            code = option.persistent_team_code
+
+            if not code:
+                continue
+
+            stats = team_research_stats.team_season_stats(
+                season,
+                code,
+            )
+
+            if stats.get("status") == "AVAILABLE":
+                league_stats.append((option, stats))
+
+        selected_pair = next(
+            (
+                pair
+                for pair in league_stats
+                if pair[0].persistent_team_code == requested_code
+            ),
+            None,
+        )
+
+        if selected_pair is None:
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "Governed Team Stats are unavailable for "
+                    f"{selected.display_name} in {season}."
+                ),
+            )
+
+        _, stats = selected_pair
+
+        match_rows = list(
+            team_research_stats.team_match_stats(
+                season,
+                requested_code,
+            )
+        )
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail="Team Stats Overview failed safely.",
+        ) from exc
+
+    metric_definitions = (
+        (
+            "points_per_match",
+            "Points per match",
+            "PPG",
+            True,
+        ),
+        (
+            "goals_for_per_match",
+            "Goals per match",
+            "goals",
+            True,
+        ),
+        (
+            "goals_against_per_match",
+            "Goals against",
+            "goals",
+            False,
+        ),
+        (
+            "Shots_per_match",
+            "Shots per match",
+            "shots",
+            True,
+        ),
+        (
+            "Shots on target_per_match",
+            "Shots on target",
+            "shots",
+            True,
+        ),
+        (
+            "Possession_per_match",
+            "Possession",
+            "%",
+            True,
+        ),
+    )
+
+    metrics: list[TeamStatsMetric] = []
+
+    for key, label, unit, higher_is_better in metric_definitions:
+        selected_value = stats.get(key)
+
+        if selected_value is None:
+            continue
+
+        population = [
+            float(team_stats[key])
+            for _, team_stats in league_stats
+            if team_stats.get(key) is not None
+        ]
+
+        if not population:
+            continue
+
+        ordered = sorted(
+            population,
+            reverse=higher_is_better,
+        )
+
+        value = float(selected_value)
+        rank = ordered.index(value) + 1
+        out_of = len(ordered)
+
+        percentile = (
+            100.0
+            if out_of == 1
+            else round(
+                100.0 * (out_of - rank) / (out_of - 1),
+                1,
+            )
+        )
+
+        metrics.append(
+            TeamStatsMetric(
+                key=key,
+                label=label,
+                value=round(value, 3),
+                unit=unit,
+                rank=rank,
+                out_of=out_of,
+                percentile=percentile,
+                higher_is_better=higher_is_better,
+            )
+        )
+
+    match_rows.sort(
+        key=lambda row: (
+            str(row.get("kickoff_time") or ""),
+            str(row.get("fixture_id") or ""),
+        )
+    )
+
+    trend: list[TeamStatsTrendPoint] = []
+
+    for row in match_rows:
+        gf = row.get("goals_for")
+        ga = row.get("goals_against")
+
+        points = 0
+
+        if gf is not None and ga is not None:
+            if float(gf) > float(ga):
+                points = 3
+            elif float(gf) == float(ga):
+                points = 1
+
+        trend.append(
+            TeamStatsTrendPoint(
+                fixture_id=str(row.get("fixture_id") or ""),
+                kickoff_time=(
+                    str(row.get("kickoff_time"))
+                    if row.get("kickoff_time")
+                    else None
+                ),
+                home=bool(row.get("home")),
+                points=points,
+                goals_for=(
+                    float(gf)
+                    if gf is not None
+                    else None
+                ),
+                goals_against=(
+                    float(ga)
+                    if ga is not None
+                    else None
+                ),
+                shots=(
+                    float(row["Shots"])
+                    if row.get("Shots") is not None
+                    else None
+                ),
+                shots_on_target=(
+                    float(row["Shots on target"])
+                    if row.get("Shots on target") is not None
+                    else None
+                ),
+                possession=(
+                    float(row["Possession"])
+                    if row.get("Possession") is not None
+                    else None
+                ),
+            )
+        )
+
+    home_rows = [
+        row
+        for row in match_rows
+        if row.get("home")
+    ]
+
+    away_rows = [
+        row
+        for row in match_rows
+        if not row.get("home")
+    ]
+
+    expected_goals = stats.get(
+        "Expected goals_per_match"
+    )
+
+    limitations = [
+        (
+            "League ranks and percentiles use teams with comparable "
+            "governed values in the selected season."
+        ),
+        (
+            "Percentile is descriptive league context, not predictive "
+            "evidence."
+        ),
+    ]
+
+    if expected_goals is None:
+        limitations.append(
+            "Expected-goals evidence is omitted where comparable "
+            "coverage is unavailable."
+        )
+
+    return TeamStatsOverviewResult(
+        persistent_team_code=requested_code,
+        display_name=selected.display_name,
+        season=season,
+        matches=int(stats.get("matches", 0)),
+        metrics=metrics,
+        pass_accuracy=(
+            round(float(stats["pass_accuracy"]), 4)
+            if stats.get("pass_accuracy") is not None
+            else None
+        ),
+        clean_sheet_rate=(
+            round(float(stats["clean_sheet_rate"]), 4)
+            if stats.get("clean_sheet_rate") is not None
+            else None
+        ),
+        failed_to_score_rate=(
+            round(float(stats["failed_to_score_rate"]), 4)
+            if stats.get("failed_to_score_rate") is not None
+            else None
+        ),
+        expected_goals_per_match=(
+            round(float(expected_goals), 3)
+            if expected_goals is not None
+            else None
+        ),
+        xg_overperformance=(
+            round(float(stats["xg_overperformance"]), 3)
+            if stats.get("xg_overperformance") is not None
+            else None
+        ),
+        splits=[
+            _team_stats_split("Home", home_rows),
+            _team_stats_split("Away", away_rows),
+        ],
+        trend=trend,
+        provenance=ResearchProvenance(
+            source=(
+                "team_research_stats -> governed fixture match stats "
+                "+ canonical team identity"
+            ),
+            transformation_version="team-stats-overview-v1",
+        ),
+        limitations=limitations,
     )
 
 
