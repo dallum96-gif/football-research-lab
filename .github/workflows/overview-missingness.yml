@@ -1,0 +1,48 @@
+name: Overview missingness
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/audit_overview_missingness.py"
+      - "scripts/audit_source_routes.py"
+      - ".github/workflows/overview-missingness.yml"
+      - "FRL_SOURCE_ROUTING_CONTRACT.md"
+
+permissions:
+  contents: read
+
+jobs:
+  overview-missingness:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Checkout preserved upstream archive
+        shell: bash
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/imadeddine-belkat/Premier-League-Stats.git upstream-source
+          cd upstream-source
+          git sparse-checkout set pl_stats
+
+      - name: Run Overview missingness audit
+        run: |
+          mkdir -p artifacts/overview-missingness
+          python scripts/audit_overview_missingness.py \
+            --pl-root upstream-source/pl_stats \
+            --json-out artifacts/overview-missingness/report.json \
+            --md-out artifacts/overview-missingness/report.md
+
+      - name: Publish summary
+        shell: bash
+        run: cat artifacts/overview-missingness/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: frl-overview-missingness
+          path: artifacts/overview-missingness/
+          if-no-files-found: error
+          retention-days: 30
