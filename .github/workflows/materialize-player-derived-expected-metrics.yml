@@ -7,6 +7,8 @@ on:
       - "scripts/materialize_player_derived_expected_metrics.py"
       - "expected_metric_routing.py"
       - "data/fixture_match_stats.csv"
+      - "data/frl_player_derived_expected_metrics_v1.csv.gz"
+      - "data/frl_player_derived_expected_metrics_v1_metadata.json"
       - ".github/workflows/materialize-player-derived-expected-metrics.yml"
       - "FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md"
 
@@ -35,33 +37,40 @@ jobs:
           git checkout --detach FETCH_HEAD
           test "$(git rev-parse HEAD)" = "$UPSTREAM_COMMIT"
 
-      - name: Materialize governed derivative
+      - name: Rebuild governed derivative
         run: |
-          mkdir -p artifacts/player-derived-expected-metrics
           python scripts/materialize_player_derived_expected_metrics.py \
             --pl-root upstream-source/pl_stats \
             --source-commit "$UPSTREAM_COMMIT" \
-            --csv-out artifacts/player-derived-expected-metrics/frl_player_derived_expected_metrics_v1.csv \
-            --metadata-out artifacts/player-derived-expected-metrics/frl_player_derived_expected_metrics_v1_metadata.json
+            --csv-out data/frl_player_derived_expected_metrics_v1.csv.gz \
+            --metadata-out data/frl_player_derived_expected_metrics_v1_metadata.json
+
+      - name: Prove tracked artifact is reproducible
+        shell: bash
+        run: |
+          git diff --exit-code -- \
+            data/frl_player_derived_expected_metrics_v1.csv.gz \
+            data/frl_player_derived_expected_metrics_v1_metadata.json
 
       - name: Validate generated artifact shape
         shell: bash
         run: |
           python - <<'PY'
-          import csv, json
+          import csv, gzip, hashlib, json
           from pathlib import Path
 
-          root = Path('artifacts/player-derived-expected-metrics')
-          csv_path = root / 'frl_player_derived_expected_metrics_v1.csv'
-          metadata_path = root / 'frl_player_derived_expected_metrics_v1_metadata.json'
+          csv_path = Path('data/frl_player_derived_expected_metrics_v1.csv.gz')
+          metadata_path = Path('data/frl_player_derived_expected_metrics_v1_metadata.json')
 
-          with csv_path.open(newline='', encoding='utf-8') as handle:
+          with gzip.open(csv_path, mode='rt', newline='', encoding='utf-8') as handle:
               rows = list(csv.DictReader(handle))
           metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
 
           assert len(rows) == 1520, len(rows)
           assert metadata['row_count'] == 1520
           assert metadata['source_commit'] == '1ec7f0dc79055902251cd938650f622b0e79f3cc'
+          assert metadata['artifact_compression'] == 'gzip'
+          assert metadata['artifact_sha256'] == hashlib.sha256(csv_path.read_bytes()).hexdigest()
           assert metadata['coverage_fixtures']['Expected goals'] == {
               '2022-23': 380, '2023-24': 379, '2024-25': 380, '2025-26': 380
           }
@@ -71,7 +80,7 @@ jobs:
           assert metadata['coverage_fixtures']['Expected goals on target'] == {
               '2022-23': 374, '2023-24': 336, '2024-25': 334, '2025-26': 321
           }
-          print('Validated 1,520-row governed expected-metric derivative.')
+          print('Validated reproducible 1,520-row governed expected-metric derivative.')
           PY
 
       - name: Publish metadata summary
@@ -82,14 +91,17 @@ jobs:
           echo '- Source commit: `'$UPSTREAM_COMMIT'`' >> "$GITHUB_STEP_SUMMARY"
           echo '- Construction: `FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1`' >> "$GITHUB_STEP_SUMMARY"
           echo '- Rows: `1520`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Reproducibility: tracked gzip + metadata rebuilt with zero diff' >> "$GITHUB_STEP_SUMMARY"
           echo '- xG fixtures: `380 / 379 / 380 / 380`' >> "$GITHUB_STEP_SUMMARY"
           echo '- xA fixtures: `380 / 380 / 380 / 380`' >> "$GITHUB_STEP_SUMMARY"
           echo '- xGOT fixtures: `374 / 336 / 334 / 321`' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload governed derivative
+      - name: Upload governed derivative evidence
         uses: actions/upload-artifact@v4
         with:
           name: frl-player-derived-expected-metrics-v1
-          path: artifacts/player-derived-expected-metrics/
+          path: |
+            data/frl_player_derived_expected_metrics_v1.csv.gz
+            data/frl_player_derived_expected_metrics_v1_metadata.json
           if-no-files-found: error
           retention-days: 30
