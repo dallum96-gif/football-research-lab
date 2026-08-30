@@ -1,7 +1,7 @@
 .workspace {
   display: grid;
-  gap: 12px;
-  padding-top: 12px;
+  gap: 10px;
+  padding-top: 10px;
 }
 
 .familyNav {
@@ -44,37 +44,44 @@
   background: var(--frl-accent);
 }
 
-.familyIntro {
+.familyIntro,
+.familyRankingHeader {
   display: flex;
   align-items: end;
   justify-content: space-between;
   gap: 2rem;
-  padding: 14px 2px 4px;
+}
+
+.familyIntro {
+  padding: 11px 2px 2px;
+}
+
+.familyRankingHeader {
+  padding: 9px 2px 0;
 }
 
 .familyIntro h2,
+.familyRankingHeader h2,
 .fullRankingHeader h2,
-.rankingHeading h2,
 .emptyState h2 {
-  margin: .18rem 0 .2rem;
+  margin: .14rem 0 .18rem;
   font-size: 1.35rem;
   letter-spacing: -.03em;
 }
 
 .familyIntro p,
 .fullRankingHeader p,
-.rankingHeading p,
 .emptyState p,
-.sectionHeading p {
+.rankingTitleRow p {
   margin: 0;
   color: var(--frl-muted);
   font-size: .56rem;
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .populationBadge {
   flex: 0 0 auto;
-  padding: .42rem .62rem;
+  padding: .4rem .62rem;
   border: 1px solid var(--frl-border);
   border-radius: 999px;
   background: var(--frl-surface);
@@ -86,20 +93,6 @@
 .familySection {
   display: grid;
   gap: 8px;
-}
-
-.sectionHeading {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 2px 2px 0;
-}
-
-.sectionHeading h3 {
-  margin: 0 0 .16rem;
-  font-size: .78rem;
-  font-weight: 820;
-  letter-spacing: -.015em;
 }
 
 .cardGrid {
@@ -224,71 +217,70 @@
 
 .familyRankingWorkspace {
   display: grid;
-  gap: 10px;
+  gap: 8px;
 }
 
-.categoryNav {
+.metricSubheadings {
   display: flex;
-  align-items: center;
-  gap: 6px;
+  align-items: flex-end;
+  gap: 1.15rem;
+  min-height: 38px;
   overflow-x: auto;
-  padding: 1px 0 3px;
+  padding: 0 2px;
+  border-bottom: 1px solid var(--frl-border);
 }
 
-.categoryLink,
-.activeCategory,
-.metricToggleLink,
-.activeMetricToggle {
+.metricSubheading,
+.activeMetricSubheading {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: 31px;
-  padding: 0 .72rem;
-  border: 1px solid var(--frl-border);
-  border-radius: 8px;
-  background: var(--frl-surface);
+  min-height: 38px;
   color: var(--frl-muted);
-  font-size: .52rem;
-  font-weight: 780;
+  font-size: .56rem;
+  font-weight: 760;
   text-decoration: none;
   white-space: nowrap;
 }
 
-.categoryLink:hover,
-.metricToggleLink:hover {
-  border-color: var(--frl-border-strong);
+.metricSubheading:hover {
   color: var(--frl-text);
 }
 
-.activeCategory {
-  border-color: var(--frl-sidebar);
-  background: var(--frl-sidebar);
-  color: var(--frl-surface);
+.activeMetricSubheading {
+  color: var(--frl-text);
+  font-weight: 820;
 }
 
-.rankingHeading {
-  padding: 6px 2px 1px;
+.activeMetricSubheading::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--frl-secondary);
 }
 
-.metricToggle {
+.rankingTitleRow {
   display: flex;
-  align-items: center;
-  gap: 5px;
-  overflow-x: auto;
-  padding-bottom: 1px;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 4px 2px 2px;
 }
 
-.metricToggleLink,
-.activeMetricToggle {
-  min-height: 28px;
-  padding: 0 .62rem;
-  border-radius: 999px;
-  font-size: .48rem;
+.rankingTitleRow h3 {
+  margin: 0 0 .12rem;
+  font-size: .82rem;
+  font-weight: 830;
+  letter-spacing: -.018em;
 }
 
-.activeMetricToggle {
-  border-color: var(--frl-accent);
-  background: var(--frl-surface-raised);
-  color: var(--frl-text);
+.rankingTitleRow > span {
+  color: var(--frl-muted-soft);
+  font-size: .46rem;
+  font-weight: 760;
 }
 
 .unavailableFamily {
@@ -500,10 +492,12 @@
 
 @media (max-width: 900px) {
   .familyIntro,
-  .fullRankingHeader {
+  .familyRankingHeader,
+  .fullRankingHeader,
+  .rankingTitleRow {
     align-items: start;
     flex-direction: column;
-    gap: .7rem;
+    gap: .55rem;
   }
 
   .tablePanel {
