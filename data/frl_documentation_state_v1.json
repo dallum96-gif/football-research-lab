@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-08-30",
-  "checkpoint_id": "TEAM_STATS_LEAGUE_RANKINGS",
+  "checkpoint_id": "TEAM_STATS_RANKINGS_FAMILY_EXPANSION_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Selective governed Team Stats family expansion after shared Team View and League Rankings",
+  "active_product_phase": "Selective governed Team Stats family expansion with curated Overview and additional rankable family metrics",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
