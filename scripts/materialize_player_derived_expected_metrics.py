@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import argparse
 import csv
+import gzip
 import hashlib
+import io
 import json
 import sys
 from collections import Counter
@@ -310,13 +312,32 @@ def _fieldnames() -> list[str]:
     return fields
 
 
-def _write_csv(path: Path, rows: list[dict]) -> str:
+def _csv_bytes(rows: list[dict]) -> bytes:
+    buffer = io.StringIO(newline="")
+    writer = csv.DictWriter(buffer, fieldnames=_fieldnames(), extrasaction="raise")
+    writer.writeheader()
+    writer.writerows(rows)
+    return buffer.getvalue().encode("utf-8")
+
+
+def _write_csv(path: Path, rows: list[dict]) -> dict[str, str]:
     path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=_fieldnames(), extrasaction="raise")
-        writer.writeheader()
-        writer.writerows(rows)
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    raw = _csv_bytes(rows)
+    uncompressed_sha256 = hashlib.sha256(raw).hexdigest()
+
+    if path.name.endswith(".gz"):
+        artifact = gzip.compress(raw, compresslevel=9, mtime=0)
+        compression = "gzip"
+    else:
+        artifact = raw
+        compression = "none"
+
+    path.write_bytes(artifact)
+    return {
+        "artifact_compression": compression,
+        "artifact_sha256": hashlib.sha256(artifact).hexdigest(),
+        "uncompressed_csv_sha256": uncompressed_sha256,
+    }
 
 
 def main() -> int:
@@ -328,7 +349,7 @@ def main() -> int:
     parser.add_argument(
         "--csv-out",
         type=Path,
-        default=Path("data/frl_player_derived_expected_metrics_v1.csv"),
+        default=Path("data/frl_player_derived_expected_metrics_v1.csv.gz"),
     )
     parser.add_argument(
         "--metadata-out",
@@ -341,9 +362,10 @@ def main() -> int:
         raise SystemExit(f"PL source root not found: {args.pl_root}")
 
     rows, metadata = materialize(args.pl_root)
-    csv_sha256 = _write_csv(args.csv_out, rows)
+    artifact_metadata = _write_csv(args.csv_out, rows)
+    metadata.update(artifact_metadata)
+    metadata["artifact_path"] = str(args.csv_out).replace("\\", "/")
     metadata["source_commit"] = args.source_commit
-    metadata["csv_sha256"] = csv_sha256
     args.metadata_out.parent.mkdir(parents=True, exist_ok=True)
     args.metadata_out.write_text(
         json.dumps(metadata, indent=2, sort_keys=True) + "\n",
@@ -353,7 +375,8 @@ def main() -> int:
     print("FRL PLAYER-DERIVED EXPECTED METRICS MATERIALIZATION")
     print(f"rows={len(rows)}")
     print(f"source_commit={args.source_commit}")
-    print(f"csv_sha256={csv_sha256}")
+    print(f"artifact_sha256={metadata['artifact_sha256']}")
+    print(f"uncompressed_csv_sha256={metadata['uncompressed_csv_sha256']}")
     for metric in METRIC_SPECS:
         print(metric)
         for season in SEASONS:
