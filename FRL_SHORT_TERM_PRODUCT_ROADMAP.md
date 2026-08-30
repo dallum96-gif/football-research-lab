@@ -44,15 +44,17 @@ Important refinement from the 30 August source-route review:
 
 Team Profile V1 is complete/frozen for now with the intended entity-description role.
 
-### Team Stats Overview prototype
+### Team Stats Overview + League Rankings
 
-A first Team Stats Overview prototype exists with six core metric cards, trend/split presentation and league-context concepts.
+The six-metric Team Stats Overview has moved beyond prototype status onto the shared governed analytical kernel.
 
-It is a product/architecture prototype rather than the final analytical implementation.
+League Rankings is now a second projection of the same season analysis result. Team View and Rankings consume the same metric values, population, competition ranks and percentiles; the API and frontend do not maintain a second ranking implementation.
 
-## Current architectural prerequisite
+The next Team Stats work is therefore selective analytical-family expansion rather than further Overview/Rankings architecture work.
 
-Before expanding Team Stats into additional families, FRL needs to strengthen the middle analytical layer:
+## Current analytical architecture
+
+The middle analytical layer has now been proven by two product projections:
 
 ```text
 source representation / route
@@ -64,13 +66,15 @@ metric + coverage / missingness
 population / comparability
         ↓
 analysis result
-        ↓
-Team View / Rankings / later Compare
+        ├── Team View
+        └── League Rankings
 ```
 
 The 30 August source-route evidence is recorded in `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`.
 
 ## 1. Source-route governance + repository-memory sync
+
+**Status: substantially complete for the current Team Stats slice.**
 
 ### Objective
 
@@ -96,25 +100,29 @@ SEMANTIC_REVIEW_REQUIRED
 COVERAGE_GAP
 ```
 
+Further route work should now be triggered by a concrete analytical/product need rather than treated as an unlimited prerequisite.
+
 ## 2. Integrate analytical correctness fixes
 
-Before the new kernel becomes authoritative, integrate and validate the narrow correctness work identified during the Team Stats review:
+**Status: complete for the current Overview slice.**
 
-- missing metric observations must not be divided by the complete eligible population;
-- coverage must distinguish eligible/observed/missing observations;
-- partial xG must not create misleading full-season xG-overperformance;
-- legitimate zero-score fixtures must remain in Poisson source populations;
-- current product output must not imply full coverage when evidence is partial.
+The narrow correctness work identified during the Team Stats review has been integrated and governed:
 
-Keep this pass narrow. Do not hide it inside a broad refactor.
+- missing metric observations are not divided by the complete eligible population;
+- coverage distinguishes eligible/observed/missing observations;
+- partial xG cannot create misleading full-season xG-overperformance;
+- structural-zero semantics are explicit rather than generic parser behaviour;
+- current product output does not imply full coverage when evidence is partial.
+
+Continue this discipline when new metric families expose new missingness questions.
 
 ## 3. Build the minimum governed analytical kernel
 
-Do **not** build a generic metric DSL or rewrite the 1,414-variable universe.
+**Status: complete as the minimum reference implementation; expand only through product need.**
 
-Prove the architecture with a small reference slice.
+Do **not** turn the proven kernel into a generic metric DSL or rewrite the 1,414-variable universe.
 
-Initial objects/concepts should cover:
+The reference slice now establishes the concepts needed by Team View and League Rankings:
 
 ### `SourceRepresentation`
 
@@ -142,7 +150,7 @@ Rank, tie policy, percentile method and distribution context.
 
 ### Shared temporal/state service
 
-Rolling windows, last-N, venue splits, streaks and season-to-date state should be defined once.
+Rolling windows, last-N, venue splits, streaks and season-to-date state should be defined once as those concepts move onto the kernel.
 
 ### `AnalysisResult`
 
@@ -150,9 +158,9 @@ One result capable of powering multiple product projections.
 
 ## 4. Team Stats → Team View → Overview
 
-Refactor the current prototype onto the governed analytical kernel.
+**Status: complete on the shared kernel.**
 
-Initial metric slice:
+The initial governed metric slice is:
 
 - points per match;
 - goals for per match;
@@ -162,53 +170,60 @@ Initial metric slice:
 - possession;
 - xG as the first multiple-representation / derived-route case.
 
-Requirements:
+The current implementation carries:
 
 - value;
-- metric/source version;
-- coverage;
+- coverage/representation metadata;
 - population eligibility;
 - rank/percentile where defensible;
 - limitations/provenance;
-- shared split/trend logic.
+- governed xG route selection.
 
-The frontend should present analytical results rather than calculate them independently.
+The frontend presents analytical results rather than calculating them independently.
 
 ## 5. Team Stats → League Rankings → Overview
 
-Build Rankings as a transpose/projection of the same governed Team Stats result.
+**Status: complete for the six rankable Overview metrics.**
 
-If Team View says a club is fifth for shots, Rankings must show the same club fifth because both consume the same metric/population computation.
+Rankings is implemented as a transpose/projection of the same governed Team Stats season result.
+
+If Team View says a club is fifth for shots, Rankings shows the same club fifth because both consume the same metric/population computation.
 
 Cross-link:
 
 ```text
-Team View metric
-    → View ranking
+Team View
+    → League Rankings
 
 Ranking row
-    → Analyse team
+    → Team View for that club
 ```
+
+The first Rankings surface deliberately excludes xG as a ranked metric because governed xG is currently an observation route, not yet a kernel-declared ranked population metric. The GUI must not invent that ranking independently.
 
 Compare remains later.
 
-## 6. Reuse the analytical state in Team Profile
+## 6. Expand Team Stats analytical families selectively
 
-Move Profile form/last-N/split calculations onto the shared analytical/state service.
+**Status: next.**
 
-The Profile remains curated and lightweight; only the underlying calculation source becomes shared.
-
-This proves that the kernel removes duplicated concepts rather than becoming another parallel implementation.
-
-## 7. Expand Team Stats analytical families selectively
-
-Only after Overview + Rankings prove the architecture:
+With Overview + Rankings proving the architecture, expand only through governed metrics:
 
 `Attack · Possession · Passing · Defence · Discipline`
 
 Exact metrics should follow governed capability/source-route evidence rather than visual convenience.
 
-Do not keep a family populated with weak filler simply because the tab exists.
+For every rankable metric, the same definition/population/result should feed both Team View and League Rankings.
+
+Do not keep a family populated with weak filler simply because the tab exists, and do not create family-specific analytical engines.
+
+## 7. Reuse the analytical state in Team Profile
+
+Move Profile form/last-N/split calculations onto the shared analytical/state service where useful.
+
+The Profile remains curated and lightweight; only the underlying calculation source becomes shared.
+
+This should prove that the kernel removes duplicated concepts rather than becoming another parallel implementation.
 
 ## 8. Player Profile / Player Stats
 
@@ -239,7 +254,7 @@ Separate two concepts:
 
 ### Team Rankings within a league
 
-Belongs inside Team Stats / Team Analytics.
+Belongs inside Team Stats / Team Analytics and is now proven by the League Rankings surface.
 
 ### League as an analytical entity
 
@@ -299,7 +314,7 @@ Avoid current-season-only shortcuts unless source reality genuinely requires the
 
 ## 13. Data Capability Brochure
 
-The human-readable Data Capability Brochure remains valuable, but should follow the first governed metric/source-route slice.
+The human-readable Data Capability Brochure remains valuable, but should follow proven governed metric/source-route slices.
 
 Reason:
 
@@ -325,19 +340,19 @@ See `FUTURE_LEAGUE_COMBINE_PLAN.md`.
 ## 15. Current preferred sequence
 
 ```text
-1. Source-route governance + documentation sync
+1. Source-route governance + documentation sync             ✓
         ↓
-2. Integrate correctness / coverage fixes
+2. Integrate correctness / coverage fixes                  ✓
         ↓
-3. Minimum governed analytical kernel
+3. Minimum governed analytical kernel                      ✓
         ↓
-4. Team View → Overview on kernel
+4. Team View → Overview on kernel                          ✓
         ↓
-5. League Rankings → Overview from same result
+5. League Rankings → Overview from same result             ✓
         ↓
-6. Reuse analytical state in Team Profile
+6. Expand Team Stats families selectively                  ← next
         ↓
-7. Expand Team Stats families selectively
+7. Reuse analytical state in Team Profile
         ↓
 8. Player Profile / Player Stats cohort semantics
         ↓
