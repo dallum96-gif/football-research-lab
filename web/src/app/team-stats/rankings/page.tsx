@@ -262,52 +262,61 @@ export default async function TeamStatsRankingsPage({
               </div>
 
               <div className={styles.rows}>
-                {selectedMetric.entries.map((entry) => (
-                  <article
-                    className={styles.row}
-                    key={entry.persistent_team_code}
-                  >
-                    <strong className={styles.rank}>
-                      {ordinal(entry.rank)}
-                    </strong>
+                {selectedMetric.entries.map((entry) => {
+                  const teamParams = new URLSearchParams({
+                    season: rankings.season,
+                    team: entry.persistent_team_code,
+                  });
 
-                    <div className={styles.team}>
-                      <span className={styles.teamKit}>
-                        <TeamKit teamName={entry.display_name} />
-                      </span>
-                      <div>
-                        <strong>{entry.display_name}</strong>
-                        <small>{entry.persistent_team_code}</small>
+                  return (
+                    <Link
+                      className={styles.row}
+                      key={entry.persistent_team_code}
+                      href={`/team-stats?${teamParams.toString()}`}
+                      aria-label={`Analyse ${entry.display_name}`}
+                    >
+                      <strong className={styles.rank}>
+                        {ordinal(entry.rank)}
+                      </strong>
+
+                      <div className={styles.team}>
+                        <span className={styles.teamKit}>
+                          <TeamKit teamName={entry.display_name} />
+                        </span>
+                        <div>
+                          <strong>{entry.display_name}</strong>
+                          <small>{entry.persistent_team_code}</small>
+                        </div>
                       </div>
-                    </div>
 
-                    <strong className={styles.value}>
-                      {formatValue(selectedMetric, entry.value)}
-                    </strong>
+                      <strong className={styles.value}>
+                        {formatValue(selectedMetric, entry.value)}
+                      </strong>
 
-                    <div className={styles.percentile}>
-                      <div
-                        className={styles.percentileTrack}
-                        aria-label={
-                          entry.percentile === null
-                            ? "Percentile unavailable"
-                            : `${entry.percentile} percentile`
-                        }
-                      >
-                        <span
-                          style={{
-                            width: `${entry.percentile ?? 0}%`,
-                          }}
-                        />
+                      <div className={styles.percentile}>
+                        <div
+                          className={styles.percentileTrack}
+                          aria-label={
+                            entry.percentile === null
+                              ? "Percentile unavailable"
+                              : `${entry.percentile} percentile`
+                          }
+                        >
+                          <span
+                            style={{
+                              width: `${entry.percentile ?? 0}%`,
+                            }}
+                          />
+                        </div>
+                        <span>
+                          {entry.percentile === null
+                            ? "—"
+                            : `P${Math.round(entry.percentile)}`}
+                        </span>
                       </div>
-                      <span>
-                        {entry.percentile === null
-                          ? "—"
-                          : `P${Math.round(entry.percentile)}`}
-                      </span>
-                    </div>
-                  </article>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </section>
 
