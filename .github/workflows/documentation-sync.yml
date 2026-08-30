@@ -1,0 +1,23 @@
+name: Documentation sync
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  documentation-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate standing repository memory
+        run: python scripts/check_documentation_sync.py
+
+      - name: Validate milestone-sensitive changes
+        if: github.event_name == 'pull_request'
+        run: python scripts/check_documentation_sync.py --base-ref "${{ github.event.pull_request.base.sha }}"
