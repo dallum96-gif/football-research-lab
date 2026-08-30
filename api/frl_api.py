@@ -23,6 +23,7 @@ from pulselive_fixture_evidence import (
 )
 import query_api
 import team_research_stats
+import team_analysis_kernel
 
 
 class CanonicalFixtureRef(BaseModel):
@@ -693,32 +694,12 @@ def get_team_stats_overview(
         )
 
     try:
-        league_stats: list[tuple[TeamOption, dict]] = []
-
-        for option in options:
-            code = option.persistent_team_code
-
-            if not code:
-                continue
-
-            stats = team_research_stats.team_season_stats(
-                season,
-                code,
-            )
-
-            if stats.get("status") == "AVAILABLE":
-                league_stats.append((option, stats))
-
-        selected_pair = next(
-            (
-                pair
-                for pair in league_stats
-                if pair[0].persistent_team_code == requested_code
-            ),
-            None,
+        analysis = team_analysis_kernel.team_overview_analysis(
+            season,
+            requested_code,
         )
 
-        if selected_pair is None:
+        if analysis is None:
             raise HTTPException(
                 status_code=404,
                 detail=(
@@ -727,7 +708,19 @@ def get_team_stats_overview(
                 ),
             )
 
-        _, stats = selected_pair
+        stats = team_research_stats.team_season_stats(
+            season,
+            requested_code,
+        )
+
+        if stats.get("status") != "AVAILABLE":
+            raise HTTPException(
+                status_code=404,
+                detail=(
+                    "Governed Team Stats are unavailable for "
+                    f"{selected.display_name} in {season}."
+                ),
+            )
 
         match_rows = list(
             team_research_stats.team_match_stats(
@@ -744,92 +737,22 @@ def get_team_stats_overview(
             detail="Team Stats Overview failed safely.",
         ) from exc
 
-    metric_definitions = (
-        (
-            "points_per_match",
-            "Points per match",
-            "PPG",
-            True,
-        ),
-        (
-            "goals_for_per_match",
-            "Goals per match",
-            "goals",
-            True,
-        ),
-        (
-            "goals_against_per_match",
-            "Goals against",
-            "goals",
-            False,
-        ),
-        (
-            "Shots_per_match",
-            "Shots per match",
-            "shots",
-            True,
-        ),
-        (
-            "Shots on target_per_match",
-            "Shots on target",
-            "shots",
-            True,
-        ),
-        (
-            "Possession_per_match",
-            "Possession",
-            "%",
-            True,
-        ),
-    )
-
-    metrics: list[TeamStatsMetric] = []
-
-    for key, label, unit, higher_is_better in metric_definitions:
-        selected_value = stats.get(key)
-
-        if selected_value is None:
-            continue
-
-        population = [
-            float(team_stats[key])
-            for _, team_stats in league_stats
-            if team_stats.get(key) is not None
-        ]
-
-        if not population:
-            continue
-
-        ordered = sorted(
-            population,
-            reverse=higher_is_better,
+    metrics = [
+        TeamStatsMetric(
+            key=str(metric["key"]),
+            label=str(metric["label"]),
+            value=round(float(metric["value"]), 3),
+            unit=str(metric["unit"]),
+            rank=int(metric["rank"]),
+            out_of=int(metric["out_of"]),
+            percentile=float(metric["percentile"]),
+            higher_is_better=bool(metric["higher_is_better"]),
         )
-
-        value = float(selected_value)
-        rank = ordered.index(value) + 1
-        out_of = len(ordered)
-
-        percentile = (
-            100.0
-            if out_of == 1
-            else round(
-                100.0 * (out_of - rank) / (out_of - 1),
-                1,
-            )
-        )
-
-        metrics.append(
-            TeamStatsMetric(
-                key=key,
-                label=label,
-                value=round(value, 3),
-                unit=unit,
-                rank=rank,
-                out_of=out_of,
-                percentile=percentile,
-                higher_is_better=higher_is_better,
-            )
-        )
+        for metric in analysis["metrics"]
+        if metric.get("value") is not None
+        and metric.get("rank") is not None
+        and metric.get("percentile") is not None
+    ]
 
     match_rows.sort(
         key=lambda row: (
@@ -843,7 +766,6 @@ def get_team_stats_overview(
     for row in match_rows:
         gf = row.get("goals_for")
         ga = row.get("goals_against")
-
         points = 0
 
         if gf is not None and ga is not None:
@@ -862,16 +784,8 @@ def get_team_stats_overview(
                 ),
                 home=bool(row.get("home")),
                 points=points,
-                goals_for=(
-                    float(gf)
-                    if gf is not None
-                    else None
-                ),
-                goals_against=(
-                    float(ga)
-                    if ga is not None
-                    else None
-                ),
+                goals_for=(float(gf) if gf is not None else None),
+                goals_against=(float(ga) if ga is not None else None),
                 shots=(
                     float(row["Shots"])
                     if row.get("Shots") is not None
@@ -890,26 +804,17 @@ def get_team_stats_overview(
             )
         )
 
-    home_rows = [
-        row
-        for row in match_rows
-        if row.get("home")
-    ]
+    home_rows = [row for row in match_rows if row.get("home")]
+    away_rows = [row for row in match_rows if not row.get("home")]
 
-    away_rows = [
-        row
-        for row in match_rows
-        if not row.get("home")
-    ]
-
-    expected_goals = stats.get(
-        "Expected goals_per_match"
-    )
+    xg = analysis.get("expected_goals") or {}
+    expected_goals = xg.get("value")
+    xg_overperformance = xg.get("xg_overperformance")
 
     limitations = [
         (
-            "League ranks and percentiles use teams with comparable "
-            "governed values in the selected season."
+            "League ranks and percentiles are projections of the shared "
+            "governed Team Stats season analysis result."
         ),
         (
             "Percentile is descriptive league context, not predictive "
@@ -919,8 +824,16 @@ def get_team_stats_overview(
 
     if expected_goals is None:
         limitations.append(
-            "Expected-goals evidence is omitted where comparable "
-            "coverage is unavailable."
+            "Expected-goals evidence is omitted where no governed "
+            "season representation is available."
+        )
+    elif not xg.get("coverage_complete"):
+        limitations.append(
+            "Expected-goals evidence is partial: "
+            f"{xg.get('observed_matches', 0)} of "
+            f"{xg.get('eligible_matches', 0)} team fixtures are observed. "
+            "xG overperformance remains withheld until the season population "
+            "is complete."
         )
 
     return TeamStatsOverviewResult(
@@ -950,8 +863,8 @@ def get_team_stats_overview(
             else None
         ),
         xg_overperformance=(
-            round(float(stats["xg_overperformance"]), 3)
-            if stats.get("xg_overperformance") is not None
+            round(float(xg_overperformance), 3)
+            if xg_overperformance is not None
             else None
         ),
         splits=[
@@ -961,10 +874,10 @@ def get_team_stats_overview(
         trend=trend,
         provenance=ResearchProvenance(
             source=(
-                "team_research_stats -> governed fixture match stats "
-                "+ canonical team identity"
+                "team_analysis_kernel + team_research_stats + governed "
+                "expected-metric routing"
             ),
-            transformation_version="team-stats-overview-v1",
+            transformation_version="team-stats-overview-kernel-v1",
         ),
         limitations=limitations,
     )
