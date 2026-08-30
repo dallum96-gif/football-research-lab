@@ -1,0 +1,95 @@
+name: Materialize player-derived expected metrics
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/materialize_player_derived_expected_metrics.py"
+      - "expected_metric_routing.py"
+      - "data/fixture_match_stats.csv"
+      - ".github/workflows/materialize-player-derived-expected-metrics.yml"
+      - "FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md"
+
+permissions:
+  contents: read
+
+jobs:
+  materialize-player-derived-expected-metrics:
+    runs-on: ubuntu-latest
+    env:
+      UPSTREAM_COMMIT: 1ec7f0dc79055902251cd938650f622b0e79f3cc
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned preserved upstream archive
+        shell: bash
+        run: |
+          git init upstream-source
+          cd upstream-source
+          git remote add origin https://github.com/imadeddine-belkat/Premier-League-Stats.git
+          git config core.sparseCheckout true
+          mkdir -p .git/info
+          printf 'pl_stats/\n' > .git/info/sparse-checkout
+          git fetch --depth 1 origin "$UPSTREAM_COMMIT"
+          git checkout --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$UPSTREAM_COMMIT"
+
+      - name: Materialize governed derivative
+        run: |
+          mkdir -p artifacts/player-derived-expected-metrics
+          python scripts/materialize_player_derived_expected_metrics.py \
+            --pl-root upstream-source/pl_stats \
+            --source-commit "$UPSTREAM_COMMIT" \
+            --csv-out artifacts/player-derived-expected-metrics/frl_player_derived_expected_metrics_v1.csv \
+            --metadata-out artifacts/player-derived-expected-metrics/frl_player_derived_expected_metrics_v1_metadata.json
+
+      - name: Validate generated artifact shape
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv, json
+          from pathlib import Path
+
+          root = Path('artifacts/player-derived-expected-metrics')
+          csv_path = root / 'frl_player_derived_expected_metrics_v1.csv'
+          metadata_path = root / 'frl_player_derived_expected_metrics_v1_metadata.json'
+
+          with csv_path.open(newline='', encoding='utf-8') as handle:
+              rows = list(csv.DictReader(handle))
+          metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
+
+          assert len(rows) == 1520, len(rows)
+          assert metadata['row_count'] == 1520
+          assert metadata['source_commit'] == '1ec7f0dc79055902251cd938650f622b0e79f3cc'
+          assert metadata['coverage_fixtures']['Expected goals'] == {
+              '2022-23': 380, '2023-24': 379, '2024-25': 380, '2025-26': 380
+          }
+          assert metadata['coverage_fixtures']['Expected assists'] == {
+              '2022-23': 380, '2023-24': 380, '2024-25': 380, '2025-26': 380
+          }
+          assert metadata['coverage_fixtures']['Expected goals on target'] == {
+              '2022-23': 374, '2023-24': 336, '2024-25': 334, '2025-26': 321
+          }
+          print('Validated 1,520-row governed expected-metric derivative.')
+          PY
+
+      - name: Publish metadata summary
+        shell: bash
+        run: |
+          echo '## Governed player-derived expected metrics' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Source commit: `'$UPSTREAM_COMMIT'`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Construction: `FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Rows: `1520`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- xG fixtures: `380 / 379 / 380 / 380`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- xA fixtures: `380 / 380 / 380 / 380`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- xGOT fixtures: `374 / 336 / 334 / 321`' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload governed derivative
+        uses: actions/upload-artifact@v4
+        with:
+          name: frl-player-derived-expected-metrics-v1
+          path: artifacts/player-derived-expected-metrics/
+          if-no-files-found: error
+          retention-days: 30
