@@ -1,7 +1,7 @@
 # Current Work — Football Research Laboratory
 
 **Last updated:** 30 August 2026  
-**Checkpoint:** `SOURCE_ROUTE_COVERAGE_AUDIT`
+**Checkpoint:** `SOURCE_ROUTE_MISSINGNESS_GOVERNANCE`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
@@ -21,18 +21,22 @@ Current integrated state on `main` includes:
 - Team / Player Stats information architecture documented in `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`;
 - governed source-routing semantics documented in `FRL_SOURCE_ROUTING_CONTRACT.md`;
 - the first preserved-source route audit recorded in `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`;
-- coverage-aware team-season aggregation and the Poisson zero-score fix integrated in commit `eaef72f`;
+- automated decade-wide source-route, sparse-zero and Overview-missingness audits integrated on `main`;
+- field-level team-match missingness governance documented in `FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md`;
+- the audited shot family (`Shots`, `Shots on target`, `Shots off target`, `Blocked shots`) governed as sparse-zero for the preserved direct team-match representation over 2016-17 through 2025-26;
+- coverage-aware team-season aggregation that separately preserves source-observed, structural-zero and genuinely missing populations;
+- the Poisson zero-score fix integrated in commit `eaef72f`;
 - automated repository-memory synchronisation enforced by the documentation-sync GitHub Action.
 
 ## Immediate objective
 
-The immediate general objective is:
+The immediate general objective remains:
 
 > **For every meaningful FRL football variable/concept, connect analytical use to the strongest legitimate preserved source route available, maximising trustworthy historical coverage without sacrificing semantics, grain, provenance, temporal validity or comparability.**
 
 This does **not** mean filling every missing value. Maximum trustworthy coverage is preferred over maximum numerical fill-rate.
 
-The source-route review should work by semantic/source family rather than by hand-auditing 1,414 catalogue rows independently.
+The source-route review should work by semantic/source family rather than by hand-auditing 1,414 catalogue rows independently. Missingness semantics are now explicitly part of that governance step rather than a generic parser decision.
 
 ## Current architectural spine
 
@@ -60,7 +64,7 @@ NEXT.JS PRODUCT / RESEARCH CONSUMERS
 
 The lower evidence/identity foundation is stronger than the current analytical layer. Do not expand analytical product surfaces faster than the governed variable/metric/population layer can support them.
 
-## Source-routing position
+## Source-routing and missingness position
 
 Current evidence indicates that FRL does **not** have a broad source-routing failure.
 
@@ -72,6 +76,11 @@ Established conclusions:
 - player-match evidence maps to 3,799/3,800 canonical fixtures plus the known 2019-20 correction case, so player → team derivation does not require another identity architecture;
 - expected metrics such as xG can have multiple legitimate source representations with materially different historical coverage;
 - summed player-match xG is close to but not identical to direct team-match xG, so the two must not be silently coalesced;
+- source blanks are missing by default, but field/source/period evidence can govern a blank as structural zero;
+- the direct team-match shot family is the first governed sparse-zero case for 2016-17 through 2025-26;
+- possession retains a genuine known hole for Tottenham Hotspur v Everton on 13 September 2020 and remains missing there;
+- xG and other expected metrics remain genuinely missing when blank unless a distinct governed representation supplies the requested concept;
+- saves, offsides, big chances and other sparse-looking counts are **not** zero-normalised merely because their raw coverage looks sparse;
 - player-season evidence is correct at player-season grain but can contain later/current club attribution and must not be used to manufacture missing fixture-level history;
 - FPL remains a distinct source family with FPL-specific semantics;
 - timeline, lineup, formation, manager and commentary evidence belongs primarily to the preserved PulseLive match-centre snapshot route;
@@ -81,24 +90,19 @@ Future capability metadata should distinguish at least:
 
 `SOURCE_PRESENT → CONNECTED → DERIVABLE → GOVERNED → COMPARABLE → PRODUCT_READY`
 
-## Automated source-route coverage audit
+## Automated empirical audits
 
-A new read-only empirical audit is being introduced in:
+Read-only empirical audit infrastructure now includes:
 
-- `scripts/audit_source_routes.py`
-- `.github/workflows/source-route-coverage.yml`
+- `scripts/audit_source_routes.py` / `.github/workflows/source-route-coverage.yml`;
+- `scripts/audit_sparse_zero_semantics.py` / `.github/workflows/sparse-zero-semantics.yml`;
+- `scripts/audit_overview_missingness.py` / `.github/workflows/overview-missingness.yml`.
 
-The audit uses the already-preserved public `imadeddine-belkat/Premier-League-Stats` archive and makes **no live PulseLive/Premier League API calls**.
+The audits use already-preserved historical evidence and make no live PulseLive/Premier League API calls.
 
-It measures:
+The source-route audit measures source-family schemas, direct coverage, candidate player-derived coverage and overlap agreement. The missingness audits separately test whether apparent blank count observations can be independently corroborated or inferred through strong football identities.
 
-- source-family schemas and non-empty field observations by season;
-- direct team-match fixture coverage for priority statistical fields;
-- player-match availability for corresponding concepts;
-- direct-vs-player-derived overlap agreement by season;
-- candidate source-route classifications for additive/expected metric families.
-
-Its output is diagnostic evidence only. It cannot automatically promote a source representation into a governed metric. Promotion still requires the semantic, missingness, provenance and comparability rules in `FRL_SOURCE_ROUTING_CONTRACT.md`.
+Audit output remains diagnostic evidence only. It cannot automatically promote a source representation or blank-value interpretation into production semantics. Promotion requires an explicit governance decision, provenance/comparability rules and regression tests. The first such missingness promotion is recorded in `FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md`.
 
 ## Team / Player product architecture
 
@@ -127,20 +131,21 @@ For players, the interaction shell may mirror Team Stats, but population/cohort 
 
 ## Immediate development sequence
 
-1. **Complete the bounded empirical source-route audit**
-   - run the automated decade-wide audit;
-   - identify genuine coverage gains;
-   - quantify direct-vs-derived equivalence/conflict;
-   - classify the important semantic families.
-2. **Turn audit findings into governed route decisions**
-   - keep strong current routes;
+1. **Continue the bounded empirical source-route / missingness audit**
+   - investigate the remaining high-value semantic families rather than assuming sparse blanks are zero;
+   - finish expected-metric route decisions by season/purpose;
+   - quantify direct-vs-derived equivalence/conflict where candidate alternatives exist.
+2. **Turn evidence into governed route and missingness decisions**
+   - retain strong current routes;
    - introduce better preserved routes only where evidence justifies them;
    - keep non-equivalent source representations distinct;
-   - record genuine coverage gaps rather than fabricating history.
+   - preserve genuinely missing observations;
+   - use the shot-family rule as the first field-level missingness precedent, not a generic zero rule.
 3. **Upgrade capability metadata**
    - distinguish source-present / connected / derivable / governed / comparable / product-ready states.
 4. **Build the minimum governed analytical kernel**
    - source representation / route decision;
+   - governed variable / missingness policy;
    - metric definition;
    - coverage-aware metric observation;
    - population definition;
@@ -161,18 +166,19 @@ Do not use a historical fixed test count as the universal current baseline.
 For current work:
 
 - run targeted tests for changed behaviour;
+- use the Team Stats governance regression workflow for changes to team metric missingness/aggregation;
 - run relevant backend/research/identity gates;
 - run Next.js `typecheck`/`build` where frontend contracts change;
 - run `project-health.ps1` when canonical/query/data behaviour may be affected;
 - run `python scripts/check_documentation_sync.py` for material milestone/documentation work;
-- treat automated source-route reports as evidence, not automatic semantic approval;
+- treat automated source-route/missingness reports as evidence, not automatic semantic approval;
 - report actual command output rather than repeating historical validation counts.
 
 ## Repository discipline
 
 Treat `main` as the stable integration line. Preserve unrelated tracked, untracked, generated, backup and experimental files. Do not use broad staging or destructive cleanup to simplify the workspace.
 
-Source-route audit automation is being developed on a separate branch so it does not disturb local research/recovery artefacts.
+Audit and analytical-governance changes should continue on scoped feature branches and merge only after their relevant validation passes.
 
 ## Standing repository memory
 
