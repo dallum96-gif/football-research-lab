@@ -98,7 +98,11 @@ def _derive_metric(
 
     if unsafe_missing:
         return {"value": None, "status": "MISSING_POSITIVE_TRIGGER_INPUT"}
-    return {"value": total, "status": "AVAILABLE"}
+
+    # Preserved expected-metric source observations use four-decimal precision.
+    # Canonicalising after additive aggregation prevents binary-float noise such
+    # as 0.9967999999999999 from becoming part of the governed artifact.
+    return {"value": round(total, 4), "status": "AVAILABLE"}
 
 
 def materialize(pl_root: Path) -> tuple[list[dict], dict]:
