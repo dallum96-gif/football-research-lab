@@ -1,0 +1,48 @@
+name: Sparse zero semantics
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/audit_sparse_zero_semantics.py"
+      - "scripts/audit_source_routes.py"
+      - ".github/workflows/sparse-zero-semantics.yml"
+      - "FRL_SOURCE_ROUTING_CONTRACT.md"
+
+permissions:
+  contents: read
+
+jobs:
+  sparse-zero-semantics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Checkout preserved upstream archive
+        shell: bash
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/imadeddine-belkat/Premier-League-Stats.git upstream-source
+          cd upstream-source
+          git sparse-checkout set pl_stats
+
+      - name: Run sparse-zero semantics audit
+        run: |
+          mkdir -p artifacts/sparse-zero-semantics
+          python scripts/audit_sparse_zero_semantics.py \
+            --pl-root upstream-source/pl_stats \
+            --json-out artifacts/sparse-zero-semantics/report.json \
+            --md-out artifacts/sparse-zero-semantics/report.md
+
+      - name: Publish summary
+        shell: bash
+        run: cat artifacts/sparse-zero-semantics/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: frl-sparse-zero-semantics
+          path: artifacts/sparse-zero-semantics/
+          if-no-files-found: error
+          retention-days: 30
