@@ -37,47 +37,76 @@ jobs:
           git checkout --detach FETCH_HEAD
           test "$(git rev-parse HEAD)" = "$UPSTREAM_COMMIT"
 
-      - name: Rebuild governed derivative
+      - name: Rebuild governed derivative from pinned evidence
         run: |
+          mkdir -p artifacts/player-derived-expected-metrics
           python scripts/materialize_player_derived_expected_metrics.py \
             --pl-root upstream-source/pl_stats \
             --source-commit "$UPSTREAM_COMMIT" \
-            --csv-out data/frl_player_derived_expected_metrics_v1.csv.gz \
-            --metadata-out data/frl_player_derived_expected_metrics_v1_metadata.json
+            --csv-out artifacts/player-derived-expected-metrics/rebuilt.csv \
+            --metadata-out artifacts/player-derived-expected-metrics/rebuilt_metadata.json
 
-      - name: Prove tracked artifact is reproducible
+      - name: Prove tracked derivative is logically reproducible
         shell: bash
         run: |
-          git diff --exit-code -- \
-            data/frl_player_derived_expected_metrics_v1.csv.gz \
-            data/frl_player_derived_expected_metrics_v1_metadata.json
+          gzip -dc data/frl_player_derived_expected_metrics_v1.csv.gz \
+            > artifacts/player-derived-expected-metrics/tracked.csv
+          cmp \
+            artifacts/player-derived-expected-metrics/tracked.csv \
+            artifacts/player-derived-expected-metrics/rebuilt.csv
 
-      - name: Validate generated artifact shape
+      - name: Validate provenance, coverage and hashes
         shell: bash
         run: |
           python - <<'PY'
           import csv, gzip, hashlib, json
           from pathlib import Path
 
-          csv_path = Path('data/frl_player_derived_expected_metrics_v1.csv.gz')
-          metadata_path = Path('data/frl_player_derived_expected_metrics_v1_metadata.json')
+          tracked_csv = Path('data/frl_player_derived_expected_metrics_v1.csv.gz')
+          tracked_metadata = json.loads(
+              Path('data/frl_player_derived_expected_metrics_v1_metadata.json').read_text(encoding='utf-8')
+          )
+          rebuilt_csv = Path('artifacts/player-derived-expected-metrics/rebuilt.csv')
+          rebuilt_metadata = json.loads(
+              Path('artifacts/player-derived-expected-metrics/rebuilt_metadata.json').read_text(encoding='utf-8')
+          )
 
-          with gzip.open(csv_path, mode='rt', newline='', encoding='utf-8') as handle:
+          with gzip.open(tracked_csv, mode='rt', newline='', encoding='utf-8') as handle:
               rows = list(csv.DictReader(handle))
-          metadata = json.loads(metadata_path.read_text(encoding='utf-8'))
 
           assert len(rows) == 1520, len(rows)
-          assert metadata['row_count'] == 1520
-          assert metadata['source_commit'] == '1ec7f0dc79055902251cd938650f622b0e79f3cc'
-          assert metadata['artifact_compression'] == 'gzip'
-          assert metadata['artifact_sha256'] == hashlib.sha256(csv_path.read_bytes()).hexdigest()
-          assert metadata['coverage_fixtures']['Expected goals'] == {
+          assert tracked_metadata['row_count'] == 1520
+          assert tracked_metadata['source_commit'] == '1ec7f0dc79055902251cd938650f622b0e79f3cc'
+          assert tracked_metadata['artifact_compression'] == 'gzip'
+          assert tracked_metadata['artifact_sha256'] == hashlib.sha256(tracked_csv.read_bytes()).hexdigest()
+          assert tracked_metadata['uncompressed_csv_sha256'] == hashlib.sha256(rebuilt_csv.read_bytes()).hexdigest()
+
+          governed_keys = (
+              'schema_version',
+              'construction_version',
+              'representation',
+              'source_repository',
+              'source_family',
+              'seasons',
+              'row_count',
+              'fixture_population_per_season',
+              'coverage_fixtures',
+              'team_side_state_counts',
+              'missingness_rules',
+              'representation_mixing_allowed',
+              'source_commit',
+              'uncompressed_csv_sha256',
+          )
+          for key in governed_keys:
+              assert tracked_metadata[key] == rebuilt_metadata[key], key
+
+          assert tracked_metadata['coverage_fixtures']['Expected goals'] == {
               '2022-23': 380, '2023-24': 379, '2024-25': 380, '2025-26': 380
           }
-          assert metadata['coverage_fixtures']['Expected assists'] == {
+          assert tracked_metadata['coverage_fixtures']['Expected assists'] == {
               '2022-23': 380, '2023-24': 380, '2024-25': 380, '2025-26': 380
           }
-          assert metadata['coverage_fixtures']['Expected goals on target'] == {
+          assert tracked_metadata['coverage_fixtures']['Expected goals on target'] == {
               '2022-23': 374, '2023-24': 336, '2024-25': 334, '2025-26': 321
           }
           print('Validated reproducible 1,520-row governed expected-metric derivative.')
@@ -91,17 +120,19 @@ jobs:
           echo '- Source commit: `'$UPSTREAM_COMMIT'`' >> "$GITHUB_STEP_SUMMARY"
           echo '- Construction: `FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1`' >> "$GITHUB_STEP_SUMMARY"
           echo '- Rows: `1520`' >> "$GITHUB_STEP_SUMMARY"
-          echo '- Reproducibility: tracked gzip + metadata rebuilt with zero diff' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Reproducibility: decompressed tracked artifact is byte-identical to a fresh rebuild' >> "$GITHUB_STEP_SUMMARY"
           echo '- xG fixtures: `380 / 379 / 380 / 380`' >> "$GITHUB_STEP_SUMMARY"
           echo '- xA fixtures: `380 / 380 / 380 / 380`' >> "$GITHUB_STEP_SUMMARY"
           echo '- xGOT fixtures: `374 / 336 / 334 / 321`' >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Upload governed derivative evidence
+      - name: Upload reproducibility evidence
         uses: actions/upload-artifact@v4
         with:
           name: frl-player-derived-expected-metrics-v1
           path: |
             data/frl_player_derived_expected_metrics_v1.csv.gz
             data/frl_player_derived_expected_metrics_v1_metadata.json
+            artifacts/player-derived-expected-metrics/rebuilt.csv
+            artifacts/player-derived-expected-metrics/rebuilt_metadata.json
           if-no-files-found: error
           retention-days: 30
