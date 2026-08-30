@@ -26,7 +26,6 @@ CONSTRUCTION_VERSION = "FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1"
 SCHEMA_VERSION = "1.0.0"
 SOURCE_REPOSITORY = "imadeddine-belkat/Premier-League-Stats"
 SEASONS = ("2022-23", "2023-24", "2024-25", "2025-26")
-
 PACKAGED_FIXTURES = ROOT / "data" / "fixture_match_stats.csv"
 
 METRIC_SPECS = {
@@ -34,32 +33,18 @@ METRIC_SPECS = {
         "slug": "expected_goals",
         "source_field": "expectedGoals",
         "trigger_field": "totalShots",
-        "blank_rule": "ZERO_WHEN_GOVERNED_TRIGGER_ZERO",
     },
     EXPECTED_ASSISTS: {
         "slug": "expected_assists",
         "source_field": "expectedAssists",
         "trigger_field": None,
-        "blank_rule": "ZERO_ALWAYS_AUDITED_PLAYER_REPRESENTATION",
     },
     EXPECTED_GOALS_ON_TARGET: {
         "slug": "expected_goals_on_target",
         "source_field": "expectedGoalsOnTarget",
         "trigger_field": "onTargetScoringAttempt",
-        "blank_rule": "ZERO_WHEN_GOVERNED_TRIGGER_ZERO",
     },
 }
-
-RUNTIME_FIELDS = (
-    "season",
-    "fixture_id",
-    "home_expected_goals",
-    "home_expected_assists",
-    "home_expected_goals_on_target",
-    "away_expected_goals",
-    "away_expected_assists",
-    "away_expected_goals_on_target",
-)
 
 
 class MaterializationError(RuntimeError):
@@ -90,86 +75,30 @@ def _derive_metric(
     trigger_field = spec["trigger_field"]
 
     if source_field not in source_fields:
-        return {
-            "value": None,
-            "status": "FIELD_UNAVAILABLE",
-            "player_rows": len(player_rows),
-            "source_observed_rows": 0,
-            "structural_zero_rows": 0,
-            "unsafe_missing_rows": 0,
-        }
+        return {"value": None, "status": "FIELD_UNAVAILABLE"}
     if not player_rows:
-        return {
-            "value": None,
-            "status": "NO_PLAYER_MATCH_ROWS",
-            "player_rows": 0,
-            "source_observed_rows": 0,
-            "structural_zero_rows": 0,
-            "unsafe_missing_rows": 0,
-        }
+        return {"value": None, "status": "NO_PLAYER_MATCH_ROWS"}
     if trigger_field and trigger_field not in source_fields:
-        return {
-            "value": None,
-            "status": "TRIGGER_FIELD_UNAVAILABLE",
-            "player_rows": len(player_rows),
-            "source_observed_rows": 0,
-            "structural_zero_rows": 0,
-            "unsafe_missing_rows": 0,
-        }
+        return {"value": None, "status": "TRIGGER_FIELD_UNAVAILABLE"}
 
     total = 0.0
-    observed = 0
-    structural_zero = 0
     unsafe_missing = 0
-
     for row in player_rows:
         value = num(row.get(source_field))
         if value is not None:
             total += value
-            observed += 1
             continue
 
         if metric == EXPECTED_ASSISTS:
-            structural_zero += 1
             continue
 
         trigger_value = num(row.get(trigger_field))
         if trigger_value is not None and trigger_value > 0:
             unsafe_missing += 1
-        else:
-            structural_zero += 1
 
     if unsafe_missing:
-        return {
-            "value": None,
-            "status": "MISSING_POSITIVE_TRIGGER_INPUT",
-            "player_rows": len(player_rows),
-            "source_observed_rows": observed,
-            "structural_zero_rows": structural_zero,
-            "unsafe_missing_rows": unsafe_missing,
-        }
-
-    return {
-        "value": total,
-        "status": "AVAILABLE",
-        "player_rows": len(player_rows),
-        "source_observed_rows": observed,
-        "structural_zero_rows": structural_zero,
-        "unsafe_missing_rows": 0,
-    }
-
-
-def _side_columns(prefix: str, metric: str, derived: dict) -> dict[str, str | int | float]:
-    slug = METRIC_SPECS[metric]["slug"]
-    value = derived["value"]
-    return {
-        f"{prefix}_{slug}": "" if value is None else format(float(value), ".12g"),
-        f"{prefix}_{slug}_status": derived["status"],
-        f"{prefix}_{slug}_player_rows": derived["player_rows"],
-        f"{prefix}_{slug}_source_observed_rows": derived["source_observed_rows"],
-        f"{prefix}_{slug}_structural_zero_rows": derived["structural_zero_rows"],
-        f"{prefix}_{slug}_unsafe_missing_rows": derived["unsafe_missing_rows"],
-    }
+        return {"value": None, "status": "MISSING_POSITIVE_TRIGGER_INPUT"}
+    return {"value": total, "status": "AVAILABLE"}
 
 
 def materialize(pl_root: Path) -> tuple[list[dict], dict]:
@@ -179,10 +108,7 @@ def materialize(pl_root: Path) -> tuple[list[dict], dict]:
         by_season[row["season"]].append(row)
 
     output: list[dict] = []
-    coverage = {
-        metric: {season: 0 for season in SEASONS}
-        for metric in METRIC_SPECS
-    }
+    coverage = {metric: {season: 0 for season in SEASONS} for metric in METRIC_SPECS}
     state_counts = {
         metric: {season: Counter() for season in SEASONS}
         for metric in METRIC_SPECS
@@ -198,8 +124,7 @@ def materialize(pl_root: Path) -> tuple[list[dict], dict]:
             direct_sides = direct.get(direct_match_id)
             if not direct_sides or "home" not in direct_sides or "away" not in direct_sides:
                 raise MaterializationError(
-                    f"Direct source bridge missing for {season}/{bridge['fixture_id']} "
-                    f"source_match_id={direct_match_id}"
+                    f"Direct source bridge missing for {season}/{bridge['fixture_id']}"
                 )
 
             home_team_id = str(direct_sides["home"].get("team_id", "")).strip()
@@ -207,35 +132,25 @@ def materialize(pl_root: Path) -> tuple[list[dict], dict]:
             player_match_id = player_pairs.get((home_team_id, away_team_id))
             if not player_match_id:
                 raise MaterializationError(
-                    f"Player-match bridge missing for {season}/{bridge['fixture_id']} "
-                    f"pair={home_team_id}/{away_team_id}"
+                    f"Player-match bridge missing for {season}/{bridge['fixture_id']}"
                 )
 
-            record: dict[str, str | int | float] = {
+            record: dict[str, object] = {
                 "season": season,
-                "fixture_id": bridge["fixture_id"],
-                "representation": PLAYER_MATCH_DERIVED_TEAM_MATCH,
-                "construction_version": CONSTRUCTION_VERSION,
-                "direct_source_match_id": direct_match_id,
-                "player_source_match_id": player_match_id,
-                "source_home_team_id": home_team_id,
-                "source_away_team_id": away_team_id,
+                "fixture_id": str(bridge["fixture_id"]),
             }
+            side_results: dict[str, dict[str, dict]] = {"home": {}, "away": {}}
 
-            side_results = {"home": {}, "away": {}}
             for side, team_id in (("home", home_team_id), ("away", away_team_id)):
                 rows = player[player_match_id].get(team_id, [])
-                for metric in METRIC_SPECS:
+                for metric, spec in METRIC_SPECS.items():
                     derived = _derive_metric(rows, metric, player_fields)
                     side_results[side][metric] = derived
-                    record.update(_side_columns(side, metric, derived))
+                    record[f"{side}_{spec['slug']}"] = derived["value"]
                     state_counts[metric][season][derived["status"]] += 1
 
             for metric in METRIC_SPECS:
-                if all(
-                    side_results[side][metric]["value"] is not None
-                    for side in ("home", "away")
-                ):
+                if all(side_results[side][metric]["value"] is not None for side in ("home", "away")):
                     coverage[metric][season] += 1
 
             output.append(record)
@@ -254,16 +169,7 @@ def materialize(pl_root: Path) -> tuple[list[dict], dict]:
                     f"Coverage drift for {metric} {season}: expected {expected}, got {actual}"
                 )
 
-    metadata = {
-        "schema_version": SCHEMA_VERSION,
-        "construction_version": CONSTRUCTION_VERSION,
-        "representation": PLAYER_MATCH_DERIVED_TEAM_MATCH,
-        "source_repository": SOURCE_REPOSITORY,
-        "source_family": "players_match_stats",
-        "seasons": list(SEASONS),
-        "row_count": len(output),
-        "fixture_population_per_season": 380,
-        "runtime_fields": list(RUNTIME_FIELDS),
+    return output, {
         "coverage_fixtures": coverage,
         "team_side_state_counts": {
             metric: {
@@ -272,104 +178,98 @@ def materialize(pl_root: Path) -> tuple[list[dict], dict]:
             }
             for metric in METRIC_SPECS
         },
-        "missingness_rules": {
-            EXPECTED_GOALS: (
-                "Blank player expectedGoals is zero only when governed totalShots is zero; "
-                "positive-shot blank xG makes the team-match derivation missing."
-            ),
-            EXPECTED_ASSISTS: (
-                "Blank player expectedAssists is structural zero for the audited 2022-23 "
-                "through 2025-26 player-match representation."
-            ),
-            EXPECTED_GOALS_ON_TARGET: (
-                "Blank player expectedGoalsOnTarget is zero only when governed "
-                "onTargetScoringAttempt is zero; positive-SOT blank xGOT makes the "
-                "team-match derivation missing."
-            ),
-        },
-        "representation_mixing_allowed": False,
-        "runtime_note": (
-            "The tracked runtime artifact is intentionally compact. Per-player derivation "
-            "diagnostics are reproducible from the pinned source and summarised in "
-            "team_side_state_counts rather than duplicated on every runtime row."
-        ),
     }
-    return output, metadata
 
 
-def _runtime_rows(rows: list[dict]) -> list[dict[str, str]]:
-    return [
-        {field: str(row.get(field, "")) for field in RUNTIME_FIELDS}
-        for row in rows
-    ]
+def _write_product_xg(rows: list[dict], runtime_dir: Path) -> dict[str, str]:
+    runtime_dir.mkdir(parents=True, exist_ok=True)
+    hashes: dict[str, str] = {}
 
-
-def _write_runtime_csv(path: Path, rows: list[dict]) -> dict[str, str]:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(
-            handle,
-            fieldnames=RUNTIME_FIELDS,
-            extrasaction="raise",
-            lineterminator="\n",
+    for season in SEASONS:
+        season_rows = sorted(
+            (row for row in rows if row["season"] == season),
+            key=lambda row: int(str(row["fixture_id"])),
         )
-        writer.writeheader()
-        writer.writerows(_runtime_rows(rows))
+        if [int(str(row["fixture_id"])) for row in season_rows] != list(range(1, 381)):
+            raise MaterializationError(f"Canonical fixture sequence is incomplete for {season}")
 
-    artifact = path.read_bytes()
-    digest = hashlib.sha256(artifact).hexdigest()
+        payload = [
+            [row["home_expected_goals"], row["away_expected_goals"]]
+            for row in season_rows
+        ]
+        text = json.dumps(payload, separators=(",", ":")) + "\n"
+        path = runtime_dir / f"{season}.json"
+        path.write_text(text, encoding="utf-8", newline="")
+        hashes[season] = hashlib.sha256(path.read_bytes()).hexdigest()
+
+    return hashes
+
+
+def _metadata(audit: dict, hashes: dict[str, str], source_commit: str) -> dict:
     return {
-        "artifact_compression": "none",
-        "artifact_sha256": digest,
-        "uncompressed_csv_sha256": digest,
+        "schema_version": SCHEMA_VERSION,
+        "construction_version": CONSTRUCTION_VERSION,
+        "representation": PLAYER_MATCH_DERIVED_TEAM_MATCH,
+        "metric": EXPECTED_GOALS,
+        "source_repository": SOURCE_REPOSITORY,
+        "source_family": "players_match_stats",
+        "source_commit": source_commit,
+        "seasons": list(SEASONS),
+        "fixture_population_per_season": 380,
+        "layout": (
+            "Each season file is a 380-item JSON array ordered by canonical fixture_id "
+            "1..380; each item is [home_xg, away_xg]."
+        ),
+        "coverage_fixtures": audit["coverage_fixtures"][EXPECTED_GOALS],
+        "season_file_sha256": hashes,
+        "missingness_rule": (
+            "Blank player expectedGoals is structural zero only when governed player "
+            "totalShots is zero; positive-shot blank xG makes the affected team-match "
+            "observation unavailable."
+        ),
+        "representation_mixing_allowed": False,
+        "product_scope": (
+            "Expected goals is the first product-ready player-derived expected metric. "
+            "xA and xGOT remain governed/derivable but are not yet packaged for product "
+            "runtime because current Team Stats Overview does not consume them."
+        ),
     }
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Materialize governed player-derived team expected metrics."
+        description="Materialize governed player-derived expected metrics and product xG."
     )
     parser.add_argument("--pl-root", type=Path, required=True)
     parser.add_argument("--source-commit", required=True)
     parser.add_argument(
-        "--csv-out",
+        "--runtime-dir",
         type=Path,
-        default=Path("data/frl_player_derived_expected_metrics_v1.csv"),
+        default=Path("data/player_derived_expected_goals_v1"),
     )
-    parser.add_argument(
-        "--metadata-out",
-        type=Path,
-        default=Path("data/frl_player_derived_expected_metrics_v1_metadata.json"),
-    )
+    parser.add_argument("--metadata-out", type=Path, default=None)
     args = parser.parse_args()
 
     if not args.pl_root.is_dir():
         raise SystemExit(f"PL source root not found: {args.pl_root}")
 
-    rows, metadata = materialize(args.pl_root)
-    artifact_metadata = _write_runtime_csv(args.csv_out, rows)
-    metadata.update(artifact_metadata)
-    metadata["artifact_path"] = str(args.csv_out).replace("\\", "/")
-    metadata["source_commit"] = args.source_commit
-    args.metadata_out.parent.mkdir(parents=True, exist_ok=True)
-    args.metadata_out.write_text(
+    rows, audit = materialize(args.pl_root)
+    hashes = _write_product_xg(rows, args.runtime_dir)
+    metadata = _metadata(audit, hashes, args.source_commit)
+    metadata_out = args.metadata_out or args.runtime_dir / "metadata.json"
+    metadata_out.parent.mkdir(parents=True, exist_ok=True)
+    metadata_out.write_text(
         json.dumps(metadata, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 
     print("FRL PLAYER-DERIVED EXPECTED METRICS MATERIALIZATION")
-    print(f"rows={len(rows)}")
     print(f"source_commit={args.source_commit}")
-    print(f"artifact_sha256={metadata['artifact_sha256']}")
-    for metric in METRIC_SPECS:
-        print(metric)
-        for season in SEASONS:
-            print(
-                f"  {season}: fixtures={metadata['coverage_fixtures'][metric][season]} "
-                f"states={metadata['team_side_state_counts'][metric][season]}"
-            )
-    print(f"CSV: {args.csv_out}")
-    print(f"Metadata: {args.metadata_out}")
+    print(f"xG={metadata['coverage_fixtures']}")
+    print(f"xA={audit['coverage_fixtures'][EXPECTED_ASSISTS]}")
+    print(f"xGOT={audit['coverage_fixtures'][EXPECTED_GOALS_ON_TARGET]}")
+    print(f"runtime_dir={args.runtime_dir}")
+    print(f"metadata={metadata_out}")
     return 0
 
 
