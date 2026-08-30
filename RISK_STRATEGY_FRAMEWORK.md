@@ -1,221 +1,264 @@
 # Risk Strategy Framework — Football Research Laboratory
 
+**Last reviewed:** 30 August 2026
+
 ## Status
 
-This is the quality architecture for the whole Football Research Laboratory.
+This is the durable quality architecture for the Football Research Laboratory.
 
-It is not merely a testing script.
+Current milestone state belongs in `CURRENT_WORK.md`; repository-memory governance belongs in `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
 
 ## Governing principle
 
-> **No result is allowed to become research knowledge unless the system can show where the data came from, what information was available at the time, what transformation produced it, and how the result was tested out-of-sample.**
+> **No result is allowed to become research knowledge unless the system can show where the data came from, which representation was used, what information was available at the time, what transformation produced the result, what population it describes, and how the claim was evaluated.**
 
-## 1. Layered architecture
+## 1. Layered quality architecture
 
-The laboratory should be thought of as five functional quality layers around the research process:
+FRL should be understood as a chain of evidence and governed transformations rather than a single application:
 
 ```text
-RAW / SOURCE
+PRESERVED SOURCE EVIDENCE
         ↓
-CANONICAL / VALIDATED
+VALIDATED / RECONCILED EVIDENCE
         ↓
-HISTORICAL STATE
+IDENTITY / RELATIONSHIPS
+        ↓
+SOURCE REPRESENTATION / ROUTE
+        ↓
+GOVERNED VARIABLE
+        ↓
+METRIC + COVERAGE / MISSINGNESS
+        ↓
+POPULATION / COMPARABILITY
+        ↓
+HISTORICAL STATE / ANALYSIS
         ↓
 RESEARCH / MODELS
-        ↓
-QUALITY / CONTROL
         ↓
 EVALUATION
         ↓
 DECISION / MARKET (explicit)
         ↓
-GUI
+PRODUCT / GUI
 ```
 
-Market information is quarantined from the research layer by default. A model may explicitly include market information only when that is the research question.
+The GUI is the least authoritative layer.
 
-## 2. Raw evidence versus canonical data
+Market information remains quarantined from ordinary football research/model inputs unless the research question explicitly requires market information.
 
-Raw/source data is evidence and should not be casually mutated into the working truth.
+## 2. Raw evidence versus canonical and derived data
 
-Conceptual pipeline:
+Raw/source data is evidence and should not be casually mutated into working truth.
+
+Conceptually:
 
 ```text
 SOURCE
   ↓
-RAW
+RAW / PRESERVED
   ↓
 VALIDATED
   ↓
-CANONICAL
+RECONCILED / CANONICAL WHERE JUSTIFIED
   ↓
-FEATURES
+DERIVED VARIABLES / FEATURES
   ↓
-OUTPUTS
+ANALYSIS / MODELS
 ```
 
 Every important result should be traceable backwards through these stages.
 
+A derived value inherits the limitations, rights dependencies, missingness and temporal semantics of its inputs.
+
 ## 3. Data contracts
 
-Every ingestion boundary should validate an explicit schema contract.
+Every ingestion/adapter boundary should validate explicit schema and semantic contracts where applicable:
 
-For fixtures this includes, as appropriate:
+- grain;
+- identifiers;
+- season / competition;
+- timestamps;
+- completion semantics;
+- required fields;
+- units;
+- missing-value behaviour;
+- uniqueness;
+- relational integrity;
+- source/version identity.
 
-- fixture identity
-- season
-- kickoff timestamp
-- home team
-- away team
-- completion/result semantics
-- recognised team identities
-- uniqueness
-- valid dates
-- relational integrity
+Unknown or contradictory schema conditions should fail closed rather than silently produce nonsense.
 
-An unknown schema should stop the pipeline rather than silently produce nonsense.
+## 4. Source diversity and source routing
 
-### Source diversity and league portability
+Different source families can expose apparently similar football concepts with different:
 
-The FRL must assume that different leagues, competitions and source families may provide materially different schemas, field names, identifier systems, grains, units and definitions for apparently similar concepts.
+- names;
+- grains;
+- definitions;
+- versions;
+- units;
+- missingness semantics;
+- historical coverage;
+- correction behaviour.
 
-The FRL should therefore use explicit source adapters / normalisation contracts rather than assuming that one provider schema is universal. See `FRL_SOURCE_NORMALISATION_CONTRACT.md`.
+Follow `FRL_SOURCE_NORMALISATION_CONTRACT.md` and `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`.
 
-Each adapter should document, where applicable:
+A source field-name match is not evidence of equivalence.
 
-- source field name;
-- source field definition;
-- source grain;
-- source identifier;
-- FRL canonical concept;
-- transformation or aggregation applied;
-- units and scaling;
-- missing-value semantics;
-- coverage limitations;
-- source/version/provenance.
+A source route should be chosen for a declared:
 
-A field-name match is not sufficient evidence that two sources measure the same thing. When concepts cannot be harmonised defensibly, preserve source-specific evidence and leave the FRL canonical concept unavailable rather than creating false equivalence.
+```text
+football concept
++ requested grain
++ competition / period / as-of state
++ analytical purpose
+```
 
-This architecture allows the FRL to expand across leagues without forcing every new source to imitate the first provider's schema.
+Do not implement “first non-null source wins”.
 
-## 4. Identity
+Where representations cannot be harmonised defensibly:
 
-Season-local team IDs are not globally stable.
+1. preserve both;
+2. keep provenance/version identity;
+3. expose the semantic limitation;
+4. leave canonical comparability unavailable until established.
 
-Persistent club identity is a separate concern from season-local identity.
+## 5. Whole-ecosystem discovery
 
-Historical changes such as renames, promotions, relegations and source-ID changes must be handled through identity registries rather than ad hoc string matching.
+When a requested metric, classification, identity mapping or retrieval capability is not clearly established, the default is **discovery before implementation or acquisition**.
 
-Player, fixture and event identifiers should follow the same principle: source identifiers remain source-local until explicitly reconciled into a verified FRL identity.
+Follow `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`.
 
-## 5. Provenance
+Failure to find a capability in one repository path or resolver is not proof that it is absent.
+
+Inspect, where relevant:
+
+- current implementation;
+- archived/backup implementations;
+- GitHub-tracked datasets;
+- local upstream/source workspaces;
+- source-family variants;
+- preserved raw snapshots;
+- partitioned datasets;
+- identity bridges;
+- merged/derived datasets;
+- neighbouring fields / alternate grains;
+- existing consumers;
+- source documentation / provenance.
+
+The audit should establish:
+
+```text
+source family
+    ↓
+representation / dataset
+    ↓
+grain
+    ↓
+identifiers
+    ↓
+coverage
+    ↓
+missingness semantics
+    ↓
+transformation / derivation
+    ↓
+consumer
+    ↓
+FRL suitability
+```
+
+## 6. Identity and relationship integrity
+
+Source identifiers are evidence, not universal IDs.
+
+Season-local team identity is distinct from persistent club identity.
+
+Player, fixture, event, competition and source-family identities require explicit bridges where they cross boundaries.
+
+Never join bare numeric IDs across source families merely because they look compatible.
+
+Fail closed when the relationship cannot be verified.
+
+## 7. Provenance and versioning
 
 Important transformations must retain source lineage.
 
-For corrected fixtures, preserve both the canonical analytical state and the evidence describing the correction.
-
-A user should eventually be able to ask:
+A user/researcher should eventually be able to ask:
 
 > Where did this number come from?
 
-and receive an inspectable answer.
+and receive an inspectable answer including, where relevant:
 
-## 6. Existing-mechanism discovery
+- source family;
+- source/version/snapshot;
+- native field;
+- identity route;
+- transformation / aggregation;
+- observed and eligible population;
+- temporal cutoff;
+- limitations.
 
-When a requested metric, classification, identity mapping or retrieval capability is not clearly established in the Laboratory repository, the default response is **discovery before implementation**.
+Later snapshots or corrected source values must not silently overwrite evidence history.
 
-The preferred discovery order is:
+## 8. Missingness and coverage
 
-```text
-CURRENT WORKING APPLICATION
-        ↓
-ARCHIVED / BACKUP IMPLEMENTATIONS
-        ↓
-LOCAL UPSTREAM SOURCE TREE
-        ↓
-GITHUB LABORATORY CONTRACTS
-        ↓
-NEW IMPLEMENTATION (only if genuinely necessary)
-```
+Missing evidence is not zero.
 
-### Whole-data-ecosystem discovery requirement
+Every aggregate metric must distinguish, where relevant:
 
-`FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md` is authoritative for discovery completeness.
+- eligible observations;
+- observed observations;
+- missing observations;
+- structural zeros;
+- observed total / numerator;
+- denominator;
+- coverage status.
 
-**Failure to find a field, metric, classification or capability in one repository location is never sufficient evidence that it does not exist.**
+A partial metric must not be presented as a complete-season/population statistic without explicit qualification.
 
-Before concluding that information is absent, unavailable, or requires a new external source, audit the relevant whole ecosystem, including where applicable:
+Derived comparisons must use compatible populations.
 
-- the current working application and query layer;
-- archived, backup and previous implementations;
-- all relevant GitHub-tracked datasets and directory structures;
-- the local upstream/source workspace;
-- source-family variants and parallel data products;
-- partitioned datasets such as `by_position`;
-- identity registries and crosswalks;
-- merged/derived datasets;
-- neighbouring fields that may encode the requested concept under a different name or grain;
-- source documentation and provenance notes.
+Example: full-season goals must not be compared with partial-season xG to create an apparently full-season over/underperformance statistic.
 
-Do not search only for the expected metric/column name. The same information may exist at another grain, in a partitioned dataset, in an upstream source family, or as a documented derived quantity.
+## 9. Aggregation semantics
 
-The audit should establish, where applicable:
+Aggregation is part of the metric contract.
 
-```text
-SOURCE FAMILY
-     ↓
-FILE / ENDPOINT / DATASET
-     ↓
-GRAIN
-     ↓
-RELEVANT FIELDS
-     ↓
-IDENTIFIER KEYS
-     ↓
-COVERAGE
-     ↓
-TRANSFORMATION / DERIVATION
-     ↓
-EXISTING CONSUMER
-     ↓
-FRL SUITABILITY
-```
+Do not assume all numeric fields can be averaged or summed.
 
-If the ecosystem audit genuinely finds no defensible source, record that conclusion and the evidence supporting it before sourcing externally.
+Typical distinctions:
 
-Existing working behaviour is evidence of intended behaviour. Archived implementations may reveal established retrieval paths, classifications, calculations and interface contracts.
+- counts may be summable when source completeness/identity is established;
+- percentages normally require numerator/denominator reconstruction;
+- rates require an explicit denominator;
+- per-90 requires governed minutes/eligibility;
+- player → team aggregation requires concept-specific proof;
+- provider-specific expected metrics remain source/version-specific unless equivalence is established.
 
-The search must not depend only on the expected metric name. Inspect the relevant directory structure, neighbouring metrics, source identifiers, representative schemas, known consumers and existing transformations. Trace the lineage:
+## 10. Population, ranking and percentile risk
 
-```text
-RAW SOURCE
-  ↓
-STORED SOURCE DATA
-  ↓
-RETRIEVAL / TRANSFORMATION
-  ↓
-AGGREGATION / CLASSIFICATION
-  ↓
-EXISTING CONSUMER
-```
+A rank/percentile is only meaningful relative to an explicit population.
 
-Failure to find a mechanism in the Laboratory repository is **not evidence that the mechanism does not exist**. Where an upstream/local source or working implementation is known, those sources should be inspected before inventing a substitute.
+A governed ranking should declare:
 
-Before modifying code, establish and record, where applicable:
+- competition / season / as-of state;
+- eligible entities;
+- exclusions;
+- minimum coverage/minutes where relevant;
+- metric representation/version;
+- tie policy;
+- percentile method;
+- directionality;
+- whether the percentile is raw distributional position or performance-oriented.
 
-- source of the information;
-- source field(s);
-- identity keys and classification rules;
-- existing retrieval function/path;
-- aggregation or transformation rules;
-- existing consumer demonstrating the capability;
-- proposed reuse point.
+Do not rank incomplete observations alongside complete observations as though they were directly comparable.
 
-This is especially important when a capability is believed to already exist. Reuse the established mechanism rather than recreating an apparently equivalent one.
+Player populations require particular care around position, role, minutes and team context.
 
-## 7. Three kinds of time
+## 11. Three kinds of time
 
-The system distinguishes:
+FRL distinguishes:
 
 ### Event time
 When the football event occurred.
@@ -224,37 +267,35 @@ When the football event occurred.
 When the information became knowable to a hypothetical historical analyst.
 
 ### Ingestion time
-When our tooling happened to retrieve the information.
+When FRL happened to retrieve/capture the information.
 
 For historical simulation and leakage control, availability time is the critical constraint.
 
-## 8. Temporal integrity / leakage
+A final historical record does not prove the information was available at the historical cutoff.
 
-A derived research feature must not use information unavailable at the prediction/evaluation timestamp.
+## 12. Temporal integrity / leakage
+
+A derived research feature or model input must not use information unavailable at the prediction/evaluation timestamp.
 
 Conceptually:
 
 ```text
-source availability time < prediction time
+latest allowed input availability < prediction/evaluation cutoff
 ```
 
-If a feature violates this, it is a leakage failure, not a minor warning.
+A violation is a leakage failure, not a minor warning.
 
-Historical state is intended eventually to answer:
-
-> What did the laboratory know immediately before this fixture?
-
-## 9. Research versus market
+## 13. Research versus market
 
 The research engine should answer:
 
-> What do the football data and model imply?
+> What do the football evidence and model imply?
 
 The market layer should answer:
 
-> What price is currently available?
+> What price is available at a declared observation time?
 
-Then, and only then, can a separate decision layer compare:
+Then a separate decision layer can compare:
 
 ```text
 MODEL
@@ -270,38 +311,39 @@ EDGE / EV
 STRATEGY / STAKING
 ```
 
-Kelly staking is a strategy configuration, not part of the football model itself.
+Kelly staking is strategy configuration, not part of the football model.
 
-## 10. Model evaluation
+## 14. Model evaluation
 
 Time-respecting evaluation is the default.
-
-Random train/test splits are not the primary historical evaluation method for time-dependent football data.
 
 Preferred structures include:
 
 - walk-forward evaluation;
 - season-based holdouts;
-- discovery versus unseen test periods.
+- discovery vs unseen test periods;
+- prospective validation where practical.
 
-## 11. Baseline discipline
+Random train/test splits are not the primary historical evaluation method for time-dependent football data.
+
+## 15. Baseline discipline
 
 Complexity must earn its place.
 
-Candidate models should be compared with deliberately simple baselines such as:
+Candidate models should be compared with deliberate simple baselines such as:
 
-- historical league frequencies
-- Elo-only approaches
-- simple goals-for/goals-against models
-- simple Poisson
+- historical league frequencies;
+- Elo-style baselines;
+- simple goals-for/goals-against models;
+- simple Poisson.
 
-If a sophisticated model cannot demonstrate out-of-sample improvement over appropriate baselines, complexity is not automatically justified.
+If a more complex model cannot show credible out-of-sample improvement, complexity is not automatically justified.
 
-## 12. Robustness and false discovery
+## 16. Robustness and false discovery
 
-Exploratory research can find interesting patterns without proving them.
+Exploratory research can find interesting patterns without validating them.
 
-The laboratory must distinguish:
+FRL must distinguish:
 
 ```text
 Interesting
@@ -315,46 +357,66 @@ Robust
 Profitable
 ```
 
-Searching large numbers of historical combinations creates false-discovery and p-hacking risks. Future tooling should record experiments and distinguish discovery from confirmation.
+Large variable/hypothesis spaces increase false-discovery and p-hacking risk.
 
-Similarity/comparable-match engines require the same scientific treatment. Similarity must itself be validated retrospectively and stress-tested for sensitivity to reasonable parameter changes.
+Future experiment/result tracking should preserve failed and inconclusive tests as well as attractive findings.
 
-## 13. Four test classes
+## 17. Test classes
 
 ### Unit tests
 Does a function produce the expected result for controlled inputs?
 
 ### Integration tests
-Do components work together correctly?
+Do components and source/identity/analysis seams work together?
 
 ### Data-quality tests
-Is the underlying dataset structurally trustworthy?
+Is the evidence structurally trustworthy and correctly linked?
+
+### Analytical-contract tests
+Are aggregation, coverage, missingness, populations and ranking semantics correct?
 
 ### Statistical evaluation
-Does the research generalise out-of-sample, remain calibrated, survive robustness checks and beat suitable baselines?
+Does research/model performance generalise, calibrate and survive robustness/baseline testing?
 
-Passing one category does not imply passing another.
+Passing one class does not imply passing another.
 
-## 14. Current automated assurance
+## 18. Validation-state rule
 
-The current validated research baseline is **26/26**:
+Do **not** hard-code an old test count into this durable risk contract as though it were the eternal current baseline.
 
-- Query Lab: 14/14
-- Player Research V0.1: 6/6
-- Player Research V0.2: 6/6
+Dated closeout/audit documents preserve historical validated checkpoints.
 
-The project-health gate is a separate structural/data gate.
+For current work:
 
-## 15. Research release principle
+- run the applicable current gates;
+- report actual command output;
+- record material validation state in `CURRENT_WORK.md` when useful;
+- do not claim a gate passed unless it was run for the relevant state.
 
-A model should graduate from exploratory work to trusted research only after surviving, where applicable:
+## 19. Documentation drift as a quality risk
+
+FRL uses repository documentation as operational memory.
+
+Stale standing documents can cause new sessions to implement against obsolete architecture even when the code/data are correct.
+
+Therefore material milestones must follow `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
+
+Documentation drift is a project-quality defect when it changes the assumptions future work is instructed to trust.
+
+## 20. Research release principle
+
+A model or analytical claim should graduate from exploratory work only after surviving the controls appropriate to its purpose, such as:
 
 ```text
-DATA VALIDATION
+DATA / SOURCE VALIDATION
       ↓
-LEAKAGE / TEMPORAL VALIDATION
+IDENTITY / RELATIONSHIP VALIDATION
       ↓
-WALK-FORWARD / OUT-OF-SAMPLE TESTING
+METRIC / POPULATION VALIDATION
+      ↓
+TEMPORAL / LEAKAGE VALIDATION
+      ↓
+OUT-OF-SAMPLE TESTING
       ↓
 CALIBRATION
       ↓
@@ -362,7 +424,11 @@ ROBUSTNESS
       ↓
 BASELINE COMPARISON
       ↓
-UNSEEN DATA
+UNSEEN / PROSPECTIVE DATA
 ```
 
-The purpose is not to prove certainty. It is to make uncertainty visible and bounded.
+The objective is not certainty. It is to make uncertainty, assumptions and failure modes visible and bounded.
+
+## Final principle
+
+> **Preserve the evidence, govern the representation, make the population explicit, keep time honest, and do not let presentation outrun what the system can defend.**

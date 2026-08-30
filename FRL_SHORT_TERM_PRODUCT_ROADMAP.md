@@ -1,418 +1,361 @@
 # Football Research Laboratory — Short-Term Product Roadmap
 
 **Status:** Active near-term planning document  
-**Created:** 29 August 2026
+**Created:** 29 August 2026  
+**Last updated:** 30 August 2026
+
+For repository-memory governance see `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
 
 ## Purpose
 
-This document records the intended direction for the next several FRL sessions after the fixture-data operationalisation work. It is deliberately broader than a single implementation task, but narrower than the long-term North Star.
+This document records the current priority sequence for turning FRL's governed evidence/research foundation into a coherent analytical product.
 
-The immediate objective is to turn the governed FRL backend into a coherent research product through a sequence of reusable, data-backed interfaces.
+It is deliberately revisable and should not be treated as a permanent architecture contract.
 
-The governing product principle is:
+Current-state detail belongs in `CURRENT_WORK.md`.
 
-> The GUI should be a window into the research environment, not a collection of disconnected football pages.
+## Governing product principle
 
-The roadmap is intentionally revisable. It defines current priorities and sequencing, not immutable architecture.
+> **The GUI should be a window into the research environment, not a collection of disconnected football pages.**
 
----
+Current information-architecture rule:
 
-## 1. Finish Fixture Workspace V1
+> **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
 
-The current fixture/result experience is the first operational product surface.
+## Completed / substantially completed milestones
 
-### V1 completion target
+The following items have progressed beyond the state described in the original 29 August roadmap:
 
-A user should be able to move:
+### Fixture Workspace V1
+
+Rich fixture/result product work has been operationalised sufficiently to move on from fixture-first product development.
+
+Standalone Fixtures V1 is frozen for now.
+
+### Variable Capability Inventory
+
+The machine-readable capability inventory exists and documents a broad governed/connected variable universe.
+
+Important refinement from the 30 August source-route review:
+
+> the capability inventory describes governed registries and connected research/model seams; it should not be interpreted as proof that each connected route is the strongest representation anywhere in the preserved ecosystem.
+
+### Team Profile V1
+
+Team Profile V1 is complete/frozen for now with the intended entity-description role.
+
+### Team Stats Overview prototype
+
+A first Team Stats Overview prototype exists with six core metric cards, trend/split presentation and league-context concepts.
+
+It is a product/architecture prototype rather than the final analytical implementation.
+
+## Current architectural prerequisite
+
+Before expanding Team Stats into additional families, FRL needs to strengthen the middle analytical layer:
 
 ```text
-Fixture Explorer
-    ↓
-canonical fixture
-    ↓
-rich, governed fixture/result workspace
+source representation / route
+        ↓
+governed variable
+        ↓
+metric + coverage / missingness
+        ↓
+population / comparability
+        ↓
+analysis result
+        ↓
+Team View / Rankings / later Compare
 ```
 
-using real preserved historical evidence rather than hard-coded fixture data.
+The 30 August source-route evidence is recorded in `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`.
 
-### Immediate fixture tasks
+## 1. Source-route governance + repository-memory sync
 
-1. Complete historical PulseLive snapshot materialisation for the canonical Premier League fixture universe.
-2. Resolve any genuine acquisition failures without reopening broad coverage discovery work.
-3. Fix the PulseLive player identity → existing Player-Match / Universal Research Access identity bridge.
-4. Preserve fail-closed behaviour where cross-source player identity cannot be verified.
-5. Use source formation plus ordered lineup information for formation presentation where appropriate, while distinguishing derived display positions from source-provided coordinates.
-6. Confirm events, lineups, formations, managers, current match statistics and metadata render consistently across representative fixtures.
-7. Do not continue adding fixture-page statistics merely because more are available. Once V1 is operational, stabilise it and move on.
+### Objective
 
-### Fixture V1 product stance
+Make sure FRL builds analytical products from the strongest defensible preserved source route while keeping all standing repository documentation in sync with the architecture that actually exists.
 
-The fixture page does not need to expose every variable FRL possesses. It should communicate the match clearly and provide routes into deeper research surfaces.
+### Deliverables
 
----
+- dated preserved-source route audit;
+- explicit source-route classification;
+- source-routing extension to the source-normalisation contract;
+- refreshed current/orientation/design/risk documentation;
+- automated documentation-sync gate;
+- living documentation state manifest.
 
-## 2. Produce the FRL Variable Capability Inventory
+### Key route statuses
 
-Before building the main Team Stats, Player Stats, League Stats and Prediction Lab surfaces, FRL needs a structured product-facing understanding of what the backend actually knows.
+```text
+KEEP_CURRENT_ROUTE
+BETTER_EXISTING_ROUTE
+DERIVED_ROUTE_PREFERRED
+MULTIPLE_SOURCE_REPRESENTATIONS
+SEMANTIC_REVIEW_REQUIRED
+COVERAGE_GAP
+```
 
-The existing Universal Research Access variable universe is intentionally broad. A count such as “1,414 variables” is infrastructure information, not yet a usable product specification.
+## 2. Integrate analytical correctness fixes
 
-The next major analytical/documentation task should therefore create a structured capability inventory.
+Before the new kernel becomes authoritative, integrate and validate the narrow correctness work identified during the Team Stats review:
 
-### Core questions for every important variable or variable family
+- missing metric observations must not be divided by the complete eligible population;
+- coverage must distinguish eligible/observed/missing observations;
+- partial xG must not create misleading full-season xG-overperformance;
+- legitimate zero-score fixtures must remain in Poisson source populations;
+- current product output must not imply full coverage when evidence is partial.
 
-For each variable FRL should establish:
+Keep this pass narrow. Do not hide it inside a broad refactor.
 
-1. **What does it mean?**
-   - football concept;
-   - original source definition where known;
-   - whether the field is atomic, derived or model-produced.
+## 3. Build the minimum governed analytical kernel
 
-2. **What grain is it at?**
-   - fixture;
-   - event;
-   - team-match;
-   - team-season;
-   - player-match;
-   - player-season;
-   - league-season;
-   - odds/market observation;
-   - model output;
-   - another explicit grain.
+Do **not** build a generic metric DSL or rewrite the 1,414-variable universe.
 
-3. **How much historical coverage does it have?**
-   - seasons;
-   - fixtures;
-   - teams;
-   - players;
-   - known gaps or exceptions.
+Prove the architecture with a small reference slice.
 
-4. **Can it legitimately be compared or aggregated?**
-   - across matches;
-   - across seasons;
-   - across teams;
-   - across positions;
-   - across future leagues/sources;
-   - with what caveats or transformations.
+Initial objects/concepts should cover:
 
-5. **What is its provenance?**
-   - source family;
-   - source-native field;
-   - transformation path;
-   - temporal/as-of semantics.
+### `SourceRepresentation`
 
-6. **Where could it be useful?**
-   - Fixture workspace;
-   - Team Profile;
-   - Team Stats;
-   - Player Profile;
-   - Player Stats;
-   - League Stats;
-   - Head-to-Head research;
-   - Prediction Lab;
-   - modelling only;
-   - retained research infrastructure but not currently suitable for UI exposure.
+Which preserved evidence/version/grain is being used?
 
-### Capability areas to catalogue
+### `SourceRouteDecision`
 
-The inventory should explicitly cover at least:
+Why is that representation appropriate for the requested concept, period and purpose?
 
-| Area | Core product question |
-|---|---|
-| Fixture | What information can FRL know about a single match? |
-| Events | What event-level evidence exists and at what depth? |
-| Team-match | What can be measured for one team in one fixture? |
-| Team-season | What can be aggregated reliably across a season? |
-| Player-match | What can be inspected for one player in one match? |
-| Player-season | What can be compared across players and seasons? |
-| League-season | What league-wide context, rankings and distributions can be produced? |
-| Context | What home/away, gameweek, score-state, rest, temporal and situational variables exist? |
-| Odds / markets | What historical market information exists and with what time semantics? |
-| Derived metrics | What FRL-created variables already exist and how are they defined? |
-| Models | Which models exist, what are their inputs/outputs, and what was knowable at prediction time? |
+### `MetricDefinition`
 
-### Desired deliverables
+Stable metric identity, meaning, grain, unit, direction, aggregation, required inputs and version.
 
-This should eventually produce two complementary artifacts:
+### `MetricObservation`
 
-#### A. Machine-readable inventory
+Value plus eligible/observed/missing coverage, provenance and limitations.
 
-A structured artifact generated from the governed research layer, suitable for:
+### `PopulationDefinition`
 
-- coverage checks;
-- UI configuration;
-- future documentation generation;
-- filtering variables by grain/category/source;
-- identifying candidate Team/Player/League statistics.
+Competition/season/as-of scope, eligible entities, exclusions and coverage/minimum rules.
 
-#### B. Human-readable FRL Data Capability Brochure
+### `PopulationContext`
 
-A polished, readable and visually engaging document that explains what FRL knows.
+Rank, tie policy, percentile method and distribution context.
 
-It should not read like a database schema dump.
+### Shared temporal/state service
 
-It should walk through the system in football terms, for example:
+Rolling windows, last-N, venue splits, streaks and season-to-date state should be defined once.
 
-- “What can we know about a fixture?”
-- “What can we know about a team?”
-- “What can we know about an individual player performance?”
-- “What can we compare across a season?”
-- “What market information do we preserve?”
-- “Which statistics are derived by FRL?”
-- “Which predictive models currently exist?”
-- “What can safely be known as-of a historical date?”
-- “Where are the important coverage limitations?”
+### `AnalysisResult`
 
-The brochure should use clear categories, examples, coverage summaries and concise explanations rather than presenting hundreds of raw variable names without interpretation.
+One result capable of powering multiple product projections.
 
-The intended audience is both the project owner and future collaborators: someone should be able to read it and understand the research capabilities of FRL without inspecting the codebase.
+## 4. Team Stats → Team View → Overview
 
----
+Refactor the current prototype onto the governed analytical kernel.
 
-## 3. Team Research Surfaces
+Initial metric slice:
 
-After Fixture V1 and the first variable capability map, build two distinct team interfaces.
-
-### Team Profile
-
-Purpose: identity, navigation and high-level team context.
-
-Potential content:
-
-- team identity;
-- current/historical season selector;
-- headline season record;
-- recent form;
-- upcoming/recent fixtures;
-- key summary metrics;
-- squad/player links where governed data supports them;
-- routes into Team Stats and relevant research objects.
-
-The Team Profile should not become a giant statistics table.
-
-### Team Stats
-
-Purpose: deep analytical exploration of team performance.
-
-Potential dimensions include:
-
-- totals;
-- per-match rates;
-- attacking metrics;
-- defensive metrics;
+- points per match;
+- goals for per match;
+- goals against per match;
+- shots per match;
+- shots on target per match;
 - possession;
-- passing;
-- chance creation;
-- discipline;
-- home/away splits;
-- temporal trends;
+- xG as the first multiple-representation / derived-route case.
+
+Requirements:
+
+- value;
+- metric/source version;
+- coverage;
+- population eligibility;
+- rank/percentile where defensible;
+- limitations/provenance;
+- shared split/trend logic.
+
+The frontend should present analytical results rather than calculate them independently.
+
+## 5. Team Stats → League Rankings → Overview
+
+Build Rankings as a transpose/projection of the same governed Team Stats result.
+
+If Team View says a club is fifth for shots, Rankings must show the same club fifth because both consume the same metric/population computation.
+
+Cross-link:
+
+```text
+Team View metric
+    → View ranking
+
+Ranking row
+    → Analyse team
+```
+
+Compare remains later.
+
+## 6. Reuse the analytical state in Team Profile
+
+Move Profile form/last-N/split calculations onto the shared analytical/state service.
+
+The Profile remains curated and lightweight; only the underlying calculation source becomes shared.
+
+This proves that the kernel removes duplicated concepts rather than becoming another parallel implementation.
+
+## 7. Expand Team Stats analytical families selectively
+
+Only after Overview + Rankings prove the architecture:
+
+`Attack · Possession · Passing · Defence · Discipline`
+
+Exact metrics should follow governed capability/source-route evidence rather than visual convenience.
+
+Do not keep a family populated with weak filler simply because the tab exists.
+
+## 8. Player Profile / Player Stats
+
+Player work should reuse the same high-level analytical shell without assuming identical population semantics.
+
+Likely modes:
+
+```text
+Player View | Cohort Rankings | Compare later
+```
+
+Before rankings, govern:
+
+- position/role cohorts;
+- minimum minutes;
+- per-90 eligibility;
+- source/player identity;
+- role changes;
+- team-possession/context effects where relevant.
+
+Potential analytical families remain provisional:
+
+`Overview · Shooting · Creation · Possession · Defending · Discipline`
+
+## 9. League workspace
+
+Separate two concepts:
+
+### Team Rankings within a league
+
+Belongs inside Team Stats / Team Analytics.
+
+### League as an analytical entity
+
+League Stats should focus on league-level phenomena such as:
+
+- scoring environment;
+- home advantage;
 - distributions;
-- rankings/percentiles against league context;
-- historical season comparisons.
-
-Exact metric groups should be selected from the Variable Capability Inventory rather than from convenience or visual familiarity.
-
----
-
-## 4. Player Research Surfaces
-
-Build two distinct player interfaces.
-
-### Player Profile
-
-Purpose: identity, context and navigation.
-
-Potential content:
-
-- canonical player identity;
-- club/team history where available;
-- position;
-- age/season context where available;
-- headline performance summaries;
-- recent match history;
-- fixture click-through;
-- links into Player Stats and future comparisons.
-
-### Player Stats
-
-Purpose: detailed player research.
-
-Potential content:
-
-- match-level and season-level statistics;
-- totals;
-- per-90 metrics;
-- rates and percentages;
-- match distributions;
-- position-aware rankings;
-- league percentiles;
-- historical season comparisons;
-- future cross-player comparison tools.
-
-This surface should consume the governed player identity and Universal Research Access layer rather than building source-specific shortcuts.
-
----
-
-## 5. League Workspace
-
-Create a coherent league-level surface.
-
-### League Table
-
-Requirements should eventually include:
-
-- current/historical season selection;
-- correct table reconstruction;
-- temporal/as-of reconstruction where supported;
-- links into teams and fixtures.
-
-### League Stats
-
-Potential content:
-
-- team rankings;
-- player leaders;
-- league distributions;
-- scoring trends;
-- home/away trends;
-- disciplinary trends;
-- selected advanced metrics supported by comparable coverage;
+- disciplinary environment;
+- historical trends;
 - season-over-season context.
 
-The league layer should provide the baseline distributions required for useful team/player percentile comparisons.
+League Table remains a navigational/competition-state product surface.
 
----
+## 10. Prediction Lab
 
-## 6. Prediction Lab
+Productise modelling only after the analytical/source/population layer is sufficiently trustworthy.
 
-Reintroduce the useful conceptual parts of the original Streamlit modelling UI into the active Next.js product without restoring Streamlit as the frontend architecture.
+Start with the existing Poisson model but expose:
 
-### Initial model surface
+- expected goals;
+- outcome probabilities;
+- correct-score distribution;
+- model version;
+- inputs;
+- historical evaluation/calibration where available;
+- prediction-time/as-of information;
+- limitations.
 
-Start with the existing Poisson model and expose more than a final probability.
+Known Poisson correctness issues should be fixed/tested before productisation.
 
-Potential display:
+## 11. Head-to-Head / Match Research
 
-- expected home goals;
-- expected away goals;
-- home/draw/away probabilities;
-- correct-score probability matrix;
-- model parameters;
-- key input variables;
-- historical calibration/performance;
-- model version and provenance;
-- prediction-time/as-of information.
+Build a research workspace that combines governed descriptive evidence, analytical context and model output without presenting repeated historical patterns as automatically predictive.
 
-### Product principle
-
-FRL should expose enough evidence to answer:
-
-> Why does the model think this?
-
-rather than functioning as an unexplained prediction generator.
-
-Prediction is a downstream research application, not the definition of FRL.
-
----
-
-## 7. Head-to-Head / Match Research Workspace
-
-Create a pre-match research surface intended to identify relevant trends, patterns and likely game characteristics.
-
-This should be more sophisticated than a conventional “last five H2H results” page.
-
-Potential inputs include:
-
-- recent team form;
-- home/away performance;
-- attacking and defensive tendencies;
-- scoring/conceding timing;
-- shot/chance patterns;
-- historical matchup evidence;
-- relevant league baselines;
-- model outputs;
-- player availability / lineup context where available;
-- derived FRL research conditions.
-
-### Critical analytical distinction
-
-The interface should clearly separate:
-
-- descriptive historical pattern;
-- potentially relevant contextual evidence;
-- predictive evidence;
-- model output.
-
-A repeated historical pattern should not automatically be presented as predictive.
-
----
-
-## 8. Add 2026/27 Data
-
-Extend the governed data pipeline to include the 2026/27 Premier League season.
-
-This should be treated as an extension of the existing temporal/canonical architecture rather than a separate product feature.
-
-The intended outcome is that, once ingested correctly, the new season automatically appears across:
-
-- fixtures;
-- teams;
-- players;
-- league surfaces;
-- variable research;
-- models where inputs are available.
-
-Avoid creating current-season-only code paths unless source reality genuinely requires them.
-
----
-
-## 9. Near-Term Sequence
-
-The current preferred sequence is:
+The intended progression is:
 
 ```text
-1. Finish Fixture Workspace V1
-        ↓
-2. Generate Variable Capability Inventory
-   + FRL Data Capability Brochure
-        ↓
-3. Team Profile + Team Stats
-        ↓
-4. Player Profile + Player Stats
-        ↓
-5. League Table + League Stats
-        ↓
-6. Prediction Lab / Poisson model productisation
-        ↓
-7. Head-to-Head / Match Research workspace
-        ↓
-8. Extend governed pipeline to 2026/27
-        ↓
-9. Continue cross-league expansion planning
+observation
+    ↓
+context
+    ↓
+comparison
+    ↓
+question
+    ↓
+hypothesis
+    ↓
+research test
 ```
 
-This is a priority spine rather than a prohibition on sensible overlap. For example, 2026/27 ingestion may need to occur earlier for operational reasons, and the variable inventory should inform all subsequent UI work.
+## 12. 2026/27 data
 
----
+Extend the governed data pipeline to the 2026/27 season as an extension of the same identity/source/temporal architecture.
 
-## 10. Relationship to Future Cross-League Work
+Avoid current-season-only shortcuts unless source reality genuinely requires them.
 
-Cross-league expansion is recorded separately in:
+## 13. Data Capability Brochure
 
-`FUTURE_LEAGUE_COMBINE_PLAN.md`
+The human-readable Data Capability Brochure remains valuable, but should follow the first governed metric/source-route slice.
 
-The short-term Premier League product work should preserve source-agnostic abstractions so Team, Player, League and research surfaces can later accept additional competitions without being rebuilt.
+Reason:
 
-Avoid allowing Premier League / PulseLive-specific assumptions to leak upward into universal FRL UI or research contracts.
+> it is more useful to explain not only what fields FRL has, but what FRL can responsibly calculate, compare and expose.
 
----
+The brochure should distinguish:
 
-## 11. Working Rule for the Next Several Sessions
+- source-present;
+- connected;
+- derivable;
+- governed;
+- comparable;
+- product-ready capability.
 
-When choosing the next task, ask:
+## 14. Cross-league expansion
 
-> Does this move FRL toward an operational research product, clarify what the research environment can genuinely know, or unlock one of the agreed Team / Player / League / Prediction / Match Research surfaces?
+Preserve the source-normalisation and competition-aware architecture now, but do not let hypothetical multi-league infrastructure displace the current Premier League analytical work.
 
-If not, it is likely secondary work and should be recorded rather than allowed to displace the current product sequence.
+Before ingesting a second competition, canonical fixture identity should explicitly resolve the competition dimension rather than relying indefinitely on `(season, fixture_id)` as a globally unique identity.
 
-The immediate priority remains completing Fixture Workspace V1 and then producing the Variable Capability Inventory.
+See `FUTURE_LEAGUE_COMBINE_PLAN.md`.
+
+## 15. Current preferred sequence
+
+```text
+1. Source-route governance + documentation sync
+        ↓
+2. Integrate correctness / coverage fixes
+        ↓
+3. Minimum governed analytical kernel
+        ↓
+4. Team View → Overview on kernel
+        ↓
+5. League Rankings → Overview from same result
+        ↓
+6. Reuse analytical state in Team Profile
+        ↓
+7. Expand Team Stats families selectively
+        ↓
+8. Player Profile / Player Stats cohort semantics
+        ↓
+9. League workspace
+        ↓
+10. Prediction Lab
+        ↓
+11. Match Research
+        ↓
+12. 2026/27 extension / cross-league preparation as operationally required
+```
+
+## 16. Working rule
+
+When selecting work, ask:
+
+> Does this increase the trustworthiness/reusability of FRL's analytical environment or deliver one of the agreed product projections from that environment?
+
+If not, record it rather than letting it silently displace the current sequence.
+
+And whenever a milestone changes this sequence or the architecture supporting it, reconcile the standing repository memory before calling the milestone complete.

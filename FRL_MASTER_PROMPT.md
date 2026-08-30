@@ -2,107 +2,147 @@
 
 We are working on the Football Research Laboratory (FRL).
 
+For current project state, always read `CURRENT_WORK.md` and `data/frl_documentation_state_v1.json`. For documentation-governance rules read `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
+
 ## North Star
 
 The Football Research Laboratory is intended to become a serious, extensible football research and modelling platform, not merely a football statistics website or a single betting model.
 
 Its purpose is to allow a researcher to start with a football question or hypothesis and progressively:
 
-**interrogate the underlying data → identify patterns → understand what is happening → construct derived metrics → build and evaluate predictive models → apply useful models where appropriate, including betting.**
+**interrogate governed football evidence → identify patterns → understand what is happening → construct derived metrics → build and evaluate models → apply useful models where appropriate.**
 
-The system should ultimately allow the user to query almost anything that can reasonably be answered from the available football data, including through a future natural-language interface in which questions can be asked in plain English and answered with evidence and links back to the relevant underlying data and research objects.
-
-The initial implementation may be relatively small in scope, but the architecture should remain deliberately extensible toward much larger league, team, fixture and player datasets.
+The system should ultimately allow the user to query almost anything that can reasonably be answered from available football data, including through a future natural-language interface whose answers retain evidence and provenance.
 
 ## Core principles
 
 ### 1. Data is infrastructure
 
-Build a rich, well-understood and historically useful data foundation. Preserve useful source variables even when their eventual analytical application is not yet known.
+Build a rich, well-understood historical evidence foundation. Preserve useful source variables even when their future analytical application is unknown.
 
-### 2. The architecture must support discovery
+### 2. Source truth is plural
 
-Do not design the system around today's hypotheses or today's preferred metrics. The underlying data and architecture should outlive any individual metric, research question or predictive model.
+The preserved ecosystem may contain several legitimate representations of the same football concept.
 
-### 3. Derived metrics and models are experiments
+Do not collapse them because names look similar or because one is non-null.
 
-Metrics, features and predictive models should be straightforward to construct, compare, revise and replace. There is no assumption that one permanent model is the correct model.
+Preserve:
 
-### 4. Research comes before betting
+- source family;
+- source/version identity;
+- grain;
+- native meaning;
+- missing-value semantics;
+- coverage;
+- transformation / derivation;
+- rights/provenance status.
 
-Betting is an eventual application of predictive research, not the purpose of the underlying platform. Predictive claims must be challenged and evaluated appropriately before money is risked.
+Select a governed source representation for the requested concept, grain, period and analytical purpose.
 
-### 5. Explanation matters as well as prediction
+### 3. The architecture must support discovery
 
-The Laboratory should help us understand football phenomena, not merely produce predictions. A useful relationship or historical precedent can be as valuable as a predictive model.
+Do not design the system around today's hypotheses or preferred metrics. The underlying evidence and architecture should outlive any individual metric, question or model.
 
-### 6. Data quality and provenance come before presentation
+### 4. Derived metrics and models are experiments
 
-Interfaces, visualisations and analytical outputs must not outrun the reliability, coverage, provenance or understanding of the underlying data.
+Metrics, features and predictive models should be straightforward to construct, compare, revise and replace.
 
-### 7. The user should not need to know the database schema
+Derived status never removes source limitations, missingness, provenance or temporal constraints.
 
-Backend complexity should be accessible through structured exploration and eventually natural-language querying. The backend may be considerably richer than what is directly exposed in the UI.
+### 5. Research comes before betting
 
-### 8. Historical state is first-class
+Betting is an eventual downstream application of predictive research, not the purpose of the underlying platform.
 
-The Laboratory must support reconstruction of moments in time. We should be able to answer questions such as:
+### 6. Explanation matters as well as prediction
 
-- who was top scorer on date X;
-- how many goals had team Y conceded by date X;
-- what information was available before a particular fixture;
-- what a historical model would have known at a specified prediction cutoff.
+FRL should help explain football phenomena, not merely produce predictions.
 
-Do not use future information when reconstructing an historical state.
+### 7. Data quality and provenance come before presentation
+
+Interfaces and analytical outputs must not outrun the reliability, coverage, provenance or understanding of the underlying evidence.
+
+### 8. The user should not need to know the database schema
+
+Backend complexity should be accessible through structured exploration and eventually natural-language querying.
+
+### 9. Historical state is first-class
+
+FRL must support reconstruction of moments in time and must distinguish:
+
+- event time;
+- information-availability time;
+- ingestion/retrieval time.
+
+Do not use future information when reconstructing historical state or evaluating a model.
+
+### 10. Missingness is part of the meaning
+
+Missing evidence is not zero.
+
+Every aggregate, rate, comparison and ranking must use an explicit observed/eligible population and must expose limitations where coverage is partial.
 
 ## Governing idea
 
 > **We are not building one football model. We are building the research environment in which we can discover which models, metrics and explanations are worth building.**
 
-## Current platform position
+## Architectural direction
 
-The Universal Research Access backend is complete and promoted into `main`.
+The current analytical direction is:
 
-The backend closeout is recorded in `FRL_BACKEND_CLOSEOUT_2026-08-26.md` and establishes the research-access layer as ready for frontend consumption.
+```text
+PRESERVED SOURCE EVIDENCE
+        ↓
+IDENTITY / RELATIONSHIPS
+        ↓
+SOURCE REPRESENTATION
+        ↓
+GOVERNED SOURCE ROUTE
+        ↓
+GOVERNED VARIABLE
+        ↓
+METRIC + COVERAGE / MISSINGNESS
+        ↓
+POPULATION / COMPARABILITY
+        ↓
+ANALYSIS RESULT
+        ↓
+FASTAPI
+        ↓
+NEXT.JS PRODUCT / RESEARCH CONSUMERS
+```
 
-The active frontend architecture is **Next.js + React**. Streamlit is legacy and is not the target architecture for new UI work.
+This is a target analytical spine. Existing code may remain transitional while it is migrated safely.
 
-The current immediate product priority is the **fixture/result experience**: the user reaches a fixture from the Fixtures experience, opens the fixture, and sees a polished match workspace.
+## Source and capability discovery
 
-## Fixture/result product direction
+A field not being found in one resolver or repository path is not proof that FRL lacks the capability.
 
-The fixture/result page should feel like a desktop-first **web application**, not a traditional information-heavy football website.
+Before declaring data absent or acquiring another source, inspect the relevant preserved ecosystem according to `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`.
 
-Target characteristics:
+A useful future capability distinction is:
 
-- slick and visually restrained;
-- easy to navigate;
-- focused sections/tabs rather than one giant page;
-- rich information available on demand;
-- strong hierarchy with minimal interface clutter.
+```text
+SOURCE_PRESENT
+CONNECTED
+DERIVABLE
+GOVERNED
+COMPARABLE
+PRODUCT_READY
+```
 
-The initial match experience should answer:
+These are not interchangeable states.
 
-- what was the match and final score;
-- who scored / what happened;
-- who played;
-- what were the basic match statistics.
+## Product architecture
 
-A useful structural direction is:
+The durable product rule is:
 
-`MATCH | TIMELINE | LINEUPS | STATS | PLAYERS | CONTEXT`
+> **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
 
-These are illustrative categories rather than an immutable contract; the active UI work should establish the final interaction language.
+Team / Player analytical information architecture is documented in `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md` and may evolve through evidence.
 
-The visual target is informed by the **clean software feel of Linear and Vercel**, the **app-like information architecture of the FotMob app**, and the **depth of serious football-data products**. The FRL should develop its own design language rather than imitate any of them.
+The active frontend is **Next.js + React** with **FastAPI** as the frontend-facing Python boundary. Streamlit remains legacy/reference implementation unless a task explicitly concerns it.
 
-## Universal research access and frontend boundary
-
-The frontend should consume governed research results from the universal research-access layer rather than reaching directly into source-specific storage mechanisms.
-
-The interface should expose selected and coherent views over the underlying evidence, while the full variable universe remains available to deeper research workflows.
-
-A source field existing does not automatically mean a research metric exists, and a research metric existing does not automatically mean it belongs on the primary UI.
+The exact immediate product milestone belongs in `CURRENT_WORK.md`, not in this durable master prompt.
 
 ## Research workflow
 
@@ -124,11 +164,9 @@ Out-of-sample / prospective evaluation where appropriate
 Research conclusion
 ```
 
-Exploratory patterns must not automatically become trusted evidence. Preserve failed and inconclusive investigations as well as attractive results.
+Exploratory patterns must not automatically become trusted evidence.
 
-## Probabilistic and betting discipline
-
-Use probabilistic reasoning rather than narrative certainty.
+## Probabilistic and modelling discipline
 
 Distinguish clearly between:
 
@@ -136,52 +174,24 @@ Distinguish clearly between:
 - historical association;
 - predictive improvement over a baseline;
 - out-of-sample predictive performance;
-- calibrated probabilities;
+- calibrated probability;
 - economic value after realistic market costs.
 
-Backtests are not sufficient on their own. Temporal leakage, selection bias, multiple testing, calibration and robustness must be considered.
+Backtests alone are insufficient. Temporal leakage, selection bias, multiple testing, calibration and robustness must be considered.
 
 ## Commercial objective
 
-Revenue generation is a legitimate short-term objective, but FRL must not be forced to become the revenue vehicle if another opportunity has materially stronger evidence of demand and fit.
+Revenue generation is legitimate, but FRL should not be forced to become the revenue vehicle if another opportunity has materially stronger evidence of demand and fit.
 
-Commercial discovery should follow the same evidence-led philosophy as research:
-
-- identify the customer and problem;
-- establish evidence of willingness to pay;
-- understand alternatives and competition;
-- estimate acquisition and technical difficulty;
-- estimate time to first testable revenue;
-- identify risks and invalidating evidence;
-- test the smallest viable commercial hypothesis before committing substantial resources.
-
-Prefer the opportunity with the strongest evidence-adjusted probability of success rather than the most exciting idea.
+Commercial discovery should follow the same evidence-led philosophy as research.
 
 ## Learning objective
 
-The FRL is also a vehicle for developing the researcher's quantitative and analytical ability.
-
-When an important statistical, modelling or research concept becomes necessary, teach it through the real FRL problem where practical.
+FRL is also a vehicle for developing the researcher's quantitative, software and analytical understanding.
 
 Do not outsource understanding merely because implementation can be outsourced.
 
-Preferred learning loop:
-
-```text
-Research problem
-    ↓
-Current understanding / intuition
-    ↓
-Prediction or hypothesis
-    ↓
-Formalisation
-    ↓
-Method / analysis
-    ↓
-Application to FRL
-    ↓
-Review what was learned
-```
+Use important real FRL problems to teach the relevant statistical, modelling, software and research concepts where practical.
 
 ## Working method
 
@@ -193,41 +203,35 @@ For substantial workstreams establish:
 - current step;
 - review point.
 
-Separate **research mode** from **build mode**.
+Separate research/audit mode from build mode.
 
-When new ideas appear, distinguish between:
-
-- required for the current objective;
-- important to the long-term architecture;
-- worth recording and parking for later.
-
-Do not confuse changing the plan because new evidence warrants it with abandoning the plan because something interesting appeared.
-
-The highest-value next action is not necessarily code. It may be research, validation, product work, customer discovery, or deciding not to build something.
+When new evidence changes the plan, update the plan deliberately rather than allowing interesting side work to displace the objective invisibly.
 
 ## Repository recovery
 
-Treat `dallum96-gif/football-research-lab` as the source of truth for tracked project code and durable project documentation.
+Treat `dallum96-gif/football-research-lab` as the source of truth for tracked code and durable documentation.
 
-Before substantive work:
+For a fresh substantive session:
 
-1. read `PROJECT_ORIENTATION.md`;
-2. read `CURRENT_WORK.md`;
-3. establish current branch and compare with `main`;
-4. inspect relevant code, working branches and archived/local mechanisms where needed;
-5. preserve trusted backend/query contracts unless the task genuinely requires changes;
-6. validate before treating a change as safe.
+1. read `FRL_MASTER_PROMPT.md`;
+2. read `PROJECT_ORIENTATION.md`;
+3. read `CURRENT_WORK.md`;
+4. inspect `data/frl_documentation_state_v1.json`;
+5. establish branch / working tree / upstream state;
+6. inspect task-relevant contracts, implementation and preserved source routes;
+7. run validation appropriate to the change;
+8. reconcile standing documentation when the milestone materially changes project state.
 
-Do not ask the user to re-explain project information that can be recovered from the repository.
+Do not ask the user to re-explain information recoverable from the repository.
 
-When a capability is not clearly present in GitHub, inspect relevant working/archived/upstream sources before concluding that it does not exist.
+## Documentation sync rule
 
-## Current-session sequence
+Repository memory is part of the architecture.
 
-For a fresh substantive coding session:
+> **Whenever a milestone materially changes current architecture, product phase, validation interpretation, source-routing understanding, frontend status or design language, the milestone is not complete until standing repository memory has been checked for drift.**
 
-`read orientation → read current work → establish repo state → inspect relevant mechanisms → run the applicable research/backend/project-health gates → then begin substantive work.`
+See `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
 
 ## Final principle
 
-> **Build the foundations. Learn the machinery. Test the ideas. Follow the evidence.**
+> **Build the foundations. Preserve source truth. Govern the meaning. Keep time honest. Test the ideas. Follow the evidence.**

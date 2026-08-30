@@ -1,108 +1,153 @@
-# Football Research Lab
+# Football Research Laboratory
 
-A provenance-aware research application for historical Premier League and FPL data.
+A provenance-aware historical football research and modelling platform, currently centred on ten seasons of Premier League evidence.
 
 ## Returning to the project
 
-For a fast reconstruction of the project's architecture, quality principles, current branch work and UI direction, start with:
+Start here:
 
-1. `PROJECT_ORIENTATION.md`
-2. `CURRENT_WORK.md`
-3. `PROJECT_VISION.md`
+1. `FRL_MASTER_PROMPT.md`
+2. `PROJECT_ORIENTATION.md`
+3. `CURRENT_WORK.md`
+4. `data/frl_documentation_state_v1.json`
 
-`CURRENT_WORK.md` is the short, changeable checkpoint. `PROJECT_STATUS.md` contains historical project status and may be out of date; use it for history rather than as the sole statement of current state.
+Repository-memory rules are defined in `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
 
-## Stable architecture
+Dated audits/closeouts are historical checkpoint evidence. Do not treat an older status document or test count as current merely because it remains in the repository.
 
-- `query_lab.py` — core research/query layer
-- `query_api.py` — API wrapper used by the GUI
-- `gui/app.py` — production Streamlit interface
-- `identity/team_seasons.csv` — season-local identities and persistent club mapping
-- `fixtures_master_corrected.csv` — corrected fixture master
-- `identity/data_quality/fixture_corrections.csv` — fixture correction provenance
+## Current product stack
 
-## Current stable GUI
+Active frontend:
 
-The production interface should be treated separately from work on feature branches. Do not infer that a branch feature is present in `main` without checking the branch and commit history.
+- **Next.js + React** under `web/`
 
-Historically, the stable GUI has included:
+Frontend-facing backend:
 
-- League Table
-- Fixture Explorer
-- Season Comparison
+- **FastAPI** under `api/`
 
-## Backend capabilities
+Research/data logic remains Python-authoritative.
 
-- League tables
-- Team summaries
-- Multi-season team comparison
-- Fixture queries
-- Head-to-head queries
-- Player queries
-- Persistent club identity resolution
+Streamlit code remains in the repository as legacy/reference implementation. It is not the target architecture for new UI work.
+
+## Current architectural direction
+
+```text
+preserved source evidence
+    ↓
+identity / relationships
+    ↓
+source representation
+    ↓
+governed source route
+    ↓
+governed variable
+    ↓
+metric + coverage / missingness
+    ↓
+population / comparability
+    ↓
+analysis result
+    ↓
+FastAPI
+    ↓
+Next.js / Research consumers
+```
+
+The current implementation is transitional: older query/research seams remain valuable and should be migrated rather than casually rewritten.
+
+## Core evidence / governance
+
+Important foundations include:
+
+- `fixtures_master_corrected.csv` — canonical fixture spine;
+- `identity/team_seasons.csv` — season-local to persistent club identity;
+- `identity/data_quality/fixture_corrections.csv` — correction provenance;
+- `data/fixture_match_stats.csv` — packaged team-match statistics;
+- `research_access.py` — Universal Research Access;
+- `FRL_SOURCE_NORMALISATION_CONTRACT.md` — source meaning / multi-source rules;
+- `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md` — current preserved-source routing evidence;
+- `RISK_STRATEGY_FRAMEWORK.md` — quality architecture;
+- `NON_DESTRUCTION_ASSURANCE.md` — migration/change safety.
+
+## Product information architecture
+
+Current rule:
+
+> **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
+
+The Team / Player Stats proposal is recorded in `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`.
+
+Current product status and next sequence belong in `CURRENT_WORK.md` and `FRL_SHORT_TERM_PRODUCT_ROADMAP.md`.
+
+## Frontend development
+
+From `web/`:
+
+```powershell
+npm install
+npm run dev
+```
+
+Useful checks:
+
+```powershell
+npm run typecheck
+npm run build
+```
+
+## Python validation
+
+Run the tests/gates appropriate to the change rather than relying on an old fixed baseline count.
+
+Examples include:
+
+```powershell
+python -m pytest -q
+.\project-health.ps1
+python scripts\check_documentation_sync.py
+```
+
+Use targeted tests first where the full suite is unnecessary or depends on external/local source workspaces.
+
+Dated closeout documents preserve historical validated checkpoints.
+
+## Source discovery
+
+Failure to find a field in one source, resolver or repository path is not proof that FRL lacks it.
+
+Follow `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md` and inspect the relevant preserved source ecosystem before acquiring a replacement.
+
+A connected source route is not automatically the strongest analytical representation available.
 
 ## Data-quality principles
 
-Season-local team IDs are not treated as globally stable.
+- source identifiers remain source-local until reconciled;
+- season-local team identity is distinct from persistent club identity;
+- explicit corrections retain provenance;
+- missing evidence is not zero;
+- source/version differences remain visible when equivalence is unproven;
+- derived metrics inherit source, coverage and temporal limitations;
+- historical/as-of analysis must avoid future leakage.
 
-Persistent club identity is used to follow a club across seasons.
+## Git / workspace safety
 
-Explicit fixture corrections are retained with provenance.
+Preserve unrelated tracked, untracked, generated, backup and research work. Avoid broad staging, destructive cleanup, history rewriting or deletion merely to obtain a tidy working tree. Prefer scoped, reversible changes.
 
-## Tests
+## Repository
 
-The current research baseline is documented in `CURRENT_WORK.md` and `PROJECT_ORIENTATION.md`.
-
-The latest validated research gate on the active development branch is **26/26**:
-
-- Query Lab: 14/14
-- Player Research V0.1: 6/6
-- Player Research V0.2: 6/6
-
-The older 13/13 figure in historical documentation refers to an earlier checkpoint.
-
-## Project health
-
-Run:
-
-    .\project-health.ps1
-
-The health gate checks source coverage, the canonical fixture master, season integrity, duplicate IDs, required fields, score/completion semantics, team integrity, dates and a modern player↔fixture relationship.
-
-The current known warning concerns the rescheduled 2019–20 Manchester City v Arsenal fixture; see `CURRENT_WORK.md` for details.
-
-## Local development
-
-    python -m streamlit run .\gui\app.py
-
-The local application normally appears at:
-
-    http://localhost:8501
-
-For the current UI redesign preview on `agent/fixture-landing-page`:
-
-    streamlit run .\gui\app_redesign.py
-
-## Recovery
-
-Repository:
-
-    dallum96-gif/football-research-lab
+`dallum96-gif/football-research-lab`
 
 Fresh clone:
 
-    git clone https://github.com/dallum96-gif/football-research-lab.git
+```powershell
+git clone https://github.com/dallum96-gif/football-research-lab.git
+cd football-research-lab
+```
 
-Then:
+Then read the repository-memory documents before assuming the current development state.
 
-    cd football-research-lab
-    python .\tests\test-query-lab.py
-    python -m streamlit run .\gui\app.py
+## Documentation-sync rule
 
-## Git safety
+> **A material milestone is not complete until the standing repository memory has been checked for drift.**
 
-Do not use `git add .` casually in the full local research workspace.
-
-Stage only the files intended for the deployable repository.
-
-Do not use destructive cleanup commands to resolve ordinary local research-workspace clutter without first preserving anything potentially valuable.
+See `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.

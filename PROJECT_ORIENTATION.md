@@ -1,516 +1,283 @@
 # Football Research Laboratory — Project Orientation
 
-## Purpose of this document
+**Last reviewed:** 30 August 2026
 
-This is the fast-start guide for a new contributor, a new ChatGPT session, or anyone returning after a long interruption.
+This is the fast-start guide for a new contributor or new AI coding session.
 
-Read this document first, then `CURRENT_WORK.md`. After that, inspect the repository files named in the relevant sections before changing code.
+For repository-memory governance see `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
 
-The goal is to become familiar with the project quickly without relying on chat history.
+## 1. Read order
 
----
+Before substantive work:
 
-## 1. The project in one sentence
+1. read `FRL_MASTER_PROMPT.md`;
+2. read this file;
+3. read `CURRENT_WORK.md`;
+4. inspect `data/frl_documentation_state_v1.json`;
+5. inspect the task-relevant contracts, dated audits and implementation;
+6. establish current branch/working-tree/upstream state before changing files.
+
+Do not ask the user to reconstruct project information that the repository can establish.
+
+## 2. FRL in one sentence
 
 > **Give us the data and let us ask whatever football question we can think of.**
 
-The Football Research Laboratory is not fundamentally an FPL dashboard or a betting model. It is intended to become a provenance-aware historical football research environment in which users can explore football evidence, test hypotheses, compare analytical approaches, and eventually construct increasingly arbitrary questions against the underlying football database.
+FRL is intended to become a provenance-aware historical football research and modelling environment, not merely a statistics site, an FPL dashboard or one betting model.
 
-See `PROJECT_VISION.md` for the complete seven-stage progression:
-
-1. Repository
-2. Database
-3. Analytics
-4. Modelling
-5. Research
-6. Market
-7. Interactive tool
-
-The current code is still in the foundation stages. The GUI is important, but it sits above the trusted research/data layer rather than defining it.
-
----
-
-## 2. Source of truth and branch discipline
-
-Repository:
-
-`dallum96-gif/football-research-lab`
-
-GitHub is the project's source of truth for tracked code and documentation.
-
-Before changing code:
-
-1. establish the current branch and repository state;
-2. identify the stable `main` state;
-3. distinguish committed branch work from local/untracked experiments;
-4. preserve unfinished experiments rather than deleting them;
-5. make the smallest sensible change;
-6. validate before treating the change as safe.
-
-Do not casually run destructive commands such as `git clean`, `git reset --hard`, or broad staging (`git add .`) in the full local research workspace.
-
-The local workspace may contain useful research artefacts, generated data, inspection scripts, backups and experiments that are intentionally outside the deployable repository.
-
----
-
-## 3. Core architectural principle
-
-The laboratory separates football evidence from presentation and future decision/market layers.
-
-Conceptually:
+The long-term progression is:
 
 ```text
-RAW / SOURCE
+question / hypothesis
     ↓
-VALIDATED / CANONICAL
+governed evidence
     ↓
-HISTORICAL STATE
+patterns / explanation
     ↓
-RESEARCH / FEATURES / MODELS
+derived metrics
     ↓
-EVALUATION
+models / evaluation
     ↓
-MARKET / DECISION (explicit future layer)
-    ↓
-GUI
+application where justified
 ```
 
-The research layer should not accidentally inherit market information. Any future model using bookmaker/exchange information must make that dependency explicit.
+Betting is a downstream application of validated research, not the definition of the platform.
 
-The database should represent underlying football entities and events rather than being designed around today's favourite questions. Derived concepts such as last-5 form, rolling xG, strength-adjusted form and similar-match conditions should be calculable from the underlying evidence.
+## 3. Current stable principles
 
----
+FRL must preserve:
 
-## 4. Quality architecture
+- source provenance;
+- canonical fixture and identity semantics;
+- source-local identifiers until explicitly reconciled;
+- event time, information-availability time and ingestion time as distinct concepts;
+- historical/as-of reconstruction without future leakage;
+- missingness as missingness rather than implicit zero;
+- explicit transformation and derivation rules;
+- source/version differences where equivalence is unproven;
+- reproducibility and non-destruction during migration.
 
-The project's governing quality principle is:
+## 4. Current architectural direction
 
-> **No result is allowed to become research knowledge unless the system can show where the data came from, what information was available at the time, what transformation produced it, and how the result was tested out-of-sample.**
+The lower evidence/identity layers are mature relative to the current analytical layer.
 
-Quality is therefore not a single test script. It is an architecture containing:
-
-- schema validation
-- data integrity
-- identity integrity
-- chronology and temporal integrity
-- provenance / lineage
-- leakage prevention
-- unit tests
-- integration tests
-- statistical evaluation
-- walk-forward / out-of-sample testing
-- calibration and robustness checks
-- baseline comparison
-
-These are distinct concerns. Passing a code test does not prove the dataset is correct; passing a data-quality gate does not prove a model is valid; and model validity does not imply betting profitability.
-
-See `RISK_STRATEGY_FRAMEWORK.md` for the full project-level quality philosophy.
-
----
-
-## 5. Non-Destruction Assurance
-
-The project uses a non-destruction mindset for development work.
-
-A successful change must demonstrate not only that the new behaviour works, but that trusted existing behaviour has not been damaged.
-
-Default development pattern:
+The target analytical spine now being established is:
 
 ```text
-Understand existing behaviour
+PRESERVED SOURCE EVIDENCE
         ↓
-Identify the change surface
+IDENTITY / RELATIONSHIPS
         ↓
-Predict failure modes
+SOURCE REPRESENTATION
         ↓
-Make minimal change
+GOVERNED SOURCE ROUTE
         ↓
-Run targeted validation
+GOVERNED VARIABLE
         ↓
-Run regression / full gate as appropriate
+METRIC + COVERAGE / MISSINGNESS
         ↓
-Inspect the result
+POPULATION / COMPARABILITY
         ↓
-Only then treat the change as safe
+ANALYSIS RESULT
+        ↓
+FASTAPI
+        ↓
+NEXT.JS PRODUCT / RESEARCH CONSUMERS
 ```
 
-For GUI work, the safest approach is normally to keep the trusted query/data contracts unchanged and migrate the presentation layer incrementally.
+Existing implementation is transitional: useful research logic remains distributed across `query_lab.py`, `query_api.py`, `research_access.py`, specialist team/player modules and `api/frl_api.py`. Do not assume the target spine is already fully implemented merely because it is the current architecture direction.
 
-See `NON_DESTRUCTION_ASSURANCE.md`.
+## 5. Source-routing rule
 
----
+The source ecosystem can contain several preserved representations of the same football concept.
+
+Therefore:
+
+> **Do not choose a source by field name or first non-null value. Choose a governed representation for the requested concept, grain, period and analytical purpose.**
+
+Read:
+
+- `FRL_SOURCE_NORMALISATION_CONTRACT.md`
+- `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`
+- `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`
+- `FRL_SOURCE_RIGHTS_REGISTER.md`
+
+The current source-route audit concludes that the existing direct team-match route is generally strong for established core fields, while expected metrics such as xG demonstrate genuine multi-representation and derived-route cases.
 
 ## 6. Trusted data foundation
 
-The core football data model deliberately distinguishes season-local identity from persistent club identity.
+Important evidence/canonical artefacts include:
 
-Important files include:
+- `fixtures_master_corrected.csv` — canonical fixture master;
+- `identity/team_seasons.csv` — season-local → persistent club identity;
+- `identity/data_quality/fixture_corrections.csv` — explicit correction provenance;
+- `data/fixture_match_stats.csv` — packaged direct team-match statistics;
+- historical FPL player/gameweek datasets;
+- Player-Match / Player-Season source families in the preserved upstream workspace;
+- preserved PulseLive fixture snapshots;
+- versioned historical-state features.
 
-- `fixtures_master_corrected.csv` — canonical corrected fixture master
-- `identity/team_seasons.csv` — season-local identities and persistent club mapping
-- `identity/data_quality/fixture_corrections.csv` — explicit fixture correction provenance
-- `_merged/players/*_all_players_gw.csv` — historical player/gameweek source data
-- `data/fixture_match_stats.csv` — packaged historical fixture statistics used by the match-statistics layer
+A source copy is not automatically canonical truth. Grain, identity, missingness, version and provenance are part of the meaning.
 
-The project treats raw/source data as evidence rather than as something to silently mutate into the working truth.
+## 7. Identity and relationship architecture
 
-A fixture should remain resolvable through its canonical identity even when historical corrections are required. The corrected analytical view must preserve provenance for the correction rather than hiding the fact that a change occurred.
+Season-local team IDs are not globally stable.
 
----
+Persistent club identity is separate from source/season-local identity.
 
-## 7. Trusted query architecture
+The same principle applies to fixtures, players, teams, competitions, events, FPL seasonal identifiers and Player-Match / Player-Season source identifiers.
 
-The principal research boundary is:
+Read the relevant identity/relationship contracts before changing joins.
 
-`query_lab.py`
+Never use fuzzy/display-name matching as a substitute for an established bridge when a governed relationship is required.
 
-↓
+## 8. Active frontend / product architecture
 
-`query_api.py`
+Active frontend:
 
-↓
+**Next.js + React under `web/`**
 
-GUI presentation
+Frontend-facing API:
 
-`query_lab.py` contains the research/query logic and data-resolution rules.
+**FastAPI under `api/`**
 
-`query_api.py` is the interface used by the GUI and should remain comparatively thin.
+Streamlit is legacy/reference implementation. It can remain useful as historical behaviour evidence but is not the target architecture for new product work.
 
-The GUI should not duplicate business logic that belongs in the query layer.
+Current product rule:
 
-Important current query capabilities include:
+> **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
 
-- league tables
-- team summaries
-- multi-season team comparison
-- fixture queries
-- fixture detail
-- head-to-head
-- form/streak queries
-- player research/query functions
+Current completed/frozen-for-now product surfaces and current analytical work are recorded in `CURRENT_WORK.md` rather than hard-coded here.
 
----
+## 9. Team / Player analytical information architecture
 
-## 8. Fixture architecture and current feature
+Read `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`.
 
-The active development area is the Fixture Landing Page on branch:
-
-`agent/fixture-landing-page`
-
-The intended flow is:
+For teams:
 
 ```text
-Fixture Explorer
-      ↓
-canonical season + fixture ID
-      ↓
-query_api.fixture_detail()
-      ↓
-query_lab fixture resolution
-      ↓
-match statistics + provenance
-      ↓
-Fixture Landing Page
+Team Profile
+    ↓
+Team Stats
+    ├── Team View
+    ├── League Rankings
+    └── Compare later
 ```
 
-This does **not** create a separate fixture database. The landing page is a richer presentation of the existing canonical fixture record.
+Analytical families currently use the broad structure:
 
-The match-statistics layer supports core statistics and optional statistics. Missing optional statistics must be represented safely rather than causing the fixture page to fail.
+`Overview · Attack · Possession · Passing · Defence · Discipline`
 
-A known fixture-data warning exists for the rescheduled 2019–20 Manchester City v Arsenal match (`season=2019-20`, fixture ID `275`). The project-health gate intentionally warns about its missing score rather than inventing one. This is a known data-state condition, not a reason to rewrite the health logic during UI work.
+These categories should be populated only where governed capability exists.
 
----
+Team View and Rankings must ultimately be projections of the same governed result, not separate implementations whose rankings merely happen to agree.
 
-## 9. Current research validation contract
+Player analytics can share the interaction shell but require player-specific cohort/population semantics.
 
-The current development baseline uses **26/26 research tests passing**.
+## 10. Research-access architecture
 
-The current breakdown is:
+Universal Research Access remains an important governed capability-discovery/validation/query layer.
 
-- Core Query Lab: 14/14
-- Player Research V0.1: 6/6
-- Player Research V0.2: 6/6
-- Total: 26/26
+Its completed milestone is preserved in `FRL_BACKEND_CLOSEOUT_2026-08-26.md`.
 
-Older documentation contains a historical 13/13 checkpoint. That is a past state and must not be mistaken for the current research baseline.
+However, the 30 August source-route review establishes an important distinction:
 
-The project-health PowerShell gate is a separate control. It currently checks source-file coverage, the 3,800-fixture canonical master, season integrity, duplicate fixture IDs, required fields, score/completion semantics, team integrity, date integrity, and the 2025–26 player↔fixture relationship.
+> a variable being catalogued/connected is not the same as proving FRL is using the strongest analytical representation available anywhere in the preserved ecosystem.
 
-A current health result of `GREEN LIGHT - PASSED WITH WARNINGS` is acceptable when the known 2019–20 fixture warning is the only issue.
+Future capability metadata should distinguish source-present, connected, derivable, governed, comparable and product-ready states.
 
----
+## 11. Analytical safety
 
-## 10. GUI redesign philosophy
+Do not allow product code to invent analytical semantics.
 
-The current GUI is being redesigned without rewriting the trusted research layer.
+In particular:
 
-The intended feel is:
+- React should not independently define rolling form, last-N populations, ranks or percentiles;
+- FastAPI routes should increasingly orchestrate domain services rather than own metric formulas;
+- missing source observations must not be silently divided by complete populations;
+- ratios/percentages require correct numerator/denominator aggregation;
+- ranks require an explicit eligible population and tie/percentile policy;
+- partial evidence requires visible coverage/limitations before normal product exposure.
 
-> **StatsBomb's analytical clarity + Football Manager's information depth + modern web-app smoothness.**
+## 12. Historical / as-of discipline
 
-But the visual target is explicitly **not** a generic AI-generated dashboard.
+FRL distinguishes event time, information-availability time and ingestion/retrieval time.
 
-Desired qualities:
+Final historical data does not prove that the information was knowable at the earlier prediction/research cutoff.
 
-- professional
-- elegant
-- pretty but restrained
-- natural
-- intuitive
-- data-led
-- information dense without feeling cramped
-- editorial rather than decorative
+Historical state and future model evaluation must remain time-safe.
 
-Avoid:
+## 13. Quality and validation
 
-- excessive rounded cards
-- gradients
-- glowing effects
-- rainbow accents
-- giant widget buttons
-- repetitive icon cards
-- unnecessary badges
-- oversized hero sections
-- decorative copy
-- UI where the component chrome overwhelms the data
+`RISK_STRATEGY_FRAMEWORK.md` and `NON_DESTRUCTION_ASSURANCE.md` are the primary quality contracts.
 
-The data should be interesting; the interface should help the user understand it.
+Do not treat an old fixed test count as the eternal current baseline.
 
----
+For each change:
 
-## 11. Current GUI design system
+1. establish current behaviour/state;
+2. identify the change surface;
+3. predict failure modes;
+4. implement the smallest sensible change;
+5. run targeted validation;
+6. run relevant regression/data/query/frontend gates;
+7. report actual output;
+8. reconcile standing documentation if the milestone changed project-level state.
 
-The visual language should be:
+## 14. Repository safety
 
-- near-black charcoal / very dark blue background
-- slightly lighter charcoal surfaces
-- off-white primary text
-- muted grey secondary text
-- one restrained, desaturated green accent
-- subtle borders
-- compact controls
-- left-aligned navigation
-- small monochrome line icons used as navigation cues
-- few cards
-- quiet tables
+Treat `main` as the stable integration line.
 
-The sidebar should behave like professional application navigation, not a stack of large Streamlit buttons.
+Before changing code:
 
-Preferred navigation pattern:
+- inspect branch/upstream/ahead-behind state;
+- preserve unrelated local and untracked files;
+- do not use `git clean` or `git reset --hard` for ordinary workspace management;
+- do not use `git add .` casually;
+- do not delete backups/recovery artefacts merely to obtain a clean status;
+- prefer reversible, scoped changes.
 
-```text
-FOOTBALL RESEARCH LABORATORY
+## 15. Current visual system
 
-EXPLORE
-  [icon] League Table
-  [icon] Fixtures
+The current active Next.js visual language is the warm-light parchment/editorial system documented in `UI_DESIGN_SYSTEM.md`.
 
-RESEARCH
-  [icon] Players
+Do not infer visual direction from older Streamlit-era examples or historical screenshots.
 
-ANALYSIS
-  [icon] Head-to-Head
-  [icon] Form & Streaks
+## 16. Key current files
 
-MODELLING
-  [icon] Prediction Lab
+Start with these when re-entering the project:
 
-EVIDENCE
-  [icon] Data Quality
-  [icon] Provenance
-```
+1. `FRL_MASTER_PROMPT.md`
+2. `PROJECT_ORIENTATION.md`
+3. `CURRENT_WORK.md`
+4. `data/frl_documentation_state_v1.json`
+5. `FRL_DOCUMENTATION_SYNC_CONTRACT.md`
+6. `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`
+7. `FRL_SOURCE_NORMALISATION_CONTRACT.md`
+8. `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`
+9. `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`
+10. `RISK_STRATEGY_FRAMEWORK.md`
+11. `NON_DESTRUCTION_ASSURANCE.md`
+12. `research_access.py`
+13. `query_lab.py`
+14. `query_api.py`
+15. `match_stats.py`
+16. `team_research_stats.py`
+17. `team_research_analytics.py`
+18. `api/frl_api.py`
+19. `web/`
+20. `tests/`
 
-All navigation text should share a deliberate left alignment. Icons should be small, monochrome and subordinate to the text. Active state should be subtle rather than a large filled button.
+Then inspect task-specific contracts/data rather than assuming these files alone define the entire source ecosystem.
 
-The main content should establish context immediately and favour strong horizontal alignment over excessive vertical stacking.
+## 17. Documentation freshness rule
 
----
+Repository documentation is operational memory.
 
-## 12. Fixture Explorer UI rules
+Whenever a material milestone changes architecture, active product phase, source routing/capability interpretation, validation interpretation or frontend/design status, reconcile the standing documents before calling the milestone complete.
 
-The Fixture Explorer is currently being redesigned.
+See `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
 
-Important decisions:
+## 18. Final orientation principle
 
-- Season and Team selectors should sit on the same row.
-- The fixture list should occupy the majority of the page.
-- Filters should be compact and secondary.
-- The opponent should be the visually dominant entity in each row.
-- Date and metadata should be quieter.
-- Score should be strong and easy to scan.
-- Result should be visually clear but restrained.
-- The interface should not look like a raw dataframe.
-- Opponent navigation should eventually feel like text/entity navigation rather than a large rectangular button.
-- Clicking an opponent/fixture should lead into the existing canonical fixture-detail route.
-
-The test for success is not merely "it fits on the page". It should feel sleek, calm, editorial and easy to scan.
-
----
-
-## 13. Player Research and future Player Profile
-
-`player_research.py` and `gui/player_research_ui.py` form the current Player Research feature.
-
-Future architecture should distinguish:
-
-```text
-Players
-   ↓
-Player Research
-   ↓
-find / filter / compare
-   ↓
-Player Profile
-   ├── Overview
-   ├── Seasons
-   ├── History
-   ├── Matches
-   ├── Advanced
-   ├── Comparisons
-   └── Career
-```
-
-The Player Profile / History feature is a future capability, not a reason to source more data now.
-
-The historical player dataset is incomplete for some players. This is a valid data state.
-
-The future profile must:
-
-- render safely when chronology is partial;
-- never fabricate missing seasons or clubs;
-- distinguish "no data available" from "the player was not playing";
-- avoid counting known coverage as proof of a complete career;
-- expose uncertainty/provenance calmly rather than presenting missing data as an application failure.
-
-For now, improve robustness to incomplete chronology rather than expanding data acquisition.
-
----
-
-## 14. Future research laboratory direction
-
-The eventual laboratory should support independent analytical approaches rather than one monolithic model:
-
-- historical precedent / comparable matches
-- Elo
-- Poisson
-- Monte Carlo
-- player-state modelling
-- explicit market analysis
-
-The research engine should support arbitrary derived conditions from underlying football evidence. Examples include multiple form windows, rolling xG/xGA, home/away splits, strength-adjusted form and custom historical filters.
-
-False-discovery protection is a first-class requirement. Exploratory findings must not automatically become trusted evidence. Eventually, discovery periods, unseen test periods, experiment tracking, calibration and robustness analysis should be part of the research workflow.
-
----
-
-## 15. Key files to inspect when re-entering the project
-
-Start here:
-
-1. `PROJECT_ORIENTATION.md` — this file
-2. `CURRENT_WORK.md` — current branch/task/checkpoint
-3. `PROJECT_VISION.md` — full long-term vision and seven-stage progression
-4. `README.md` — repository-level summary and recovery instructions
-5. `PROJECT_STATUS.md` — historical project status; useful context but may be dated
-6. `query_lab.py` — trusted research engine
-7. `query_api.py` — GUI-facing query contract
-8. `match_stats.py` — fixture statistics abstraction
-9. `gui/app.py` — current production Streamlit entry point
-10. `gui/theme.py` — current visual system
-11. `gui/navigation.py` — navigation metadata
-12. `gui/ui_shell.py` — presentation shell
-13. `gui/fixture_explorer.py` — extracted Fixture Explorer presentation
-14. `project-health.ps1` — project health gate
-15. `tests/` — research/data validation suite
-
-For current redesign work, inspect `CURRENT_WORK.md` before assuming a feature is complete.
-
----
-
-## 16. How a fresh session should behave
-
-A fresh coding session should **not** ask the user to re-explain the project if these documents are available.
-
-Instead:
-
-1. Read `PROJECT_ORIENTATION.md`.
-2. Read `CURRENT_WORK.md`.
-3. Establish current branch and compare it with `main`.
-4. Inspect the relevant files for the task.
-5. Preserve the 26/26 research baseline unless a change explicitly concerns a research contract.
-6. Keep UI work isolated from the data/query layer wherever possible.
-7. Preserve local/untracked experiments unless the user explicitly asks for cleanup.
-8. State uncertainty when the repository does not contain enough evidence rather than inventing historical context.
-9. When a requested capability is not clearly documented or implemented in GitHub, inspect the current working application and relevant archived/backup implementations before designing a replacement.
-10. If the working/archived implementation depends on upstream/local source data, inspect that local source tree and trace the mechanism from raw source → retrieval/transformation → aggregation/classification → existing consumer.
-11. Search by structure, neighbouring metrics, source identifiers and known consumers, not only by the expected metric name.
-12. Treat failure to find a mechanism in GitHub as **not found**, not **absent**, until relevant working, archived or upstream sources have been inspected.
-13. Before changing an established retrieval or classification mechanism, identify its source fields, identity keys, transformations, existing consumer and safest reuse point.
-
-This document is intended to make a new session familiar with the architecture and project culture quickly, while still requiring code inspection before substantive changes.
-
----
-
-## 17. Source and capability discovery map
-
-When a feature or metric is requested, a fresh session should distinguish three separate questions:
-
-```text
-Does the source data exist?
-        ↓
-Is there an existing retrieval/query mechanism?
-        ↓
-Is the capability already exposed in the GUI?
-```
-
-These are not interchangeable. Source data existing does not prove that a research metric exists, and a working GUI result does not prove that the same mechanism is represented in the current GitHub checkout.
-
-The default discovery method is to **trace backwards from a known working consumer**:
-
-```text
-WORKING GUI / ARCHIVED CONSUMER
-        ↓
-QUERY / RETRIEVAL FUNCTION
-        ↓
-AGGREGATION / CLASSIFICATION
-        ↓
-STORED SOURCE DATA
-        ↓
-RAW / UPSTREAM SOURCE
-```
-
-Use neighbouring metrics and known working features as guides when names are unintuitive. Do not rely only on searching for the requested metric name.
-
-The local upstream Premier League source workspace is separate from this repository and may contain evidence not tracked here. Known source families include:
-
-- `pl_stats/<club>/players_match_stats/<season>_players_match_stats.csv` — player-match source statistics
-- `pl_stats/<club>/events_stats/<season>_events_stats.csv` — match/event source statistics
-- `fpl_scraper/fpl_stats/_merged/players/<season>_all_players_gw.csv` — FPL-derived merged player/gameweek dataset used by the current Player Research query layer
-- `fpl_scraper/fpl_stats/data/fixture_match_stats.csv` — packaged fixture statistics
-
-The important identity distinction is that upstream source fields such as `playerId`, `pl_code`, `team_id` and fixture `matchId` are not automatically interchangeable with Laboratory identifiers. Establish the existing crosswalk before joining them.
-
-When a source field exists but the current research/query layer does not expose it, classify the task correctly:
-
-```text
-SOURCE FIELD EXISTS
-    ≠
-RESEARCH METRIC EXISTS
-    ≠
-GUI CAPABILITY EXISTS
-```
-
-Only the last two layers should be changed when the source-backed mechanism already exists. If the retrieval/query mechanism itself is absent, that is a research/data-layer task and must be treated as such rather than disguised as a UI change.
-
-Before introducing a new metric or retrieval path, record where possible:
-
-- source file/data family;
-- source field;
-- identity key and crosswalk;
-- existing retrieval path;
-- aggregation/classification rule;
-- existing working consumer;
-- target architectural seam;
-- validation and regression coverage.
-
-This source map is intended to shorten fresh-session discovery while preserving the project's non-destruction and provenance principles.
+> **Preserve source truth, govern the analytical meaning, keep time honest, and make the repository describe the system that actually exists.**
