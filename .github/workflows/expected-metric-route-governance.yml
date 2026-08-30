@@ -1,0 +1,49 @@
+name: Expected metric route governance
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/audit_expected_metric_routes.py"
+      - ".github/workflows/expected-metric-route-governance.yml"
+      - "scripts/audit_source_routes.py"
+      - "FRL_SOURCE_ROUTING_CONTRACT.md"
+      - "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md"
+
+permissions:
+  contents: read
+
+jobs:
+  expected-metric-route-governance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Checkout preserved upstream archive
+        shell: bash
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/imadeddine-belkat/Premier-League-Stats.git upstream-source
+          cd upstream-source
+          git sparse-checkout set pl_stats
+
+      - name: Run expected-metric route audit
+        run: |
+          mkdir -p artifacts/expected-metric-route-governance
+          python scripts/audit_expected_metric_routes.py \
+            --pl-root upstream-source/pl_stats \
+            --json-out artifacts/expected-metric-route-governance/report.json \
+            --md-out artifacts/expected-metric-route-governance/report.md
+
+      - name: Publish summary
+        shell: bash
+        run: cat artifacts/expected-metric-route-governance/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: frl-expected-metric-route-governance
+          path: artifacts/expected-metric-route-governance/
+          if-no-files-found: error
+          retention-days: 30
