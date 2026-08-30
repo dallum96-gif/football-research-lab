@@ -21,6 +21,7 @@ const navGroups = [
   {
     label: "Analysis",
     links: [
+      { href: "/team-stats", label: "Team Stats" },
       { href: "/research", label: "Research" },
       { href: "/visualisations", label: "Visualisation" },
     ],
