@@ -1,0 +1,139 @@
+name: Materialize player-derived expected metrics
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/materialize_player_derived_expected_metrics.py"
+      - "expected_metric_artifact.py"
+      - "expected_metric_routing.py"
+      - "tests/test_expected_metric_artifact.py"
+      - "data/fixture_match_stats.csv"
+      - "data/player_derived_expected_goals_v1/**"
+      - ".github/workflows/materialize-player-derived-expected-metrics.yml"
+      - "FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md"
+
+permissions:
+  contents: read
+
+jobs:
+  materialize-player-derived-expected-metrics:
+    runs-on: ubuntu-latest
+    env:
+      UPSTREAM_COMMIT: 1ec7f0dc79055902251cd938650f622b0e79f3cc
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependency
+        run: python -m pip install pytest
+
+      - name: Checkout pinned preserved upstream archive
+        shell: bash
+        run: |
+          git init upstream-source
+          cd upstream-source
+          git remote add origin https://github.com/imadeddine-belkat/Premier-League-Stats.git
+          git config core.sparseCheckout true
+          mkdir -p .git/info
+          printf 'pl_stats/\n' > .git/info/sparse-checkout
+          git fetch --depth 1 origin "$UPSTREAM_COMMIT"
+          git checkout --detach FETCH_HEAD
+          test "$(git rev-parse HEAD)" = "$UPSTREAM_COMMIT"
+
+      - name: Rebuild governed expected-metric evidence and product xG
+        run: |
+          python scripts/materialize_player_derived_expected_metrics.py \
+            --pl-root upstream-source/pl_stats \
+            --source-commit "$UPSTREAM_COMMIT" \
+            --runtime-dir artifacts/rebuilt-player-derived-xg \
+            --metadata-out artifacts/rebuilt-player-derived-xg/metadata.json
+
+      - name: Prove tracked xG artifacts are reproducible
+        shell: bash
+        run: |
+          for season in 2022-23 2023-24 2024-25 2025-26; do
+            cmp \
+              "data/player_derived_expected_goals_v1/$season.json" \
+              "artifacts/rebuilt-player-derived-xg/$season.json"
+          done
+
+      - name: Validate governed metadata and coverage
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          tracked_root = Path('data/player_derived_expected_goals_v1')
+          rebuilt_root = Path('artifacts/rebuilt-player-derived-xg')
+          tracked = json.loads((tracked_root / 'metadata.json').read_text(encoding='utf-8'))
+          rebuilt = json.loads((rebuilt_root / 'metadata.json').read_text(encoding='utf-8'))
+
+          governed_keys = (
+              'schema_version',
+              'construction_version',
+              'representation',
+              'metric',
+              'source_repository',
+              'source_family',
+              'source_commit',
+              'seasons',
+              'fixture_population_per_season',
+              'layout',
+              'coverage_fixtures',
+              'season_file_sha256',
+              'missingness_rule',
+              'representation_mixing_allowed',
+              'product_scope',
+          )
+          for key in governed_keys:
+              assert tracked[key] == rebuilt[key], key
+
+          assert tracked['coverage_fixtures'] == {
+              '2022-23': 380,
+              '2023-24': 379,
+              '2024-25': 380,
+              '2025-26': 380,
+          }
+
+          for season in tracked['seasons']:
+              path = tracked_root / f'{season}.json'
+              assert hashlib.sha256(path.read_bytes()).hexdigest() == tracked['season_file_sha256'][season]
+              rows = json.loads(path.read_text(encoding='utf-8'))
+              assert len(rows) == 380
+              assert all(isinstance(pair, list) and len(pair) == 2 for pair in rows)
+
+          print('Validated reproducible governed player-derived xG runtime artifacts.')
+          PY
+
+      - name: Run deployable artifact regressions
+        run: python -m pytest -q tests/test_expected_metric_artifact.py
+
+      - name: Publish summary
+        shell: bash
+        run: |
+          echo '## Governed player-derived expected metrics' >> "$GITHUB_STEP_SUMMARY"
+          echo '' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Source commit: `'$UPSTREAM_COMMIT'`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Construction: `FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- Product-ready runtime metric: `Expected goals`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- xG fixtures: `380 / 379 / 380 / 380`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- xA derivation gate still validated: `380 / 380 / 380 / 380`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- xGOT derivation gate still validated: `374 / 336 / 334 / 321`' >> "$GITHUB_STEP_SUMMARY"
+          echo '- xA/xGOT remain governed but are deliberately not product-packaged yet.' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload rebuilt evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: frl-player-derived-expected-metrics-v1
+          path: artifacts/rebuilt-player-derived-xg/
+          if-no-files-found: warn
+          retention-days: 30

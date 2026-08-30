@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-08-30",
-  "checkpoint_id": "EXPECTED_METRIC_ROUTE_GOVERNANCE",
+  "checkpoint_id": "EXPECTED_GOALS_PRODUCT_READY",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Governed expected-metric route policy and deployable analytical representation preparation before analytical-kernel implementation",
+  "active_product_phase": "Minimum governed Team Stats analytical-kernel implementation, followed by Team Stats Overview refactor and League Rankings",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -51,7 +51,9 @@
     "research_access.py",
     "team_metric_missingness.py",
     "team_research_stats.py",
-    "expected_metric_routing.py"
+    "expected_metric_routing.py",
+    "expected_metric_artifact.py",
+    "data/player_derived_expected_goals_v1/"
   ],
   "checkpoint_files": [
     "CURRENT_WORK.md",

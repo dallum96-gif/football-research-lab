@@ -1,7 +1,7 @@
 # Current Work — Football Research Laboratory
 
 **Last updated:** 30 August 2026  
-**Checkpoint:** `EXPECTED_METRIC_ROUTE_GOVERNANCE`
+**Checkpoint:** `EXPECTED_GOALS_PRODUCT_READY`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
@@ -25,19 +25,22 @@ Current integrated state on `main` includes:
 - field-level team-match missingness governance documented in `FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md`;
 - the audited shot family (`Shots`, `Shots on target`, `Shots off target`, `Blocked shots`) governed as sparse-zero for the preserved direct team-match representation over 2016-17 through 2025-26;
 - expected-metric route governance documented in `FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md` and executable in `expected_metric_routing.py`;
+- player-derived expected goals materialised as a deployable governed representation for 2022-23 through 2025-26 under `data/player_derived_expected_goals_v1/`, pinned to upstream source commit `1ec7f0dc79055902251cd938650f622b0e79f3cc`;
+- `expected_metric_artifact.py` as the product/runtime reader seam for governed player-derived xG;
+- xA and xGOT retained as governed/derivable expected-metric routes but deliberately not product-packaged until a consumer needs them;
 - coverage-aware team-season aggregation that separately preserves source-observed, structural-zero and genuinely missing populations;
 - the Poisson zero-score fix integrated in commit `eaef72f`;
 - automated repository-memory synchronisation enforced by the documentation-sync GitHub Action.
 
 ## Immediate objective
 
-The immediate general objective remains:
+The immediate product/architecture objective is now:
 
-> **For every meaningful FRL football variable/concept, connect analytical use to the strongest legitimate preserved source route available, maximising trustworthy historical coverage without sacrificing semantics, grain, provenance, temporal validity or comparability.**
+> **Build the minimum shared analytical kernel required to make Team Stats Team View and League Rankings projections of the same governed metric/population result.**
 
-This does **not** mean filling every missing value. Maximum trustworthy coverage is preferred over maximum numerical fill-rate.
+The source-route objective remains a standing governance principle, but it is no longer necessary to delay the Team Stats kernel for broad additional auditing. Further source/missingness work should be bounded by product or research need.
 
-The source-route review should work by semantic/source family rather than by hand-auditing 1,414 catalogue rows independently. Missingness semantics and analytical purpose are now explicitly part of source-route governance rather than generic parser or fallback decisions.
+The next kernel slice should reuse the trusted Team Stats calculations already implemented rather than introduce a large abstract framework.
 
 ## Current architectural spine
 
@@ -63,7 +66,7 @@ FASTAPI
 NEXT.JS PRODUCT / RESEARCH CONSUMERS
 ```
 
-The lower evidence/identity foundation is stronger than the current analytical layer. Do not expand analytical product surfaces faster than the governed variable/metric/population layer can support them.
+The evidence, identity, route and first missingness layers are now strong enough to support the minimum Team Stats analytical kernel. Product expansion should still reuse governed results rather than reimplementing metric or population logic in API/UI surfaces.
 
 ## Source-routing and missingness position
 
@@ -93,13 +96,15 @@ Established conclusions:
 - timeline, lineup, formation, manager and commentary evidence belongs primarily to the preserved PulseLive match-centre snapshot route;
 - rolling form, streaks and splits should be derived once from governed fixture/team evidence rather than recalculated independently in API/UI surfaces.
 
-Future capability metadata should distinguish at least:
+Capability metadata should distinguish at least:
 
 `SOURCE_PRESENT → CONNECTED → DERIVABLE → GOVERNED → COMPARABLE → PRODUCT_READY`
 
-## Expected-metric routing checkpoint
+The expected-metric family now demonstrates that distinction concretely: player-derived xG is product-ready, while xA/xGOT remain governed/derivable until required by a product or research surface.
 
-`expected_metric_routing.py` is now the deterministic policy seam for the audited expected-metric family.
+## Expected-metric routing and deployment checkpoint
+
+`expected_metric_routing.py` is the deterministic route-policy seam for the audited expected-metric family.
 
 ### Single-season descriptive policy
 
@@ -118,32 +123,39 @@ For a 2022-23 through 2025-26 comparison:
 
 Representation mixing is forbidden within one governed season metric, ranking population or cross-season series.
 
-## Deployment boundary
+### Deployable xG representation
 
-The existing `player_match_stats.py` adapter still references a developer-local preserved source root (`C:\Users\...\Premier-League-Stats\pl_stats`). It remains useful research/reconstruction machinery but is not a deployable Team Stats dependency.
+The developer-local `player_match_stats.py` adapter remains research/reconstruction machinery and is not a production dependency.
 
-Therefore the next production-facing expected-metric step is **not** to import that adapter directly into FastAPI/Team Stats. FRL should first materialise a deployable governed derivative (or equivalent preserved source seam) that retains:
+Instead, product xG is materialised from the pinned preserved upstream source into:
 
-- canonical fixture/team attachment;
-- representation identity;
-- source provenance;
-- missingness/derivation state;
-- coverage metadata;
-- reproducible construction version.
+```text
+data/player_derived_expected_goals_v1/
+    2022-23.json
+    2023-24.json
+    2024-25.json
+    2025-26.json
+    metadata.json
+```
+
+Each season file contains 380 canonical fixture positions, ordered by `fixture_id`, with `[home_xg, away_xg]` values. Governed unavailable xG remains `null`; no direct-source fallback is used.
+
+The materialisation workflow rebuilds the representation from the pinned source and byte-compares the tracked season artifacts. The runtime reader validates per-file hashes and fails closed outside the materialised scope.
 
 ## Automated empirical audits
 
-Read-only empirical audit infrastructure now includes:
+Read-only empirical audit infrastructure includes:
 
 - `scripts/audit_source_routes.py` / `.github/workflows/source-route-coverage.yml`;
 - `scripts/audit_sparse_zero_semantics.py` / `.github/workflows/sparse-zero-semantics.yml`;
 - `scripts/audit_overview_missingness.py` / `.github/workflows/overview-missingness.yml`;
 - `scripts/audit_expected_metric_routes.py` / `.github/workflows/expected-metric-route-governance.yml`;
-- `scripts/audit_expected_assists_corroboration.py` / `.github/workflows/expected-assists-corroboration.yml`.
+- `scripts/audit_expected_assists_corroboration.py` / `.github/workflows/expected-assists-corroboration.yml`;
+- `scripts/materialize_player_derived_expected_metrics.py` / `.github/workflows/materialize-player-derived-expected-metrics.yml` for reproducible expected-metric derivation and product xG materialisation.
 
-The audits use already-preserved historical evidence and make no live PulseLive/Premier League API calls.
+The audits/materialisation use already-preserved historical evidence and make no live PulseLive/Premier League API calls.
 
-Audit output remains diagnostic evidence only. It cannot automatically promote a source representation or blank-value interpretation into production semantics. Promotion requires an explicit governance decision, provenance/comparability rules and regression tests. Shot-family and expected-metric promotions now have explicit durable contracts.
+Audit output remains diagnostic evidence until explicitly promoted by governance. Shot-family missingness and expected-metric routing are the first promoted analytical cases.
 
 ## Team / Player product architecture
 
@@ -172,30 +184,26 @@ For players, the interaction shell may mirror Team Stats, but population/cohort 
 
 ## Immediate development sequence
 
-1. **Materialise deployable governed expected-metric representations**
-   - preserve direct and player-derived representations separately;
-   - attach the player-derived representation to canonical fixture/team identity;
-   - encode xG/xA/xGOT derivation and missingness states;
-   - avoid runtime dependence on developer-local source paths.
-2. **Upgrade capability metadata**
-   - distinguish source-present / connected / derivable / governed / comparable / product-ready states;
-   - reflect expected-metric purpose/representation boundaries explicitly.
-3. **Continue bounded source-route / missingness governance for remaining high-value families**
-   - investigate remaining sparse-looking fields only where product/research value justifies it;
-   - retain strong current direct routes unless better evidence exists.
-4. **Build the minimum governed analytical kernel**
-   - source representation / route decision;
-   - governed variable / missingness policy;
-   - metric definition;
-   - coverage-aware metric observation;
-   - population definition;
-   - ranking/tie/percentile policy;
-   - shared windows/splits;
-   - reusable analysis result.
-5. **Refactor Team Stats Overview onto the kernel**
-   - preserve the six trusted Overview metrics;
-   - use xG as the first explicit multi-representation route exercised by production analysis.
-6. **Build League Rankings from the same result**, then selectively expand Team Stats families.
+1. **Build the minimum governed Team Stats analytical kernel**
+   - extract the existing Overview metric definitions from the FastAPI endpoint;
+   - centralise league population construction;
+   - centralise ranking, tie and percentile policy;
+   - retain coverage/provenance alongside every metric observation;
+   - resolve xG through `expected_metric_routing.py` and `expected_metric_artifact.py` when the governed route is player-derived;
+   - retain direct xG when the route policy selects direct team-match evidence;
+   - forbid representation coalescing.
+2. **Refactor Team Stats Overview onto the shared analysis result**
+   - preserve the existing six trusted Overview metrics and API/UI behaviour;
+   - make governed xG the first multi-representation metric exercised by product analysis;
+   - remove endpoint-local ranking/population calculations once parity is proven.
+3. **Build League Rankings from exactly the same analysis result**
+   - no second ranking implementation;
+   - expose the same metric values, population, rank and percentile used by Team View.
+4. **Upgrade capability metadata only where the analytical/product seam needs it**
+   - xG is the first `PRODUCT_READY` expected metric;
+   - do not block Team Stats on a broad 1,414-variable inventory migration.
+5. **Continue bounded source/missingness governance when a concrete product/research metric requires it.**
+6. **Selectively expand Team Stats analytical families from the same kernel.**
 7. **Move Team Profile form/state calculations onto the same analytical service.**
 8. **Design player cohort semantics before Player Stats rankings.**
 
@@ -207,7 +215,8 @@ For current work:
 
 - run targeted tests for changed behaviour;
 - use the Team Stats governance regression workflow for changes to team metric missingness/aggregation;
-- use the expected-metric routing governance regression workflow for changes to expected-metric route policy;
+- use the expected-metric routing governance regression workflow for route-policy changes;
+- use the expected-metric materialisation workflow for player-derived xG artifact changes;
 - run relevant backend/research/identity gates;
 - run Next.js `typecheck`/`build` where frontend contracts change;
 - run `project-health.ps1` when canonical/query/data behaviour may be affected;

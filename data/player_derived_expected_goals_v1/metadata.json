@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0.0",
+  "construction_version": "FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1",
+  "representation": "PLAYER_MATCH_DERIVED_TEAM_MATCH",
+  "metric": "Expected goals",
+  "source_repository": "imadeddine-belkat/Premier-League-Stats",
+  "source_family": "players_match_stats",
+  "source_commit": "1ec7f0dc79055902251cd938650f622b0e79f3cc",
+  "seasons": ["2022-23", "2023-24", "2024-25", "2025-26"],
+  "fixture_population_per_season": 380,
+  "layout": "Each season file is a 380-item JSON array ordered by canonical fixture_id 1..380; each item is [home_xg, away_xg].",
+  "coverage_fixtures": {
+    "2022-23": 380,
+    "2023-24": 379,
+    "2024-25": 380,
+    "2025-26": 380
+  },
+  "season_file_sha256": {
+    "2022-23": "cd2bba6bb9589a9999d920a570e156c1dda9b9e598ba459c4d25f5a53013fe8f",
+    "2023-24": "070a61c4775db4d756822839a5dcd3a07fc702d24c6194530613c006fb36ede0",
+    "2024-25": "194f52630d943c9ddcc69041217cf97d6580be29f2dcfa6630ce73358e02e183",
+    "2025-26": "558b9caf61da91a70647ec4a2e1afd82722250150c6511c7d689561ea8953605"
+  },
+  "missingness_rule": "Blank player expectedGoals is structural zero only when governed player totalShots is zero; positive-shot blank xG makes the affected team-match observation unavailable.",
+  "representation_mixing_allowed": false,
+  "product_scope": "Expected goals is the first product-ready player-derived expected metric. xA and xGOT remain governed/derivable but are not yet packaged for product runtime because current Team Stats Overview does not consume them."
+}
