@@ -55,15 +55,53 @@ jobs:
             --source-commit "$UPSTREAM_COMMIT" \
             --csv-out artifacts/player-derived-expected-metrics/rebuilt.csv \
             --metadata-out artifacts/player-derived-expected-metrics/rebuilt_metadata.json
+          gzip -dc data/frl_player_derived_expected_metrics_v1.csv.gz \
+            > artifacts/player-derived-expected-metrics/tracked.csv
 
       - name: Prove tracked derivative is logically reproducible
         shell: bash
         run: |
-          gzip -dc data/frl_player_derived_expected_metrics_v1.csv.gz \
-            > artifacts/player-derived-expected-metrics/tracked.csv
-          cmp \
-            artifacts/player-derived-expected-metrics/tracked.csv \
-            artifacts/player-derived-expected-metrics/rebuilt.csv
+          python - <<'PY'
+          import csv, hashlib
+          from pathlib import Path
+
+          tracked_path = Path('artifacts/player-derived-expected-metrics/tracked.csv')
+          rebuilt_path = Path('artifacts/player-derived-expected-metrics/rebuilt.csv')
+          tracked = tracked_path.read_bytes()
+          rebuilt = rebuilt_path.read_bytes()
+          print('tracked_sha256=', hashlib.sha256(tracked).hexdigest())
+          print('rebuilt_sha256=', hashlib.sha256(rebuilt).hexdigest())
+          print('tracked_bytes=', len(tracked), 'rebuilt_bytes=', len(rebuilt))
+
+          if tracked == rebuilt:
+              print('Tracked derivative is byte-identical to fresh rebuild.')
+              raise SystemExit(0)
+
+          with tracked_path.open(newline='', encoding='utf-8') as handle:
+              tracked_rows = list(csv.DictReader(handle))
+          with rebuilt_path.open(newline='', encoding='utf-8') as handle:
+              rebuilt_rows = list(csv.DictReader(handle))
+
+          print('tracked_rows=', len(tracked_rows), 'rebuilt_rows=', len(rebuilt_rows))
+          if len(tracked_rows) != len(rebuilt_rows):
+              raise SystemExit('Row-count drift detected')
+
+          for index, (left, right) in enumerate(zip(tracked_rows, rebuilt_rows), start=1):
+              if left == right:
+                  continue
+              key = (left.get('season'), left.get('fixture_id'))
+              print('first_mismatch_row=', index, 'key=', key)
+              for field in left:
+                  if left.get(field) != right.get(field):
+                      print(
+                          'field=', field,
+                          'tracked=', repr(left.get(field)),
+                          'rebuilt=', repr(right.get(field)),
+                      )
+              raise SystemExit('Tracked derivative differs from fresh pinned rebuild')
+
+          raise SystemExit('CSV bytes differ although parsed rows are identical')
+          PY
 
       - name: Validate provenance, coverage and hashes
         shell: bash
@@ -126,6 +164,7 @@ jobs:
         run: python -m pytest -q tests/test_expected_metric_artifact.py
 
       - name: Publish metadata summary
+        if: success()
         shell: bash
         run: |
           echo '## Governed player-derived expected metrics' >> "$GITHUB_STEP_SUMMARY"
@@ -140,13 +179,15 @@ jobs:
           echo '- xGOT fixtures: `374 / 336 / 334 / 321`' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload reproducibility evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: frl-player-derived-expected-metrics-v1
           path: |
             data/frl_player_derived_expected_metrics_v1.csv.gz
             data/frl_player_derived_expected_metrics_v1_metadata.json
+            artifacts/player-derived-expected-metrics/tracked.csv
             artifacts/player-derived-expected-metrics/rebuilt.csv
             artifacts/player-derived-expected-metrics/rebuilt_metadata.json
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
