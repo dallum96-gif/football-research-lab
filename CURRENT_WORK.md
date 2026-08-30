@@ -1,31 +1,40 @@
 # Current Work — Football Research Laboratory
 
 **Last updated:** 30 August 2026  
-**Checkpoint:** `SOURCE_ROUTING_AND_ANALYTICAL_KERNEL_PREP`
+**Checkpoint:** `SOURCE_ROUTE_COVERAGE_AUDIT`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
 ## Current platform state
 
-The Universal Research Access backend milestone is complete and remains an important governed research-access foundation. Its dated closeout is preserved in `FRL_BACKEND_CLOSEOUT_2026-08-26.md`.
+FRL has moved beyond its Universal Research Access backend closeout into product and analytical architecture work.
 
-Since that closeout, FRL has moved materially further into productisation:
+Current integrated state on `main` includes:
 
-- Next.js + React is the active frontend;
-- Streamlit is legacy/reference only;
-- Homepage V1 is complete/frozen;
-- standalone Fixtures V1 is complete/frozen for now;
-- Team Profile V1 is complete/frozen for now;
-- Team Stats Overview exists as an analytical/product prototype;
-- the Team / Player Stats information architecture has been documented in `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`;
-- a source-route review has exposed the need for explicit governed source selection between preserved representations;
-- the next backend priority is the analytical layer between governed source evidence and product statistics.
+- Next.js + React as the active frontend;
+- FastAPI as the frontend-facing API;
+- Streamlit retained as legacy/reference only;
+- Homepage V1 complete/frozen;
+- standalone Fixtures V1 complete/frozen for now;
+- Team Profile V1 complete/frozen for now;
+- Team Stats Overview implemented as the current analytical/product prototype;
+- Team / Player Stats information architecture documented in `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`;
+- governed source-routing semantics documented in `FRL_SOURCE_ROUTING_CONTRACT.md`;
+- the first preserved-source route audit recorded in `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`;
+- coverage-aware team-season aggregation and the Poisson zero-score fix integrated in commit `eaef72f`;
+- automated repository-memory synchronisation enforced by the documentation-sync GitHub Action.
 
-## Current architectural position
+## Immediate objective
 
-FRL's lower evidence/identity foundation is stronger than the current analytical layer.
+The immediate general objective is:
 
-The current direction is:
+> **For every meaningful FRL football variable/concept, connect analytical use to the strongest legitimate preserved source route available, maximising trustworthy historical coverage without sacrificing semantics, grain, provenance, temporal validity or comparability.**
+
+This does **not** mean filling every missing value. Maximum trustworthy coverage is preferred over maximum numerical fill-rate.
+
+The source-route review should work by semantic/source family rather than by hand-auditing 1,414 catalogue rows independently.
+
+## Current architectural spine
 
 ```text
 PRESERVED SOURCE EVIDENCE
@@ -49,36 +58,51 @@ FASTAPI
 NEXT.JS PRODUCT / RESEARCH CONSUMERS
 ```
 
-Some existing implementation remains transitional and does not yet enforce this whole spine centrally.
-
-The most important current rule is:
-
-> **Do not add more analytical product surface faster than the governed metric/population layer can support it.**
+The lower evidence/identity foundation is stronger than the current analytical layer. Do not expand analytical product surfaces faster than the governed variable/metric/population layer can support them.
 
 ## Source-routing position
 
-The 30 August source-route audit is recorded in:
+Current evidence indicates that FRL does **not** have a broad source-routing failure.
 
-`FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`
-
-Main conclusion:
-
-> FRL does not have a broad source-routing failure. It has targeted missed capabilities plus a missing explicit source-routing layer.
-
-Important findings:
+Established conclusions:
 
 - canonical fixtures/results remain the trusted fixture spine;
-- direct `events_stats` / packaged team-match statistics remain a strong default route for established core team-match metrics;
-- preserved PulseLive snapshots add important versioned match-centre evidence but do not globally supersede `events_stats`;
-- expected metrics such as xG can exist through multiple legitimate source representations;
-- player-match evidence can support explicit team-match derivations where the football concept and missingness rules permit it;
-- a connected variable route is not automatically the strongest analytical capability available anywhere in the preserved ecosystem.
+- direct `events_stats` / packaged team-match statistics remain a strong default route for ordinary team-match metrics;
+- preserved PulseLive snapshots provide important versioned match-centre evidence but do not globally supersede `events_stats`;
+- player-match evidence maps to 3,799/3,800 canonical fixtures plus the known 2019-20 correction case, so player → team derivation does not require another identity architecture;
+- expected metrics such as xG can have multiple legitimate source representations with materially different historical coverage;
+- summed player-match xG is close to but not identical to direct team-match xG, so the two must not be silently coalesced;
+- player-season evidence is correct at player-season grain but can contain later/current club attribution and must not be used to manufacture missing fixture-level history;
+- FPL remains a distinct source family with FPL-specific semantics;
+- timeline, lineup, formation, manager and commentary evidence belongs primarily to the preserved PulseLive match-centre snapshot route;
+- rolling form, streaks and splits should be derived once from governed fixture/team evidence rather than recalculated independently in API/UI surfaces.
 
-Future capability metadata should distinguish source-present, connected, derivable, governed, comparable and product-ready states.
+Future capability metadata should distinguish at least:
+
+`SOURCE_PRESENT → CONNECTED → DERIVABLE → GOVERNED → COMPARABLE → PRODUCT_READY`
+
+## Automated source-route coverage audit
+
+A new read-only empirical audit is being introduced in:
+
+- `scripts/audit_source_routes.py`
+- `.github/workflows/source-route-coverage.yml`
+
+The audit uses the already-preserved public `imadeddine-belkat/Premier-League-Stats` archive and makes **no live PulseLive/Premier League API calls**.
+
+It measures:
+
+- source-family schemas and non-empty field observations by season;
+- direct team-match fixture coverage for priority statistical fields;
+- player-match availability for corresponding concepts;
+- direct-vs-player-derived overlap agreement by season;
+- candidate source-route classifications for additive/expected metric families.
+
+Its output is diagnostic evidence only. It cannot automatically promote a source representation into a governed metric. Promotion still requires the semantic, missingness, provenance and comparability rules in `FRL_SOURCE_ROUTING_CONTRACT.md`.
 
 ## Team / Player product architecture
 
-The current product rule is:
+The current product rule remains:
 
 > **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
 
@@ -97,88 +121,58 @@ Initial analytical families remain:
 
 `Overview · Attack · Possession · Passing · Defence · Discipline`
 
-Do not build all families at once. Team View and Rankings should become projections of the same governed metric/population result rather than independent implementations.
+Team View and Rankings must become projections of the same governed metric/population result rather than independent implementations.
 
-For players, the interaction shell can mirror Team Stats, but population semantics must remain player-specific. “Cohort Rankings” / “Population Rankings” is preferable to assuming all league players form one comparable population.
-
-## Known analytical correctness work
-
-A narrow local correctness pass has been implemented/tested outside this documentation branch for two confirmed defects:
-
-1. partial metric observations were previously summed over observed rows but divided by all eligible team matches;
-2. Poisson source-fixture filtering could mishandle legitimate zero scores.
-
-The local pass adds coverage-aware aggregation semantics and zero-score regression coverage. It has not been incorporated into this GitHub documentation branch and should be integrated/revalidated before the analytical kernel is treated as current `main` behaviour.
-
-The key methodological consequence remains:
-
-> **missing evidence is not zero, and a partial observation must never be presented or ranked as though it represented a complete population.**
+For players, the interaction shell may mirror Team Stats, but population/cohort semantics remain player-specific.
 
 ## Immediate development sequence
 
-The preferred near-term sequence is now:
-
-1. **Complete source-route/documentation governance**
-   - preserve the source-route audit;
-   - establish explicit source-routing semantics;
-   - keep standing repository memory synchronised.
-2. **Integrate the narrow analytical correctness pass**
-   - missing-data denominators / coverage;
-   - Poisson zero-score regression;
-   - expose partial coverage safely where current product output would otherwise mislead.
-3. **Build the minimum governed analytical kernel**
-   - source representation / source-route decision;
+1. **Complete the bounded empirical source-route audit**
+   - run the automated decade-wide audit;
+   - identify genuine coverage gains;
+   - quantify direct-vs-derived equivalence/conflict;
+   - classify the important semantic families.
+2. **Turn audit findings into governed route decisions**
+   - keep strong current routes;
+   - introduce better preserved routes only where evidence justifies them;
+   - keep non-equivalent source representations distinct;
+   - record genuine coverage gaps rather than fabricating history.
+3. **Upgrade capability metadata**
+   - distinguish source-present / connected / derivable / governed / comparable / product-ready states.
+4. **Build the minimum governed analytical kernel**
+   - source representation / route decision;
    - metric definition;
    - coverage-aware metric observation;
    - population definition;
    - ranking/tie/percentile policy;
    - shared windows/splits;
-   - one analysis result capable of serving multiple projections.
-4. **Refactor Team Stats Overview onto that kernel**
-   - preserve the current six strong Overview metrics;
-   - use xG as the first multi-representation/derived-route case.
-5. **Build League Rankings → Overview**
-   - transpose the exact same governed result;
-   - cross-link Team View ↔ Rankings.
-6. **Move Team Profile form/state calculations onto the same analytical service.**
-7. **Expand Team Stats analytical families selectively from governed capability evidence.**
-8. **Design player cohort semantics before building Player Stats rankings.**
-9. Continue League, Prediction Lab, Match Research and 2026/27 work from the updated roadmap.
-
-## Frontend status
-
-Active frontend:
-
-**Next.js + React (`web/`)**
-
-Frontend-facing API:
-
-**FastAPI (`api/`)**
-
-Streamlit remains in the repository as legacy/reference implementation and historical behaviour evidence. It is not the target for new product work.
-
-Current visual language is the warm-light parchment/editorial system documented in `UI_DESIGN_SYSTEM.md`.
+   - reusable analysis result.
+5. **Refactor Team Stats Overview onto the kernel**
+   - preserve the six trusted Overview metrics;
+   - use xG as the first explicit multi-representation/derived-route case.
+6. **Build League Rankings from the same result**, then selectively expand Team Stats families.
+7. **Move Team Profile form/state calculations onto the same analytical service.**
+8. **Design player cohort semantics before Player Stats rankings.**
 
 ## Validation discipline
 
-Do not use an old fixed test count as the universal current baseline.
+Do not use a historical fixed test count as the universal current baseline.
 
-Dated closeouts preserve what was validated at those checkpoints. For current work:
+For current work:
 
-- run the targeted tests for the changed behaviour;
-- run the relevant backend/research/identity gates;
+- run targeted tests for changed behaviour;
+- run relevant backend/research/identity gates;
 - run Next.js `typecheck`/`build` where frontend contracts change;
 - run `project-health.ps1` when canonical/query/data behaviour may be affected;
 - run `python scripts/check_documentation_sync.py` for material milestone/documentation work;
-- report actual current command output rather than repeating a historical count.
+- treat automated source-route reports as evidence, not automatic semantic approval;
+- report actual command output rather than repeating historical validation counts.
 
 ## Repository discipline
 
-Treat `main` as the stable integration line.
+Treat `main` as the stable integration line. Preserve unrelated tracked, untracked, generated, backup and experimental files. Do not use broad staging or destructive cleanup to simplify the workspace.
 
-Preserve unrelated tracked, untracked, generated, backup and experimental files. Do not use broad staging or destructive cleanup to simplify the workspace.
-
-At this checkpoint, source/documentation work is intentionally being performed on a separate branch so existing local correctness work and recovery artefacts are not disturbed.
+Source-route audit automation is being developed on a separate branch so it does not disturb local research/recovery artefacts.
 
 ## Standing repository memory
 
@@ -191,6 +185,6 @@ Fresh sessions should use this order:
 5. task-relevant durable contracts / dated audits
 6. current implementation
 
-The documentation-sync rule is mandatory for future material milestones:
+The documentation-sync rule remains mandatory:
 
 > **A milestone that changes current architecture, product phase, source-routing understanding, validation interpretation or frontend/design status is not complete until standing repository memory has been checked for drift.**
