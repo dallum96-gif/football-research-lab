@@ -240,6 +240,10 @@ def audit(root: Path) -> dict:
     }
 
 
+def _fmt(value: float | None) -> str:
+    return "" if value is None else f"{value:.6g}"
+
+
 def markdown(report: dict) -> str:
     basis = report["classification_basis"]
     lines = [
@@ -267,7 +271,7 @@ def markdown(report: dict) -> str:
             f"{item['player_trigger_guarded_available_fixtures']} | "
             f"{item['player_unsafe_team_sides']} | "
             f"{agreement['overlap_team_sides']} | {agreement['within_0_01']} | "
-            f"{'' if agreement['mean_abs_diff'] is None else f'{agreement['mean_abs_diff']:.6g}'} | "
+            f"{_fmt(agreement['mean_abs_diff'])} | "
             f"{agreement['max_abs_diff']:.6g} |"
         )
 
@@ -278,7 +282,7 @@ def markdown(report: dict) -> str:
         item = report["seasons"][season]["unsafe_positive_trigger_overlap"]
         lines.append(
             f"| {season} | {item['team_sides']} | {item['within_0_01']} | "
-            f"{'' if item['mean_abs_diff'] is None else f'{item['mean_abs_diff']:.6g}'} | "
+            f"{_fmt(item['mean_abs_diff'])} | "
             f"{item['max_abs_diff']:.6g} |"
         )
 
