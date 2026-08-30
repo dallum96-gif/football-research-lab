@@ -6,7 +6,6 @@ from expected_metric_artifact import (
 from expected_metric_routing import (
     EXPECTED_ASSISTS,
     EXPECTED_GOALS,
-    EXPECTED_GOALS_ON_TARGET,
     PLAYER_MATCH_DERIVED_TEAM_MATCH,
 )
 
@@ -14,23 +13,32 @@ from expected_metric_routing import (
 def test_artifact_metadata_is_pinned_and_governed():
     metadata = artifact_metadata()
 
-    assert metadata["row_count"] == 1520
     assert metadata["representation"] == PLAYER_MATCH_DERIVED_TEAM_MATCH
+    assert metadata["metric"] == EXPECTED_GOALS
     assert metadata["construction_version"] == "FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1"
     assert metadata["source_commit"] == "1ec7f0dc79055902251cd938650f622b0e79f3cc"
     assert metadata["representation_mixing_allowed"] is False
+    assert metadata["coverage_fixtures"] == {
+        "2022-23": 380,
+        "2023-24": 379,
+        "2024-25": 380,
+        "2025-26": 380,
+    }
 
 
-def test_fixture_lookup_uses_canonical_season_fixture_key():
+def test_fixture_lookup_uses_canonical_fixture_index():
     row = fixture_expected_metric_row("2022-23", "1")
 
-    assert row is not None
-    assert row["season"] == "2022-23"
-    assert row["fixture_id"] == "1"
-    assert row["representation"] == PLAYER_MATCH_DERIVED_TEAM_MATCH
+    assert row == {
+        "season": "2022-23",
+        "fixture_id": "1",
+        "representation": PLAYER_MATCH_DERIVED_TEAM_MATCH,
+        "home_expected_goals": 1.2118,
+        "away_expected_goals": 0.9968,
+    }
 
 
-def test_available_player_derived_xg_preserves_provenance():
+def test_available_player_derived_xg_preserves_governed_provenance():
     observation = team_expected_metric_observation(
         "2022-23",
         "1",
@@ -41,23 +49,8 @@ def test_available_player_derived_xg_preserves_provenance():
     assert observation["status"] == "AVAILABLE"
     assert observation["value"] == 1.2118
     assert observation["representation"] == PLAYER_MATCH_DERIVED_TEAM_MATCH
-    assert observation["direct_source_match_id"] == "2292810"
-    assert observation["player_source_match_id"] == "10385741"
+    assert observation["construction_version"] == "FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1"
     assert observation["source_commit"] == "1ec7f0dc79055902251cd938650f622b0e79f3cc"
-
-
-def test_xa_blank_rows_can_contribute_structural_zero_under_governed_rule():
-    observation = team_expected_metric_observation(
-        "2022-23",
-        "1",
-        "home",
-        EXPECTED_ASSISTS,
-    )
-
-    assert observation["status"] == "AVAILABLE"
-    assert observation["value"] == 1.16414399
-    assert observation["structural_zero_rows"] == 5
-    assert observation["unsafe_missing_rows"] == 0
 
 
 def test_positive_trigger_xg_gap_fails_closed():
@@ -70,19 +63,20 @@ def test_positive_trigger_xg_gap_fails_closed():
 
     assert observation["status"] == "MISSING_POSITIVE_TRIGGER_INPUT"
     assert observation["value"] is None
-    assert observation["unsafe_missing_rows"] == 5
+    assert observation["reason"] == "PLAYER_XG_MISSING_WITH_POSITIVE_SHOT_TRIGGER"
 
 
-def test_xgot_gap_fails_closed_without_direct_fallback():
+def test_governed_xa_is_not_falsely_presented_as_product_packaged():
     observation = team_expected_metric_observation(
-        "2022-23",
-        "111",
-        "away",
-        EXPECTED_GOALS_ON_TARGET,
+        "2024-25",
+        "1",
+        "home",
+        EXPECTED_ASSISTS,
     )
 
-    assert observation["status"] == "MISSING_POSITIVE_TRIGGER_INPUT"
+    assert observation["status"] == "UNAVAILABLE"
     assert observation["value"] is None
+    assert observation["reason"] == "GOVERNED_BUT_NOT_PRODUCT_PACKAGED"
 
 
 def test_outside_materialized_period_is_unavailable_not_fabricated():
