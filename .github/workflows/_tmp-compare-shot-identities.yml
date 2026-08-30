@@ -1,0 +1,26 @@
+name: Temporary compare shot identities
+
+on:
+  pull_request:
+    paths:
+      - "scripts/_tmp_compare_shot_identities.py"
+      - ".github/workflows/_tmp-compare-shot-identities.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+      - name: Checkout preserved upstream archive
+        shell: bash
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/imadeddine-belkat/Premier-League-Stats.git upstream-source
+          cd upstream-source
+          git sparse-checkout set pl_stats
+      - name: Compare shot identities
+        run: python scripts/_tmp_compare_shot_identities.py --pl-root upstream-source/pl_stats
