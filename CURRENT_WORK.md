@@ -1,7 +1,7 @@
 # Current Work — Football Research Laboratory
 
 **Last updated:** 30 August 2026  
-**Checkpoint:** `TEAM_STATS_OVERVIEW_KERNEL`
+**Checkpoint:** `TEAM_STATS_LEAGUE_RANKINGS`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
@@ -14,7 +14,7 @@ Current integrated state includes:
 - Next.js + React as the active frontend and FastAPI as the frontend-facing API;
 - Streamlit retained as legacy/reference only;
 - Homepage V1, standalone Fixtures V1 and Team Profile V1 complete/frozen for now;
-- Team Stats Overview as the active analytical product surface;
+- Team Stats Team View and League Rankings as the first paired analytical product surfaces over one shared season analysis result;
 - governed source-routing semantics in `FRL_SOURCE_ROUTING_CONTRACT.md`;
 - field-level team-match missingness governance in `FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md`;
 - the direct team-match shot family governed as sparse-zero for 2016-17 through 2025-26;
@@ -22,18 +22,19 @@ Current integrated state includes:
 - player-derived xG materialised as a reproducible product-ready representation for 2022-23 through 2025-26 under `data/player_derived_expected_goals_v1/`, pinned to preserved upstream commit `1ec7f0dc79055902251cd938650f622b0e79f3cc`;
 - xA and xGOT retained as governed/derivable routes but not product-packaged until a consumer needs them;
 - `team_analysis_kernel.py` as the first minimum shared governed analytical kernel;
-- Team Stats Overview refactored to consume the shared kernel result for its six league-context metrics and governed xG rather than constructing league populations/ranks inside the API endpoint;
-- automated repository-memory synchronisation and targeted analytical regression gates.
+- Team Stats Team View consuming the shared kernel result for its six league-context metrics and governed xG;
+- League Rankings consuming the same six governed season populations, values, competition ranks, percentiles, coverage and representation metadata without recomputing ranking logic in FastAPI or Next.js;
+- automated repository-memory synchronisation and targeted analytical/frontend regression gates.
 
 ## Immediate objective
 
-The immediate objective is now roadmap step **#6**:
+The immediate objective is now the next product step after Team View + League Rankings:
 
-> **Build League Rankings as another projection of the same `season_overview_analysis()` result already consumed by Team Stats Team View.**
+> **Selectively expand Team Stats analytical families from the same shared kernel, beginning only with metrics whose route, missingness and population semantics are product-ready.**
 
-Do **not** create another metric engine, ranking implementation, percentile formula or league-population builder for Rankings.
+Do **not** create family-specific metric engines, ranking implementations, percentile formulas or league-population builders.
 
-The next product path is therefore:
+The current product path is therefore:
 
 ```text
 GOVERNED SOURCE / VARIABLE
@@ -46,14 +47,16 @@ SHARED RANK / PERCENTILE POLICY
         ↓
 season_overview_analysis()
         ├── Team Stats Team View   ← integrated
-        └── League Rankings        ← next
+        └── League Rankings        ← integrated
+                 ↓
+        selective family expansion ← next
 ```
 
-Further source-route/missingness audits should be bounded by concrete product or research need rather than delaying League Rankings.
+Further source-route/missingness audits should be bounded by the concrete metric family being productised rather than becoming a general blocker.
 
 ## Current analytical kernel checkpoint
 
-`team_analysis_kernel.py` deliberately remains small. It currently owns only the responsibilities needed by Team Stats Overview and the next Rankings surface:
+`team_analysis_kernel.py` deliberately remains small. It owns the responsibilities proven by Team View and League Rankings:
 
 - the six trusted Overview metric definitions;
 - one Premier League season team population;
@@ -62,9 +65,10 @@ Further source-route/missingness audits should be bounded by concrete product or
 - the existing rank-position percentile policy;
 - one reusable season analysis result;
 - one Team View projection of that result;
+- one League Rankings API projection of the same result;
 - governed expected-goals route resolution.
 
-The six current Overview metrics are:
+The six current rankable Overview metrics are:
 
 1. points per match;
 2. goals per match;
@@ -73,7 +77,7 @@ The six current Overview metrics are:
 5. shots on target per match;
 6. possession.
 
-The kernel preserves the existing Team Stats ranking/percentile behaviour rather than changing product semantics during the architectural refactor.
+The kernel preserves the existing Team Stats ranking/percentile behaviour rather than changing product semantics during the architectural refactor. League Rankings displays those kernel-owned ranks; the frontend does not calculate them.
 
 ### Governed xG in product analysis
 
@@ -90,6 +94,8 @@ The Team Stats kernel applies that route rather than reading one fixed xG column
 The 2023-24 player-derived gap remains missing. The kernel does not fill it from direct xG, and xG overperformance remains withheld for affected incomplete team populations.
 
 For 2025-26 the single-season route deliberately selects the complete source-native direct representation.
+
+xG remains a governed Team View observation but is not yet declared a League Rankings metric. Rankings currently exposes only metrics for which the kernel already defines the population ranking contract; the GUI must not invent an xG league rank independently.
 
 ## Source-routing and missingness standing position
 
@@ -131,28 +137,35 @@ Team Profile
     ↓
 Team Stats
     ├── Team View          ← shared kernel consumer
-    ├── League Rankings    ← next shared kernel consumer
+    ├── League Rankings    ← shared kernel consumer
     └── Compare later
 ```
 
 Team View and Rankings must never drift into independent definitions of the same metric or population.
 
+The first League Rankings implementation is deliberately a product projection rather than a second analytical service:
+
+- endpoint: `/api/v1/team-stats/{season}/rankings`;
+- GUI workspace: `/team-stats/rankings`;
+- six rankable Overview metrics;
+- season-level payload so metric switching is presentational;
+- competition-rank ties preserved;
+- unsupported seasons rejected explicitly;
+- rank and percentile never recalculated in React.
+
 ## Immediate development sequence
 
-1. **Build League Rankings from `season_overview_analysis()`**
-   - expose the same six metric populations already used by Team View;
-   - reuse the exact value, rank, `out_of`, percentile, coverage and representation metadata;
-   - do not calculate rank/percentile in the API or frontend;
-   - keep missing observations missing and preserve comparable-population size.
-2. **Connect the Rankings product surface**
-   - preserve the established Team Stats information architecture;
-   - make metric/family navigation a presentation concern over the shared result;
-   - run frontend typecheck/build where the Next.js contract changes.
-3. **Selectively expand Team Stats families from the same kernel**
+1. **Selectively expand Team Stats families from the same kernel**
    - Attack, Possession, Passing, Defence and Discipline only as governed metrics become product-ready;
+   - prefer a bounded first family rather than broad simultaneous expansion;
    - do not create family-specific analytical engines.
-4. **Move Team Profile form/state calculations onto the same analytical service where useful.**
-5. **Design player cohort/population semantics before Player Stats rankings.**
+2. **Add rankable family metrics to both Team View and League Rankings from the same analysis result**
+   - one metric definition and one governed population should feed both product views;
+   - preserve missingness, coverage and representation metadata;
+   - keep non-rankable observations out of Rankings until their population contract is defined.
+3. **Move Team Profile form/state calculations onto the same analytical service where useful.**
+4. **Design player cohort/population semantics before Player Stats rankings.**
+5. **Resume wider research/modelling product work once the shared analytical pattern is proven across more than Overview.**
 
 Additional source/missingness governance continues when a concrete metric requires it; it is no longer a general blocker to the Team Stats roadmap.
 
@@ -163,7 +176,8 @@ Do not use a historical fixed test count as a universal baseline.
 For current analytical work:
 
 - run the Team analysis kernel regression workflow for kernel/API changes;
-- prove Team View values/ranks/percentiles remain projections of the same season result;
+- prove Team View and League Rankings values/ranks/percentiles remain projections of the same season result;
+- run the Team Stats League Rankings workflow for Rankings API/UI changes, including Next.js typecheck and production build;
 - use the Team Stats governance regression workflow for missingness/aggregation changes;
 - use expected-metric routing/materialisation gates for xG route/artifact changes;
 - run backend/research/identity gates when their contracts are touched;

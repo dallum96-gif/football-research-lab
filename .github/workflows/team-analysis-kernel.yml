@@ -11,7 +11,10 @@ on:
       - "data/player_derived_expected_goals_v1/**"
       - "tests/test_team_analysis_kernel.py"
       - "tests/test_team_stats_overview_kernel_api.py"
+      - "tests/test_team_stats_rankings_api.py"
       - "api/frl_api.py"
+      - "api/__init__.py"
+      - "api/team_stats_rankings.py"
       - ".github/workflows/team-analysis-kernel.yml"
 
 permissions:
@@ -37,5 +40,6 @@ jobs:
           python -m pytest -q
           tests/test_team_analysis_kernel.py
           tests/test_team_stats_overview_kernel_api.py
+          tests/test_team_stats_rankings_api.py
           tests/test_expected_metric_artifact.py
           tests/test_team_research_stats.py
