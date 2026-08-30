@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import csv
-import gzip
 import hashlib
 import json
 from functools import lru_cache
@@ -16,78 +14,90 @@ from expected_metric_routing import (
 
 
 ROOT = Path(__file__).resolve().parent
-ARTIFACT = ROOT / "data" / "frl_player_derived_expected_metrics_v1.csv.gz"
-METADATA = ROOT / "data" / "frl_player_derived_expected_metrics_v1_metadata.json"
-
-METRIC_SLUGS = {
-    EXPECTED_GOALS: "expected_goals",
-    EXPECTED_ASSISTS: "expected_assists",
-    EXPECTED_GOALS_ON_TARGET: "expected_goals_on_target",
-}
+ARTIFACT_DIR = ROOT / "data" / "player_derived_expected_goals_v1"
+METADATA = ARTIFACT_DIR / "metadata.json"
 SIDES = {"home", "away"}
+NON_PACKAGED_EXPECTED_METRICS = {EXPECTED_ASSISTS, EXPECTED_GOALS_ON_TARGET}
 
 
 class ExpectedMetricArtifactError(RuntimeError):
     pass
 
 
-def _number(value: str | None) -> float | None:
-    if value in (None, ""):
-        return None
-    return float(value)
-
-
 @lru_cache(maxsize=1)
 def artifact_metadata() -> dict:
     if not METADATA.is_file():
-        raise FileNotFoundError(f"Expected-metric metadata not found: {METADATA}")
-    if not ARTIFACT.is_file():
-        raise FileNotFoundError(f"Expected-metric artifact not found: {ARTIFACT}")
+        raise FileNotFoundError(f"Expected-goals metadata not found: {METADATA}")
 
     metadata = json.loads(METADATA.read_text(encoding="utf-8"))
     if metadata.get("representation") != PLAYER_MATCH_DERIVED_TEAM_MATCH:
         raise ExpectedMetricArtifactError(
-            "Unexpected expected-metric representation in metadata"
+            "Unexpected expected-goals representation in metadata"
         )
+    if metadata.get("metric") != EXPECTED_GOALS:
+        raise ExpectedMetricArtifactError("Unexpected metric in expected-goals metadata")
 
-    actual_hash = hashlib.sha256(ARTIFACT.read_bytes()).hexdigest()
-    if metadata.get("artifact_sha256") != actual_hash:
-        raise ExpectedMetricArtifactError(
-            "Expected-metric artifact hash does not match governed metadata"
-        )
+    for season in metadata.get("seasons", []):
+        path = ARTIFACT_DIR / f"{season}.json"
+        if not path.is_file():
+            raise FileNotFoundError(f"Expected-goals season artifact not found: {path}")
+        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        expected = metadata.get("season_file_sha256", {}).get(season)
+        if actual != expected:
+            raise ExpectedMetricArtifactError(
+                f"Expected-goals artifact hash mismatch for {season}"
+            )
     return metadata
 
 
-@lru_cache(maxsize=1)
-def _rows() -> dict[tuple[str, str], dict[str, str]]:
+@lru_cache(maxsize=8)
+def _season_rows(season: str) -> tuple[tuple[float | None, float | None], ...] | None:
     metadata = artifact_metadata()
-    with gzip.open(ARTIFACT, mode="rt", encoding="utf-8", newline="") as handle:
-        rows = tuple(csv.DictReader(handle))
+    if season not in metadata.get("seasons", []):
+        return None
 
-    if len(rows) != int(metadata.get("row_count", 0)):
+    path = ARTIFACT_DIR / f"{season}.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, list) or len(payload) != 380:
         raise ExpectedMetricArtifactError(
-            "Expected-metric artifact row count does not match metadata"
+            f"Expected-goals artifact must contain 380 fixtures for {season}"
         )
 
-    index: dict[tuple[str, str], dict[str, str]] = {}
-    for row in rows:
-        key = (str(row.get("season", "")), str(row.get("fixture_id", "")))
-        if not all(key):
-            raise ExpectedMetricArtifactError("Expected-metric artifact contains an empty key")
-        if key in index:
+    rows: list[tuple[float | None, float | None]] = []
+    for fixture_id, pair in enumerate(payload, start=1):
+        if not isinstance(pair, list) or len(pair) != 2:
             raise ExpectedMetricArtifactError(
-                f"Duplicate expected-metric artifact key: {key}"
+                f"Malformed expected-goals pair for {season}/{fixture_id}"
             )
-        if row.get("representation") != PLAYER_MATCH_DERIVED_TEAM_MATCH:
-            raise ExpectedMetricArtifactError(
-                f"Unexpected row representation for {key}"
+        home, away = pair
+        rows.append(
+            (
+                None if home is None else float(home),
+                None if away is None else float(away),
             )
-        index[key] = row
-    return index
+        )
+    return tuple(rows)
 
 
-def fixture_expected_metric_row(season: str, fixture_id: str | int) -> dict[str, str] | None:
-    return _rows().get((str(season), str(fixture_id)))
+def fixture_expected_metric_row(season: str, fixture_id: str | int) -> dict | None:
+    rows = _season_rows(str(season))
+    if rows is None:
+        return None
+    try:
+        numeric_id = int(fixture_id)
+    except (TypeError, ValueError):
+        return None
+    if numeric_id < 1 or numeric_id > len(rows):
+        return None
+
+    home, away = rows[numeric_id - 1]
+    return {
+        "season": str(season),
+        "fixture_id": str(numeric_id),
+        "representation": PLAYER_MATCH_DERIVED_TEAM_MATCH,
+        "home_expected_goals": home,
+        "away_expected_goals": away,
+    }
 
 
 def team_expected_metric_observation(
@@ -98,52 +108,55 @@ def team_expected_metric_observation(
 ) -> dict:
     if side not in SIDES:
         raise ValueError(f"Unsupported fixture side: {side}")
-    try:
-        slug = METRIC_SLUGS[metric]
-    except KeyError as exc:
-        raise ValueError(f"Unsupported expected metric: {metric}") from exc
 
-    row = fixture_expected_metric_row(season, fixture_id)
     metadata = artifact_metadata()
-    if row is None:
-        return {
-            "status": "UNAVAILABLE",
-            "value": None,
-            "metric": metric,
-            "season": str(season),
-            "fixture_id": str(fixture_id),
-            "side": side,
-            "representation": PLAYER_MATCH_DERIVED_TEAM_MATCH,
-            "construction_version": metadata.get("construction_version"),
-            "source_commit": metadata.get("source_commit"),
-            "reason": "FIXTURE_OUTSIDE_MATERIALIZED_ARTIFACT",
-        }
-
-    status = str(row.get(f"{side}_{slug}_status") or "UNAVAILABLE")
-    value = _number(row.get(f"{side}_{slug}"))
-    if status != "AVAILABLE":
-        value = None
-
-    return {
-        "status": status,
-        "value": value,
+    base = {
         "metric": metric,
         "season": str(season),
         "fixture_id": str(fixture_id),
         "side": side,
-        "representation": row.get("representation"),
-        "construction_version": row.get("construction_version"),
+        "representation": PLAYER_MATCH_DERIVED_TEAM_MATCH,
+        "construction_version": metadata.get("construction_version"),
         "source_commit": metadata.get("source_commit"),
-        "direct_source_match_id": row.get("direct_source_match_id"),
-        "player_source_match_id": row.get("player_source_match_id"),
-        "source_observed_rows": int(row.get(f"{side}_{slug}_source_observed_rows") or 0),
-        "structural_zero_rows": int(row.get(f"{side}_{slug}_structural_zero_rows") or 0),
-        "unsafe_missing_rows": int(row.get(f"{side}_{slug}_unsafe_missing_rows") or 0),
+    }
+
+    if metric in NON_PACKAGED_EXPECTED_METRICS:
+        return {
+            **base,
+            "status": "UNAVAILABLE",
+            "value": None,
+            "reason": "GOVERNED_BUT_NOT_PRODUCT_PACKAGED",
+        }
+    if metric != EXPECTED_GOALS:
+        raise ValueError(f"Unsupported expected metric: {metric}")
+
+    row = fixture_expected_metric_row(season, fixture_id)
+    if row is None:
+        return {
+            **base,
+            "status": "UNAVAILABLE",
+            "value": None,
+            "reason": "FIXTURE_OUTSIDE_MATERIALIZED_ARTIFACT",
+        }
+
+    value = row[f"{side}_expected_goals"]
+    if value is None:
+        return {
+            **base,
+            "status": "MISSING_POSITIVE_TRIGGER_INPUT",
+            "value": None,
+            "reason": "PLAYER_XG_MISSING_WITH_POSITIVE_SHOT_TRIGGER",
+        }
+
+    return {
+        **base,
+        "status": "AVAILABLE",
+        "value": float(value),
     }
 
 
 __all__ = [
-    "ARTIFACT",
+    "ARTIFACT_DIR",
     "METADATA",
     "ExpectedMetricArtifactError",
     "artifact_metadata",
