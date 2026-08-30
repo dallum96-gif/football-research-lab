@@ -1,301 +1,301 @@
 # Football Research Laboratory — UI Design System
 
+**Last reviewed:** 30 August 2026  
+**Applies to:** Active Next.js + React product
+
+For repository-memory governance see `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
+
 ## Purpose
 
-This is the visual and interaction brief for the GUI redesign.
+This is the active visual and interaction brief for the Football Research Laboratory product.
 
-The goal is not to make Streamlit prettier for its own sake. The goal is to make the Laboratory feel like a coherent, professional football research product.
+The goal is a distinctive football research application: analytical, editorial, calm, playful in small doses, and recognisably FRL rather than a generic SaaS dashboard.
 
-## Design objective
+## Design character
 
-The desired qualities are:
+Desired qualities:
 
-- professional
-- elegant
-- pretty
-- intuitive
-- natural
-- restrained
-- analytical
-- information-rich
+- warm;
+- editorial;
+- analytical;
+- restrained;
+- information-rich;
+- app-like rather than website-like;
+- playful without becoming childish;
+- clear enough for ordinary football exploration but deep enough for research.
 
-Reference in spirit:
+The interface should feel intentionally human-designed.
 
-**StatsBomb analytical clarity + Football Manager information depth + modern web-app usability.**
+## Active colour system
 
-Do not copy either product literally.
+Current palette:
 
-## Avoid the AI-dashboard aesthetic
+- background: `#f5f1e8`;
+- primary surface: `#fffdf8`;
+- raised / secondary surface: `#ebe6da`;
+- primary text: `#171714`;
+- muted text: `#68645c`;
+- coral accent: `#e85d3f`;
+- olive accent: `#9aaa42`;
+- sidebar / dark anchor: `#1b1b18`.
 
-Do not drift towards:
+Primary typeface: **Inter**.
 
+This warm-light parchment system supersedes the earlier Streamlit-era dark-charcoal/green visual direction for the active Next.js product.
+
+Historical screenshots/legacy CSS may still contain the old system and should not be treated as current design authority.
+
+## Colour semantics
+
+Use colour deliberately.
+
+### Coral
+
+Useful for:
+
+- primary interactive emphasis;
+- selected analytical state;
+- key links/actions;
+- selected points/highlights;
+- restrained negative/result semantics where established by the product surface.
+
+### Olive
+
+Useful for:
+
+- positive/confirmed states;
+- complementary analytical emphasis;
+- selected supporting signals;
+- restrained win/result semantics where established.
+
+### Dark sidebar
+
+Acts as the strong visual anchor of the application and should remain quieter than the main content.
+
+Do not turn the palette into a rainbow metric system.
+
+## Avoid the generic AI-dashboard aesthetic
+
+Avoid:
+
+- gratuitous gradients;
+- glowing/neon effects;
 - excessive rounded cards;
-- gradients;
-- glowing or neon effects;
-- oversized hero blocks;
-- giant navigation buttons;
+- an icon on every metric;
+- giant KPI walls;
+- rainbow bars;
 - decorative badges everywhere;
-- rainbow status colours;
-- repetitive metric cards with icons;
-- excessive whitespace that separates related information;
-- generic SaaS marketing copy;
-- visual decoration that competes with the football data.
+- huge empty hero blocks on analytical pages;
+- generic SaaS copy;
+- filler metrics added only to occupy layout space;
+- visual chrome that competes with the football evidence.
 
-The interface should look like a thoughtful human-designed analytics product.
+A useful heuristic remains:
 
-## Colour
+> **6 strong metrics are better than 24 filler metrics.**
 
-Use a restrained palette:
+## Typography and hierarchy
 
-- very dark charcoal / blue-black background;
-- slightly lighter charcoal surfaces;
-- off-white primary text;
-- muted grey secondary text;
-- one desaturated green accent.
+Use typography to establish a clear reading order.
 
-Colour should communicate hierarchy and interaction rather than decorate the page.
+Typical hierarchy:
 
-Green is for things such as:
+1. quiet context / eyebrow;
+2. subject or page title;
+3. concise context/subtitle;
+4. primary football information;
+5. analytical detail;
+6. provenance / limitations / secondary metadata.
 
-- active navigation;
-- selected states;
-- subtle positive/confirmed states;
-- interactive emphasis.
-
-Do not colour every football metric green.
-
-## Typography
-
-Use typography to establish hierarchy.
-
-Preferred hierarchy:
-
-1. small uppercase metadata / eyebrow;
-2. page/entity name;
-3. concise descriptive subtitle;
-4. primary data;
-5. supporting metadata.
-
-Do not use giant marketing-style titles for normal research screens.
+Do not use giant marketing-style headings for normal research workspaces.
 
 ## Navigation
 
-Navigation should be text-led, compact and left aligned.
-
-Conceptual structure:
-
-```text
-FOOTBALL RESEARCH LABORATORY
-
-EXPLORE
-  [icon] League Table
-  [icon] Fixtures
-
-RESEARCH
-  [icon] Players
-
-ANALYSIS
-  [icon] Head-to-Head
-  [icon] Form & Streaks
-
-MODELLING
-  [icon] Prediction Lab
-
-EVIDENCE
-  [icon] Data Quality
-  [icon] Provenance
-```
+Navigation is compact application structure, not a collection of call-to-action buttons.
 
 Rules:
 
-- all text shares the same left alignment;
-- section headings are quiet and small;
-- navigation items sit close together;
-- no giant blocks around each navigation item;
-- selected state should be subtle;
-- icons should be small, monochrome line icons;
-- icons should clarify meaning, not act as decoration.
+- left aligned;
+- quiet section labels;
+- consistent text rhythm;
+- active state clear but restrained;
+- no large floating navigation cards;
+- icons optional and subordinate to text;
+- preserve working deep links between football entities and analytical contexts.
 
-Semantic icon examples:
+The active navigation reflects the current Next.js product, not historical Streamlit navigation lists.
 
-- League Table — table/standings
-- Fixtures — calendar/pitch
-- Players — person/player
-- Head-to-Head — opposing arrows / two entities
-- Form & Streaks — trend line
-- Prediction Lab — model/chart
-- Data Quality — shield/check
-- Provenance — document/link/chain
+## Entity language
 
-Avoid emoji and colourful app-style icons.
+Football identity should be visible and navigable.
 
-## Sidebar
+Use the FRL `TeamKit` SVG language as a signature identity treatment where appropriate.
 
-The sidebar is navigation, not a marketing panel.
+Teams, fixtures and eventually players should feel like reusable entities rather than decorative strings.
 
-It should feel quiet enough to fade into the background while remaining easy to scan.
+Prefer entity/text navigation to oversized buttons.
 
-The laboratory identity can be present, but the sidebar should not consume large vertical space with descriptive copy.
+## Page rhythm
 
-## Main page structure
-
-Each research workspace should answer almost immediately:
+A normal research/product page should quickly answer:
 
 1. Where am I?
-2. What am I looking at?
-3. What can I do here?
+2. What entity/population am I looking at?
+3. What period/context applies?
+4. What can I do next?
 
-Preferred structure:
+Prefer strong horizontal alignment and compact control rows over excessive vertical stacking.
 
-```text
-SMALL CONTEXT LABEL
+## Tables and ledgers
 
-SUBJECT / PAGE TITLE
-
-Concise context
-
-Primary controls
-
-────────────────────────────────
-
-Primary data / evidence
-```
-
-## Horizontal rhythm
-
-Prefer strong horizontal alignment to excessive vertical stacking.
-
-Related controls should share a row when the screen width allows it.
-
-Example:
-
-```text
-Season [▼]                         Team [▼]
-```
-
-rather than two large vertically stacked controls.
-
-## Tables
-
-Tables are core research components, not generic dataframes.
+Tables/ledgers are core research components.
 
 Rules:
 
-- names left aligned;
+- primary names left aligned;
 - numbers aligned consistently;
-- quiet borders;
 - compact rows;
-- minimal or no zebra striping unless it adds genuine readability;
-- no unnecessary icons;
-- clear hierarchy between primary and supporting columns;
-- hover states should be subtle;
-- do not make every cell look like a widget.
+- quiet borders;
+- strong scan hierarchy;
+- hover/selected state restrained;
+- no dataframe-default appearance;
+- no turning every cell into a widget.
 
-## Entity navigation
+The approved Team Profile / standalone Fixture ledger language is a useful reference for compact football records.
 
-Football entities are part of the information architecture.
+## Profiles
 
-Whenever sensible:
+Profiles describe entities rather than attempting to expose every statistic.
 
-- player names should lead to a future Player Profile;
-- fixture/opponent names should lead to the Fixture Landing Page;
-- team names should lead to team research contexts.
+A profile should emphasise:
 
-Prefer subtle text/link interaction to large rectangular buttons.
+- identity;
+- records/current context;
+- fixtures/history/form;
+- navigation into deeper analytical surfaces.
 
-The user should learn that football entities are navigable.
+Do not turn Team Profile / future Player Profile into giant statistical dashboards.
 
-## Metrics
+## Stats workspaces
 
-Avoid the AI-dashboard pattern of many decorated cards.
+Stats surfaces analyse entities and populations.
 
-Metrics should feel editorial and information-dense.
-
-Good:
-
-```text
-POINTS       89    RECORD       28–5–5
-GOALS        96–34 POSITION     1st
-```
-
-Use cards only when they materially improve comprehension.
-
-## Fixture Explorer
-
-The Fixture Explorer should feel like a football record, not a control panel.
-
-Recommended hierarchy:
+Current Team Stats information architecture:
 
 ```text
-FIXTURES
+Team View | League Rankings | Compare later
 
-Manchester City
-Premier League · 2025–26
-
-[Season] [Team]
-
-38 matches
-
-[Opponent] [Venue] [Result]
-
-DATE         OPPONENT                 VENUE   SCORE   RESULT
-16 Aug       Wolverhampton            Away    0–4     W
+Overview | Attack | Possession | Passing | Defence | Discipline
 ```
 
-The fixture rows should dominate the viewport.
+The UI should make the relationship between value and population context legible without overwhelming the user.
 
-Inside each row:
+Useful analytical primitives include:
 
-- opponent = strongest text/entity;
-- score = strong and scannable;
-- date = quiet metadata;
-- venue = quiet metadata;
-- result = clear but restrained.
+- value;
+- rank;
+- percentile;
+- coverage/sample sufficiency;
+- trend;
+- distribution;
+- split;
+- provenance/limitation drill-down.
 
-Avoid a raw dataframe appearance and avoid oversized control blocks.
+Do not display rank/percentile as decorative certainty when the underlying population/coverage is not comparable.
+
+## Metric cards
+
+Metric cards are allowed when they genuinely improve comprehension.
+
+A strong card answers a real analytical question and should normally contain only the information required to interpret the metric.
+
+Potential elements:
+
+- metric label;
+- value;
+- rank/context;
+- quiet percentile/distribution indicator;
+- coverage warning where necessary;
+- route into ranking/distribution detail.
+
+Avoid icon-led KPI tiles.
+
+## Charts
+
+Charts should support interpretation rather than decoration.
+
+Rules:
+
+- keep labels/axes quiet;
+- preserve enough inner padding that strokes/points do not spill outside the chart;
+- prefer one clear visual question per chart;
+- avoid unnecessary legends/series;
+- use FRL accent colours consistently;
+- ensure the textual/statistical meaning remains understandable without relying only on colour.
+
+Known Team Stats prototype issue: the rolling PPG chart currently requires an overflow/clipping correction before it is treated as polished.
 
 ## Progressive disclosure
 
-The first screen should tell the story quickly. Deeper evidence can live one click away.
+The first view should communicate the story quickly.
 
-Do not expose 40 metrics merely because they exist.
+Deeper statistical detail, methodology, provenance and source limitations can be one interaction away.
 
-This applies especially to future Player Profiles:
+Do not hide important coverage limitations merely because they are technical; present them calmly at the point where they affect interpretation.
 
-```text
-Overview
-  ↓
-Seasons / History / Matches
-  ↓
-Advanced / Comparisons / Career
-```
+## Missing / partial evidence
 
-## Evidence and provenance
+Incomplete evidence is a valid analytical state.
 
-Exploration should feel fluid.
+Do not:
 
-Evidence should feel calmer and more deliberate.
+- fabricate history;
+- convert unknown to zero;
+- present partial-source rates as though they describe a complete season;
+- rank incomparable coverage without qualification.
 
-A provenance section should make source lineage easy to inspect without dominating normal exploration.
+Useful language is calm and specific, for example:
 
-## Incomplete data
+`17 / 38 matches observed`
 
-Incomplete evidence is a valid state.
+rather than an alarming generic application error.
 
-The UI should communicate:
+## Provenance
 
-> No data is currently available for this period.
+Normal exploration should remain fluid.
 
-rather than:
+Evidence/provenance information should be inspectable without dominating every screen.
 
-> The application is broken.
+A future common pattern should allow the user to inspect:
 
-Do not fabricate missing history, convert missing values to false zeros without semantic justification, or imply that known coverage is a complete career.
+- source representation;
+- metric definition;
+- observed/eligible population;
+- limitations;
+- temporal/as-of context.
+
+## Responsive/accessibility direction
+
+The product is currently desktop-first but should not rely on inaccessible interaction assumptions.
+
+As surfaces mature, treat keyboard navigation, contrast, semantic labels, responsive behaviour and visual regression as product-quality concerns rather than late polish.
+
+## Frozen/currently approved surfaces
+
+Unless a task explicitly reopens them:
+
+- Homepage V1 is frozen;
+- standalone Fixtures V1 is frozen for now;
+- Team Profile V1 is frozen for now.
+
+Team Stats remains an active analytical/product prototype and should evolve through the governed analytical architecture rather than visual expansion alone.
+
+See `CURRENT_WORK.md` for the current product checkpoint.
 
 ## Final visual test
 
 Before accepting a design change, ask:
 
-> **Would this look normal in a serious football analytics product, or does it look like an AI made a dashboard?**
+> **Does this feel like FRL — warm, analytical, clear and intentional — or like a generic generated dashboard?**
 
-If the latter, simplify it.
+If the latter, simplify and return the emphasis to the football evidence.
