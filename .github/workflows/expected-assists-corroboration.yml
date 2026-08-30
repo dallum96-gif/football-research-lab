@@ -1,0 +1,50 @@
+name: Expected assists corroboration
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "scripts/audit_expected_assists_corroboration.py"
+      - ".github/workflows/expected-assists-corroboration.yml"
+      - "scripts/audit_expected_metric_routes.py"
+      - "scripts/audit_source_routes.py"
+      - "FRL_SOURCE_ROUTING_CONTRACT.md"
+      - "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md"
+
+permissions:
+  contents: read
+
+jobs:
+  expected-assists-corroboration:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Checkout preserved upstream archive
+        shell: bash
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/imadeddine-belkat/Premier-League-Stats.git upstream-source
+          cd upstream-source
+          git sparse-checkout set pl_stats
+
+      - name: Run expected-assists corroboration audit
+        run: |
+          mkdir -p artifacts/expected-assists-corroboration
+          python scripts/audit_expected_assists_corroboration.py \
+            --pl-root upstream-source/pl_stats \
+            --json-out artifacts/expected-assists-corroboration/report.json \
+            --md-out artifacts/expected-assists-corroboration/report.md
+
+      - name: Publish summary
+        shell: bash
+        run: cat artifacts/expected-assists-corroboration/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: frl-expected-assists-corroboration
+          path: artifacts/expected-assists-corroboration/
+          if-no-files-found: error
+          retention-days: 30
