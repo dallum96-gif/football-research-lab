@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+import query_api
 import team_analysis_kernel
 
 
@@ -52,6 +53,9 @@ def _ranking_order(entry: dict[str, Any]) -> tuple[bool, int, str]:
 
 
 def league_rankings_projection(season: str) -> TeamStatsLeagueRankingsResult:
+    if season not in set(query_api.list_seasons()):
+        raise ValueError(f"Unsupported season: {season}")
+
     analysis = team_analysis_kernel.season_overview_analysis(season)
     metrics: list[LeagueRankingMetric] = []
 
