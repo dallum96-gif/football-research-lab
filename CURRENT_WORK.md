@@ -1,168 +1,196 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 26 August 2026
+**Last updated:** 30 August 2026  
+**Checkpoint:** `SOURCE_ROUTING_AND_ANALYTICAL_KERNEL_PREP`
+
+For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
 ## Current platform state
 
-The Universal Research Access backend is complete and has been promoted into `main`.
+The Universal Research Access backend milestone is complete and remains an important governed research-access foundation. Its dated closeout is preserved in `FRL_BACKEND_CLOSEOUT_2026-08-26.md`.
 
-Backend closeout recorded in `FRL_BACKEND_CLOSEOUT_2026-08-26.md`:
+Since that closeout, FRL has moved materially further into productisation:
 
-- Universal Research Access: **9/9 implementation steps complete**
-- Closeout suite: **30/30**
-- Cross-domain acceptance: **27/27**
-- Contract hardening: **17/17**
-- Coverage / temporal / provenance gates: **passed**
-- Broader backend validation: **passed**
-- Project health: **passed**
-- Core Query Lab: **passed**
-- Player Research V0.2 gate: **passed**
-
-This marks the governed research-access layer as ready for frontend consumption.
+- Next.js + React is the active frontend;
+- Streamlit is legacy/reference only;
+- Homepage V1 is complete/frozen;
+- standalone Fixtures V1 is complete/frozen for now;
+- Team Profile V1 is complete/frozen for now;
+- Team Stats Overview exists as an analytical/product prototype;
+- the Team / Player Stats information architecture has been documented in `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`;
+- a source-route review has exposed the need for explicit governed source selection between preserved representations;
+- the next backend priority is the analytical layer between governed source evidence and product statistics.
 
 ## Current architectural position
 
-The frontend should consume governed research results through the universal research-access layer rather than reaching directly into source-specific storage mechanisms.
+FRL's lower evidence/identity foundation is stronger than the current analytical layer.
 
-The durable conceptual flow is:
+The current direction is:
 
 ```text
-SOURCE / VALIDATED DATA
+PRESERVED SOURCE EVIDENCE
         ↓
-CANONICAL + HISTORICAL STATE
+IDENTITY / RELATIONSHIPS
         ↓
-UNIVERSAL RESEARCH ACCESS
+SOURCE REPRESENTATION
         ↓
-FRONTEND / VISUALISATION / FUTURE LLM INTERFACE
+GOVERNED SOURCE ROUTE
+        ↓
+GOVERNED VARIABLE
+        ↓
+METRIC + COVERAGE / MISSINGNESS
+        ↓
+POPULATION / COMPARABILITY
+        ↓
+ANALYSIS RESULT
+        ↓
+FASTAPI
+        ↓
+NEXT.JS PRODUCT / RESEARCH CONSUMERS
 ```
 
-The underlying variable universe is deliberately richer than the UI. Preserve atomic source-backed facets and expose them through focused research experiences rather than turning the interface into a data dump.
+Some existing implementation remains transitional and does not yet enforce this whole spine centrally.
 
-## Current product phase
+The most important current rule is:
 
-The immediate priority has shifted from backend construction to **frontend/productisation**.
+> **Do not add more analytical product surface faster than the governed metric/population layer can support it.**
 
-The project is now focused on the **Next.js + React** application. Streamlit is legacy and should not be treated as the active frontend architecture.
+## Source-routing position
 
-The first major UI target is the **fixture/result experience**:
+The 30 August source-route audit is recorded in:
+
+`FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`
+
+Main conclusion:
+
+> FRL does not have a broad source-routing failure. It has targeted missed capabilities plus a missing explicit source-routing layer.
+
+Important findings:
+
+- canonical fixtures/results remain the trusted fixture spine;
+- direct `events_stats` / packaged team-match statistics remain a strong default route for established core team-match metrics;
+- preserved PulseLive snapshots add important versioned match-centre evidence but do not globally supersede `events_stats`;
+- expected metrics such as xG can exist through multiple legitimate source representations;
+- player-match evidence can support explicit team-match derivations where the football concept and missingness rules permit it;
+- a connected variable route is not automatically the strongest analytical capability available anywhere in the preserved ecosystem.
+
+Future capability metadata should distinguish source-present, connected, derivable, governed, comparable and product-ready states.
+
+## Team / Player product architecture
+
+The current product rule is:
+
+> **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
+
+For teams:
 
 ```text
-Fixtures
+Team Profile
     ↓
-select fixture
-    ↓
-Fixture / Match Result workspace
+Team Stats
+    ├── Team View
+    ├── League Rankings
+    └── Compare later
 ```
 
-The objective is to finish the established fixture/result design and apply it consistently across fixtures.
+Initial analytical families remain:
 
-## Fixture/result UX direction
+`Overview · Attack · Possession · Passing · Defence · Discipline`
 
-The fixture page should feel like a polished desktop-first **web application**, not a traditional football statistics website.
+Do not build all families at once. Team View and Rankings should become projections of the same governed metric/population result rather than independent implementations.
 
-Desired interaction model:
+For players, the interaction shell can mirror Team Stats, but population semantics must remain player-specific. “Cohort Rankings” / “Population Rankings” is preferable to assuming all league players form one comparable population.
 
-- focused sections/tabs rather than one long information wall;
-- easy movement between categories of match information;
-- strong visual hierarchy;
-- rich information available on demand;
-- minimal unnecessary interface chrome.
+## Known analytical correctness work
 
-The primary match view should immediately communicate:
+A narrow local correctness pass has been implemented/tested outside this documentation branch for two confirmed defects:
 
-- score and match identity;
-- goals / key events;
-- who played;
-- basic match statistics.
+1. partial metric observations were previously summed over observed rows but divided by all eligible team matches;
+2. Poisson source-fixture filtering could mishandle legitimate zero scores.
 
-Deeper match information can then be accessed through focused sections such as:
+The local pass adds coverage-aware aggregation semantics and zero-score regression coverage. It has not been incorporated into this GitHub documentation branch and should be integrated/revalidated before the analytical kernel is treated as current `main` behaviour.
 
-```text
-MATCH | TIMELINE | LINEUPS | STATS | PLAYERS | CONTEXT
-```
+The key methodological consequence remains:
 
-Exact labels and final navigation should follow the established UI design decisions in the active frontend work.
+> **missing evidence is not zero, and a partial observation must never be presented or ranked as though it represented a complete population.**
 
-The visual target is informed by:
+## Immediate development sequence
 
-- Linear / Vercel for clean, premium software aesthetics;
-- FotMob app for compact, category-based sports-app interaction;
-- Football Manager / FBref / analytical football products for depth of information.
+The preferred near-term sequence is now:
 
-Do not reproduce any of these products literally. The FRL should develop its own visual language.
+1. **Complete source-route/documentation governance**
+   - preserve the source-route audit;
+   - establish explicit source-routing semantics;
+   - keep standing repository memory synchronised.
+2. **Integrate the narrow analytical correctness pass**
+   - missing-data denominators / coverage;
+   - Poisson zero-score regression;
+   - expose partial coverage safely where current product output would otherwise mislead.
+3. **Build the minimum governed analytical kernel**
+   - source representation / source-route decision;
+   - metric definition;
+   - coverage-aware metric observation;
+   - population definition;
+   - ranking/tie/percentile policy;
+   - shared windows/splits;
+   - one analysis result capable of serving multiple projections.
+4. **Refactor Team Stats Overview onto that kernel**
+   - preserve the current six strong Overview metrics;
+   - use xG as the first multi-representation/derived-route case.
+5. **Build League Rankings → Overview**
+   - transpose the exact same governed result;
+   - cross-link Team View ↔ Rankings.
+6. **Move Team Profile form/state calculations onto the same analytical service.**
+7. **Expand Team Stats analytical families selectively from governed capability evidence.**
+8. **Design player cohort semantics before building Player Stats rankings.**
+9. Continue League, Prediction Lab, Match Research and 2026/27 work from the updated roadmap.
 
-## Research direction after frontend milestone
+## Frontend status
 
-Once the fixture experience is stable and usable, the next phase should increasingly exploit the universal research-access layer for real investigation:
+Active frontend:
 
-- historical precedent and comparable situations;
-- arbitrary derived conditions;
-- statistical analysis;
-- predictive modelling;
-- probabilistic reasoning;
-- model evaluation;
-- eventual market/betting analysis where justified.
+**Next.js + React (`web/`)**
 
-The system must preserve historical/as-of semantics so questions such as “who was top scorer on date X?” or “how many goals had team Y conceded by date X?” can be reconstructed from information available at that time.
+Frontend-facing API:
 
-## Research and commercial priorities
+**FastAPI (`api/`)**
 
-The FRL is intended to support both football understanding and predictive research. Betting is a downstream application, not the definition of the platform.
+Streamlit remains in the repository as legacy/reference implementation and historical behaviour evidence. It is not the target for new product work.
 
-Commercial discovery is also an active strategic concern. The project should remain open to revenue opportunities both inside and outside FRL where evidence suggests a materially stronger probability of success.
+Current visual language is the warm-light parchment/editorial system documented in `UI_DESIGN_SYSTEM.md`.
 
-Commercial hypotheses should be treated like research hypotheses: investigate demand, test cheaply, preserve evidence, and avoid committing substantial resources merely because an idea is exciting.
+## Validation discipline
 
-## Working method
+Do not use an old fixed test count as the universal current baseline.
 
-For substantial workstreams, establish:
+Dated closeouts preserve what was validated at those checkpoints. For current work:
 
-- objective;
-- definition of done;
-- necessary steps;
-- current step;
-- review point.
+- run the targeted tests for the changed behaviour;
+- run the relevant backend/research/identity gates;
+- run Next.js `typecheck`/`build` where frontend contracts change;
+- run `project-health.ps1` when canonical/query/data behaviour may be affected;
+- run `python scripts/check_documentation_sync.py` for material milestone/documentation work;
+- report actual current command output rather than repeating a historical count.
 
-Separate **research mode** (explore, question, test, decide) from **build mode** (implement an established decision).
+## Repository discipline
 
-When new ideas appear, distinguish between:
+Treat `main` as the stable integration line.
 
-- required for the current objective;
-- important to the long-term architecture;
-- worth recording and parking for later.
+Preserve unrelated tracked, untracked, generated, backup and experimental files. Do not use broad staging or destructive cleanup to simplify the workspace.
 
-The highest-value next action is not necessarily code. It may be research, validation, product work, customer discovery, or deliberately deciding not to build something.
+At this checkpoint, source/documentation work is intentionally being performed on a separate branch so existing local correctness work and recovery artefacts are not disturbed.
 
-## Repository and state discipline
+## Standing repository memory
 
-Treat `main` as the stable integration line and preserve branch/local experiments unless explicitly asked to clean them up.
+Fresh sessions should use this order:
 
-Before substantive changes:
+1. `FRL_MASTER_PROMPT.md`
+2. `PROJECT_ORIENTATION.md`
+3. `CURRENT_WORK.md`
+4. `data/frl_documentation_state_v1.json`
+5. task-relevant durable contracts / dated audits
+6. current implementation
 
-1. establish the current branch/state;
-2. inspect the relevant code and documentation;
-3. preserve trusted backend/query contracts unless the task genuinely requires changes;
-4. make the smallest sensible change;
-5. validate targeted behaviour and regression safety.
+The documentation-sync rule is mandatory for future material milestones:
 
-`FRL_BACKEND_CLOSEOUT_2026-08-26.md` is the authoritative closeout record for the completed Universal Research Access backend milestone.
-
-`CURRENT_WORK.md` is the short-lived current checkpoint and should be updated when the project's phase or immediate objective materially changes.
-
-## Active short-term product roadmap
-
-The next several product sessions should use `FRL_SHORT_TERM_PRODUCT_ROADMAP.md` as the active near-term planning spine.
-
-The current sequence is deliberately product-facing:
-
-1. finish Fixture Workspace V1 with the rich historical evidence and repair the PulseLive → Player-Match identity join;
-2. generate a structured FRL Variable Capability Inventory and a human-readable FRL Data Capability Brochure;
-3. build Team Profile and Team Stats surfaces;
-4. build Player Profile and Player Stats surfaces;
-5. build League Table and League Stats surfaces;
-6. productise the existing Poisson model in a Next.js Prediction Lab;
-7. build a Head-to-Head / Match Research workspace that distinguishes descriptive patterns from predictive evidence;
-8. extend the governed data pipeline to 2026/27;
-9. preserve the architecture for later cross-league expansion described in `FUTURE_LEAGUE_COMBINE_PLAN.md`.
-
-This roadmap is intentionally a short-term priority spine rather than a permanent architecture contract. The variable capability inventory should inform which statistics and research experiences are genuinely supported before Team, Player, League and model pages are populated.
+> **A milestone that changes current architecture, product phase, source-routing understanding, validation interpretation or frontend/design status is not complete until standing repository memory has been checked for drift.**
