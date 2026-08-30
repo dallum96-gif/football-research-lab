@@ -18,7 +18,8 @@ def test_rankings_api_projects_the_shared_season_kernel_without_recalculation():
     assert response.population_size == kernel["population_size"] == 20
     assert response.ranking_policy == kernel["ranking_policy"]
     assert response.percentile_policy == kernel["percentile_policy"]
-    assert len(response.metrics) == len(kernel["metrics"]) == 6
+    assert len(response.metrics) == len(kernel["metrics"]) == 7
+    assert "Corners_per_match" in _metric_map(response)
 
     for key, api_metric in _metric_map(response).items():
         kernel_metric = kernel["metrics"][key]
@@ -55,6 +56,25 @@ def test_rankings_and_team_view_are_the_same_analysis_result_for_same_metric():
     assert sample.rank == team_metric["rank"]
     assert sample.out_of == team_metric["out_of"]
     assert sample.percentile == team_metric["percentile"]
+
+
+def test_corners_are_rankings_only_and_preserve_kernel_coverage():
+    season = "2025-26"
+    rankings = get_team_stats_league_rankings(season)
+    corners = _metric_map(rankings)["Corners_per_match"]
+
+    assert corners.label == "Corners per match"
+    assert corners.unit == "corners"
+    assert corners.representation == team_analysis_kernel.DIRECT_TEAM_MATCH
+    assert any(row.coverage["missing_matches"] > 0 for row in corners.entries)
+
+    sample = next(row for row in corners.entries if row.value is not None)
+    team = team_analysis_kernel.team_overview_analysis(
+        season,
+        sample.persistent_team_code,
+    )
+    assert team is not None
+    assert "Corners_per_match" not in {row["key"] for row in team["metrics"]}
 
 
 def test_rankings_keep_competition_ties_and_are_ordered_by_kernel_rank():
