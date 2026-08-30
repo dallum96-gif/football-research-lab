@@ -399,8 +399,8 @@ export default async function TeamStatsRankingsPage({
                     <p className={teamStyles.kicker}>League Rankings</p>
                     <h2>Overview</h2>
                     <p>
-                      A compact snapshot of the six governed rankings shared
-                      with Team View.
+                      A compact snapshot of the six headline governed rankings
+                      shared with Team View.
                     </p>
                   </div>
                   <span className={styles.populationBadge}>
