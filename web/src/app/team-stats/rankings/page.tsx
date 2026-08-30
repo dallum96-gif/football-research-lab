@@ -55,13 +55,6 @@ type FamilyKey =
   | "defence"
   | "discipline";
 
-type FamilyGroup = {
-  key: string;
-  title: string;
-  description: string;
-  metricKeys: string[];
-};
-
 const API_BASE =
   process.env.NEXT_PUBLIC_FRL_API_URL ??
   "http://127.0.0.1:8000";
@@ -75,71 +68,24 @@ const families: { key: FamilyKey; label: string }[] = [
   { key: "discipline", label: "Discipline" },
 ];
 
-const familyGroups: Record<FamilyKey, FamilyGroup[]> = {
+const familyMetricKeys: Record<FamilyKey, string[]> = {
   overview: [
-    {
-      key: "snapshot",
-      title: "League snapshot",
-      description:
-        "A compact view of the six governed Overview rankings already shared with Team View.",
-      metricKeys: [
-        "points_per_match",
-        "goals_for_per_match",
-        "goals_against_per_match",
-        "Shots_per_match",
-        "Shots on target_per_match",
-        "Possession_per_match",
-      ],
-    },
+    "points_per_match",
+    "goals_for_per_match",
+    "goals_against_per_match",
+    "Shots_per_match",
+    "Shots on target_per_match",
+    "Possession_per_match",
   ],
   attack: [
-    {
-      key: "scoring",
-      title: "Scoring",
-      description: "Full league ranking by scoring output.",
-      metricKeys: ["goals_for_per_match"],
-    },
-    {
-      key: "shooting",
-      title: "Shooting",
-      description: "Full league ranking by shot volume and on-target volume.",
-      metricKeys: ["Shots_per_match", "Shots on target_per_match"],
-    },
+    "goals_for_per_match",
+    "Shots_per_match",
+    "Shots on target_per_match",
   ],
-  possession: [
-    {
-      key: "ball-share",
-      title: "Ball share",
-      description: "Full league ranking by average possession share.",
-      metricKeys: ["Possession_per_match"],
-    },
-  ],
-  passing: [
-    {
-      key: "passing",
-      title: "Passing",
-      description:
-        "This family is reserved for governed passing rankings rather than placeholder metrics.",
-      metricKeys: [],
-    },
-  ],
-  defence: [
-    {
-      key: "goal-prevention",
-      title: "Goal prevention",
-      description: "Full league ranking by goals conceded per match.",
-      metricKeys: ["goals_against_per_match"],
-    },
-  ],
-  discipline: [
-    {
-      key: "discipline",
-      title: "Discipline",
-      description:
-        "This family is reserved for governed disciplinary rankings rather than placeholder metrics.",
-      metricKeys: [],
-    },
-  ],
+  possession: ["Possession_per_match"],
+  passing: [],
+  defence: ["goals_against_per_match"],
+  discipline: [],
 };
 
 async function getJson<T>(path: string): Promise<T | null> {
@@ -210,13 +156,9 @@ function representationLabel(value: string) {
 function rankingsHref(
   season: string,
   family: FamilyKey,
-  category?: string,
   metric?: string
 ) {
   const params = new URLSearchParams({ season, family });
-  if (category) {
-    params.set("category", category);
-  }
   if (metric) {
     params.set("metric", metric);
   }
@@ -249,7 +191,7 @@ function RankingCard({
           <span>{metric.label}</span>
           <small>{metric.unit}</small>
         </div>
-        <Link href={rankingsHref(season, "overview", "snapshot", metric.key)}>
+        <Link href={rankingsHref(season, "overview", metric.key)}>
           Full ranking
         </Link>
       </header>
@@ -274,9 +216,7 @@ function RankingCard({
       </div>
 
       <footer className={styles.cardFooter}>
-        <span>
-          {metric.higher_is_better ? "Higher" : "Lower"} is better
-        </span>
+        <span>{metric.higher_is_better ? "Higher" : "Lower"} is better</span>
         <span>{metric.entries.length} teams</span>
       </footer>
     </article>
@@ -332,11 +272,7 @@ function FullRanking({
                     : `${entry.percentile} percentile`
                 }
               >
-                <span
-                  style={{
-                    width: `${entry.percentile ?? 0}%`,
-                  }}
-                />
+                <span style={{ width: `${entry.percentile ?? 0}%` }} />
               </div>
               <span>
                 {entry.percentile === null
@@ -357,13 +293,11 @@ export default async function TeamStatsRankingsPage({
   searchParams: Promise<{
     season?: string;
     family?: string;
-    category?: string;
     metric?: string;
   }>;
 }) {
   const query = await searchParams;
-  const seasonResponse =
-    await getJson<SeasonResponse>("/api/v1/seasons");
+  const seasonResponse = await getJson<SeasonResponse>("/api/v1/seasons");
   const seasons = seasonResponse?.seasons ?? [];
   const season =
     query.season && seasons.includes(query.season)
@@ -396,15 +330,12 @@ export default async function TeamStatsRankingsPage({
   const activeFamilyLabel =
     families.find((family) => family.key === activeFamily)?.label ??
     "Overview";
-  const groups = familyGroups[activeFamily];
-  const activeGroup =
-    groups.find((group) => group.key === query.category) ?? groups[0];
-  const activeGroupMetrics = activeGroup.metricKeys
+  const activeFamilyMetrics = familyMetricKeys[activeFamily]
     .map((key) => rankings?.metrics.find((metric) => metric.key === key))
     .filter((metric): metric is RankingMetric => Boolean(metric));
   const activeMetric =
-    activeGroupMetrics.find((metric) => metric.key === query.metric) ??
-    activeGroupMetrics[0] ??
+    activeFamilyMetrics.find((metric) => metric.key === query.metric) ??
+    activeFamilyMetrics[0] ??
     null;
   const overviewMetric =
     activeFamily === "overview" && query.metric
@@ -422,15 +353,11 @@ export default async function TeamStatsRankingsPage({
             </div>
 
             <div>
-              <p className={teamStyles.eyebrow}>
-                Analysis · Team Stats
-              </p>
+              <p className={teamStyles.eyebrow}>Analysis · Team Stats</p>
               <h1>League Rankings</h1>
               <p className={teamStyles.context}>
                 Premier League · {season ?? "Season unavailable"}
-                {rankings
-                  ? ` · ${rankings.population_size} teams`
-                  : ""}
+                {rankings ? ` · ${rankings.population_size} teams` : ""}
               </p>
             </div>
           </div>
@@ -467,22 +394,22 @@ export default async function TeamStatsRankingsPage({
               ))}
             </nav>
 
-            <section className={styles.familyIntro}>
-              <div>
-                <p className={teamStyles.kicker}>League Rankings</p>
-                <h2>{activeFamilyLabel}</h2>
-                <p>
-                  Team-level league context from the same governed season
-                  analysis used by Team View.
-                </p>
-              </div>
-              <span className={styles.populationBadge}>
-                {rankings.population_size} team population
-              </span>
-            </section>
-
             {activeFamily === "overview" ? (
               <>
+                <section className={styles.familyIntro}>
+                  <div>
+                    <p className={teamStyles.kicker}>League Rankings</p>
+                    <h2>Overview</h2>
+                    <p>
+                      A compact snapshot of the six governed rankings shared
+                      with Team View.
+                    </p>
+                  </div>
+                  <span className={styles.populationBadge}>
+                    {rankings.population_size} team population
+                  </span>
+                </section>
+
                 <section className={styles.familySection}>
                   <div className={styles.cardGrid}>
                     {rankings.metrics.map((metric) => (
@@ -516,79 +443,75 @@ export default async function TeamStatsRankingsPage({
               </>
             ) : (
               <section className={styles.familyRankingWorkspace}>
-                <nav
-                  className={styles.categoryNav}
-                  aria-label={`${activeFamilyLabel} ranking categories`}
-                >
-                  {groups.map((group) => (
-                    <Link
-                      key={group.key}
-                      href={rankingsHref(
-                        rankings.season,
-                        activeFamily,
-                        group.key
-                      )}
-                      className={
-                        group.key === activeGroup.key
-                          ? styles.activeCategory
-                          : styles.categoryLink
-                      }
-                    >
-                      {group.title}
-                    </Link>
-                  ))}
-                </nav>
-
-                <header className={styles.rankingHeading}>
+                <header className={styles.familyRankingHeader}>
                   <div>
-                    <p className={teamStyles.kicker}>{activeFamilyLabel}</p>
-                    <h2>{activeGroup.title}</h2>
-                    <p>{activeGroup.description}</p>
+                    <p className={teamStyles.kicker}>League Rankings</p>
+                    <h2>{activeFamilyLabel}</h2>
                   </div>
+                  <span className={styles.populationBadge}>
+                    {rankings.population_size} team population
+                  </span>
                 </header>
 
-                {activeGroupMetrics.length > 1 && (
-                  <nav
-                    className={styles.metricToggle}
-                    aria-label={`${activeGroup.title} metrics`}
-                  >
-                    {activeGroupMetrics.map((metric) => (
-                      <Link
-                        key={metric.key}
-                        href={rankingsHref(
-                          rankings.season,
-                          activeFamily,
-                          activeGroup.key,
-                          metric.key
-                        )}
-                        className={
-                          metric.key === activeMetric?.key
-                            ? styles.activeMetricToggle
-                            : styles.metricToggleLink
-                        }
-                      >
-                        {metric.label}
-                      </Link>
-                    ))}
-                  </nav>
-                )}
-
-                {activeMetric ? (
+                {activeFamilyMetrics.length > 0 ? (
                   <>
-                    <FullRanking metric={activeMetric} rankings={rankings} />
-                    <footer className={styles.detailMeta}>
-                      <span>
-                        {representationLabel(activeMetric.representation)}
-                      </span>
-                      <span>{rankings.ranking_policy}</span>
-                    </footer>
+                    <nav
+                      className={styles.metricSubheadings}
+                      aria-label={`${activeFamilyLabel} ranking metrics`}
+                    >
+                      {activeFamilyMetrics.map((metric) => (
+                        <Link
+                          key={metric.key}
+                          href={rankingsHref(
+                            rankings.season,
+                            activeFamily,
+                            metric.key
+                          )}
+                          className={
+                            metric.key === activeMetric?.key
+                              ? styles.activeMetricSubheading
+                              : styles.metricSubheading
+                          }
+                        >
+                          {metric.label}
+                        </Link>
+                      ))}
+                    </nav>
+
+                    {activeMetric && (
+                      <>
+                        <div className={styles.rankingTitleRow}>
+                          <div>
+                            <h3>{activeMetric.label}</h3>
+                            <p>
+                              Full {rankings.season} Premier League ranking.
+                            </p>
+                          </div>
+                          <span>
+                            {activeMetric.higher_is_better
+                              ? "Higher is better"
+                              : "Lower is better"}
+                          </span>
+                        </div>
+                        <FullRanking
+                          metric={activeMetric}
+                          rankings={rankings}
+                        />
+                        <footer className={styles.detailMeta}>
+                          <span>
+                            {representationLabel(activeMetric.representation)}
+                          </span>
+                          <span>{rankings.ranking_policy}</span>
+                        </footer>
+                      </>
+                    )}
                   </>
                 ) : (
                   <div className={styles.unavailableFamily}>
                     <strong>No governed ranking metric here yet.</strong>
                     <span>
-                      FRL will populate this category only when the metric
-                      family is analytically ready.
+                      FRL will populate this family only when the underlying
+                      metrics are analytically ready.
                     </span>
                   </div>
                 )}
