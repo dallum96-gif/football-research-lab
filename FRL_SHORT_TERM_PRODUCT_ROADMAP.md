@@ -310,6 +310,8 @@ research test
 
 Extend the governed data pipeline to the 2026/27 season as an extension of the same identity/source/temporal architecture.
 
+The governing implementation boundary and incremental-release lifecycle are defined in `FRL_2026_27_INCREMENTAL_SEASON_INTEGRATION_PLAN.md`; that plan does not itself claim that integration has begun.
+
 Avoid current-season-only shortcuts unless source reality genuinely requires them.
 
 ## 13. Data Capability Brochure

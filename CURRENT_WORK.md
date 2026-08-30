@@ -5,6 +5,8 @@
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
+The future 2026/27 living-season expansion is governed by `FRL_2026_27_INCREMENTAL_SEASON_INTEGRATION_PLAN.md`. That integration has not yet started and does not alter the current analytical checkpoint recorded below.
+
 ## Current platform state
 
 FRL is in governed analytical/product architecture work.
