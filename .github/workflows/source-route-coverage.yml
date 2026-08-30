@@ -1,0 +1,51 @@
+name: Source route coverage
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 1 * *"
+  pull_request:
+    paths:
+      - "scripts/audit_source_routes.py"
+      - ".github/workflows/source-route-coverage.yml"
+      - "FRL_SOURCE_ROUTING_CONTRACT.md"
+      - "FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md"
+
+permissions:
+  contents: read
+
+jobs:
+  source-route-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Checkout preserved upstream archive
+        shell: bash
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            https://github.com/imadeddine-belkat/Premier-League-Stats.git upstream-source
+          cd upstream-source
+          git sparse-checkout set pl_stats fpl_scraper/fpl_stats/_merged/players
+
+      - name: Run source-route audit
+        run: |
+          mkdir -p artifacts/source-route-coverage
+          python scripts/audit_source_routes.py \
+            --pl-root upstream-source/pl_stats \
+            --fpl-root upstream-source/fpl_scraper/fpl_stats/_merged/players \
+            --json-out artifacts/source-route-coverage/report.json \
+            --md-out artifacts/source-route-coverage/report.md
+
+      - name: Publish summary
+        shell: bash
+        run: cat artifacts/source-route-coverage/report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: frl-source-route-coverage
+          path: artifacts/source-route-coverage/
+          if-no-files-found: error
+          retention-days: 30
