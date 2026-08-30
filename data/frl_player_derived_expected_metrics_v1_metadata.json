@@ -1,0 +1,95 @@
+{
+  "artifact_compression": "gzip",
+  "artifact_path": "data/frl_player_derived_expected_metrics_v1.csv.gz",
+  "artifact_sha256": "1a56770ea908abffeafeed87bb65e9b75e02de37679dbb91206eaf9dfb8b871d",
+  "construction_version": "FRL_PLAYER_DERIVED_EXPECTED_METRICS_V1",
+  "coverage_fixtures": {
+    "Expected assists": {
+      "2022-23": 380,
+      "2023-24": 380,
+      "2024-25": 380,
+      "2025-26": 380
+    },
+    "Expected goals": {
+      "2022-23": 380,
+      "2023-24": 379,
+      "2024-25": 380,
+      "2025-26": 380
+    },
+    "Expected goals on target": {
+      "2022-23": 374,
+      "2023-24": 336,
+      "2024-25": 334,
+      "2025-26": 321
+    }
+  },
+  "fixture_population_per_season": 380,
+  "missingness_rules": {
+    "Expected assists": "Blank player expectedAssists is structural zero for the audited 2022-23 through 2025-26 player-match representation.",
+    "Expected goals": "Blank player expectedGoals is zero only when governed totalShots is zero; positive-shot blank xG makes the team-match derivation missing.",
+    "Expected goals on target": "Blank player expectedGoalsOnTarget is zero only when governed onTargetScoringAttempt is zero; positive-SOT blank xGOT makes the team-match derivation missing."
+  },
+  "representation": "PLAYER_MATCH_DERIVED_TEAM_MATCH",
+  "representation_mixing_allowed": false,
+  "row_count": 1520,
+  "schema_version": "1.0.0",
+  "seasons": [
+    "2022-23",
+    "2023-24",
+    "2024-25",
+    "2025-26"
+  ],
+  "source_commit": "1ec7f0dc79055902251cd938650f622b0e79f3cc",
+  "source_family": "players_match_stats",
+  "source_repository": "imadeddine-belkat/Premier-League-Stats",
+  "team_side_state_counts": {
+    "Expected assists": {
+      "2022-23": {
+        "AVAILABLE": 760
+      },
+      "2023-24": {
+        "AVAILABLE": 760
+      },
+      "2024-25": {
+        "AVAILABLE": 760
+      },
+      "2025-26": {
+        "AVAILABLE": 760
+      }
+    },
+    "Expected goals": {
+      "2022-23": {
+        "AVAILABLE": 760
+      },
+      "2023-24": {
+        "AVAILABLE": 758,
+        "MISSING_POSITIVE_TRIGGER_INPUT": 2
+      },
+      "2024-25": {
+        "AVAILABLE": 760
+      },
+      "2025-26": {
+        "AVAILABLE": 760
+      }
+    },
+    "Expected goals on target": {
+      "2022-23": {
+        "AVAILABLE": 754,
+        "MISSING_POSITIVE_TRIGGER_INPUT": 6
+      },
+      "2023-24": {
+        "AVAILABLE": 712,
+        "MISSING_POSITIVE_TRIGGER_INPUT": 48
+      },
+      "2024-25": {
+        "AVAILABLE": 712,
+        "MISSING_POSITIVE_TRIGGER_INPUT": 48
+      },
+      "2025-26": {
+        "AVAILABLE": 699,
+        "MISSING_POSITIVE_TRIGGER_INPUT": 61
+      }
+    }
+  },
+  "uncompressed_csv_sha256": "f6abd1e52a00015e4172a97b9fd0ed6866615d9321263e68377a9d1095114c2a"
+}
