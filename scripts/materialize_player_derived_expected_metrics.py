@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import argparse
 import csv
-import gzip
 import hashlib
-import io
 import json
 import sys
 from collections import Counter
@@ -51,6 +49,17 @@ METRIC_SPECS = {
         "blank_rule": "ZERO_WHEN_GOVERNED_TRIGGER_ZERO",
     },
 }
+
+RUNTIME_FIELDS = (
+    "season",
+    "fixture_id",
+    "home_expected_goals",
+    "home_expected_assists",
+    "home_expected_goals_on_target",
+    "away_expected_goals",
+    "away_expected_assists",
+    "away_expected_goals_on_target",
+)
 
 
 class MaterializationError(RuntimeError):
@@ -128,9 +137,6 @@ def _derive_metric(
         if trigger_value is not None and trigger_value > 0:
             unsafe_missing += 1
         else:
-            # The corresponding player trigger count has independently audited
-            # sparse-zero semantics, so blank/explicit-zero trigger means zero
-            # expected metric for this player observation.
             structural_zero += 1
 
     if unsafe_missing:
@@ -257,6 +263,7 @@ def materialize(pl_root: Path) -> tuple[list[dict], dict]:
         "seasons": list(SEASONS),
         "row_count": len(output),
         "fixture_population_per_season": 380,
+        "runtime_fields": list(RUNTIME_FIELDS),
         "coverage_fixtures": coverage,
         "team_side_state_counts": {
             metric: {
@@ -281,62 +288,40 @@ def materialize(pl_root: Path) -> tuple[list[dict], dict]:
             ),
         },
         "representation_mixing_allowed": False,
+        "runtime_note": (
+            "The tracked runtime artifact is intentionally compact. Per-player derivation "
+            "diagnostics are reproducible from the pinned source and summarised in "
+            "team_side_state_counts rather than duplicated on every runtime row."
+        ),
     }
     return output, metadata
 
 
-def _fieldnames() -> list[str]:
-    fields = [
-        "season",
-        "fixture_id",
-        "representation",
-        "construction_version",
-        "direct_source_match_id",
-        "player_source_match_id",
-        "source_home_team_id",
-        "source_away_team_id",
+def _runtime_rows(rows: list[dict]) -> list[dict[str, str]]:
+    return [
+        {field: str(row.get(field, "")) for field in RUNTIME_FIELDS}
+        for row in rows
     ]
-    for side in ("home", "away"):
-        for metric in METRIC_SPECS:
-            slug = METRIC_SPECS[metric]["slug"]
-            fields.extend(
-                [
-                    f"{side}_{slug}",
-                    f"{side}_{slug}_status",
-                    f"{side}_{slug}_player_rows",
-                    f"{side}_{slug}_source_observed_rows",
-                    f"{side}_{slug}_structural_zero_rows",
-                    f"{side}_{slug}_unsafe_missing_rows",
-                ]
-            )
-    return fields
 
 
-def _csv_bytes(rows: list[dict]) -> bytes:
-    buffer = io.StringIO(newline="")
-    writer = csv.DictWriter(buffer, fieldnames=_fieldnames(), extrasaction="raise")
-    writer.writeheader()
-    writer.writerows(rows)
-    return buffer.getvalue().encode("utf-8")
-
-
-def _write_csv(path: Path, rows: list[dict]) -> dict[str, str]:
+def _write_runtime_csv(path: Path, rows: list[dict]) -> dict[str, str]:
     path.parent.mkdir(parents=True, exist_ok=True)
-    raw = _csv_bytes(rows)
-    uncompressed_sha256 = hashlib.sha256(raw).hexdigest()
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=RUNTIME_FIELDS,
+            extrasaction="raise",
+            lineterminator="\n",
+        )
+        writer.writeheader()
+        writer.writerows(_runtime_rows(rows))
 
-    if path.name.endswith(".gz"):
-        artifact = gzip.compress(raw, compresslevel=9, mtime=0)
-        compression = "gzip"
-    else:
-        artifact = raw
-        compression = "none"
-
-    path.write_bytes(artifact)
+    artifact = path.read_bytes()
+    digest = hashlib.sha256(artifact).hexdigest()
     return {
-        "artifact_compression": compression,
-        "artifact_sha256": hashlib.sha256(artifact).hexdigest(),
-        "uncompressed_csv_sha256": uncompressed_sha256,
+        "artifact_compression": "none",
+        "artifact_sha256": digest,
+        "uncompressed_csv_sha256": digest,
     }
 
 
@@ -349,7 +334,7 @@ def main() -> int:
     parser.add_argument(
         "--csv-out",
         type=Path,
-        default=Path("data/frl_player_derived_expected_metrics_v1.csv.gz"),
+        default=Path("data/frl_player_derived_expected_metrics_v1.csv"),
     )
     parser.add_argument(
         "--metadata-out",
@@ -362,7 +347,7 @@ def main() -> int:
         raise SystemExit(f"PL source root not found: {args.pl_root}")
 
     rows, metadata = materialize(args.pl_root)
-    artifact_metadata = _write_csv(args.csv_out, rows)
+    artifact_metadata = _write_runtime_csv(args.csv_out, rows)
     metadata.update(artifact_metadata)
     metadata["artifact_path"] = str(args.csv_out).replace("\\", "/")
     metadata["source_commit"] = args.source_commit
@@ -376,7 +361,6 @@ def main() -> int:
     print(f"rows={len(rows)}")
     print(f"source_commit={args.source_commit}")
     print(f"artifact_sha256={metadata['artifact_sha256']}")
-    print(f"uncompressed_csv_sha256={metadata['uncompressed_csv_sha256']}")
     for metric in METRIC_SPECS:
         print(metric)
         for season in SEASONS:
