@@ -9,6 +9,7 @@ from expected_metric_routing import (
 from team_analysis_kernel import (
     COMPETITION_RANK,
     OVERVIEW_METRICS,
+    RANKING_METRICS,
     RANK_POSITION_PERCENTILE,
     rank_metric_entries,
     season_overview_analysis,
@@ -34,19 +35,42 @@ def test_competition_rank_preserves_ties_and_existing_percentile_formula():
     ]
 
 
-def test_overview_kernel_exposes_the_existing_six_metric_definitions_once():
+def test_overview_stays_six_metrics_while_rankings_can_extend_by_family():
     analysis = season_overview_analysis("2024-25")
 
     assert analysis["population_size"] == 20
     assert analysis["ranking_policy"] == COMPETITION_RANK
     assert analysis["percentile_policy"] == RANK_POSITION_PERCENTILE
-    assert tuple(analysis["metrics"]) == tuple(metric.key for metric in OVERVIEW_METRICS)
+    assert len(OVERVIEW_METRICS) == 6
+    assert "Corners_per_match" not in {metric.key for metric in OVERVIEW_METRICS}
+    assert tuple(analysis["metrics"]) == tuple(metric.key for metric in RANKING_METRICS)
 
-    for metric in OVERVIEW_METRICS:
+    for metric in RANKING_METRICS:
         result = analysis["metrics"][metric.key]
         assert result["definition"]["label"] == metric.label
         assert result["definition"]["higher_is_better"] is metric.higher_is_better
         assert len(result["entries"]) == 20
+
+
+def test_corners_are_rankable_with_source_faithful_coverage_not_blank_as_zero():
+    season = "2025-26"
+    analysis = season_overview_analysis(season)
+    result = analysis["metrics"]["Corners_per_match"]
+
+    assert result["definition"]["representation"] == DIRECT_TEAM_MATCH
+    assert result["definition"]["coverage_key"] == "Corners"
+    assert sum(entry["coverage"]["missing_matches"] for entry in result["entries"]) > 0
+
+    for entry in result["entries"]:
+        stats = team_research_stats.team_season_stats(
+            season,
+            entry["persistent_team_code"],
+        )
+        expected = stats.get("Corners_per_match")
+        assert entry["value"] == (float(expected) if expected is not None else None)
+        coverage = stats["metric_coverage"]["Corners"]
+        assert entry["coverage"]["observed_matches"] == coverage["observed_matches"]
+        assert entry["coverage"]["missing_matches"] == coverage["missing_matches"]
 
 
 def test_kernel_ranking_matches_the_pre_kernel_overview_algorithm():
@@ -123,6 +147,8 @@ def test_team_view_is_projection_of_the_same_season_analysis_result():
     team = team_overview_analysis("2024-25", sample["persistent_team_code"])
 
     assert team is not None
+    assert len(team["metrics"]) == len(OVERVIEW_METRICS) == 6
+    assert "Corners_per_match" not in {item["key"] for item in team["metrics"]}
     metric = next(item for item in team["metrics"] if item["key"] == "points_per_match")
     assert metric["value"] == sample["value"]
     assert metric["rank"] == sample["rank"]
