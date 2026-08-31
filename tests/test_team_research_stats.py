@@ -245,3 +245,20 @@ def test_complete_xg_coverage_permits_overperformance(monkeypatch):
     assert stats["Expected goals_per_match"] == pytest.approx(0.75)
     assert stats["metric_coverage"]["Expected goals"]["coverage_status"] == "COMPLETE"
     assert stats["xg_overperformance"] == pytest.approx(0.5)
+
+
+def test_packaged_historical_match_survives_missing_canonical_result():
+    rows = team_research_stats.team_match_stats("2019-20", "43")
+    anomaly = next(row for row in rows if row["fixture_id"] == "275")
+
+    assert anomaly["Possession"] == pytest.approx(67.1)
+    assert anomaly["goals_for"] is None
+    assert anomaly["goals_against"] is None
+
+    stats = team_research_stats.team_season_stats("2019-20", "43")
+    assert stats["matches"] == 38
+    assert stats["result_coverage"]["eligible_matches"] == 38
+    assert stats["result_coverage"]["observed_matches"] == 37
+    assert stats["result_coverage"]["missing_matches"] == 1
+    assert stats["result_coverage"]["coverage_complete"] is False
+    assert stats["result_coverage"]["coverage_status"] == "PARTIAL"
