@@ -112,17 +112,19 @@ export function TeamStatsOverviewWorkspace({
   overview: TeamStatsOverview;
 }) {
   const trend = rollingPpg(overview.trend);
-  const trendPoints = trend
-    .map((value, index) => {
-      const x =
-        trend.length <= 1
-          ? 0
-          : (index / (trend.length - 1)) * 100;
-      const y =
-        100 -
-        Math.min(3, Math.max(0, value)) / 3 * 100;
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
-    })
+  const trendCoordinates = trend.map((value, index) => {
+    const x =
+      trend.length <= 1
+        ? 50
+        : (index / (trend.length - 1)) * 100;
+    const y =
+      100 -
+      Math.min(3, Math.max(0, value)) / 3 * 100;
+
+    return { x, y };
+  });
+  const trendPoints = trendCoordinates
+    .map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`)
     .join(" ");
 
   const strongest =
@@ -142,6 +144,25 @@ export function TeamStatsOverviewWorkspace({
   const home = overview.splits.find((split) => split.label === "Home");
   const away = overview.splits.find((split) => split.label === "Away");
   const latestRolling = trend.length > 0 ? trend[trend.length - 1] : null;
+  const rollingWindowSize = Math.min(5, overview.trend.length);
+  const rollingWindowLabel =
+    rollingWindowSize === 0
+      ? "No completed matches"
+      : rollingWindowSize === 1
+        ? "Latest match"
+        : rollingWindowSize < 5
+          ? `Latest ${rollingWindowSize}`
+          : "Latest five";
+  const pulseTitle =
+    overview.trend.length >= 5
+      ? "Five-match rolling PPG"
+      : "Rolling PPG";
+  const pulseNote =
+    rollingWindowSize === 0
+      ? "Waiting for a completed match."
+      : rollingWindowSize < 5
+        ? `${rollingWindowSize}-match window · expands to five`
+        : "Five-match form · 0–3 PPG";
   const seasonPpg =
     overview.metrics.find((metric) => metric.key === "points_per_match")
       ?.value ?? null;
@@ -214,11 +235,11 @@ export function TeamStatsOverviewWorkspace({
           <header className={styles.sectionHeading}>
             <div>
               <p className={styles.kicker}>Season pulse</p>
-              <h2>Five-match rolling PPG</h2>
+              <h2>{pulseTitle}</h2>
             </div>
 
             <div className={styles.trendReadout}>
-              <span>Latest five</span>
+              <span>{rollingWindowLabel}</span>
               <strong>
                 {latestRolling !== null ? latestRolling.toFixed(2) : "—"}
               </strong>
@@ -246,20 +267,34 @@ export function TeamStatsOverviewWorkspace({
                 viewBox="0 0 100 100"
                 preserveAspectRatio="none"
                 role="img"
-                aria-label="Five-match rolling points per game"
+                aria-label={`Rolling points per game across ${overview.trend.length} completed matches`}
               >
-                <polyline
-                  points={trendPoints}
-                  vectorEffect="non-scaling-stroke"
-                />
+                {trendCoordinates.length > 1 && (
+                  <polyline
+                    points={trendPoints}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                )}
+                {trendCoordinates.map(({ x, y }, index) => (
+                  <circle
+                    key={overview.trend[index]?.fixture_id ?? index}
+                    cx={x}
+                    cy={y}
+                    r="1.5"
+                    fill="var(--frl-accent)"
+                    stroke="var(--frl-surface)"
+                    strokeWidth="1.2"
+                    vectorEffect="non-scaling-stroke"
+                  />
+                ))}
               </svg>
             </div>
           </div>
 
           <footer className={styles.chartFooter}>
             <span>Season start</span>
-            <span>Form moves. Baselines matter.</span>
-            <span>Season end</span>
+            <span>{pulseNote}</span>
+            <span>Latest match</span>
           </footer>
         </article>
 
