@@ -92,41 +92,11 @@ function ordinal(value: number) {
   return `${value}${suffix}`;
 }
 
-function rollingPpg(points: TrendPoint[]) {
-  return points.map((_, index) => {
-    const start = Math.max(0, index - 4);
-    const window = points.slice(start, index + 1);
-
-    return (
-      window.reduce(
-        (total, point) => total + point.points,
-        0
-      ) / window.length
-    );
-  });
-}
-
 export function TeamStatsOverviewWorkspace({
   overview,
 }: {
   overview: TeamStatsOverview;
 }) {
-  const trend = rollingPpg(overview.trend);
-  const trendCoordinates = trend.map((value, index) => {
-    const x =
-      trend.length <= 1
-        ? 50
-        : (index / (trend.length - 1)) * 100;
-    const y =
-      100 -
-      Math.min(3, Math.max(0, value)) / 3 * 100;
-
-    return { x, y };
-  });
-  const trendPoints = trendCoordinates
-    .map(({ x, y }) => `${x.toFixed(2)},${y.toFixed(2)}`)
-    .join(" ");
-
   const strongest =
     overview.metrics.reduce<Metric | null>(
       (best, metric) =>
@@ -143,33 +113,15 @@ export function TeamStatsOverviewWorkspace({
 
   const home = overview.splits.find((split) => split.label === "Home");
   const away = overview.splits.find((split) => split.label === "Away");
-  const latestRolling = trend.length > 0 ? trend[trend.length - 1] : null;
-  const rollingWindowSize = Math.min(5, overview.trend.length);
-  const rollingWindowLabel =
-    rollingWindowSize === 0
-      ? "No completed matches"
-      : rollingWindowSize === 1
-        ? "Latest match"
-        : rollingWindowSize < 5
-          ? `Latest ${rollingWindowSize}`
-          : "Latest five";
-  const pulseTitle =
-    overview.trend.length >= 5
-      ? "Five-match rolling PPG"
-      : "Rolling PPG";
-  const pulseNote =
-    rollingWindowSize === 0
-      ? "Waiting for a completed match."
-      : rollingWindowSize < 5
-        ? `${rollingWindowSize}-match window · expands to five`
-        : "Five-match form · 0–3 PPG";
-  const seasonPpg =
-    overview.metrics.find((metric) => metric.key === "points_per_match")
-      ?.value ?? null;
   const seasonAvailableMetrics = overview.availability.filter(
     (availability) =>
       availability.key !== "expected_goals_per_match" &&
       availability.status !== "UNAVAILABLE"
+  );
+  const percentileProfileMetrics = overview.metrics.filter((metric) =>
+    seasonAvailableMetrics.some(
+      (availability) => availability.key === metric.key
+    )
   );
   const hasSecondarySignals =
     overview.pass_accuracy !== null ||
@@ -231,71 +183,73 @@ export function TeamStatsOverviewWorkspace({
       </section>
 
       <section className={styles.analysisGrid}>
-        <article className={styles.trendPanel}>
+        <article className={styles.profilePanel}>
           <header className={styles.sectionHeading}>
             <div>
-              <p className={styles.kicker}>Season pulse</p>
-              <h2>{pulseTitle}</h2>
+              <p className={styles.kicker}>League profile</p>
+              <h2>Percentile profile</h2>
             </div>
-
-            <div className={styles.trendReadout}>
-              <span>{rollingWindowLabel}</span>
-              <strong>
-                {latestRolling !== null ? latestRolling.toFixed(2) : "—"}
-              </strong>
-              <small>
-                Season {seasonPpg !== null ? seasonPpg.toFixed(2) : "—"}
-              </small>
-            </div>
+            <span className={styles.profilePopulation}>
+              {overview.matches} matches · Premier League
+            </span>
           </header>
 
-          <div className={styles.chart}>
-            <div className={styles.chartLabels}>
-              <span>3.0</span>
-              <span>2.0</span>
-              <span>1.0</span>
-              <span>0.0</span>
-            </div>
+          {percentileProfileMetrics.length > 0 ? (
+            <div className={styles.profileViz}>
+              <div className={styles.profileScale} aria-hidden="true">
+                <span>0</span>
+                <span>25</span>
+                <span>50</span>
+                <span>75</span>
+                <span>100</span>
+              </div>
 
-            <div className={styles.chartCanvas}>
-              <i className={styles.gridLine} style={{ top: "0%" }} />
-              <i className={styles.gridLine} style={{ top: "33.333%" }} />
-              <i className={styles.gridLine} style={{ top: "66.666%" }} />
-              <i className={styles.gridLine} style={{ top: "100%" }} />
+              <div className={styles.profileRows}>
+                {percentileProfileMetrics.map((metric) => (
+                  <div className={styles.profileRow} key={metric.key}>
+                    <div className={styles.profileMetric}>
+                      <span>{metric.label}</span>
+                      <strong>{formatMetric(metric)}</strong>
+                    </div>
 
-              <svg
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                role="img"
-                aria-label={`Rolling points per game across ${overview.trend.length} completed matches`}
-              >
-                {trendCoordinates.length > 1 && (
-                  <polyline
-                    points={trendPoints}
-                    vectorEffect="non-scaling-stroke"
-                  />
-                )}
-                {trendCoordinates.map(({ x, y }, index) => (
-                  <circle
-                    key={overview.trend[index]?.fixture_id ?? index}
-                    cx={x}
-                    cy={y}
-                    r="1.5"
-                    fill="var(--frl-accent)"
-                    stroke="var(--frl-surface)"
-                    strokeWidth="1.2"
-                    vectorEffect="non-scaling-stroke"
-                  />
+                    <div className={styles.profileBarWrap}>
+                      <div
+                        className={styles.profileBar}
+                        aria-label={`${metric.label}: ${metric.percentile} percentile`}
+                      >
+                        <i className={styles.profileQuarter} style={{ left: "25%" }} />
+                        <i className={styles.profileQuarter} style={{ left: "50%" }} />
+                        <i className={styles.profileQuarter} style={{ left: "75%" }} />
+                        <span
+                          className={styles.profileFill}
+                          style={{ width: `${metric.percentile}%` }}
+                        />
+                        <b
+                          className={styles.profileMarker}
+                          style={{ left: `${metric.percentile}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.profileRank}>
+                      <strong>P{Math.round(metric.percentile)}</strong>
+                      <span>{ordinal(metric.rank)} / {metric.out_of}</span>
+                    </div>
+                  </div>
                 ))}
-              </svg>
-            </div>
-          </div>
+              </div>
 
-          <footer className={styles.chartFooter}>
-            <span>Season start</span>
-            <span>{pulseNote}</span>
-            <span>Latest match</span>
-          </footer>
+              <footer className={styles.profileFooter}>
+                <span>Lower league percentile</span>
+                <span>Season-specific governed comparison</span>
+                <span>Higher league percentile</span>
+              </footer>
+            </div>
+          ) : (
+            <div className={styles.profileEmpty}>
+              No rankable governed metrics are available for this season.
+            </div>
+          )}
         </article>
 
         <article className={styles.venuePanel}>
