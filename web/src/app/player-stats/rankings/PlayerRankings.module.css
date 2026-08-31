@@ -1,0 +1,167 @@
+.rankingMetricNav {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 13px 15px;
+  border: 1px solid var(--frl-border);
+  border-radius: 13px;
+  background: var(--frl-surface);
+}
+
+.rankingMetricNav h2 {
+  margin: .15rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 830;
+  letter-spacing: -.035em;
+}
+
+.metricPills {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.metricPills a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--frl-border);
+  border-radius: 999px;
+  color: var(--frl-muted);
+  font-size: .43rem;
+  font-weight: 720;
+  text-decoration: none;
+}
+
+.metricPills a[data-active="true"] {
+  border-color: var(--frl-border-strong);
+  background: var(--frl-sidebar);
+  color: var(--frl-surface);
+}
+
+.rankingPanel {
+  overflow: hidden;
+  padding: 15px 16px 0;
+  border: 1px solid var(--frl-border);
+  border-radius: 14px;
+  background: var(--frl-surface);
+}
+
+.rankingTable {
+  margin: 13px -16px 0;
+  border-top: 1px solid var(--frl-border);
+}
+
+.rankingHeader,
+.rankingRow {
+  display: grid;
+  grid-template-columns: 52px minmax(175px, 1.35fr) minmax(130px, 1fr) 70px 80px 115px;
+  gap: 10px;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 16px;
+}
+
+.rankingHeader {
+  min-height: 31px;
+  background: var(--frl-surface-raised);
+  color: var(--frl-muted-soft);
+  font-size: .4rem;
+  font-weight: 780;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.rankingRow {
+  border-top: 1px solid var(--frl-border);
+  font-size: .5rem;
+}
+
+.rankingRow:first-of-type {
+  border-top: 0;
+}
+
+.rankingRow > strong {
+  font-size: .55rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rankingRow > a {
+  overflow: hidden;
+  color: var(--frl-text);
+  font-size: .55rem;
+  font-weight: 770;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rankingRow > a:hover {
+  color: var(--frl-accent);
+}
+
+.rankingRow > span {
+  overflow: hidden;
+  color: var(--frl-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rankPercentile {
+  display: grid;
+  grid-template-columns: minmax(42px, 1fr) 28px;
+  gap: 6px;
+  align-items: center;
+  color: var(--frl-text) !important;
+  font-weight: 760;
+}
+
+.rankPercentile i {
+  display: block;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--frl-surface-raised);
+}
+
+.rankPercentile b {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--frl-secondary), var(--frl-accent));
+}
+
+@media (max-width: 860px) {
+  .rankingMetricNav {
+    flex-direction: column;
+  }
+
+  .metricPills {
+    justify-content: flex-start;
+  }
+
+  .rankingHeader,
+  .rankingRow {
+    grid-template-columns: 42px minmax(140px, 1fr) 65px 75px 90px;
+  }
+
+  .rankingHeader span:nth-child(3),
+  .rankingRow > span:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (max-width: 620px) {
+  .rankingHeader,
+  .rankingRow {
+    grid-template-columns: 36px minmax(120px, 1fr) 68px 80px;
+  }
+
+  .rankingHeader span:nth-child(4),
+  .rankingRow > span:nth-child(4) {
+    display: none;
+  }
+}
