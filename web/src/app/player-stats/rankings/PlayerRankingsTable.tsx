@@ -171,15 +171,30 @@ export function PlayerRankingsTable({
   }
 
   function toggleMetric(key: string) {
+    const removing = visibleKeys.includes(key);
     setVisibleKeys((current) =>
       current.includes(key)
         ? current.filter((candidate) => candidate !== key)
         : [...current, key]
     );
+
+    if (removing && sortKey === key) {
+      setSortKey("player");
+      setSortDirection("asc");
+    }
   }
 
   function resetOverview() {
     setVisibleKeys(initialKeys);
+    if (
+      sortKey !== "player" &&
+      sortKey !== "club" &&
+      sortKey !== "minutes" &&
+      !initialKeys.includes(sortKey)
+    ) {
+      setSortKey("player");
+      setSortDirection("asc");
+    }
   }
 
   const groupedMetrics = FAMILY_ORDER.map((family) => ({
