@@ -1,82 +1,145 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 30 August 2026  
-**Checkpoint:** `TEAM_STATS_RANKINGS_FAMILY_EXPANSION_V1`
+**Last updated:** 31 August 2026  
+**Checkpoint:** `LIVING_2026_27_INITIAL_INTEGRATION_V1`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
-The future 2026/27 living-season expansion is governed by `FRL_2026_27_INCREMENTAL_SEASON_INTEGRATION_PLAN.md`. That integration has not yet started and does not alter the current analytical checkpoint recorded below.
+The completed initial 2026/27 increment is recorded in `FRL_2026_27_INTEGRATION_CHECKPOINT_2026-08-31.md`. The governing source, identity, temporal, missingness and supplementary-source rules remain those established in `FRL_2026_27_INCREMENTAL_SEASON_INTEGRATION_PLAN.md` and the stronger durable contracts it references.
 
 ## Current platform state
 
-FRL is in governed analytical/product architecture work.
+FRL is a governed football research platform whose active product frontend is **Next.js + React**, with **FastAPI** as the frontend-facing API. Streamlit remains legacy/reference only.
 
-Current integrated state includes:
+The standing architecture remains centred on:
 
-- Next.js + React as the active frontend and FastAPI as the frontend-facing API;
-- Streamlit retained as legacy/reference only;
-- Homepage V1, standalone Fixtures V1 and Team Profile V1 complete/frozen for now;
-- Team Stats Team View and League Rankings as paired analytical product surfaces over one shared season analysis result;
-- governed source-routing semantics in `FRL_SOURCE_ROUTING_CONTRACT.md`;
-- field-level team-match missingness governance in `FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md`;
-- the direct team-match shot family governed as sparse-zero for 2016-17 through 2025-26;
-- expected-metric route governance in `FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md` and `expected_metric_routing.py`;
-- player-derived xG materialised as a reproducible product-ready representation for 2022-23 through 2025-26 under `data/player_derived_expected_goals_v1/`, pinned to preserved upstream commit `1ec7f0dc79055902251cd938650f622b0e79f3cc`;
-- xA and xGOT retained as governed/derivable routes but not product-packaged until a consumer needs them;
-- `team_analysis_kernel.py` as the shared governed Team Stats analytical kernel;
-- Team Stats Team View consuming the shared kernel result for its six Overview league-context metrics and governed xG;
-- League Rankings consuming the same kernel-owned season populations, values, competition ranks, percentiles, coverage and representation metadata without recomputing ranking logic in FastAPI or Next.js;
-- League Rankings Overview presented as six compact headline ranking cards, while non-Overview families use metric sub-headings and one full league ranking for the selected metric;
-- Possession grouped under the Passing family in the Rankings information architecture rather than maintained as a separate top-level family;
-- Corners per match as the first family-only rankable metric, exposed under Attack without becoming a seventh Team View Overview card;
+- canonical fixture, team and player identity rather than source-id coincidence;
+- preserved source-native evidence with explicit provenance;
+- temporal/as-of reconstruction so FRL can distinguish what is true now from what was knowable at an earlier point;
+- explicit missing, partial, unresolved and unavailable states rather than silent zero/fallback behaviour;
+- governed source routing and explicit derivations;
+- reproducible materialisation from pinned evidence;
+- shared analytical services so product surfaces do not invent separate metric definitions, populations, ranks or percentiles.
+
+The current integrated product state includes:
+
+- Homepage V1, standalone Fixtures V1 and Team Profile V1 frozen for now;
+- Team Stats Team View and League Rankings as paired analytical surfaces over one shared season analysis result;
+- six curated Team View Overview metrics;
+- additional family-level League Rankings metrics without automatically promoting them to Overview;
+- Possession grouped under Passing;
+- corners per match as the first family-only rankable metric;
+- governed expected-metric routing and player-derived xG for 2022-23 through 2025-26;
 - automated repository-memory synchronisation and targeted analytical/frontend regression gates.
+
+## 2026/27 living-season checkpoint
+
+The first governed 2026/27 release is now integrated on `main`.
+
+Integrated commits:
+
+- `10ff03f8` — `data: integrate governed 2026/27 season release`;
+- `9d0b06ee` — `fix: make expected-metric artifact hashes newline portable`.
+
+Pinned upstream release:
+
+`imadeddine-belkat/Premier-League-Stats@1ec7f0dc79055902251cd938650f622b0e79f3cc`
+
+Current materialised state at that release boundary:
+
+- 380 2026/27 canonical fixtures;
+- 10 completed and 370 scheduled fixtures;
+- 610 FPL player × fixture rows;
+- 300 zero-minute/non-participation rows retained;
+- 0 duplicate player-fixture rows;
+- 0 unresolved fixture relationships;
+- 20 team-season relationships;
+- canonical fixture coverage extended to eleven seasons / 4,180 fixtures;
+- current release/source manifests and preserved source bytes under `data/season_releases/2026-27/`;
+- a reproducible capability-gap register at `data/season_releases/2026-27/capability_gap_register.json`.
+
+Player identity remains deliberately split between canonical `VERIFIED` and explicit `SOURCE_NATIVE_VERIFIED` routes. Source-native verification must not be rewritten as canonical resolution merely to increase a coverage number.
 
 ## Immediate objective
 
-The immediate objective remains selective Team Stats family expansion:
+The immediate objective is no longer “start 2026/27 integration.” The first release is integrated.
 
-> **Add useful rankable team metrics from the same shared kernel only when their route, missingness and population semantics are product-ready.**
+The active objective is:
 
-Do **not** create family-specific metric engines, ranking implementations, percentile formulas or league-population builders.
+> **Keep FRL current and increasingly automated, integrate every defensible 2026/27 capability already available through the known preserved ecosystem, measure capability and missingness honestly, and let demonstrated gaps decide what supplementary evidence or provider work is justified next.**
 
-The current product path is therefore:
+The living-season loop is therefore:
 
 ```text
-GOVERNED SOURCE / VARIABLE
+upstream release / correction
         ↓
-METRIC OBSERVATION + COVERAGE
+immutable source pin + manifest
         ↓
-SEASON POPULATION
+release delta
         ↓
-SHARED RANK / PERCENTILE POLICY
+schema / identity / relationship validation
         ↓
-season_overview_analysis()
-        ├── Team Stats Team View   ← integrated six-metric Overview
-        └── League Rankings        ← integrated Overview + family metrics
-                 ↓
-        selective family expansion ← current
+affected 2026/27 rebuild
+        ↓
+regression + consumer validation
+        ↓
+capability / gap delta
+        ↓
+source decision only where a demonstrated gap remains
 ```
 
-Further source-route/missingness audits should be bounded by the concrete metric being productised rather than becoming a general blocker.
+This is a continuing release process, not a one-off import.
 
-## Current analytical kernel checkpoint
+## Current 2026/27 source position
 
-`team_analysis_kernel.py` keeps Overview deliberately compact while allowing additional family-level ranking metrics.
+The initial release connected the fixture and FPL player-fixture evidence that could be promoted safely through existing contracts.
 
-It owns:
+Standing rules remain:
 
-- the six trusted Overview metric definitions;
-- additional rankable family metrics that must not automatically become Overview cards;
-- one Premier League season team population;
-- metric value plus coverage/representation metadata;
-- competition-rank policy, including ties;
-- the existing rank-position percentile policy;
-- one reusable season analysis result;
-- Team View projection of that result;
-- League Rankings API projection of the same result;
-- governed expected-goals route resolution.
+- canonical fixtures/results are the trusted fixture spine;
+- FPL is a distinct source family and its player-fixture evidence is not historical Opta-derived `players_match_stats`;
+- FPL `element`, `player_code`, `team_code` and `fixture_code` remain source identifiers;
+- fixture, team and player relationships are separate;
+- source blanks mean missing by default;
+- zero-minute registered-player rows are retained as non-participation evidence;
+- missing scores are not zero scores;
+- current-season outputs must expose incomplete/as-of populations;
+- a later source release must supersede through a preserved release history rather than erase the earlier state;
+- low coverage through one connected route is not proof that the wider preserved ecosystem lacks the concept;
+- direct, FPL-derived, player-derived and any future supplementary representations must not be first-non-null coalesced.
 
-The six current Overview metrics are:
+No live Premier League/PulseLive acquisition and no new supplementary provider were introduced by the initial increment.
+
+## Capability and supplementary-source objective
+
+The generated gap register is now an active decision instrument rather than a future deliverable.
+
+The next source work must distinguish whether a desired capability is limited by:
+
+- genuine source absence;
+- preserved evidence that is not yet connected;
+- unresolved identity;
+- unresolved football meaning or aggregation semantics;
+- invalid/unapproved derivation;
+- insufficient current coverage;
+- cross-period/provider incomparability;
+- rights or operational restrictions.
+
+Only after that classification should FRL evaluate a supplementary provider for the unresolved requirement. Any candidate must be assessed against the actual missing variables/grains, coverage, identity reliability, semantic comparability, preservation/reproducibility requirements and rights position.
+
+The objective is **not** to maximise provider count or raw variable count. It is to maximise trustworthy research capability.
+
+## Team Stats analytical checkpoint
+
+The living-season objective does not discard the shared Team Stats architecture already established.
+
+`team_analysis_kernel.py` remains the shared governed analytical seam for Team View and League Rankings. The standing product rule remains:
+
+> **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
+
+Team View and League Rankings must not drift into independent definitions of the same metric, population, rank or percentile.
+
+The six current Overview metrics remain:
 
 1. points per match;
 2. goals per match;
@@ -85,131 +148,92 @@ The six current Overview metrics are:
 5. shots on target per match;
 6. possession.
 
-The current additional family-only ranking metric is:
+Corners per match remains an additional family-only Attack ranking metric.
 
-7. corners per match — shown under Attack in League Rankings.
+The 2026/27 frontend now represents governed unavailability explicitly rather than silently omitting current-season metrics that do not have approved observations.
 
-The kernel therefore currently exposes seven rankable metrics to League Rankings while Team View Overview remains six metrics. Corners retains source-native missingness/coverage semantics; missing observations are not silently normalised to zero.
+Selective Team Stats family expansion can continue, but it must not distract from or fork the current-season source/temporal architecture.
 
-The kernel preserves the existing Team Stats ranking/percentile behaviour rather than changing product semantics during expansion. The frontend displays kernel-owned ranks and does not calculate them.
+## Expected-metric standing position
 
-### Governed xG in product analysis
+Single-season xG route policy remains governed by `FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md` and the current route implementation.
 
-Single-season xG route policy remains:
+The player-derived expected-goals artifact remains pinned to upstream commit `1ec7f0dc79055902251cd938650f622b0e79f3cc` for its declared historical seasons. During 2026/27 validation, a Windows checkout portability defect was found in artifact integrity verification: raw working-tree bytes differed under CRLF conversion even though the Git blob was correct. Commit `9d0b06ee` now hashes newline-normalised UTF-8 text, preserving the canonical recorded hashes without rewriting the governed artifact.
 
-- 2016-17 through 2021-22: no governed season-level xG route;
-- 2022-23: player-derived, 380/380 fixtures;
-- 2023-24: player-derived, 379/380 fixtures;
-- 2024-25: player-derived, 380/380 fixtures;
-- 2025-26: direct team-match, 380/380 fixtures.
+This portability fix is not a change to football meaning, expected-goals values or provenance.
 
-The Team Stats kernel applies that route rather than reading one fixed xG column.
+## Validation state
 
-The 2023-24 player-derived gap remains missing. The kernel does not fill it from direct xG, and xG overperformance remains withheld for affected incomplete team populations.
+The 2026/27 milestone validation recorded:
 
-For 2025-26 the single-season route deliberately selects the complete source-native direct representation.
+- incremental FPL materialisation: **4 passed**;
+- combined capability-inventory + incremental materialisation gate: **8 passed**;
+- capability inventory deterministic `--check`: **passed**;
+- affected expected-metric / Team Stats cluster after portability repair: **24 passed**;
+- Next.js typecheck: **passed**;
+- Next.js production build: **passed**;
+- `project-health.ps1`: **passed with the existing 2019/20 uncompleted-fixture warning**;
+- `git diff --check`: **passed** apart from line-ending notices.
 
-xG remains a governed Team View observation but is not yet declared a League Rankings metric. Rankings must not invent an xG league rank independently.
+The full Python suite after the milestone was:
 
-## Source-routing and missingness standing position
+- **133 passed**;
+- **13 failed**;
+- **17 warnings**.
 
-The broad source ecosystem is sufficiently understood to proceed with the analytical product layer.
+The 13 remaining failures are not 2026/27 integration failures:
 
-Standing conclusions remain:
+- 12 stale legacy Streamlit/UI contract expectations;
+- 1 Altair v6 compatibility failure in the legacy visualisation layer.
 
-- canonical fixtures/results are the trusted fixture spine;
-- direct packaged team-match statistics remain the strong default for ordinary team metrics;
-- PulseLive snapshots are versioned match-centre evidence, not a universal replacement statistics source;
-- player-match evidence can responsibly derive selected team-match concepts where explicitly governed;
-- source blank means missing by default;
-- structural zero is an explicit field/source/period exception, not a generic parser rule;
-- possession retains the known genuine Tottenham Hotspur v Everton hole on 13 September 2020;
-- saves, offsides, big chances and other sparse-looking fields are not zero-normalised without evidence;
-- corners are currently rankable with their observed coverage preserved; blanks are not converted to zero;
-- direct and player-derived expected metrics are distinct representations and must never be first-non-null coalesced;
-- representation consistency is part of cross-season comparability;
-- no single governed expected-metric representation spans the pre-2022 and post-2022 periods;
-- player-season evidence must not be used to manufacture fixture-level historical state;
-- FPL remains a distinct source family;
-- timeline/lineup/formation/manager/commentary evidence belongs primarily to preserved match-centre snapshot routes.
-
-Capability semantics should continue to distinguish:
-
-`SOURCE_PRESENT → CONNECTED → DERIVABLE → GOVERNED → COMPARABLE → PRODUCT_READY`
-
-Player-derived xG is the first expected metric to reach `PRODUCT_READY`; xA/xGOT remain governed/derivable.
-
-## Team Stats architecture
-
-The product rule remains:
-
-> **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
-
-For teams:
-
-```text
-Team Profile
-    ↓
-Team Stats
-    ├── Team View          ← shared kernel consumer
-    ├── League Rankings    ← shared kernel consumer
-    └── Compare later
-```
-
-Team View and Rankings must never drift into independent definitions of the same metric or population.
-
-League Rankings currently uses:
-
-- endpoint: `/api/v1/team-stats/{season}/rankings`;
-- GUI workspace: `/team-stats/rankings`;
-- top-level sections: Overview, Attack, Passing, Defence and Discipline;
-- Possession as a metric within Passing;
-- six Overview cards;
-- metric sub-headings within non-Overview families;
-- one full 20-team ranking beneath the selected metric;
-- seven currently rankable metrics in the backend: six Overview metrics plus corners per match;
-- competition-rank ties preserved;
-- unsupported seasons rejected explicitly;
-- rank and percentile never recalculated in React.
+Do not turn those legacy failures into a blocker for the living-season objective unless the affected legacy surface becomes an active product dependency.
 
 ## Immediate development sequence
 
-1. **Continue selectively expanding Team Stats families from the same kernel**
-   - prioritise useful football/research/betting metrics with defensible coverage semantics;
-   - Passing, Defence and Discipline should be populated only as specific underlying fields are audited and declared product-ready;
-   - do not add conceptual intermediate taxonomies that are not required by the product hierarchy.
-2. **Keep Overview curated while family rankings become richer**
-   - additional family metrics must not automatically become Team View Overview cards;
-   - one metric definition and one governed population should feed every product surface that exposes the same concept;
-   - preserve missingness, coverage and representation metadata.
-3. **Move Team Profile form/state calculations onto the same analytical service where useful.**
-4. **Design player cohort/population semantics before Player Stats rankings.**
-5. **Resume wider research/modelling product work once the shared analytical pattern is proven across more Team Stats families.**
-
-Additional source/missingness governance continues when a concrete metric requires it; it is no longer a general blocker to the Team Stats roadmap.
+1. **Make the 2026/27 release loop repeatable.**
+   - detect/identify the next upstream release or correction;
+   - pin it immutably;
+   - compare with the current integrated release;
+   - rebuild only affected outputs;
+   - preserve supersession and as-of evidence.
+2. **Interrogate the current capability-gap register.**
+   - prioritise gaps according to research, modelling and product value;
+   - distinguish route gaps from genuine source gaps.
+3. **Connect additional preserved evidence where it already exists and contracts permit.**
+4. **Evaluate supplementary sources only against demonstrated unresolved requirements.**
+5. **Continue selective Team Stats/product expansion through the shared governed analytical architecture.**
+6. **Resume wider modelling work only on evidence that is temporally safe, reproducible and semantically governed.**
 
 ## Validation discipline
 
 Do not use a historical fixed test count as a universal baseline.
 
-For current analytical work:
+For current work:
 
-- run the Team analysis kernel regression workflow for kernel/API changes;
-- prove Team View and League Rankings values/ranks/percentiles remain projections of the same season result;
-- run the Team Stats League Rankings workflow for Rankings API/UI changes, including Next.js typecheck and production build;
-- use the Team Stats governance regression workflow for missingness/aggregation changes;
-- use expected-metric routing/materialisation gates for xG route/artifact changes;
-- run backend/research/identity gates when their contracts are touched;
-- run Next.js `typecheck` and `build` for frontend contract changes;
-- run `project-health.ps1` when canonical/query/data behaviour may be affected;
-- run documentation sync for milestone-sensitive changes;
-- report actual validation output rather than historical test-count claims.
+- validate immutable release identity, hashes, schemas and deterministic regeneration;
+- validate fixture/team/player relationships and fail-closed identity behaviour;
+- validate scheduled/completed/missing states and zero-minute semantics;
+- preserve release, retrieval and as-of metadata;
+- run affected FPL/URA/query/API/regression gates;
+- run Next.js `typecheck` and `build` when frontend behaviour changes;
+- run `project-health.ps1` when canonical/query/data behaviour changes;
+- run `python scripts/check_documentation_sync.py` for standing repository-memory changes;
+- use `--base-ref` where milestone-sensitive branch changes are being validated;
+- run `git diff --check` before integration;
+- report actual results and explicitly isolate unrelated failures.
 
 ## Repository discipline
 
-Treat `main` as the stable integration line. Preserve unrelated tracked, untracked, generated, backup and experimental files. Do not use destructive cleanup or broad staging to simplify work.
+Treat stable `main` / `origin/main` as the authoritative integrated line, while recognising that a developer working tree may contain unrelated local modifications or untracked files.
 
-Use scoped feature branches and merge only after the relevant validation gates pass.
+Before staging or integrating any work:
+
+- compare local and remote ancestry;
+- preserve unrelated tracked/untracked work;
+- stage explicit intended paths only;
+- do not use destructive reset/clean commands to manufacture a clean tree;
+- do not treat a dirty local working tree as equivalent to GitHub divergence;
+- re-establish local/remote synchronization explicitly after remote or local integration work.
 
 ## Standing repository memory
 
@@ -219,8 +243,9 @@ Fresh sessions should use this order:
 2. `PROJECT_ORIENTATION.md`
 3. `CURRENT_WORK.md`
 4. `data/frl_documentation_state_v1.json`
-5. task-relevant durable contracts / dated audits
-6. current implementation
+5. `FRL_2026_27_INTEGRATION_CHECKPOINT_2026-08-31.md`
+6. task-relevant durable contracts / dated audits
+7. current implementation
 
 The documentation-sync rule remains mandatory:
 
