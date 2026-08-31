@@ -16,9 +16,10 @@ from expected_metric_routing import (
 
 
 CANONICAL_FIXTURE_RESULT = "CANONICAL_FIXTURE_RESULT"
+DIRECT_TEAM_DERIVATION = "DIRECT_TEAM_DERIVATION"
 COMPETITION_RANK = "COMPETITION_RANK"
 RANK_POSITION_PERCENTILE = "RANK_POSITION_PERCENTILE"
-ANALYSIS_VERSION = "team-analysis-kernel-v1"
+ANALYSIS_VERSION = "team-analysis-kernel-v2"
 
 
 @dataclass(frozen=True)
@@ -82,92 +83,41 @@ OVERVIEW_METRICS = (
     ),
 )
 
-# Family-level rankings may extend beyond the deliberately compact Team View
-# Overview. Keep these definitions separate so a research-friendly metric can
-# become rankable without silently becoming another Overview card. For action
-# volume measures, higher_is_better is only the ranking direction; product copy
-# must not imply that more actions are inherently better football.
+
+# Expose the preserved Team-Match capability broadly first; product curation can
+# contract this catalogue later. Expected-goal-family measures remain governed
+# by their dedicated routing and are not silently reintroduced here as direct
+# metrics.
 ADDITIONAL_RANKING_METRICS = (
-    MetricDefinition(
-        key="Corners_per_match",
-        label="Corners per match",
-        unit="corners",
-        higher_is_better=True,
-        coverage_key="Corners",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Passes_per_match",
-        label="Passes per match",
-        unit="passes",
-        higher_is_better=True,
-        coverage_key="Passes",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Accurate passes_per_match",
-        label="Accurate passes",
-        unit="passes",
-        higher_is_better=True,
-        coverage_key="Accurate passes",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Crosses_per_match",
-        label="Crosses per match",
-        unit="crosses",
-        higher_is_better=True,
-        coverage_key="Crosses",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Tackles_per_match",
-        label="Tackles per match",
-        unit="tackles",
-        higher_is_better=True,
-        coverage_key="Tackles",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Interceptions_per_match",
-        label="Interceptions per match",
-        unit="interceptions",
-        higher_is_better=True,
-        coverage_key="Interceptions",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Clearances_per_match",
-        label="Clearances per match",
-        unit="clearances",
-        higher_is_better=True,
-        coverage_key="Clearances",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Fouls conceded_per_match",
-        label="Fouls conceded",
-        unit="fouls",
-        higher_is_better=False,
-        coverage_key="Fouls conceded",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Yellow cards_per_match",
-        label="Yellow cards",
-        unit="cards",
-        higher_is_better=False,
-        coverage_key="Yellow cards",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Red cards_per_match",
-        label="Red cards",
-        unit="cards",
-        higher_is_better=False,
-        coverage_key="Red cards",
-        representation=DIRECT_TEAM_MATCH,
-    ),
+    # Attack
+    MetricDefinition("Shots off target_per_match", "Shots off target", "shots", True, "Shots off target", DIRECT_TEAM_MATCH),
+    MetricDefinition("Blocked shots_per_match", "Blocked shots", "shots", True, "Blocked shots", DIRECT_TEAM_MATCH),
+    MetricDefinition("Corners_per_match", "Corners per match", "corners", True, "Corners", DIRECT_TEAM_MATCH),
+    MetricDefinition("Offsides_per_match", "Offsides per match", "offsides", True, "Offsides", DIRECT_TEAM_MATCH),
+    MetricDefinition("Big chances created_per_match", "Big chances created", "chances", True, "Big chances created", DIRECT_TEAM_MATCH),
+    MetricDefinition("Big chances missed_per_match", "Big chances missed", "chances", True, "Big chances missed", DIRECT_TEAM_MATCH),
+    MetricDefinition("shot_accuracy", "Shot accuracy", "%", True, "Shots", DIRECT_TEAM_DERIVATION),
+    MetricDefinition("goals_per_shot", "Goals per shot", "%", True, "Shots", DIRECT_TEAM_DERIVATION),
+    MetricDefinition("failed_to_score_rate", "Failed to score", "%", False, "result_coverage", CANONICAL_FIXTURE_RESULT),
+    # Passing / possession
+    MetricDefinition("Passes_per_match", "Passes per match", "passes", True, "Passes", DIRECT_TEAM_MATCH),
+    MetricDefinition("Accurate passes_per_match", "Accurate passes", "passes", True, "Accurate passes", DIRECT_TEAM_MATCH),
+    MetricDefinition("pass_accuracy", "Pass accuracy", "%", True, "Passes", DIRECT_TEAM_DERIVATION),
+    MetricDefinition("Crosses_per_match", "Crosses per match", "crosses", True, "Crosses", DIRECT_TEAM_MATCH),
+    # Defence
+    MetricDefinition("Tackles_per_match", "Tackles per match", "tackles", True, "Tackles", DIRECT_TEAM_MATCH),
+    MetricDefinition("Tackles won_per_match", "Tackles won", "tackles", True, "Tackles won", DIRECT_TEAM_MATCH),
+    MetricDefinition("Interceptions_per_match", "Interceptions per match", "interceptions", True, "Interceptions", DIRECT_TEAM_MATCH),
+    MetricDefinition("Interceptions won_per_match", "Interceptions won", "interceptions", True, "Interceptions won", DIRECT_TEAM_MATCH),
+    MetricDefinition("Clearances_per_match", "Clearances per match", "clearances", True, "Clearances", DIRECT_TEAM_MATCH),
+    MetricDefinition("Effective clearances_per_match", "Effective clearances", "clearances", True, "Effective clearances", DIRECT_TEAM_MATCH),
+    MetricDefinition("Saves_per_match", "Saves per match", "saves", True, "Saves", DIRECT_TEAM_MATCH),
+    MetricDefinition("clean_sheet_rate", "Clean-sheet rate", "%", True, "result_coverage", CANONICAL_FIXTURE_RESULT),
+    # Discipline
+    MetricDefinition("Fouls conceded_per_match", "Fouls conceded", "fouls", False, "Fouls conceded", DIRECT_TEAM_MATCH),
+    MetricDefinition("Fouls won_per_match", "Fouls won", "fouls", True, "Fouls won", DIRECT_TEAM_MATCH),
+    MetricDefinition("Yellow cards_per_match", "Yellow cards", "cards", False, "Yellow cards", DIRECT_TEAM_MATCH),
+    MetricDefinition("Red cards_per_match", "Red cards", "cards", False, "Red cards", DIRECT_TEAM_MATCH),
 )
 
 RANKING_METRICS = (*OVERVIEW_METRICS, *ADDITIONAL_RANKING_METRICS)
@@ -332,9 +282,6 @@ def expected_goals_observation(season: str, team_code: str, stats: dict | None =
     try:
         route = single_season_route(EXPECTED_GOALS, season)
     except ValueError:
-        # A newly governed fixture season must not inherit an audited
-        # historical xG representation.  FPL-native player-fixture xG remains
-        # queryable through URA but is not silently promoted into Team Stats.
         eligible = int(stats.get("matches", 0))
         return {
             "route_purpose": "SINGLE_SEASON_DESCRIPTIVE",
@@ -492,6 +439,7 @@ __all__ = [
     "ANALYSIS_VERSION",
     "CANONICAL_FIXTURE_RESULT",
     "COMPETITION_RANK",
+    "DIRECT_TEAM_DERIVATION",
     "METRIC_DEFINITIONS",
     "OVERVIEW_METRICS",
     "RANKING_METRICS",
