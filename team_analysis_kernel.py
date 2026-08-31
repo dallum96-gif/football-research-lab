@@ -19,7 +19,7 @@ CANONICAL_FIXTURE_RESULT = "CANONICAL_FIXTURE_RESULT"
 DIRECT_TEAM_DERIVATION = "DIRECT_TEAM_DERIVATION"
 COMPETITION_RANK = "COMPETITION_RANK"
 RANK_POSITION_PERCENTILE = "RANK_POSITION_PERCENTILE"
-ANALYSIS_VERSION = "team-analysis-kernel-v2"
+ANALYSIS_VERSION = "team-analysis-kernel-v3"
 
 
 @dataclass(frozen=True)
@@ -122,6 +122,32 @@ ADDITIONAL_RANKING_METRICS = (
 
 RANKING_METRICS = (*OVERVIEW_METRICS, *ADDITIONAL_RANKING_METRICS)
 METRIC_DEFINITIONS = {metric.key: metric for metric in RANKING_METRICS}
+
+# Team View's Overview is deliberately broader than League Rankings' compact
+# six-card overview. It acts as the season-aware identity/profile snapshot and
+# therefore includes useful derived efficiency measures where governed.
+TEAM_VIEW_OVERVIEW_KEYS = (
+    "points_per_match",
+    "goals_for_per_match",
+    "Shots_per_match",
+    "Shots on target_per_match",
+    "shot_accuracy",
+    "Possession_per_match",
+    "pass_accuracy",
+    "goals_against_per_match",
+    "clean_sheet_rate",
+    "failed_to_score_rate",
+)
+
+# team_research_stats stores these rates as 0-1 fractions. Product ranking
+# surfaces use percentage points so 0.84 is rendered and ranked as 84.0%.
+FRACTION_RATE_METRICS = {
+    "shot_accuracy",
+    "goals_per_shot",
+    "pass_accuracy",
+    "clean_sheet_rate",
+    "failed_to_score_rate",
+}
 
 
 def _coverage(stats: dict, definition: MetricDefinition) -> dict:
@@ -353,10 +379,14 @@ def season_overview_analysis(season: str) -> dict:
             if stats is None:
                 continue
             raw_value = stats.get(definition.key)
+            if raw_value is not None:
+                raw_value = float(raw_value)
+                if definition.key in FRACTION_RATE_METRICS:
+                    raw_value *= 100.0
             entries.append(
                 {
                     **team,
-                    "value": float(raw_value) if raw_value is not None else None,
+                    "value": raw_value,
                     "coverage": _coverage(stats, definition),
                     "representation": definition.representation,
                 }
@@ -398,8 +428,8 @@ def team_overview_analysis(season: str, team_code: str) -> dict | None:
     analysis = season_overview_analysis(season)
     selected_metrics = []
 
-    for definition in OVERVIEW_METRICS:
-        metric = analysis["metrics"][definition.key]
+    for key in TEAM_VIEW_OVERVIEW_KEYS:
+        metric = analysis["metrics"][key]
         entry = next(
             (
                 item
@@ -440,10 +470,12 @@ __all__ = [
     "CANONICAL_FIXTURE_RESULT",
     "COMPETITION_RANK",
     "DIRECT_TEAM_DERIVATION",
+    "FRACTION_RATE_METRICS",
     "METRIC_DEFINITIONS",
     "OVERVIEW_METRICS",
     "RANKING_METRICS",
     "RANK_POSITION_PERCENTILE",
+    "TEAM_VIEW_OVERVIEW_KEYS",
     "MetricDefinition",
     "expected_goals_observation",
     "rank_metric_entries",
