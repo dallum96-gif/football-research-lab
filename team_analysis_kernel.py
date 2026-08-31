@@ -83,8 +83,10 @@ OVERVIEW_METRICS = (
 )
 
 # Family-level rankings may extend beyond the deliberately compact Team View
-# Overview. Keep these definitions separate so a betting/research-friendly
-# metric can become rankable without silently becoming another Overview card.
+# Overview. Keep these definitions separate so a research-friendly metric can
+# become rankable without silently becoming another Overview card. For action
+# volume measures, higher_is_better is only the ranking direction; product copy
+# must not imply that more actions are inherently better football.
 ADDITIONAL_RANKING_METRICS = (
     MetricDefinition(
         key="Corners_per_match",
@@ -92,6 +94,78 @@ ADDITIONAL_RANKING_METRICS = (
         unit="corners",
         higher_is_better=True,
         coverage_key="Corners",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Passes_per_match",
+        label="Passes per match",
+        unit="passes",
+        higher_is_better=True,
+        coverage_key="Passes",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Accurate passes_per_match",
+        label="Accurate passes",
+        unit="passes",
+        higher_is_better=True,
+        coverage_key="Accurate passes",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Crosses_per_match",
+        label="Crosses per match",
+        unit="crosses",
+        higher_is_better=True,
+        coverage_key="Crosses",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Tackles_per_match",
+        label="Tackles per match",
+        unit="tackles",
+        higher_is_better=True,
+        coverage_key="Tackles",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Interceptions_per_match",
+        label="Interceptions per match",
+        unit="interceptions",
+        higher_is_better=True,
+        coverage_key="Interceptions",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Clearances_per_match",
+        label="Clearances per match",
+        unit="clearances",
+        higher_is_better=True,
+        coverage_key="Clearances",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Fouls conceded_per_match",
+        label="Fouls conceded",
+        unit="fouls",
+        higher_is_better=False,
+        coverage_key="Fouls conceded",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Yellow cards_per_match",
+        label="Yellow cards",
+        unit="cards",
+        higher_is_better=False,
+        coverage_key="Yellow cards",
+        representation=DIRECT_TEAM_MATCH,
+    ),
+    MetricDefinition(
+        key="Red cards_per_match",
+        label="Red cards",
+        unit="cards",
+        higher_is_better=False,
+        coverage_key="Red cards",
         representation=DIRECT_TEAM_MATCH,
     ),
 )
