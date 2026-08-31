@@ -1,0 +1,181 @@
+.familyMetricPills button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 8px;
+  border: 1px solid var(--frl-border);
+  border-radius: 999px;
+  background: var(--frl-surface);
+  color: var(--frl-muted);
+  font: inherit;
+  font-size: .43rem;
+  font-weight: 720;
+  cursor: pointer;
+}
+
+.familyMetricPills button[data-active="true"] {
+  border-color: var(--frl-border-strong);
+  background: var(--frl-sidebar);
+  color: var(--frl-surface);
+}
+
+.familyKicker {
+  margin: 0;
+  color: var(--frl-accent);
+  font-size: .54rem;
+  font-weight: 850;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.familyTableHeading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.familyTableHeading h2 {
+  margin: .15rem 0 0;
+  font-size: 1rem;
+  font-weight: 830;
+  letter-spacing: -.035em;
+}
+
+.familyTableHeading > span {
+  color: var(--frl-muted-soft);
+  font-size: .43rem;
+  text-align: right;
+}
+
+.familyTableScroll {
+  overflow-x: auto;
+  margin: 13px -16px 0;
+  border-top: 1px solid var(--frl-border);
+}
+
+.familyTable {
+  width: 100%;
+}
+
+.familyTableHeader,
+.familyTableRow {
+  display: grid;
+  gap: 10px;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 16px;
+}
+
+.familyTableHeader {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  min-height: 34px;
+  background: var(--frl-surface-raised);
+  color: var(--frl-muted-soft);
+  font-size: .4rem;
+  font-weight: 780;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+.familyTableHeader > span {
+  font-variant-numeric: tabular-nums;
+}
+
+.familyTableHeader button {
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  text-transform: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.familyTableHeader button:hover {
+  color: var(--frl-text);
+}
+
+.familyTableRow {
+  border-top: 1px solid var(--frl-border);
+  font-size: .5rem;
+}
+
+.familyTableRow:first-of-type {
+  border-top: 0;
+}
+
+.familyRowNumber {
+  color: var(--frl-muted-soft);
+  font-size: .47rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.familyTableRow > a {
+  overflow: hidden;
+  color: var(--frl-text);
+  font-size: .55rem;
+  font-weight: 770;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.familyTableRow > a:hover {
+  color: var(--frl-accent);
+}
+
+.familyTableRow > span:not(.familyMetricCell) {
+  overflow: hidden;
+  color: var(--frl-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.familyTableRow > strong {
+  font-size: .52rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.familyMetricCell {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.familyMetricCell strong {
+  overflow: hidden;
+  color: var(--frl-text);
+  font-size: .52rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.familyMetricCell small {
+  flex: 0 0 auto;
+  color: var(--frl-muted-soft);
+  font-size: .36rem;
+  font-weight: 720;
+}
+
+@media (max-width: 860px) {
+  .familyTableHeading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .familyTableHeading > span {
+    text-align: left;
+  }
+}
