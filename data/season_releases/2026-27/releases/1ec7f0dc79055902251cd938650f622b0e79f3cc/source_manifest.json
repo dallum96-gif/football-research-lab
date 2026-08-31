@@ -1,0 +1,647 @@
+{
+  "materialisation_counts": {
+    "canonical_fixtures": 380,
+    "completed_fixtures": 10,
+    "duplicate_player_fixture_rows": 0,
+    "materialised_player_fixture_rows": 610,
+    "player_identity_statuses": {
+      "SOURCE_NATIVE_VERIFIED": 222,
+      "VERIFIED": 388
+    },
+    "scheduled_fixtures": 370,
+    "source_fixtures": 380,
+    "source_player_fixture_rows": 610,
+    "team_seasons": 20,
+    "unresolved_fixture_rows": 0,
+    "zero_minute_rows": 300
+  },
+  "player_match_identity_bridge": {
+    "ambiguous_pl_codes": 0,
+    "canonical_file_count": 357,
+    "evidence_set_sha256": "aec97a08f1a9c808e823faf29a2a6c859d132d77df443e40e93a4a68aff919df",
+    "mapping_rule": "exact non-empty FPL player_code == players_match_stats.pl_code",
+    "read_mode": "PINNED_GIT_OBJECTS",
+    "source_family": "players_match_stats",
+    "source_release_sha": "1ec7f0dc79055902251cd938650f622b0e79f3cc"
+  },
+  "predecessor_schema_comparison": {
+    "added_fixture_fields": [],
+    "added_player_fields": [],
+    "fixture_field_profiles": {
+      "2025-26": {
+        "code": {
+          "blank_count": 0,
+          "distinct_nonblank": 380,
+          "inferred_type": "INT"
+        },
+        "event": {
+          "blank_count": 0,
+          "distinct_nonblank": 38,
+          "inferred_type": "INT"
+        },
+        "finished": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "STRING"
+        },
+        "finished_provisional": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "STRING"
+        },
+        "id": {
+          "blank_count": 0,
+          "distinct_nonblank": 380,
+          "inferred_type": "INT"
+        },
+        "kickoff_time": {
+          "blank_count": 0,
+          "distinct_nonblank": 230,
+          "inferred_type": "STRING"
+        },
+        "minutes": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "INT"
+        },
+        "provisional_start_time": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "STRING"
+        },
+        "started": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "STRING"
+        },
+        "team_a": {
+          "blank_count": 0,
+          "distinct_nonblank": 20,
+          "inferred_type": "INT"
+        },
+        "team_a_difficulty": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "INT"
+        },
+        "team_a_score": {
+          "blank_count": 0,
+          "distinct_nonblank": 6,
+          "inferred_type": "INT"
+        },
+        "team_h": {
+          "blank_count": 0,
+          "distinct_nonblank": 20,
+          "inferred_type": "INT"
+        },
+        "team_h_difficulty": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "INT"
+        },
+        "team_h_score": {
+          "blank_count": 0,
+          "distinct_nonblank": 6,
+          "inferred_type": "INT"
+        }
+      },
+      "2026-27": {
+        "code": {
+          "blank_count": 0,
+          "distinct_nonblank": 380,
+          "inferred_type": "INT"
+        },
+        "event": {
+          "blank_count": 0,
+          "distinct_nonblank": 38,
+          "inferred_type": "INT"
+        },
+        "finished": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "STRING"
+        },
+        "finished_provisional": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "STRING"
+        },
+        "id": {
+          "blank_count": 0,
+          "distinct_nonblank": 380,
+          "inferred_type": "INT"
+        },
+        "kickoff_time": {
+          "blank_count": 0,
+          "distinct_nonblank": 85,
+          "inferred_type": "STRING"
+        },
+        "minutes": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "provisional_start_time": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "STRING"
+        },
+        "started": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "STRING"
+        },
+        "team_a": {
+          "blank_count": 0,
+          "distinct_nonblank": 20,
+          "inferred_type": "INT"
+        },
+        "team_a_difficulty": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "INT"
+        },
+        "team_a_score": {
+          "blank_count": 370,
+          "distinct_nonblank": 4,
+          "inferred_type": "FLOAT"
+        },
+        "team_h": {
+          "blank_count": 0,
+          "distinct_nonblank": 20,
+          "inferred_type": "INT"
+        },
+        "team_h_difficulty": {
+          "blank_count": 0,
+          "distinct_nonblank": 3,
+          "inferred_type": "INT"
+        },
+        "team_h_score": {
+          "blank_count": 370,
+          "distinct_nonblank": 4,
+          "inferred_type": "FLOAT"
+        }
+      }
+    },
+    "fixture_fields_equal": true,
+    "player_field_profiles": {
+      "2025-26": {
+        "assists": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "INT"
+        },
+        "bonus": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "INT"
+        },
+        "bps": {
+          "blank_count": 0,
+          "distinct_nonblank": 97,
+          "inferred_type": "INT"
+        },
+        "clean_sheets": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "clearances_blocks_interceptions": {
+          "blank_count": 0,
+          "distinct_nonblank": 23,
+          "inferred_type": "INT"
+        },
+        "creativity": {
+          "blank_count": 0,
+          "distinct_nonblank": 625,
+          "inferred_type": "FLOAT"
+        },
+        "defensive_contribution": {
+          "blank_count": 0,
+          "distinct_nonblank": 27,
+          "inferred_type": "INT"
+        },
+        "element": {
+          "blank_count": 0,
+          "distinct_nonblank": 841,
+          "inferred_type": "INT"
+        },
+        "expected_assists": {
+          "blank_count": 0,
+          "distinct_nonblank": 96,
+          "inferred_type": "FLOAT"
+        },
+        "expected_goal_involvements": {
+          "blank_count": 0,
+          "distinct_nonblank": 167,
+          "inferred_type": "FLOAT"
+        },
+        "expected_goals": {
+          "blank_count": 0,
+          "distinct_nonblank": 155,
+          "inferred_type": "FLOAT"
+        },
+        "expected_goals_conceded": {
+          "blank_count": 0,
+          "distinct_nonblank": 320,
+          "inferred_type": "FLOAT"
+        },
+        "first_name": {
+          "blank_count": 0,
+          "distinct_nonblank": 584,
+          "inferred_type": "STRING"
+        },
+        "fixture_code": {
+          "blank_count": 0,
+          "distinct_nonblank": 380,
+          "inferred_type": "INT"
+        },
+        "goals_conceded": {
+          "blank_count": 0,
+          "distinct_nonblank": 6,
+          "inferred_type": "INT"
+        },
+        "goals_scored": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "INT"
+        },
+        "ict_index": {
+          "blank_count": 0,
+          "distinct_nonblank": 197,
+          "inferred_type": "FLOAT"
+        },
+        "influence": {
+          "blank_count": 0,
+          "distinct_nonblank": 407,
+          "inferred_type": "FLOAT"
+        },
+        "minutes": {
+          "blank_count": 0,
+          "distinct_nonblank": 91,
+          "inferred_type": "INT"
+        },
+        "modified": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "STRING"
+        },
+        "own_goals": {
+          "blank_count": 0,
+          "distinct_nonblank": 3,
+          "inferred_type": "INT"
+        },
+        "penalties_missed": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "penalties_saved": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "player_code": {
+          "blank_count": 0,
+          "distinct_nonblank": 841,
+          "inferred_type": "INT"
+        },
+        "position": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "STRING"
+        },
+        "recoveries": {
+          "blank_count": 0,
+          "distinct_nonblank": 19,
+          "inferred_type": "INT"
+        },
+        "red_cards": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "saves": {
+          "blank_count": 0,
+          "distinct_nonblank": 11,
+          "inferred_type": "INT"
+        },
+        "second_name": {
+          "blank_count": 0,
+          "distinct_nonblank": 804,
+          "inferred_type": "STRING"
+        },
+        "selected": {
+          "blank_count": 0,
+          "distinct_nonblank": 23832,
+          "inferred_type": "INT"
+        },
+        "starts": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "tackles": {
+          "blank_count": 0,
+          "distinct_nonblank": 12,
+          "inferred_type": "INT"
+        },
+        "team_code": {
+          "blank_count": 0,
+          "distinct_nonblank": 20,
+          "inferred_type": "INT"
+        },
+        "threat": {
+          "blank_count": 0,
+          "distinct_nonblank": 104,
+          "inferred_type": "FLOAT"
+        },
+        "total_points": {
+          "blank_count": 0,
+          "distinct_nonblank": 27,
+          "inferred_type": "INT"
+        },
+        "transfers_balance": {
+          "blank_count": 0,
+          "distinct_nonblank": 11436,
+          "inferred_type": "INT"
+        },
+        "transfers_in": {
+          "blank_count": 0,
+          "distinct_nonblank": 9098,
+          "inferred_type": "INT"
+        },
+        "transfers_out": {
+          "blank_count": 0,
+          "distinct_nonblank": 10598,
+          "inferred_type": "INT"
+        },
+        "value": {
+          "blank_count": 0,
+          "distinct_nonblank": 80,
+          "inferred_type": "INT"
+        },
+        "yellow_cards": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        }
+      },
+      "2026-27": {
+        "assists": {
+          "blank_count": 0,
+          "distinct_nonblank": 3,
+          "inferred_type": "INT"
+        },
+        "bonus": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "INT"
+        },
+        "bps": {
+          "blank_count": 0,
+          "distinct_nonblank": 54,
+          "inferred_type": "INT"
+        },
+        "clean_sheets": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "clearances_blocks_interceptions": {
+          "blank_count": 0,
+          "distinct_nonblank": 18,
+          "inferred_type": "INT"
+        },
+        "creativity": {
+          "blank_count": 0,
+          "distinct_nonblank": 157,
+          "inferred_type": "FLOAT"
+        },
+        "defensive_contribution": {
+          "blank_count": 0,
+          "distinct_nonblank": 19,
+          "inferred_type": "INT"
+        },
+        "element": {
+          "blank_count": 0,
+          "distinct_nonblank": 610,
+          "inferred_type": "INT"
+        },
+        "expected_assists": {
+          "blank_count": 0,
+          "distinct_nonblank": 39,
+          "inferred_type": "FLOAT"
+        },
+        "expected_goal_involvements": {
+          "blank_count": 0,
+          "distinct_nonblank": 67,
+          "inferred_type": "FLOAT"
+        },
+        "expected_goals": {
+          "blank_count": 0,
+          "distinct_nonblank": 52,
+          "inferred_type": "FLOAT"
+        },
+        "expected_goals_conceded": {
+          "blank_count": 0,
+          "distinct_nonblank": 83,
+          "inferred_type": "FLOAT"
+        },
+        "first_name": {
+          "blank_count": 0,
+          "distinct_nonblank": 455,
+          "inferred_type": "STRING"
+        },
+        "fixture_code": {
+          "blank_count": 0,
+          "distinct_nonblank": 10,
+          "inferred_type": "INT"
+        },
+        "goals_conceded": {
+          "blank_count": 0,
+          "distinct_nonblank": 5,
+          "inferred_type": "INT"
+        },
+        "goals_scored": {
+          "blank_count": 0,
+          "distinct_nonblank": 3,
+          "inferred_type": "INT"
+        },
+        "ict_index": {
+          "blank_count": 0,
+          "distinct_nonblank": 94,
+          "inferred_type": "FLOAT"
+        },
+        "influence": {
+          "blank_count": 0,
+          "distinct_nonblank": 151,
+          "inferred_type": "FLOAT"
+        },
+        "minutes": {
+          "blank_count": 0,
+          "distinct_nonblank": 59,
+          "inferred_type": "INT"
+        },
+        "modified": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "STRING"
+        },
+        "own_goals": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "penalties_missed": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "penalties_saved": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "INT"
+        },
+        "player_code": {
+          "blank_count": 0,
+          "distinct_nonblank": 610,
+          "inferred_type": "INT"
+        },
+        "position": {
+          "blank_count": 0,
+          "distinct_nonblank": 4,
+          "inferred_type": "STRING"
+        },
+        "recoveries": {
+          "blank_count": 0,
+          "distinct_nonblank": 15,
+          "inferred_type": "INT"
+        },
+        "red_cards": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "saves": {
+          "blank_count": 0,
+          "distinct_nonblank": 6,
+          "inferred_type": "INT"
+        },
+        "second_name": {
+          "blank_count": 0,
+          "distinct_nonblank": 588,
+          "inferred_type": "STRING"
+        },
+        "selected": {
+          "blank_count": 0,
+          "distinct_nonblank": 598,
+          "inferred_type": "INT"
+        },
+        "starts": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        },
+        "tackles": {
+          "blank_count": 0,
+          "distinct_nonblank": 7,
+          "inferred_type": "INT"
+        },
+        "team_code": {
+          "blank_count": 0,
+          "distinct_nonblank": 20,
+          "inferred_type": "INT"
+        },
+        "threat": {
+          "blank_count": 0,
+          "distinct_nonblank": 45,
+          "inferred_type": "FLOAT"
+        },
+        "total_points": {
+          "blank_count": 0,
+          "distinct_nonblank": 20,
+          "inferred_type": "INT"
+        },
+        "transfers_balance": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "INT"
+        },
+        "transfers_in": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "INT"
+        },
+        "transfers_out": {
+          "blank_count": 0,
+          "distinct_nonblank": 1,
+          "inferred_type": "INT"
+        },
+        "value": {
+          "blank_count": 0,
+          "distinct_nonblank": 14,
+          "inferred_type": "INT"
+        },
+        "yellow_cards": {
+          "blank_count": 0,
+          "distinct_nonblank": 2,
+          "inferred_type": "INT"
+        }
+      }
+    },
+    "player_fields_equal": true,
+    "removed_fixture_fields": [],
+    "removed_player_fields": [],
+    "season": "2025-26"
+  },
+  "preserved_artifacts": {
+    "fixtures": "data/season_releases/2026-27/releases/1ec7f0dc79055902251cd938650f622b0e79f3cc/source/2026-27_all_fixtures.csv",
+    "players": "data/season_releases/2026-27/releases/1ec7f0dc79055902251cd938650f622b0e79f3cc/source/2026-27_all_players_gw.csv",
+    "players_index": "data/season_releases/2026-27/releases/1ec7f0dc79055902251cd938650f622b0e79f3cc/source/_players_index.json",
+    "teams_index": "data/season_releases/2026-27/releases/1ec7f0dc79055902251cd938650f622b0e79f3cc/source/_teams_index.json"
+  },
+  "retrieved_at": "2026-08-31T13:26:12Z",
+  "rights_classification": "REVIEW_REQUIRED",
+  "schema_version": "FRL_INCREMENTAL_SEASON_RELEASE_MANIFEST_V1",
+  "season": "2026-27",
+  "source_artifacts": {
+    "fixtures": {
+      "bytes": 27792,
+      "git_object_sha256": "cc868ce4066b5a7de27f1feeafd945e0738833b65b4680afc9e404c93bbc57bf",
+      "git_path": "fpl_scraper/fpl_stats/fixtures/2026-27_all_fixtures.csv",
+      "path": "fixtures/2026-27_all_fixtures.csv",
+      "read_mode": "PINNED_GIT_OBJECT",
+      "sha256": "cc868ce4066b5a7de27f1feeafd945e0738833b65b4680afc9e404c93bbc57bf"
+    },
+    "players": {
+      "bytes": 85110,
+      "git_object_sha256": "a1c7a4a79f9505c517dfb17db8dd7d6aed653bde289d3d6587b17c0bc5c25de8",
+      "git_path": "fpl_scraper/fpl_stats/_merged/players/2026-27_all_players_gw.csv",
+      "path": "_merged/players/2026-27_all_players_gw.csv",
+      "read_mode": "PINNED_GIT_OBJECT",
+      "sha256": "a1c7a4a79f9505c517dfb17db8dd7d6aed653bde289d3d6587b17c0bc5c25de8"
+    },
+    "players_index": {
+      "bytes": 130783,
+      "git_object_sha256": "9aed59759b1586022e94fd5067be6b2319cc012804e8ee40b1fcc70284a37670",
+      "git_path": "fpl_scraper/fpl_stats/_index/_players_index.json",
+      "path": "_index/_players_index.json",
+      "read_mode": "PINNED_GIT_OBJECT",
+      "sha256": "9aed59759b1586022e94fd5067be6b2319cc012804e8ee40b1fcc70284a37670"
+    },
+    "teams_index": {
+      "bytes": 4006,
+      "git_object_sha256": "f47e407a06fb239586864712919ecf4ee244a9e8ccc6bf1220f456fcc7052078",
+      "git_path": "fpl_scraper/fpl_stats/_index/_teams_index.json",
+      "path": "_index/_teams_index.json",
+      "read_mode": "PINNED_GIT_OBJECT",
+      "sha256": "f47e407a06fb239586864712919ecf4ee244a9e8ccc6bf1220f456fcc7052078"
+    }
+  },
+  "source_commit": "1ec7f0dc79055902251cd938650f622b0e79f3cc",
+  "source_commit_date": "2026-08-25T12:56:53Z",
+  "source_commit_message": "Auto-update FPL data for 2026-08-25",
+  "source_provider_attribution": "Official FPL API evidence redistributed through Premier-League-Stats",
+  "source_repository": "https://github.com/imadeddine-belkat/Premier-League-Stats.git"
+}

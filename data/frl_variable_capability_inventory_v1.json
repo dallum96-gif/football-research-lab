@@ -318,7 +318,7 @@
       },
       {
         "path": "fixtures_master_corrected.csv",
-        "sha256": "92d1309379e908b5b765e4dc4e4b7104a2423d0f4c573a3eb536a8c07acfd354"
+        "sha256": "2e48b7ab6f9147d335f7b3f32f5c56dfdb9a429dff0370969dad58fbae3197e6"
       },
       {
         "path": "features/historical_match_state_v2.csv",
@@ -334,15 +334,15 @@
       },
       {
         "path": "fpl_variable_access.py",
-        "sha256": "276adbc1a92bf83f93fc9863030f547053108f5b780af394d2fa5b8a81ec1eb8"
+        "sha256": "6b05d0c80541f2c264200d02c90fef60222c4a30c36d8e273e0d6d94d77d9d8b"
       },
       {
         "path": "research_access.py",
-        "sha256": "421f9edd975c0f0b6475febe8c5d141fe588f1e9d50929a3be88afc315406a62"
+        "sha256": "b551e5acdd9160f0eed637a5ae38162eb204c074135379206c8f6736b90564bd"
       },
       {
         "path": "variable_resolver.py",
-        "sha256": "1898d94c2a73c302e6b0f6bed3a0c11d50fed8218e152776583fa2f16e55dca6"
+        "sha256": "def7c94dd26f049a24b77ee89d1877b84b70045d8661f6c40b7406af289ebe62"
       },
       {
         "path": "source_field_registry.py",
@@ -354,7 +354,7 @@
       },
       {
         "path": "poisson_model.py",
-        "sha256": "f820094b49ab99a81e3df4aab981197fc856c9be36918795552f32e8b08f751d"
+        "sha256": "6bb2dbda0a6a944932bc1bb9e25ace7946f764f861269d4904ddbdcba223bf54"
       },
       {
         "path": "kelly_analysis.py",
@@ -559,8 +559,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -571,10 +571,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -647,8 +648,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -659,10 +660,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -735,8 +737,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -747,10 +749,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -823,8 +826,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -835,10 +838,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -911,8 +915,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -923,10 +927,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -999,8 +1004,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -1011,10 +1016,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -1087,8 +1093,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -1099,10 +1105,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -1175,8 +1182,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -1187,10 +1194,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -1263,8 +1271,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -1275,10 +1283,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -130652,8 +130661,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -130664,10 +130673,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -130745,8 +130755,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -130757,10 +130767,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -130838,8 +130849,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -130850,10 +130861,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -130931,8 +130943,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -130943,10 +130955,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -131024,8 +131037,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -131036,10 +131049,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -131117,8 +131131,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -131129,10 +131143,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -131210,8 +131225,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -131222,10 +131237,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -131303,8 +131319,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -131315,10 +131331,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -131396,8 +131413,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -131408,10 +131425,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",
@@ -131489,8 +131507,8 @@
         "basis": [
           "fixtures_master_corrected.csv"
         ],
-        "population": 3800,
-        "season_count": 10,
+        "population": 4180,
+        "season_count": 11,
         "seasons_observed": [
           "2016-17",
           "2017-18",
@@ -131501,10 +131519,11 @@
           "2022-23",
           "2023-24",
           "2024-25",
-          "2025-26"
+          "2025-26",
+          "2026-27"
         ],
         "status": "MATERIALISED",
-        "summary": "Tracked artifact contains 3800 rows across 10 seasons."
+        "summary": "Tracked artifact contains 4180 rows across 11 seasons."
       },
       "football_meaning": {
         "status": "ESTABLISHED",

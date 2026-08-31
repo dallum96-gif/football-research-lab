@@ -199,3 +199,23 @@ team_season_id,season,club_id,canonical_name,persistent_team_code,local_team_id,
 2025-26:6,2025-26,6,Tottenham_Hotspur,6,18,Tottenham_Hotspur,VERIFIED,Local PL events_stats + fixtures_master
 2025-26:21,2025-26,21,West_Ham_United,21,19,West_Ham_United,VERIFIED,Local PL events_stats + fixtures_master
 2025-26:39,2025-26,39,Wolverhampton_Wanderers,39,20,Wolverhampton_Wanderers,VERIFIED,Local PL events_stats + fixtures_master
+2026-27:3,2026-27,3,Arsenal,3,1,Arsenal,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:7,2026-27,7,Aston_Villa,7,2,Aston Villa,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:91,2026-27,91,Bournemouth,91,3,Bournemouth,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:94,2026-27,94,Brentford,94,4,Brentford,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:36,2026-27,36,Brighton_and_Hove_Albion,36,5,Brighton,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:8,2026-27,8,Chelsea,8,6,Chelsea,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:9,2026-27,9,Coventry_City,9,7,Coventry City,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:31,2026-27,31,Crystal_Palace,31,8,Crystal Palace,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:11,2026-27,11,Everton,11,9,Everton,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:54,2026-27,54,Fulham,54,10,Fulham,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:88,2026-27,88,Hull_City,88,11,Hull City,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:40,2026-27,40,Ipswich_Town,40,12,Ipswich Town,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:2,2026-27,2,Leeds_United,2,13,Leeds,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:14,2026-27,14,Liverpool,14,14,Liverpool,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:43,2026-27,43,Manchester_City,43,15,Man City,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:1,2026-27,1,Manchester_United,1,16,Man Utd,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:4,2026-27,4,Newcastle_United,4,17,Newcastle,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:17,2026-27,17,Nottingham_Forest,17,18,Nott'm Forest,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:6,2026-27,6,Tottenham_Hotspur,6,19,Spurs,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc
+2026-27:56,2026-27,56,Sunderland,56,20,Sunderland,VERIFIED,Pinned FPL teams index @ 1ec7f0dc79055902251cd938650f622b0e79f3cc

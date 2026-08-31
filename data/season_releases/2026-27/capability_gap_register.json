@@ -1,0 +1,525 @@
+{
+  "capabilities": [
+    {
+      "capability": "canonical_fixtures",
+      "coverage": "380/380",
+      "note": "Scheduled and completed fixtures remain distinct.",
+      "required_grain": "fixture",
+      "source_representation": "canonical fixture + pinned FPL fixture source",
+      "states": {
+        "COMPARABLE": true,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "results_scores",
+      "coverage": "10/380 completed",
+      "note": "Missing scheduled scores remain missing, never zero.",
+      "required_grain": "fixture",
+      "source_representation": "canonical fixture result",
+      "states": {
+        "COMPARABLE": true,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "scheduled_fixtures",
+      "coverage": "370/380 scheduled",
+      "note": "Living schedule remains mutable across releases.",
+      "required_grain": "fixture",
+      "source_representation": "canonical fixture schedule",
+      "states": {
+        "COMPARABLE": true,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "team_identity",
+      "coverage": "20/20 teams",
+      "note": "Season-local team ID remains separate from persistent team code.",
+      "required_grain": "team-season",
+      "source_representation": "FPL teams index to persistent FRL team",
+      "states": {
+        "COMPARABLE": true,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "player_identity",
+      "coverage": "610/610 source identities; 388 cross-source verified; 111 source-native linked; 111 FPL-only source-native",
+      "note": "Every FPL identity remains source-usable, but canonical cross-source player identity is incomplete until every source identity is VERIFIED.",
+      "required_grain": "player-season",
+      "source_representation": "FPL element + player_code relationship",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": false,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "participation_minutes",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "starts",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "goals",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "assists",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "expected_goals",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "expected_assists",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "expected_goal_involvements",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "defensive_actions",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "goalkeeper_metrics",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "discipline",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "fpl_bonus_bps",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "fpl_ict",
+      "coverage": "610/610 source rows",
+      "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
+      "required_grain": "FPL player × fixture",
+      "source_representation": "FPL player-fixture",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": true,
+        "DERIVABLE": false,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    },
+    {
+      "capability": "shooting",
+      "coverage": "0",
+      "note": "No source-native shot-count fields exist in the pinned FPL player-fixture schema.",
+      "required_grain": "player-match/team-match",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "passing",
+      "coverage": "0",
+      "note": "Creativity is not silently relabelled as passing evidence.",
+      "required_grain": "player-match/team-match",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "chance_creation",
+      "coverage": "0",
+      "note": "FPL xA/creativity exist, but direct chance/key-pass equivalence is not established.",
+      "required_grain": "player-match/team-match",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": true,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "possession",
+      "coverage": "0",
+      "note": "No team-match possession representation extends into the pinned release.",
+      "required_grain": "team-match",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "duels",
+      "coverage": "0",
+      "note": "No governed duel representation extends into the pinned release.",
+      "required_grain": "player-match/team-match",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "team_match_statistics",
+      "coverage": "0",
+      "note": "Historical pl_stats events_stats does not extend into 2026/27.",
+      "required_grain": "team-match",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "opta_player_match_statistics",
+      "coverage": "0",
+      "note": "Historical Opta-derived players_match_stats does not extend into 2026/27; FPL remains separate.",
+      "required_grain": "player-match",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "detailed_events",
+      "coverage": "0",
+      "note": "No rich event feed is present in the pinned release.",
+      "required_grain": "event",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "lineups_formations",
+      "coverage": "0",
+      "note": "No lineup or formation source is present in the pinned release.",
+      "required_grain": "fixture-lineup",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "odds_markets",
+      "coverage": "0",
+      "note": "No odds/market source is present in the pinned release.",
+      "required_grain": "fixture-market",
+      "source_representation": "UNAVAILABLE",
+      "states": {
+        "COMPARABLE": false,
+        "CONNECTED": false,
+        "DERIVABLE": false,
+        "GOVERNED": false,
+        "IDENTITY_RESOLVED": null,
+        "PRODUCT_READY": false,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": false,
+        "UNAVAILABLE": true
+      }
+    },
+    {
+      "capability": "league_table_standings",
+      "coverage": "10 completed fixtures",
+      "note": "A current table is partial-season state, not a completed-season comparison.",
+      "required_grain": "team-season as of release",
+      "source_representation": "derived from canonical completed results",
+      "states": {
+        "COMPARABLE": true,
+        "CONNECTED": true,
+        "DERIVABLE": true,
+        "GOVERNED": true,
+        "IDENTITY_RESOLVED": true,
+        "PRODUCT_READY": true,
+        "REVIEW_REQUIRED": false,
+        "SOURCE_PRESENT": true,
+        "UNAVAILABLE": false
+      }
+    }
+  ],
+  "capability_count": 28,
+  "information_available_as_of": "2026-08-31T13:26:12Z",
+  "schema_version": "FRL_2026_27_CAPABILITY_GAP_REGISTER_V1",
+  "scope": "Capabilities proved by the currently pinned 2026/27 source release, not the football-data universe.",
+  "season": "2026-27",
+  "source_release_sha": "1ec7f0dc79055902251cd938650f622b0e79f3cc",
+  "state_totals": {
+    "COMPARABLE": 5,
+    "CONNECTED": 18,
+    "DERIVABLE": 1,
+    "GOVERNED": 18,
+    "IDENTITY_RESOLVED": 17,
+    "PRODUCT_READY": 18,
+    "REVIEW_REQUIRED": 14,
+    "SOURCE_PRESENT": 18,
+    "UNAVAILABLE": 10
+  }
+}

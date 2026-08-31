@@ -178,9 +178,10 @@ function RankingCard({
   metric: RankingMetric;
   season: string;
 }) {
-  const leaders = metric.entries
-    .filter((entry) => entry.rank !== null)
-    .slice(0, 5);
+  const rankedEntries = metric.entries.filter(
+    (entry) => entry.rank !== null && entry.value !== null
+  );
+  const leaders = rankedEntries.slice(0, 5);
 
   return (
     <article className={styles.rankingCard}>
@@ -195,27 +196,38 @@ function RankingCard({
       </header>
 
       <div className={styles.cardLeaders}>
-        {leaders.map((entry) => (
-          <Link
-            key={entry.persistent_team_code}
-            href={teamHref(season, entry)}
-            className={styles.cardRow}
-          >
-            <strong className={styles.cardRank}>{entry.rank}</strong>
-            <span className={styles.cardKit}>
-              <TeamKit teamName={entry.display_name} />
-            </span>
-            <span className={styles.cardTeam}>{entry.display_name}</span>
-            <strong className={styles.cardValue}>
-              {formatValue(metric, entry.value)}
-            </strong>
-          </Link>
-        ))}
+        {leaders.length > 0 ? (
+          leaders.map((entry) => (
+            <Link
+              key={entry.persistent_team_code}
+              href={teamHref(season, entry)}
+              className={styles.cardRow}
+            >
+              <strong className={styles.cardRank}>{entry.rank}</strong>
+              <span className={styles.cardKit}>
+                <TeamKit teamName={entry.display_name} />
+              </span>
+              <span className={styles.cardTeam}>{entry.display_name}</span>
+              <strong className={styles.cardValue}>
+                {formatValue(metric, entry.value)}
+              </strong>
+            </Link>
+          ))
+        ) : (
+          <div className={styles.unavailableFamily}>
+            <strong>No governed ranking observations.</strong>
+            <span>Unavailable for this season.</span>
+          </div>
+        )}
       </div>
 
       <footer className={styles.cardFooter}>
-        <span>{metric.higher_is_better ? "Higher" : "Lower"} is better</span>
-        <span>{metric.entries.length} teams</span>
+        <span>
+          {rankedEntries.length > 0
+            ? `${metric.higher_is_better ? "Higher" : "Lower"} is better`
+            : "Unavailable for this season"}
+        </span>
+        <span>{rankedEntries.length} observed teams</span>
       </footer>
     </article>
   );
@@ -228,6 +240,21 @@ function FullRanking({
   metric: RankingMetric;
   rankings: LeagueRankingsResponse;
 }) {
+  const rankedEntries = metric.entries.filter(
+    (entry) => entry.rank !== null && entry.value !== null
+  );
+
+  if (rankedEntries.length === 0) {
+    return (
+      <section className={styles.tablePanel}>
+        <div className={styles.unavailableFamily}>
+          <strong>No governed ranking observations.</strong>
+          <span>This metric is unavailable for this season.</span>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className={styles.tablePanel}>
       <div className={styles.tableHeader}>
@@ -238,7 +265,7 @@ function FullRanking({
       </div>
 
       <div className={styles.rows}>
-        {metric.entries.map((entry) => (
+        {rankedEntries.map((entry) => (
           <Link
             className={styles.row}
             key={entry.persistent_team_code}

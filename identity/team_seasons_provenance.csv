@@ -9,3 +9,4 @@ season,method,source,notes
 2023-24,local_event_fixture_crosswalk,pl_stats/*/events_stats + fixtures_master.csv,Persistent club identity from local _teams_index.json.
 2024-25,local_event_fixture_crosswalk,pl_stats/*/events_stats + fixtures_master.csv,Persistent club identity from local _teams_index.json.
 2025-26,local_event_fixture_crosswalk,pl_stats/*/events_stats + fixtures_master.csv,Persistent club identity from local _teams_index.json.
+2026-27,pinned_fpl_fixture_and_team_index,Premier-League-Stats@1ec7f0dc79055902251cd938650f622b0e79f3cc,Persistent team code and season-local FPL team ID preserved from the pinned teams index; canonical fixtures use source fixture id/code.

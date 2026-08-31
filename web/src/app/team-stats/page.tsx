@@ -25,6 +25,16 @@ type Metric = {
   higher_is_better: boolean;
 };
 
+type MetricAvailability = {
+  key: string;
+  label: string;
+  status: "AVAILABLE" | "PARTIAL" | "UNAVAILABLE" | "REVIEW_REQUIRED";
+  observed_matches: number;
+  eligible_matches: number;
+  representation: string;
+  note: string | null;
+};
+
 type Split = {
   label: string;
   matches: number;
@@ -58,6 +68,7 @@ type TeamStatsOverview = {
   xg_overperformance: number | null;
   splits: Split[];
   trend: TrendPoint[];
+  availability: MetricAvailability[];
   limitations: string[];
 };
 
@@ -332,46 +343,67 @@ export default async function TeamStatsPage({
         {overview ? (
           <main className={styles.workspace}>
             <section className={styles.metricGrid}>
-              {overview.metrics.map((metric) => (
-                <article
-                  className={styles.metricCard}
-                  key={metric.key}
-                >
-                  <div className={styles.metricTop}>
-                    <span>{metric.label}</span>
+              {overview.availability
+                .filter(
+                  (availability) =>
+                    availability.key !== "expected_goals_per_match"
+                )
+                .map((availability) => {
+                  const metric = overview.metrics.find(
+                    (candidate) => candidate.key === availability.key
+                  );
 
-                    <small>
-                      {ordinal(metric.rank)} /{" "}
-                      {metric.out_of}
-                    </small>
-                  </div>
+                  return (
+                    <article
+                      className={styles.metricCard}
+                      key={availability.key}
+                    >
+                      <div className={styles.metricTop}>
+                        <span>{availability.label}</span>
 
-                  <strong>
-                    {formatMetric(metric)}
-                  </strong>
+                        <small>
+                          {metric
+                            ? `${ordinal(metric.rank)} / ${metric.out_of}`
+                            : "Unavailable"}
+                        </small>
+                      </div>
 
-                  <div
-                    className={styles.percentileTrack}
-                    aria-label={`${metric.percentile} percentile`}
-                  >
-                    <span
-                      style={{
-                        width: `${metric.percentile}%`,
-                      }}
-                    />
-                  </div>
+                      <strong>
+                        {metric ? formatMetric(metric) : "—"}
+                      </strong>
 
-                  <footer>
-                    <span>
-                      P
-                      {Math.round(
-                        metric.percentile
-                      )}
-                    </span>
-                    <span>League percentile</span>
-                  </footer>
-                </article>
-              ))}
+                      <div
+                        className={styles.percentileTrack}
+                        aria-label={
+                          metric
+                            ? `${metric.percentile} percentile`
+                            : `${availability.label} unavailable for this season`
+                        }
+                      >
+                        <span
+                          style={{
+                            width: metric
+                              ? `${metric.percentile}%`
+                              : "0%",
+                          }}
+                        />
+                      </div>
+
+                      <footer>
+                        <span>
+                          {metric
+                            ? `P${Math.round(metric.percentile)}`
+                            : `${availability.observed_matches}/${availability.eligible_matches}`}
+                        </span>
+                        <span>
+                          {metric
+                            ? "League percentile"
+                            : availability.note ?? "Unavailable for this season"}
+                        </span>
+                      </footer>
+                    </article>
+                  );
+                })}
             </section>
 
             <section className={styles.analysisGrid}>

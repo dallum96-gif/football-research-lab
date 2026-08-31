@@ -102,7 +102,8 @@ def test_representative_context_league_model_and_market_limits_are_explicit():
 
     canonical_fixture = rows["canonical_fixture:fixtures_master_corrected.csv:fixture_id"]
     assert canonical_fixture["capability_family"] == "fixture"
-    assert canonical_fixture["coverage"]["season_count"] == 10
+    assert canonical_fixture["coverage"]["season_count"] == len(canonical_fixture["coverage"]["seasons_observed"])
+    assert "2026-27" in canonical_fixture["coverage"]["seasons_observed"]
 
     league = rows["league_table:teams[].position"]
     assert league["capability_family"] == "league_season"
