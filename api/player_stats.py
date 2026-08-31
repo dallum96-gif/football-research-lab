@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 import player_analysis_kernel
@@ -294,7 +294,7 @@ def get_player_stats(season: str, player_code: str) -> PlayerStatsResult:
 def get_player_rankings(
     season: str,
     position: str,
-    family: str | None = Query(None),
+    family: str | None = None,
 ) -> PlayerRankingsResult:
     position = position.upper()
     if family and family not in set(player_analysis_kernel.FAMILIES):
