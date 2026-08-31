@@ -12,6 +12,7 @@ from team_analysis_kernel import (
     OVERVIEW_METRICS,
     RANKING_METRICS,
     RANK_POSITION_PERCENTILE,
+    TEAM_VIEW_OVERVIEW_KEYS,
     rank_metric_entries,
     season_overview_analysis,
     team_overview_analysis,
@@ -36,7 +37,7 @@ def test_competition_rank_preserves_ties_and_existing_percentile_formula():
     ]
 
 
-def test_overview_stays_six_metrics_while_rankings_can_extend_by_family():
+def test_league_rankings_overview_stays_compact_while_catalogue_can_extend():
     analysis = season_overview_analysis("2024-25")
 
     assert analysis["population_size"] == 20
@@ -98,6 +99,36 @@ def test_family_metric_registry_exposes_the_broad_governed_team_stats_catalogue(
 
     assert definitions["shot_accuracy"].representation == DIRECT_TEAM_DERIVATION
     assert definitions["pass_accuracy"].representation == DIRECT_TEAM_DERIVATION
+
+
+def test_team_view_overview_uses_broader_balanced_profile():
+    assert TEAM_VIEW_OVERVIEW_KEYS == (
+        "points_per_match",
+        "goals_for_per_match",
+        "Shots_per_match",
+        "Shots on target_per_match",
+        "shot_accuracy",
+        "Possession_per_match",
+        "pass_accuracy",
+        "goals_against_per_match",
+        "clean_sheet_rate",
+        "failed_to_score_rate",
+    )
+
+
+def test_fraction_rates_are_exposed_as_percentage_points():
+    season = "2025-26"
+    analysis = season_overview_analysis(season)
+    result = analysis["metrics"]["pass_accuracy"]
+
+    for entry in result["entries"]:
+        stats = team_research_stats.team_season_stats(
+            season,
+            entry["persistent_team_code"],
+        )
+        raw = stats.get("pass_accuracy")
+        expected = float(raw) * 100.0 if raw is not None else None
+        assert entry["value"] == expected
 
 
 def test_2026_27_direct_family_gaps_remain_unavailable_not_zero():
@@ -272,8 +303,8 @@ def test_team_view_is_projection_of_the_same_season_analysis_result():
     team = team_overview_analysis("2024-25", sample["persistent_team_code"])
 
     assert team is not None
-    assert len(team["metrics"]) == len(OVERVIEW_METRICS) == 6
-    assert "Corners_per_match" not in {item["key"] for item in team["metrics"]}
+    assert tuple(item["key"] for item in team["metrics"]) == TEAM_VIEW_OVERVIEW_KEYS
+    assert len(team["metrics"]) == 10
     metric = next(item for item in team["metrics"] if item["key"] == "points_per_match")
     assert metric["value"] == sample["value"]
     assert metric["rank"] == sample["rank"]
