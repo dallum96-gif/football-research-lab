@@ -1,4 +1,4 @@
-﻿from collections import defaultdict
+from collections import defaultdict
 from functools import lru_cache
 
 import query_lab
@@ -21,11 +21,13 @@ SUM_METRICS = {
     "bps": "bps",
     "tackles": "tackles",
     "recoveries": "recoveries",
+    "cbi": "clearances_blocks_interceptions",
     "defensive_contribution": "defensive_contribution",
     "points": "total_points",
     "xg": "expected_goals",
     "xa": "expected_assists",
     "xgi": "expected_goal_involvements",
+    "xgc": "expected_goals_conceded",
     "creativity": "creativity",
     "crosses": "open_play_crosses",
     "attempted_passes": "attempted_passes",
@@ -50,6 +52,7 @@ DERIVED_METRICS = {
 
 DISPLAY_METRICS = {
     "Minutes": "minutes",
+    "Appearances": "appearances",
     "Starts": "starts",
     "Goals": "goals",
     "Assists": "assists",
@@ -63,6 +66,7 @@ DISPLAY_METRICS = {
     "Saves": "saves",
     "Tackles": "tackles",
     "Recoveries": "recoveries",
+    "CBI": "cbi",
     "Defensive contribution": "defensive_contribution",
     "BPS": "bps",
     "Bonus": "bonus",
@@ -70,6 +74,7 @@ DISPLAY_METRICS = {
     "xG": "xg",
     "xA": "xa",
     "xGI": "xgi",
+    "xGC": "xgc",
     "Goals / 90": "goals_per_90",
     "Assists / 90": "assists_per_90",
     "xG / 90": "xg_per_90",
@@ -283,6 +288,11 @@ def _aggregate(
                     key=str.casefold,
                 )
             ),
+        "appearances": sum(
+            1
+            for row in rows
+            if _number(row.get("minutes")) > 0
+        ),
         "_records":
             list(rows),
         "_source_files":
@@ -330,8 +340,10 @@ def _aggregate(
             player[base]
             / minutes
             * 90
-            if minutes > 0
+            if minutes and minutes > 0 and player[base] is not None
             else 0.0
+            if minutes and minutes > 0
+            else None
         )
 
     return player
@@ -470,7 +482,7 @@ def filter_players(
             continue
 
         if (
-            player["minutes"]
+            (player["minutes"] or 0)
             < min_minutes
         ):
             continue
@@ -518,6 +530,7 @@ def filter_players(
 
     return results
 
+
 def player_detail(
     season,
     player_code,
@@ -557,12 +570,9 @@ def player_detail(
                             )
                         ),
                     "aggregation":
-                        "SUM approved additive "
-                        "metrics; per-90 from "
-                        "pooled totals / minutes × 90",
+                        "SUM approved additive metrics; appearances count player-fixture rows with minutes > 0; per-90 from pooled totals / minutes × 90",
                 }
 
                 return result
 
     return None
-
