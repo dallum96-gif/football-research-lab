@@ -52,6 +52,56 @@ def test_overview_stays_six_metrics_while_rankings_can_extend_by_family():
         assert len(result["entries"]) == 20
 
 
+def test_family_metric_registry_covers_all_operational_team_stats_families():
+    keys = {metric.key for metric in RANKING_METRICS}
+
+    assert {
+        "Corners_per_match",
+        "Passes_per_match",
+        "Accurate passes_per_match",
+        "Crosses_per_match",
+        "Tackles_per_match",
+        "Interceptions_per_match",
+        "Clearances_per_match",
+        "Fouls conceded_per_match",
+        "Yellow cards_per_match",
+        "Red cards_per_match",
+    } <= keys
+
+    assert len(OVERVIEW_METRICS) == 6
+    assert {
+        "Passes_per_match",
+        "Tackles_per_match",
+        "Yellow cards_per_match",
+    }.isdisjoint({metric.key for metric in OVERVIEW_METRICS})
+
+
+def test_2026_27_family_gaps_remain_unavailable_not_zero():
+    analysis = season_overview_analysis("2026-27")
+
+    for key in (
+        "Passes_per_match",
+        "Accurate passes_per_match",
+        "Crosses_per_match",
+        "Tackles_per_match",
+        "Interceptions_per_match",
+        "Clearances_per_match",
+        "Fouls conceded_per_match",
+        "Yellow cards_per_match",
+        "Red cards_per_match",
+    ):
+        result = analysis["metrics"][key]
+        assert result["definition"]["representation"] == DIRECT_TEAM_MATCH
+        assert len(result["entries"]) == 20
+        assert all(entry["value"] is None for entry in result["entries"])
+        assert all(entry["rank"] is None for entry in result["entries"])
+        assert all(entry["percentile"] is None for entry in result["entries"])
+        assert all(entry["coverage"]["observed_matches"] == 0 for entry in result["entries"])
+
+    goals_against = analysis["metrics"]["goals_against_per_match"]
+    assert all(entry["value"] is not None for entry in goals_against["entries"])
+
+
 def test_corners_are_rankable_with_source_faithful_coverage_not_blank_as_zero():
     season = "2025-26"
     analysis = season_overview_analysis(season)
