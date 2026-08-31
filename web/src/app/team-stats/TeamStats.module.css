@@ -242,6 +242,7 @@
 }
 
 .trendPanel,
+.profilePanel,
 .venuePanel,
 .readPanel,
 .secondaryPanel {
@@ -251,6 +252,7 @@
 }
 
 .trendPanel,
+.profilePanel,
 .venuePanel {
   min-height: 245px;
   padding: 15px 16px 12px;
@@ -268,6 +270,151 @@
   font-size: 1rem;
   font-weight: 830;
   letter-spacing: -.035em;
+}
+
+.profilePopulation {
+  padding: 5px 8px;
+  border: 1px solid var(--frl-border);
+  border-radius: 999px;
+  color: var(--frl-muted);
+  font-size: .43rem;
+  font-weight: 760;
+  white-space: nowrap;
+}
+
+.profileViz {
+  margin-top: 13px;
+}
+
+.profileScale {
+  display: flex;
+  justify-content: space-between;
+  margin: 0 75px 6px 154px;
+  color: var(--frl-muted-soft);
+  font-size: .39rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.profileRows {
+  display: grid;
+  gap: 7px;
+}
+
+.profileRow {
+  display: grid;
+  grid-template-columns: 142px minmax(150px, 1fr) 68px;
+  align-items: center;
+  gap: 12px;
+}
+
+.profileMetric {
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 7px;
+}
+
+.profileMetric span {
+  overflow: hidden;
+  color: var(--frl-muted);
+  font-size: .49rem;
+  font-weight: 720;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profileMetric strong {
+  color: var(--frl-text);
+  font-size: .51rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.profileBarWrap {
+  min-width: 0;
+}
+
+.profileBar {
+  position: relative;
+  height: 12px;
+  overflow: visible;
+  background: var(--frl-surface-raised);
+  border: 1px solid var(--frl-border);
+  border-radius: 999px;
+}
+
+.profileQuarter {
+  position: absolute;
+  z-index: 1;
+  top: -1px;
+  bottom: -1px;
+  width: 1px;
+  background: var(--frl-border);
+}
+
+.profileFill {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  min-width: 2px;
+  background: linear-gradient(90deg, var(--frl-secondary), var(--frl-accent));
+  border-radius: inherit;
+  opacity: .82;
+}
+
+.profileMarker {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border: 2px solid var(--frl-surface);
+  border-radius: 50%;
+  background: var(--frl-accent);
+  box-shadow: 0 0 0 1px var(--frl-border-strong);
+  transform: translate(-50%, -50%);
+}
+
+.profileRank {
+  display: grid;
+  justify-items: end;
+  gap: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.profileRank strong {
+  font-size: .57rem;
+}
+
+.profileRank span {
+  color: var(--frl-muted-soft);
+  font-size: .39rem;
+}
+
+.profileFooter {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 9px 74px 0 154px;
+  color: var(--frl-muted-soft);
+  font-size: .39rem;
+}
+
+.profileFooter span:nth-child(2) {
+  color: var(--frl-muted);
+  font-weight: 700;
+  text-align: center;
+}
+
+.profileEmpty {
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+  color: var(--frl-muted);
+  font-size: .55rem;
 }
 
 .trendReadout {
@@ -562,6 +709,21 @@
 
   .metricGrid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .profileRow {
+    grid-template-columns: 105px minmax(120px, 1fr) 54px;
+    gap: 8px;
+  }
+
+  .profileScale {
+    margin-left: 113px;
+    margin-right: 60px;
+  }
+
+  .profileFooter {
+    margin-left: 113px;
+    margin-right: 60px;
   }
 
   .bottomGrid,
