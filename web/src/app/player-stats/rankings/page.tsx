@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { PlayerRankingsControls } from "./PlayerRankingsControls";
-import { PlayerRankingsTable } from "./PlayerRankingsTable";
+import { PlayerRankingsOverview } from "./PlayerRankingsOverview";
+import { PlayerRankingsFamilyTable } from "./PlayerRankingsFamilyTable";
 import type { RankingMetric } from "../PlayerVisuals";
 import styles from "../PlayerStats.module.css";
 
@@ -22,6 +24,38 @@ type PlayerRankingsResult = {
   percentile_policy: string;
   metrics: RankingMetric[];
 };
+
+type FamilyKey =
+  | "overview"
+  | "shooting"
+  | "creation"
+  | "possession"
+  | "defending"
+  | "discipline"
+  | "goalkeeping"
+  | "fpl";
+
+const FAMILY_LABELS: Record<FamilyKey, string> = {
+  overview: "Overview",
+  shooting: "Shooting",
+  creation: "Creation",
+  possession: "Possession",
+  defending: "Defending",
+  discipline: "Discipline",
+  goalkeeping: "Goalkeeping",
+  fpl: "FPL",
+};
+
+const FAMILY_ORDER: FamilyKey[] = [
+  "overview",
+  "shooting",
+  "creation",
+  "possession",
+  "defending",
+  "discipline",
+  "goalkeeping",
+  "fpl",
+];
 
 const OVERVIEW_KEYS: Record<string, string[]> = {
   GKP: [
@@ -78,10 +112,19 @@ async function getJson<T>(path: string): Promise<T | null> {
   }
 }
 
+function familyHref(season: string, position: string, family: FamilyKey) {
+  const params = new URLSearchParams({ season, position, family });
+  return `/player-stats/rankings?${params.toString()}`;
+}
+
 export default async function PlayerRankingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ season?: string; position?: string }>;
+  searchParams: Promise<{
+    season?: string;
+    position?: string;
+    family?: string;
+  }>;
 }) {
   const query = await searchParams;
   const seasonResponse = await getJson<SeasonResponse>("/api/v1/seasons");
@@ -103,6 +146,32 @@ export default async function PlayerRankingsPage({
       )
     : null;
 
+  const availableFamilies = FAMILY_ORDER.filter((family) => {
+    if (!rankings) return false;
+    if (family === "overview") {
+      return (OVERVIEW_KEYS[position] ?? []).some((key) =>
+        rankings.metrics.some((metric) => metric.key === key)
+      );
+    }
+    return rankings.metrics.some((metric) => metric.family === family);
+  });
+
+  const requestedFamily = query.family as FamilyKey | undefined;
+  const family =
+    requestedFamily && availableFamilies.includes(requestedFamily)
+      ? requestedFamily
+      : availableFamilies[0] ?? "overview";
+
+  const familyMetrics = rankings
+    ? family === "overview"
+      ? (OVERVIEW_KEYS[position] ?? [])
+          .map((key) => rankings.metrics.find((metric) => metric.key === key))
+          .filter((metric): metric is RankingMetric => Boolean(metric))
+      : rankings.metrics.filter((metric) => metric.family === family)
+    : [];
+
+  const isOverview = family === "overview";
+
   return (
     <AppShell>
       <div className={styles.page}>
@@ -123,28 +192,46 @@ export default async function PlayerRankingsPage({
               seasons={seasons}
               currentSeason={season}
               position={position}
-              family="overview"
+              family={family}
             />
           )}
         </header>
 
-        <nav className={styles.tabs} aria-label="Player ranking workspace">
-          <span className={styles.activeTab}>League table</span>
+        <nav className={styles.tabs} aria-label="Player ranking families">
+          {availableFamilies.map((item) => (
+            <Link
+              key={item}
+              href={familyHref(season ?? "", position, item)}
+              className={item === family ? styles.activeTab : styles.tab}
+            >
+              {FAMILY_LABELS[item]}
+            </Link>
+          ))}
         </nav>
 
-        {rankings ? (
+        {rankings && (isOverview || familyMetrics.length > 0) ? (
           <main className={styles.workspace}>
-            <PlayerRankingsTable
-              key={`${season ?? ""}-${position}`}
-              season={season ?? ""}
-              metrics={rankings.metrics}
-              overviewKeys={OVERVIEW_KEYS[position] ?? []}
-              cohortDescription={rankings.cohort.description}
-            />
+            {isOverview ? (
+              <PlayerRankingsOverview
+                season={season ?? ""}
+                position={position}
+                metrics={rankings.metrics}
+                cohortDescription={rankings.cohort.description}
+              />
+            ) : (
+              <PlayerRankingsFamilyTable
+                key={`${season}-${position}-${family}`}
+                season={season ?? ""}
+                familyLabel={FAMILY_LABELS[family]}
+                position={position}
+                metrics={familyMetrics}
+                cohortDescription={rankings.cohort.description}
+              />
+            )}
           </main>
         ) : (
           <div className="frl-empty-state">
-            No governed player ranking population is available for this selection.
+            No governed ranking metric is available for this selection.
           </div>
         )}
       </div>
