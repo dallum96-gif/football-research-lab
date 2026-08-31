@@ -31,7 +31,10 @@ export type RankingMetric = {
 };
 
 function trim(value: number, decimals = 1) {
-  return value.toFixed(decimals).replace(/\.0+$|(?<=\.[0-9]*?)0+$/g, "").replace(/\.$/, "");
+  const fixed = value.toFixed(decimals);
+  return fixed.includes(".")
+    ? fixed.replace(/0+$/, "").replace(/\.$/, "")
+    : fixed;
 }
 
 function displayValue(metric: RankingMetric, value: number | null) {
