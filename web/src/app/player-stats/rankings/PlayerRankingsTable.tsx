@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { RankingMetric } from "../PlayerVisuals";
-import rankingStyles from "./PlayerRankings.module.css";
+import rankingStyles from "./PlayerRankingsTable.module.css";
 
 const FAMILY_ORDER = [
   "shooting",
@@ -80,7 +80,9 @@ export function PlayerRankingsTable({
   const initialKeys = useMemo(() => {
     const available = new Set(availableMetrics.map((metric) => metric.key));
     const overview = overviewKeys.filter((key) => available.has(key));
-    return overview.length ? overview : availableMetrics.slice(0, 6).map((metric) => metric.key);
+    return overview.length
+      ? overview
+      : availableMetrics.slice(0, 6).map((metric) => metric.key);
   }, [availableMetrics, overviewKeys]);
 
   const [visibleKeys, setVisibleKeys] = useState<string[]>(initialKeys);
@@ -116,7 +118,10 @@ export function PlayerRankingsTable({
   function metricValue(metricKey: string, playerCode: string) {
     const metric = metricsByKey.get(metricKey);
     if (!metric) return null;
-    return metric.entries.find((entry) => entry.player_code === playerCode)?.value ?? null;
+    return (
+      metric.entries.find((entry) => entry.player_code === playerCode)?.value ??
+      null
+    );
   }
 
   const sortedRows = [...rows].sort((a, b) => {
@@ -155,7 +160,9 @@ export function PlayerRankingsTable({
 
   function changeSort(key: FixedSortKey | string, numeric = false) {
     if (sortKey === key) {
-      setSortDirection((current) => (current === "asc" ? "desc" : "asc"));
+      setSortDirection((current) =>
+        current === "asc" ? "desc" : "asc"
+      );
       return;
     }
 
@@ -244,13 +251,16 @@ export function PlayerRankingsTable({
               style={{ gridTemplateColumns }}
             >
               <span>#</span>
-              <button type="button" onClick={() => changeSort("player")}> 
+              <button type="button" onClick={() => changeSort("player")}>
                 Player {sortIndicator("player", sortKey, sortDirection)}
               </button>
-              <button type="button" onClick={() => changeSort("club")}> 
+              <button type="button" onClick={() => changeSort("club")}>
                 Club {sortIndicator("club", sortKey, sortDirection)}
               </button>
-              <button type="button" onClick={() => changeSort("minutes", true)}>
+              <button
+                type="button"
+                onClick={() => changeSort("minutes", true)}
+              >
                 Minutes {sortIndicator("minutes", sortKey, sortDirection)}
               </button>
               {visibleMetrics.map((metric) => (
@@ -286,7 +296,9 @@ export function PlayerRankingsTable({
                   );
                   return (
                     <span className={rankingStyles.metricCell} key={metric.key}>
-                      <strong>{formatMetric(metric, entry?.value ?? null)}</strong>
+                      <strong>
+                        {formatMetric(metric, entry?.value ?? null)}
+                      </strong>
                       {entry?.percentile != null && (
                         <small>P{Math.round(entry.percentile)}</small>
                       )}
