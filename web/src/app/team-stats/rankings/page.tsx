@@ -81,9 +81,23 @@ const familyMetricKeys: Record<FamilyKey, string[]> = {
     "Shots on target_per_match",
     "Corners_per_match",
   ],
-  passing: ["Possession_per_match"],
-  defence: ["goals_against_per_match"],
-  discipline: [],
+  passing: [
+    "Possession_per_match",
+    "Passes_per_match",
+    "Accurate passes_per_match",
+    "Crosses_per_match",
+  ],
+  defence: [
+    "goals_against_per_match",
+    "Tackles_per_match",
+    "Interceptions_per_match",
+    "Clearances_per_match",
+  ],
+  discipline: [
+    "Fouls conceded_per_match",
+    "Yellow cards_per_match",
+    "Red cards_per_match",
+  ],
 };
 
 async function getJson<T>(path: string): Promise<T | null> {
@@ -163,11 +177,18 @@ function rankingsHref(
   return `/team-stats/rankings?${params.toString()}`;
 }
 
-function teamHref(season: string, entry: RankingEntry) {
+function teamHref(
+  season: string,
+  entry: RankingEntry,
+  family: FamilyKey = "overview"
+) {
   const params = new URLSearchParams({
     season,
     team: entry.persistent_team_code,
   });
+  if (family !== "overview") {
+    params.set("family", family);
+  }
   return `/team-stats?${params.toString()}`;
 }
 
@@ -224,7 +245,7 @@ function RankingCard({
       <footer className={styles.cardFooter}>
         <span>
           {rankedEntries.length > 0
-            ? `${metric.higher_is_better ? "Higher" : "Lower"} is better`
+            ? `${metric.higher_is_better ? "Higher" : "Lower"} values rank first`
             : "Unavailable for this season"}
         </span>
         <span>{rankedEntries.length} observed teams</span>
@@ -236,9 +257,11 @@ function RankingCard({
 function FullRanking({
   metric,
   rankings,
+  family = "overview",
 }: {
   metric: RankingMetric;
   rankings: LeagueRankingsResponse;
+  family?: FamilyKey;
 }) {
   const rankedEntries = metric.entries.filter(
     (entry) => entry.rank !== null && entry.value !== null
@@ -269,7 +292,7 @@ function FullRanking({
           <Link
             className={styles.row}
             key={entry.persistent_team_code}
-            href={teamHref(rankings.season, entry)}
+            href={teamHref(rankings.season, entry, family)}
             aria-label={`Analyse ${entry.display_name}`}
           >
             <strong className={styles.rank}>{ordinal(entry.rank)}</strong>
@@ -394,6 +417,7 @@ export default async function TeamStatsRankingsPage({
               currentSeason={season}
               currentTeam={teamViewCode}
               currentView="rankings"
+              currentFamily={activeFamily}
             />
           )}
         </header>
@@ -462,7 +486,10 @@ export default async function TeamStatsRankingsPage({
                         Close
                       </Link>
                     </header>
-                    <FullRanking metric={overviewMetric} rankings={rankings} />
+                    <FullRanking
+                      metric={overviewMetric}
+                      rankings={rankings}
+                    />
                   </section>
                 )}
               </>
@@ -514,13 +541,14 @@ export default async function TeamStatsRankingsPage({
                           </div>
                           <span>
                             {activeMetric.higher_is_better
-                              ? "Higher is better"
-                              : "Lower is better"}
+                              ? "Higher values rank first"
+                              : "Lower values rank first"}
                           </span>
                         </div>
                         <FullRanking
                           metric={activeMetric}
                           rankings={rankings}
+                          family={activeFamily}
                         />
                         <footer className={styles.detailMeta}>
                           <span>
