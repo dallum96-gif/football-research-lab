@@ -90,3 +90,9 @@ def test_outside_materialized_period_is_unavailable_not_fabricated():
     assert observation["status"] == "UNAVAILABLE"
     assert observation["value"] is None
     assert observation["reason"] == "FIXTURE_OUTSIDE_MATERIALIZED_ARTIFACT"
+
+
+def test_artifact_hash_is_platform_newline_neutral():
+    """Tracked artifact integrity must not depend on LF versus CRLF checkout."""
+    metadata = artifact_metadata()
+    assert metadata["season_file_sha256"]["2022-23"] == "cd2bba6bb9589a9999d920a570e156c1dda9b9e598ba459c4d25f5a53013fe8f"

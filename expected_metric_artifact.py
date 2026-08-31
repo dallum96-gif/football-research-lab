@@ -41,7 +41,7 @@ def artifact_metadata() -> dict:
         path = ARTIFACT_DIR / f"{season}.json"
         if not path.is_file():
             raise FileNotFoundError(f"Expected-goals season artifact not found: {path}")
-        actual = hashlib.sha256(path.read_bytes()).hexdigest()
+        actual = hashlib.sha256(path.read_text(encoding="utf-8").encode("utf-8")).hexdigest()
         expected = metadata.get("season_file_sha256", {}).get(season)
         if actual != expected:
             raise ExpectedMetricArtifactError(
