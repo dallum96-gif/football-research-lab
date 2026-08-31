@@ -135,6 +135,7 @@ export default async function PlayerRankingsPage({
         {rankings ? (
           <main className={styles.workspace}>
             <PlayerRankingsTable
+              key={`${season ?? ""}-${position}`}
               season={season ?? ""}
               metrics={rankings.metrics}
               overviewKeys={OVERVIEW_KEYS[position] ?? []}
