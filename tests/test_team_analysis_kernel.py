@@ -8,6 +8,7 @@ from expected_metric_routing import (
 )
 from team_analysis_kernel import (
     COMPETITION_RANK,
+    DIRECT_TEAM_DERIVATION,
     OVERVIEW_METRICS,
     RANKING_METRICS,
     RANK_POSITION_PERCENTILE,
@@ -52,41 +53,75 @@ def test_overview_stays_six_metrics_while_rankings_can_extend_by_family():
         assert len(result["entries"]) == 20
 
 
-def test_family_metric_registry_covers_all_operational_team_stats_families():
-    keys = {metric.key for metric in RANKING_METRICS}
+def test_family_metric_registry_exposes_the_broad_governed_team_stats_catalogue():
+    definitions = {metric.key: metric for metric in RANKING_METRICS}
 
     assert {
+        # Attack
+        "Shots off target_per_match",
+        "Blocked shots_per_match",
         "Corners_per_match",
+        "Offsides_per_match",
+        "Big chances created_per_match",
+        "Big chances missed_per_match",
+        "shot_accuracy",
+        "goals_per_shot",
+        "failed_to_score_rate",
+        # Passing
         "Passes_per_match",
         "Accurate passes_per_match",
+        "pass_accuracy",
         "Crosses_per_match",
+        # Defence
         "Tackles_per_match",
+        "Tackles won_per_match",
         "Interceptions_per_match",
+        "Interceptions won_per_match",
         "Clearances_per_match",
+        "Effective clearances_per_match",
+        "Saves_per_match",
+        "clean_sheet_rate",
+        # Discipline
         "Fouls conceded_per_match",
+        "Fouls won_per_match",
         "Yellow cards_per_match",
         "Red cards_per_match",
-    } <= keys
+    } <= set(definitions)
 
     assert len(OVERVIEW_METRICS) == 6
     assert {
         "Passes_per_match",
-        "Tackles_per_match",
+        "Tackles won_per_match",
         "Yellow cards_per_match",
+        "shot_accuracy",
     }.isdisjoint({metric.key for metric in OVERVIEW_METRICS})
 
+    assert definitions["shot_accuracy"].representation == DIRECT_TEAM_DERIVATION
+    assert definitions["pass_accuracy"].representation == DIRECT_TEAM_DERIVATION
 
-def test_2026_27_family_gaps_remain_unavailable_not_zero():
+
+def test_2026_27_direct_family_gaps_remain_unavailable_not_zero():
     analysis = season_overview_analysis("2026-27")
 
     for key in (
+        "Shots off target_per_match",
+        "Blocked shots_per_match",
+        "Corners_per_match",
+        "Offsides_per_match",
+        "Big chances created_per_match",
+        "Big chances missed_per_match",
         "Passes_per_match",
         "Accurate passes_per_match",
         "Crosses_per_match",
         "Tackles_per_match",
+        "Tackles won_per_match",
         "Interceptions_per_match",
+        "Interceptions won_per_match",
         "Clearances_per_match",
+        "Effective clearances_per_match",
+        "Saves_per_match",
         "Fouls conceded_per_match",
+        "Fouls won_per_match",
         "Yellow cards_per_match",
         "Red cards_per_match",
     ):
@@ -98,8 +133,31 @@ def test_2026_27_family_gaps_remain_unavailable_not_zero():
         assert all(entry["percentile"] is None for entry in result["entries"])
         assert all(entry["coverage"]["observed_matches"] == 0 for entry in result["entries"])
 
-    goals_against = analysis["metrics"]["goals_against_per_match"]
-    assert all(entry["value"] is not None for entry in goals_against["entries"])
+
+def test_2026_27_unavailable_derived_rich_metrics_stay_missing():
+    analysis = season_overview_analysis("2026-27")
+
+    for key in ("shot_accuracy", "goals_per_shot", "pass_accuracy"):
+        result = analysis["metrics"][key]
+        assert result["definition"]["representation"] == DIRECT_TEAM_DERIVATION
+        assert all(entry["value"] is None for entry in result["entries"])
+        assert all(entry["rank"] is None for entry in result["entries"])
+
+
+def test_2026_27_result_derived_metrics_remain_available_for_season_aware_gui():
+    analysis = season_overview_analysis("2026-27")
+
+    for key in (
+        "goals_for_per_match",
+        "goals_against_per_match",
+        "failed_to_score_rate",
+        "clean_sheet_rate",
+    ):
+        result = analysis["metrics"][key]
+        assert len(result["entries"]) == 20
+        assert all(entry["value"] is not None for entry in result["entries"])
+        assert all(entry["rank"] is not None for entry in result["entries"])
+        assert all(entry["coverage"]["observed_matches"] > 0 for entry in result["entries"])
 
 
 def test_corners_are_rankable_with_source_faithful_coverage_not_blank_as_zero():
@@ -121,6 +179,23 @@ def test_corners_are_rankable_with_source_faithful_coverage_not_blank_as_zero():
         coverage = stats["metric_coverage"]["Corners"]
         assert entry["coverage"]["observed_matches"] == coverage["observed_matches"]
         assert entry["coverage"]["missing_matches"] == coverage["missing_matches"]
+
+
+def test_expanded_direct_metric_uses_existing_team_match_observations():
+    season = "2025-26"
+    analysis = season_overview_analysis(season)
+    result = analysis["metrics"]["Tackles won_per_match"]
+
+    assert result["definition"]["representation"] == DIRECT_TEAM_MATCH
+    assert result["definition"]["coverage_key"] == "Tackles won"
+
+    for entry in result["entries"]:
+        stats = team_research_stats.team_season_stats(
+            season,
+            entry["persistent_team_code"],
+        )
+        expected = stats.get("Tackles won_per_match")
+        assert entry["value"] == (float(expected) if expected is not None else None)
 
 
 def test_kernel_ranking_matches_the_pre_kernel_overview_algorithm():
