@@ -3,6 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { PlayerRankingsControls } from "./PlayerRankingsControls";
 import type { RankingMetric } from "../PlayerVisuals";
 import styles from "../PlayerStats.module.css";
+import rankingStyles from "./PlayerRankings.module.css";
 
 type SeasonResponse = { seasons: string[] };
 
@@ -180,12 +181,12 @@ export default async function PlayerRankingsPage({
 
         {rankings && metric ? (
           <main className={styles.workspace}>
-            <section className={styles.rankingMetricNav}>
+            <section className={rankingStyles.rankingMetricNav}>
               <div>
                 <p className={styles.kicker}>Metric</p>
                 <h2>{metric.label}</h2>
               </div>
-              <div className={styles.metricPills}>
+              <div className={rankingStyles.metricPills}>
                 {familyMetrics.map((candidate) => (
                   <Link
                     key={candidate.key}
@@ -198,7 +199,7 @@ export default async function PlayerRankingsPage({
               </div>
             </section>
 
-            <section className={styles.rankingPanel}>
+            <section className={rankingStyles.rankingPanel}>
               <header className={styles.sectionHeading}>
                 <div>
                   <p className={styles.kicker}>{FAMILY_LABELS[family]}</p>
@@ -207,14 +208,14 @@ export default async function PlayerRankingsPage({
                 <span>{rankings.cohort.description}</span>
               </header>
 
-              <div className={styles.rankingTable}>
-                <div className={styles.rankingHeader}>
+              <div className={rankingStyles.rankingTable}>
+                <div className={rankingStyles.rankingHeader}>
                   <span>Rank</span><span>Player</span><span>Club</span><span>Minutes</span><span>Value</span><span>Percentile</span>
                 </div>
                 {metric.entries
                   .filter((entry) => entry.value != null)
                   .map((entry) => (
-                    <div className={styles.rankingRow} key={entry.player_code}>
+                    <div className={rankingStyles.rankingRow} key={entry.player_code}>
                       <strong>{entry.rank ?? "—"}</strong>
                       <Link
                         href={`/player-stats?season=${encodeURIComponent(
@@ -226,7 +227,7 @@ export default async function PlayerRankingsPage({
                       <span>{entry.clubs.join(" · ") || "—"}</span>
                       <span>{entry.minutes}</span>
                       <strong>{formatMetric(metric, entry.value)}</strong>
-                      <span className={styles.rankPercentile}>
+                      <span className={rankingStyles.rankPercentile}>
                         <i><b style={{ width: `${entry.percentile ?? 0}%` }} /></i>
                         P{Math.round(entry.percentile ?? 0)}
                       </span>
