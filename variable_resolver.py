@@ -232,8 +232,15 @@ def resolve_variable(
                 player_id=player_id,
                 field_name=definition.source_field or definition.name,
                 gameweek=gameweek,
+                fixture_id=str(fixture_id) if fixture_id is not None else None,
             )
         if fixture_id is not None:
+            if name.startswith("history[]."):
+                return fpl_player_fixture_values(
+                    season=season,
+                    fixture_id=str(fixture_id),
+                    field_name=definition.source_field or definition.name,
+                )
             return fpl_fixture_values(
                 season=season,
                 fixture_id=str(fixture_id),

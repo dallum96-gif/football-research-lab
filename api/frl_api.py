@@ -184,6 +184,16 @@ class TeamStatsTrendPoint(BaseModel):
     possession: float | None = None
 
 
+class TeamStatsAvailability(BaseModel):
+    key: str
+    label: str
+    status: Literal["AVAILABLE", "PARTIAL", "UNAVAILABLE", "REVIEW_REQUIRED"]
+    observed_matches: int
+    eligible_matches: int
+    representation: str
+    note: str | None = None
+
+
 class TeamStatsOverviewResult(BaseModel):
     persistent_team_code: str
     display_name: str
@@ -197,6 +207,7 @@ class TeamStatsOverviewResult(BaseModel):
     xg_overperformance: float | None = None
     splits: list[TeamStatsSplit]
     trend: list[TeamStatsTrendPoint]
+    availability: list[TeamStatsAvailability] = Field(default_factory=list)
     provenance: ResearchProvenance
     limitations: list[str] = Field(default_factory=list)
 
@@ -436,6 +447,11 @@ def _source_player_name(row: dict) -> str | None:
 
 
 def _fixture_player_match_evidence(fixture: dict) -> tuple[list[FixturePlayerMatchEvidence], str, str | None]:
+    if str(fixture.get("season")) not in set(player_match_stats.available_seasons()):
+        return [], "UNAVAILABLE", (
+            "The governed historical Player-Match source representation does "
+            "not extend into this season."
+        )
     try:
         source_match_id = player_match_stats.player_match_id_for_fixture(fixture)
     except FileNotFoundError:
@@ -754,6 +770,39 @@ def get_team_stats_overview(
         and metric.get("percentile") is not None
     ]
 
+    availability: list[TeamStatsAvailability] = []
+    for metric in analysis["metrics"]:
+        coverage = metric.get("coverage") or {}
+        observed = int(coverage.get("observed_matches", 0))
+        eligible = int(coverage.get("eligible_matches", stats.get("matches", 0)))
+        value_available = metric.get("value") is not None
+        status: Literal["AVAILABLE", "PARTIAL", "UNAVAILABLE", "REVIEW_REQUIRED"]
+        if not value_available:
+            status = "UNAVAILABLE"
+        elif observed < eligible:
+            status = "PARTIAL"
+        else:
+            status = "AVAILABLE"
+        availability.append(
+            TeamStatsAvailability(
+                key=str(metric["key"]),
+                label=str(metric["label"]),
+                status=status,
+                observed_matches=observed,
+                eligible_matches=eligible,
+                representation=str(metric["representation"]),
+                note=(
+                    None
+                    if status == "AVAILABLE"
+                    else (
+                        "The governed representation is observed for only part of the eligible match population."
+                        if status == "PARTIAL"
+                        else "The required governed team-match representation is not available for this season."
+                    )
+                ),
+            )
+        )
+
     match_rows.sort(
         key=lambda row: (
             str(row.get("kickoff_time") or ""),
@@ -810,6 +859,23 @@ def get_team_stats_overview(
     xg = analysis.get("expected_goals") or {}
     expected_goals = xg.get("value")
     xg_overperformance = xg.get("xg_overperformance")
+    availability.append(
+        TeamStatsAvailability(
+            key="expected_goals_per_match",
+            label="Expected goals",
+            status=(
+                "AVAILABLE"
+                if expected_goals is not None and xg.get("coverage_complete")
+                else "PARTIAL"
+                if expected_goals is not None
+                else "UNAVAILABLE"
+            ),
+            observed_matches=int(xg.get("observed_matches", 0)),
+            eligible_matches=int(xg.get("eligible_matches", stats.get("matches", 0))),
+            representation=str(xg.get("representation") or "NO_GOVERNED_SEASON_ROUTE"),
+            note=str(xg.get("note") or "") or None,
+        )
+    )
 
     limitations = [
         (
@@ -872,6 +938,7 @@ def get_team_stats_overview(
             _team_stats_split("Away", away_rows),
         ],
         trend=trend,
+        availability=availability,
         provenance=ResearchProvenance(
             source=(
                 "team_analysis_kernel + team_research_stats + governed "

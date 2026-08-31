@@ -69,6 +69,52 @@ def _require_source_column(rows: tuple[dict[str, str], ...], field_name: str) ->
     )
 
 
+def _representation(field_name: str) -> str:
+    if field_name.startswith("history[]."):
+        return "FPL_PLAYER_FIXTURE"
+    if field_name.startswith("fixtures[]."):
+        return "FPL_FIXTURE"
+    return "UNCONNECTED_FPL_REGISTRY_SURFACE"
+
+
+def _require_representation(field_name: str, expected: str) -> None:
+    actual = _representation(field_name)
+    if actual != expected:
+        raise FPLVariableUnavailableError(
+            f"FPL variable '{field_name}' belongs to {actual}, not {expected}. "
+            "Source-native registry surfaces are not silently coalesced."
+        )
+
+
+def _row_provenance(rows: tuple[dict[str, str], ...], evidence_table: Path, field_name: str) -> dict:
+    releases = sorted({row.get("source_release_sha", "") for row in rows if row.get("source_release_sha")})
+    source_paths = sorted({row.get("source_path", "") for row in rows if row.get("source_path")})
+    source_hashes = sorted({row.get("source_sha256", "") for row in rows if row.get("source_sha256")})
+    retrieved = sorted({row.get("source_retrieved_at", "") for row in rows if row.get("source_retrieved_at")})
+    return {
+        "evidence_table": str(evidence_table),
+        "source_field": _source_field(field_name),
+        "source_representation": _representation(field_name),
+        "source_release_shas": releases,
+        "source_paths": source_paths,
+        "source_sha256": source_hashes,
+        "information_available_as_of": retrieved,
+        "source_family": "FPL",
+        "historical_opta_equivalence_asserted": False,
+    }
+
+
+def player_fixture_rows(*, season: str, fixture_id: str) -> tuple[dict[str, str], ...]:
+    """Return governed source-native FPL player-fixture rows."""
+    return tuple(
+        row
+        for row in _load(PLAYER_GW)
+        if str(row.get("frl_season", "")) == str(season)
+        and str(row.get("frl_fixture_id", "")) == str(fixture_id)
+        and str(row.get("frl_fixture_relationship_status", "")) == "VERIFIED"
+    )
+
+
 def player_gameweek_values(
     *,
     season: str,
@@ -79,6 +125,7 @@ def player_gameweek_values(
 ) -> dict:
     """Resolve an FPL player/gameweek variable from approved evidence."""
     definition = fpl_variable_definition(field_name)
+    _require_representation(field_name, "FPL_PLAYER_FIXTURE")
     rows = _load(PLAYER_GW)
     candidate_rows = tuple(
         row
@@ -91,7 +138,7 @@ def player_gameweek_values(
         )
         and (
             fixture_id is None
-            or str(row.get("source_fixture", "")) == str(fixture_id)
+            or str(row.get("frl_fixture_id", "")) == str(fixture_id)
         )
     )
     key = _require_source_column(candidate_rows if candidate_rows else rows, field_name)
@@ -101,7 +148,17 @@ def player_gameweek_values(
             "season": season,
             "player_id": str(player_id),
             "gameweek": row.get("frl_fpl_gameweek", ""),
-            "fixture": row.get("source_fixture", ""),
+            "fixture_id": row.get("frl_fixture_id", ""),
+            "source_fixture_code": row.get("source_fixture_code", ""),
+            "source_player_code": row.get("source_player_code", ""),
+            "source_team_code": row.get("source_team_code", ""),
+            "team_id": row.get("frl_team_id", ""),
+            "opponent_team_id": row.get("frl_opponent_team_id", ""),
+            "was_home": row.get("frl_was_home", ""),
+            "player_identity_key": row.get("frl_player_identity_key", ""),
+            "player_identity_status": row.get("frl_player_identity_status", ""),
+            "player_identity_route": row.get("frl_player_identity_route", ""),
+            "participation_status": row.get("frl_participation_status", ""),
             "source_field": _source_field(field_name),
             "value": row.get(key, ""),
         }
@@ -118,10 +175,7 @@ def player_gameweek_values(
         "gameweek": str(gameweek) if gameweek is not None else None,
         "fixture_id": str(fixture_id) if fixture_id is not None else None,
         "results": results,
-        "provenance": {
-            "evidence_table": str(PLAYER_GW),
-            "source_field": _source_field(field_name),
-        },
+        "provenance": _row_provenance(candidate_rows, PLAYER_GW, field_name),
     }
 
 
@@ -195,12 +249,13 @@ def player_fixture_values(*, season: str, fixture_id: str, field_name: str) -> d
         )
 
     definition = fpl_variable_definition(field_name)
+    _require_representation(field_name, "FPL_PLAYER_FIXTURE")
     rows = _load(PLAYER_GW)
     candidate_rows = tuple(
         row
         for row in rows
         if str(row.get("frl_season", "")) == str(season)
-        and str(row.get("source_fixture", "")) == str(fixture_id)
+        and str(row.get("frl_fixture_id", "")) == str(fixture_id)
     )
     key = _require_source_column(candidate_rows if candidate_rows else rows, field_name)
 
@@ -209,6 +264,19 @@ def player_fixture_values(*, season: str, fixture_id: str, field_name: str) -> d
             "season": season,
             "fixture_id": str(fixture_id),
             "player_id": str(row.get("frl_fpl_player_key", "")),
+            "player_code": str(row.get("source_player_code", "")),
+            "player_name": " ".join(
+                part for part in (row.get("source_first_name", ""), row.get("source_second_name", "")) if part
+            ),
+            "position": row.get("source_position", ""),
+            "minutes": row.get("source_minutes", ""),
+            "team_id": row.get("frl_team_id", ""),
+            "opponent_team_id": row.get("frl_opponent_team_id", ""),
+            "was_home": row.get("frl_was_home", ""),
+            "player_identity_key": row.get("frl_player_identity_key", ""),
+            "player_identity_status": row.get("frl_player_identity_status", ""),
+            "player_identity_route": row.get("frl_player_identity_route", ""),
+            "participation_status": row.get("frl_participation_status", ""),
             "source_field": _source_field(field_name),
             "value": row.get(key, ""),
         }
@@ -225,9 +293,8 @@ def player_fixture_values(*, season: str, fixture_id: str, field_name: str) -> d
         "fixture_id": str(fixture_id),
         "results": results,
         "provenance": {
-            "evidence_table": str(PLAYER_GW),
-            "source_field": _source_field(field_name),
-            "relationship": "historical FPL player-fixture evidence",
+            **_row_provenance(candidate_rows, PLAYER_GW, field_name),
+            "relationship": "governed canonical fixture to source-native FPL player-fixture evidence",
         },
     }
 
@@ -235,12 +302,13 @@ def player_fixture_values(*, season: str, fixture_id: str, field_name: str) -> d
 def fixture_values(*, season: str, fixture_id: str, field_name: str) -> dict:
     """Resolve an FPL fixture variable from approved evidence."""
     definition = fpl_variable_definition(field_name)
+    _require_representation(field_name, "FPL_FIXTURE")
     rows = _load(FIXTURE)
     candidate_rows = tuple(
         row
         for row in rows
         if str(row.get("frl_season", "")) == str(season)
-        and str(row.get("frl_fpl_fixture_key", "")) == str(fixture_id)
+        and str(row.get("frl_fixture_id", "")) == str(fixture_id)
     )
     key = _require_source_column(candidate_rows if candidate_rows else rows, field_name)
 
@@ -262,10 +330,7 @@ def fixture_values(*, season: str, fixture_id: str, field_name: str) -> dict:
         "season": season,
         "fixture_id": str(fixture_id),
         "results": results,
-        "provenance": {
-            "evidence_table": str(FIXTURE),
-            "source_field": _source_field(field_name),
-        },
+        "provenance": _row_provenance(candidate_rows, FIXTURE, field_name),
     }
 
 
@@ -275,6 +340,7 @@ __all__ = [
     "fpl_catalogue",
     "fpl_variable_definition",
     "historical_player_fixture_values",
+    "player_fixture_rows",
     "player_fixture_values",
     "player_gameweek_values",
 ]

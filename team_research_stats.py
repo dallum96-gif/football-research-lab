@@ -56,25 +56,29 @@ def team_code_for_name(season: str, team: str) -> str | None:
 
 def _team_side_row(season, fixture_id, team_code, identity, fixture):
     packaged = _packaged_rows().get((season, str(fixture_id)))
-    if not packaged:
-        return None
-
     home_code = _persistent_team(season, fixture.get("home_team_id", ""), identity)
     away_code = _persistent_team(season, fixture.get("away_team_id", ""), identity)
     prefix = "home" if home_code == team_code else "away" if away_code == team_code else None
     if prefix is None:
         return None
 
+    # Canonical completed-result evidence is independently usable when the
+    # optional packaged team-match representation is absent.  Scheduled rows
+    # remain outside completed-match aggregation, and every unavailable
+    # team-match metric remains missing rather than becoming zero.
+    home_score = number(fixture.get("home_score"))
+    away_score = number(fixture.get("away_score"))
+    if home_score is None or away_score is None:
+        return None
+
     values = {}
     for label in CORE_FIELDS:
         key = f"{prefix}_core_{label.lower().replace(' ', '_')}"
-        values[label] = number(packaged.get(key))
+        values[label] = number(packaged.get(key)) if packaged else None
     for label in OPTIONAL_FIELDS:
         key = f"{prefix}_optional_{label.lower().replace(' ', '_')}"
-        values[label] = number(packaged.get(key))
+        values[label] = number(packaged.get(key)) if packaged else None
 
-    home_score = number(fixture.get("home_score"))
-    away_score = number(fixture.get("away_score"))
     if prefix == "home":
         values["goals_for"] = home_score
         values["goals_against"] = away_score

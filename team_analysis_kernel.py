@@ -255,7 +255,33 @@ def _direct_xg(season: str, stats: dict) -> dict:
 
 def expected_goals_observation(season: str, team_code: str, stats: dict | None = None) -> dict:
     stats = stats or team_research_stats.team_season_stats(season, team_code)
-    route = single_season_route(EXPECTED_GOALS, season)
+    try:
+        route = single_season_route(EXPECTED_GOALS, season)
+    except ValueError:
+        # A newly governed fixture season must not inherit an audited
+        # historical xG representation.  FPL-native player-fixture xG remains
+        # queryable through URA but is not silently promoted into Team Stats.
+        eligible = int(stats.get("matches", 0))
+        return {
+            "route_purpose": "SINGLE_SEASON_DESCRIPTIVE",
+            "route_coverage_status": "COVERAGE_GAP",
+            "representation_mixing_allowed": False,
+            "value": None,
+            "observed_total": None,
+            "eligible_matches": eligible,
+            "observed_matches": 0,
+            "missing_matches": eligible,
+            "missing_fixture_ids": [],
+            "coverage_status": "UNAVAILABLE",
+            "coverage_complete": False,
+            "representation": NO_GOVERNED_SEASON_ROUTE,
+            "construction_version": None,
+            "xg_overperformance": None,
+            "note": (
+                "No governed Team Stats expected-goals representation exists "
+                f"for {season}; source-native FPL player-fixture xG remains separate."
+            ),
+        }
 
     base = {
         "route_purpose": route.purpose,

@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 import query_api
+import fpl_variable_access
 import source_family_adapters
 import variable_resolver
 
@@ -204,6 +205,84 @@ def _fpl_dribbles_leader(values: dict[str, dict], *, home: bool) -> PlayerLeader
     )
 
 
+def _fpl_source_leader(values: dict[str, dict], *, home: bool) -> PlayerLeader | None:
+    """Select a source-native FPL fixture leader without cross-provider claims."""
+    candidates: list[tuple[float, str, str, dict]] = []
+    for player_id, item in values.items():
+        raw_home = str(item.get("was_home", "")).strip().casefold()
+        row_home = raw_home in {"true", "1", "yes"}
+        if row_home != home:
+            continue
+        minutes = _number(item.get("minutes"))
+        if minutes is None or minutes <= 0:
+            continue
+        value = _number(item.get("value"))
+        name = str(item.get("player_name") or "").strip()
+        if value is None or not name:
+            continue
+        selected = {
+            "id": str(item.get("player_identity_key") or f"fpl:{player_id}"),
+            "name": name,
+            "position": str(item.get("position") or "").strip() or None,
+            "minutes": minutes,
+            "value": value,
+        }
+        candidates.append((value, name.casefold(), str(player_id), selected))
+    if not candidates:
+        return None
+    max_value = max(candidate[0] for candidate in candidates)
+    tied = [candidate for candidate in candidates if candidate[0] == max_value]
+    _, _, _, selected = max(candidates, key=lambda item: (item[0], item[1], item[2]))
+    return PlayerLeader(
+        player_id=selected["id"] if len(tied) == 1 else None,
+        player_name=selected["name"] if len(tied) == 1 else None,
+        position=selected["position"] if len(tied) == 1 else None,
+        minutes=selected["minutes"] if len(tied) == 1 else None,
+        value=selected["value"],
+        tie_count=len(tied),
+    )
+
+
+def _fpl_side(side: str, team_name: str, resolved: dict[str, dict[str, dict]]) -> PlayerPerformanceSide:
+    definitions = (
+        ("goals", "Goals", "history[].goals_scored"),
+        ("assists", "Assists", "history[].assists"),
+        ("expected_goals", "FPL xG", "history[].expected_goals"),
+        ("expected_assists", "FPL xA", "history[].expected_assists"),
+        ("defensive_contribution", "Defensive contribution", "history[].defensive_contribution"),
+        ("saves", "Saves", "history[].saves"),
+    )
+    metrics = []
+    for key, label, variable in definitions:
+        player = _fpl_source_leader(resolved[variable], home=side == "home")
+        metrics.append(
+            PlayerMetric(
+                key=key,
+                label=label,
+                unit="",
+                player=player,
+                status="AVAILABLE" if player else "UNAVAILABLE",
+                provenance={
+                    "resolver": "variable_resolver.resolve_variable",
+                    "family": "fpl",
+                    "source_representation": "FPL_PLAYER_FIXTURE",
+                    "historical_opta_equivalence_asserted": False,
+                },
+            )
+        )
+    return PlayerPerformanceSide(
+        side=side,
+        team_name=team_name,
+        metrics=metrics,
+        status="AVAILABLE" if any(metric.player for metric in metrics) else "UNAVAILABLE",
+        limitations=[
+            "This current-season view uses source-native FPL player-fixture evidence.",
+            "It is not presented as equivalent to historical Opta-derived Player-Match statistics.",
+            "Zero-minute registered-player observations remain preserved but are excluded from performance-leader selection.",
+        ],
+    )
+
+
 def _side(
     side: str,
     team_name: str,
@@ -275,6 +354,29 @@ def _side(
 def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPerformanceResponse:
     try:
         fixture = query_api.fixture_detail(season, fixture_id)["fixture"]
+        fpl_rows = fpl_variable_access.player_fixture_rows(
+            season=season,
+            fixture_id=fixture_id,
+        )
+        if fpl_rows:
+            variables = (
+                "history[].goals_scored",
+                "history[].assists",
+                "history[].expected_goals",
+                "history[].expected_assists",
+                "history[].defensive_contribution",
+                "history[].saves",
+            )
+            fpl_resolved = {
+                variable: _resolved_values(variable, season, fixture_id, family="fpl")
+                for variable in variables
+            }
+            return FixturePlayerPerformanceResponse(
+                season=season,
+                fixture_id=str(fixture_id),
+                home=_fpl_side("home", str(fixture["home_team_name"]), fpl_resolved),
+                away=_fpl_side("away", str(fixture["away_team_name"]), fpl_resolved),
+            )
         resolved_match = source_family_adapters.resolve_source_match(season, fixture_id)
         identity_by_player = _fixture_player_identity(fixture)
     except ValueError as exc:

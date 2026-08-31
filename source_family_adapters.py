@@ -35,6 +35,7 @@ from relationship_enforcement import (
 
 ROOT = Path(__file__).resolve().parent
 FIXTURE_FILE = ROOT / "fixtures_master_corrected.csv"
+FPL_PLAYER_IDENTITY_FILE = ROOT / "data" / "fpl_player_identity_relationships.csv"
 
 
 def _read_csv(path: Path) -> tuple[list[dict[str, str]], list[str]]:
@@ -392,6 +393,41 @@ def source_field_inventory(season: str) -> dict[str, tuple[str, ...]]:
 
 def resolve_fpl_player_identity(season: str, fpl_element: str) -> dict:
     """Return the verified FPL->FRL player identity decision for one season."""
+    current_rows, _ = _read_csv(FPL_PLAYER_IDENTITY_FILE) if FPL_PLAYER_IDENTITY_FILE.is_file() else ([], [])
+    current_matches = [
+        row for row in current_rows
+        if row.get("season") == season
+        and str(row.get("fpl_element", "")).strip() == str(fpl_element).strip()
+    ]
+    if len(current_matches) == 1:
+        row = dict(current_matches[0])
+        status = str(row.get("identity_status") or "UNRESOLVED")
+        usable = status in {"VERIFIED", "SOURCE_NATIVE_VERIFIED"}
+        return {
+            **row,
+            "frl_player_source_id": row.get("player_match_source_player_id") or row.get("player_identity_key", ""),
+            "relationship_contract": "fpl_player_to_frl_player_identity",
+            "relationship_status": status,
+            "candidate_count": int(row.get("candidate_count") or 0),
+            "source_context_available": True,
+            "contradiction": False,
+            "verified": usable,
+            "reason": row.get("evidence_basis", ""),
+        }
+    if len(current_matches) > 1:
+        return {
+            "season": season,
+            "fpl_element": str(fpl_element),
+            "relationship_contract": "fpl_player_to_frl_player_identity",
+            "relationship_status": "AMBIGUOUS",
+            "identity_status": "AMBIGUOUS",
+            "candidate_count": len(current_matches),
+            "source_context_available": True,
+            "contradiction": False,
+            "verified": False,
+            "reason": "Multiple governed current-season FPL identity records exist.",
+        }
+
     matches = [
         row for row in _player_identity_rows()
         if row.get("season") == season

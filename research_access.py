@@ -284,21 +284,43 @@ def _coverage_fpl(season: str, field: str) -> dict[str, Any]:
             "coverage_pct": 0.0,
         }
 
-    rows = _fpl_load(Path(__file__).resolve().parent / "data" / "fpl_player_gw_evidence.csv")
+    if field.startswith("history[]."):
+        evidence_path = Path(__file__).resolve().parent / "data" / "fpl_player_gw_evidence.csv"
+        representation = "FPL_PLAYER_FIXTURE"
+    elif field.startswith("fixtures[]."):
+        evidence_path = Path(__file__).resolve().parent / "data" / "fpl_fixture_evidence.csv"
+        representation = "FPL_FIXTURE"
+    else:
+        return {
+            "season": season,
+            "family": "fpl",
+            "variable": field,
+            "field_present": False,
+            "population": 0,
+            "observed": 0,
+            "missing": 0,
+            "coverage_pct": 0.0,
+            "source_representation": "UNCONNECTED_FPL_REGISTRY_SURFACE",
+        }
+
+    rows = _fpl_load(evidence_path)
     candidate = tuple(row for row in rows if str(row.get("frl_season", "")) == season)
     source_key = f"source_{_fpl_source_field(field)}"
+    field_present = any(source_key in row for row in candidate)
     population = len(candidate)
-    observed = sum(1 for row in candidate if _safe_value(row.get(source_key)))
+    observed = sum(1 for row in candidate if field_present and _safe_value(row.get(source_key)))
     missing = population - observed
     return {
         "season": season,
         "family": "fpl",
         "variable": field,
-        "field_present": True,
+        "field_present": field_present,
         "population": population,
         "observed": observed,
         "missing": missing,
         "coverage_pct": round((observed / population) * 100.0, 3) if population else 0.0,
+        "source_representation": representation,
+        "evidence_table": str(evidence_path),
     }
 
 

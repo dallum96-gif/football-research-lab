@@ -1,9 +1,7 @@
 ﻿import sys
 from pathlib import Path
 
-ROOT = Path(
-    r"C:\Users\dlall\football_database\Premier-League-Stats\fpl_scraper\fpl_stats"
-)
+ROOT = Path(__file__).resolve().parents[1]
 
 sys.path.insert(0, str(ROOT))
 
@@ -24,6 +22,7 @@ def test_seasons():
         "2023-24",
         "2024-25",
         "2025-26",
+        "2026-27",
     ]
 
     assert seasons == expected
@@ -78,14 +77,14 @@ def test_query_provenance():
 def test_identity_registry():
     rows = query_lab.load_identity_registry()
 
-    assert len(rows) == 200
+    assert len(rows) == 220
 
     keys = {
         (row["season"], row["local_team_id"])
         for row in rows
     }
 
-    assert len(keys) == 200
+    assert len(keys) == 220
 
 
 def test_man_city_identity():
@@ -197,6 +196,7 @@ def test_fixture_season_partitions():
         "2023-24": 380,
         "2024-25": 380,
         "2025-26": 380,
+        "2026-27": 380,
     }
 
     counts = {
@@ -239,6 +239,7 @@ def test_fixture_season_partitions():
         "2023-24": ("2023-08-01", "2024-08-31"),
         "2024-25": ("2024-08-01", "2025-08-31"),
         "2025-26": ("2025-08-01", "2026-08-31"),
+        "2026-27": ("2026-08-01", "2027-08-31"),
     }
 
     for season, values in dates.items():
