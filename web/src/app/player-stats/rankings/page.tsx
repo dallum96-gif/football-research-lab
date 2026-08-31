@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { PlayerRankingsControls } from "./PlayerRankingsControls";
+import { PlayerRankingsOverview } from "./PlayerRankingsOverview";
 import type { RankingMetric } from "../PlayerVisuals";
 import styles from "../PlayerStats.module.css";
 import rankingStyles from "./PlayerRankings.module.css";
@@ -141,6 +142,7 @@ export default async function PlayerRankingsPage({
 
   const metric =
     familyMetrics.find((candidate) => candidate.key === query.metric) ?? familyMetrics[0] ?? null;
+  const isOverview = family === "overview";
 
   return (
     <AppShell>
@@ -179,72 +181,83 @@ export default async function PlayerRankingsPage({
           ))}
         </nav>
 
-        {rankings && metric ? (
+        {rankings && (isOverview || metric) ? (
           <main className={styles.workspace}>
-            <section className={rankingStyles.rankingMetricNav}>
-              <div>
-                <p className={styles.kicker}>Metric</p>
-                <h2>{metric.label}</h2>
-              </div>
-              <div className={rankingStyles.metricPills}>
-                {familyMetrics.map((candidate) => (
-                  <Link
-                    key={candidate.key}
-                    href={metricHref(season ?? "", position, family, candidate.key)}
-                    data-active={candidate.key === metric.key ? "true" : "false"}
-                  >
-                    {candidate.label}
-                  </Link>
-                ))}
-              </div>
-            </section>
-
-            <section className={rankingStyles.rankingPanel}>
-              <header className={styles.sectionHeading}>
-                <div>
-                  <p className={styles.kicker}>{FAMILY_LABELS[family]}</p>
-                  <h2>{metric.label} · {position}</h2>
-                </div>
-                <span>{rankings.cohort.description}</span>
-              </header>
-
-              <div className={rankingStyles.rankingTable}>
-                <div className={rankingStyles.rankingHeader}>
-                  <span>Rank</span><span>Player</span><span>Club</span><span>Minutes</span><span>Value</span><span>Percentile</span>
-                </div>
-                {metric.entries
-                  .filter((entry) => entry.value != null)
-                  .map((entry) => (
-                    <div className={rankingStyles.rankingRow} key={entry.player_code}>
-                      <strong>{entry.rank ?? "—"}</strong>
+            {isOverview ? (
+              <PlayerRankingsOverview
+                season={season ?? ""}
+                position={position}
+                metrics={rankings.metrics}
+                cohortDescription={rankings.cohort.description}
+              />
+            ) : metric ? (
+              <>
+                <section className={rankingStyles.rankingMetricNav}>
+                  <div>
+                    <p className={styles.kicker}>Metric</p>
+                    <h2>{metric.label}</h2>
+                  </div>
+                  <div className={rankingStyles.metricPills}>
+                    {familyMetrics.map((candidate) => (
                       <Link
-                        href={`/player-stats?season=${encodeURIComponent(
-                          season ?? ""
-                        )}&player=${encodeURIComponent(entry.player_code)}&family=${encodeURIComponent(family)}`}
+                        key={candidate.key}
+                        href={metricHref(season ?? "", position, family, candidate.key)}
+                        data-active={candidate.key === metric.key ? "true" : "false"}
                       >
-                        {entry.player_name}
+                        {candidate.label}
                       </Link>
-                      <span>{entry.clubs.join(" · ") || "—"}</span>
-                      <span>{entry.minutes}</span>
-                      <strong>{formatMetric(metric, entry.value)}</strong>
-                      <span className={rankingStyles.rankPercentile}>
-                        <i><b style={{ width: `${entry.percentile ?? 0}%` }} /></i>
-                        P{Math.round(entry.percentile ?? 0)}
-                      </span>
-                    </div>
-                  ))}
-              </div>
-            </section>
+                    ))}
+                  </div>
+                </section>
 
-            <section className={styles.methodPanel}>
-              <div>
-                <p className={styles.kicker}>Population</p>
-                <strong>{rankings.population_size} {position} players</strong>
-              </div>
-              <p>
-                Rankings use the same governed metric definition and same-position cohort as Player View. Players with zero recorded minutes remain available in Profiles but are not ranked.
-              </p>
-            </section>
+                <section className={rankingStyles.rankingPanel}>
+                  <header className={styles.sectionHeading}>
+                    <div>
+                      <p className={styles.kicker}>{FAMILY_LABELS[family]}</p>
+                      <h2>{metric.label} · {position}</h2>
+                    </div>
+                    <span>{rankings.cohort.description}</span>
+                  </header>
+
+                  <div className={rankingStyles.rankingTable}>
+                    <div className={rankingStyles.rankingHeader}>
+                      <span>Rank</span><span>Player</span><span>Club</span><span>Minutes</span><span>Value</span><span>Percentile</span>
+                    </div>
+                    {metric.entries
+                      .filter((entry) => entry.value != null)
+                      .map((entry) => (
+                        <div className={rankingStyles.rankingRow} key={entry.player_code}>
+                          <strong>{entry.rank ?? "—"}</strong>
+                          <Link
+                            href={`/player-stats?season=${encodeURIComponent(
+                              season ?? ""
+                            )}&player=${encodeURIComponent(entry.player_code)}&family=${encodeURIComponent(family)}`}
+                          >
+                            {entry.player_name}
+                          </Link>
+                          <span>{entry.clubs.join(" · ") || "—"}</span>
+                          <span>{entry.minutes}</span>
+                          <strong>{formatMetric(metric, entry.value)}</strong>
+                          <span className={rankingStyles.rankPercentile}>
+                            <i><b style={{ width: `${entry.percentile ?? 0}%` }} /></i>
+                            P{Math.round(entry.percentile ?? 0)}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                </section>
+
+                <section className={styles.methodPanel}>
+                  <div>
+                    <p className={styles.kicker}>Population</p>
+                    <strong>{rankings.population_size} {position} players</strong>
+                  </div>
+                  <p>
+                    Rankings use the same governed metric definition and same-position cohort as Player View. Players with zero recorded minutes remain available in Profiles but are not ranked.
+                  </p>
+                </section>
+              </>
+            ) : null}
           </main>
         ) : (
           <div className="frl-empty-state">No governed ranking metric is available for this selection.</div>
