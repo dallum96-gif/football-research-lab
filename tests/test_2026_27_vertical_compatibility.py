@@ -165,6 +165,25 @@ def test_team_stats_use_current_results_but_fail_closed_for_absent_team_match_me
     assert all(row.value is None for row in by_metric["Shots_per_match"].entries)
 
 
+def test_current_result_fallback_preserves_historical_packaged_missing_result_evidence() -> None:
+    rows = team_research_stats.team_match_stats("2019-20", "43")
+    anomaly = next(row for row in rows if row["fixture_id"] == "275")
+
+    assert anomaly["Possession"] == 67.1
+    assert anomaly["goals_for"] is None
+    assert anomaly["goals_against"] is None
+
+    stats = team_research_stats.team_season_stats("2019-20", "43")
+    assert stats["matches"] == 38
+    assert stats["result_coverage"] == {
+        "eligible_matches": 38,
+        "observed_matches": 37,
+        "missing_matches": 1,
+        "coverage_complete": False,
+        "coverage_status": "PARTIAL",
+    }
+
+
 def test_fixture_player_performance_uses_source_native_fpl_metrics_without_opta_claim() -> None:
     response = fixture_player_performance(SEASON, "1")
     home = {metric.key: metric for metric in response.home.metrics}
