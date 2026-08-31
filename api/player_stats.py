@@ -19,6 +19,15 @@ class PlayerOption(BaseModel):
     clubs: list[str]
     minutes: int
     appearances: int
+    starts: int = 0
+
+
+class PlayerSeasonOption(BaseModel):
+    season: str
+    player_code: str
+    player_name: str
+    position: str
+    clubs: list[str]
 
 
 class PlayerProfileMetric(BaseModel):
@@ -134,6 +143,7 @@ def _option(player: dict) -> PlayerOption:
         clubs=list(player.get("clubs") or ()),
         minutes=_integer(player.get("minutes")),
         appearances=_integer(player.get("appearances")),
+        starts=_integer(player.get("starts")),
     )
 
 
@@ -183,6 +193,33 @@ def get_players(season: str) -> list[PlayerOption]:
         (_option(player) for player in players),
         key=lambda player: (player.player_name.casefold(), player.player_code),
     )
+
+
+@router.get(
+    "/api/v1/player-seasons/{player_code}",
+    response_model=list[PlayerSeasonOption],
+)
+def get_player_seasons(player_code: str) -> list[PlayerSeasonOption]:
+    options: list[PlayerSeasonOption] = []
+
+    try:
+        for season in player_research.available_seasons():
+            player = player_research.player_detail(season, player_code)
+            if player is None:
+                continue
+            options.append(
+                PlayerSeasonOption(
+                    season=season,
+                    player_code=str(player.get("player_code") or player_code),
+                    player_name=str(player.get("player_name") or ""),
+                    position=str(player.get("position") or ""),
+                    clubs=list(player.get("clubs") or ()),
+                )
+            )
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail="Player season navigation failed safely.") from exc
+
+    return options
 
 
 @router.get(
