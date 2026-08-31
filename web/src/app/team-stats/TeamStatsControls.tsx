@@ -13,6 +13,12 @@ type TeamOption = {
 };
 
 type TeamStatsView = "team" | "rankings";
+type TeamStatsFamily =
+  | "overview"
+  | "attack"
+  | "passing"
+  | "defence"
+  | "discipline";
 
 export function TeamStatsControls({
   seasons,
@@ -20,12 +26,14 @@ export function TeamStatsControls({
   currentSeason,
   currentTeam,
   currentView = "team",
+  currentFamily = "overview",
 }: {
   seasons: string[];
   teams: TeamOption[];
   currentSeason: string;
   currentTeam?: string;
   currentView?: TeamStatsView;
+  currentFamily?: TeamStatsFamily;
 }) {
   const router = useRouter();
 
@@ -39,16 +47,22 @@ export function TeamStatsControls({
     if (currentView === "team" && currentTeam) {
       params.set("team", currentTeam);
     }
+    if (currentFamily !== "overview") {
+      params.set("family", currentFamily);
+    }
 
     router.push(`${path}?${params.toString()}`);
   }
 
   function changeTeam(team: string) {
-    router.push(
-      `/team-stats?season=${encodeURIComponent(
-        currentSeason
-      )}&team=${encodeURIComponent(team)}`
-    );
+    const params = new URLSearchParams({
+      season: currentSeason,
+      team,
+    });
+    if (currentFamily !== "overview") {
+      params.set("family", currentFamily);
+    }
+    router.push(`/team-stats?${params.toString()}`);
   }
 
   const teamViewParams = new URLSearchParams({
@@ -57,10 +71,16 @@ export function TeamStatsControls({
   if (currentTeam) {
     teamViewParams.set("team", currentTeam);
   }
+  if (currentFamily !== "overview") {
+    teamViewParams.set("family", currentFamily);
+  }
 
   const rankingsParams = new URLSearchParams({
     season: currentSeason,
   });
+  if (currentFamily !== "overview") {
+    rankingsParams.set("family", currentFamily);
+  }
 
   return (
     <div className={styles.controls}>
