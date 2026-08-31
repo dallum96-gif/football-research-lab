@@ -2,6 +2,10 @@
 import { AppShell } from "@/components/AppShell";
 import { TeamKit } from "../teams/TeamKit";
 import { TeamStatsControls } from "./TeamStatsControls";
+import {
+  TeamStatsOverviewWorkspace,
+  type TeamStatsOverview,
+} from "./TeamStatsOverviewWorkspace";
 import styles from "./TeamStats.module.css";
 
 type TeamOption = {
@@ -13,64 +17,6 @@ type TeamOption = {
 
 type SeasonResponse = {
   seasons: string[];
-};
-
-type Metric = {
-  key: string;
-  label: string;
-  value: number;
-  unit: string;
-  rank: number;
-  out_of: number;
-  percentile: number;
-  higher_is_better: boolean;
-};
-
-type MetricAvailability = {
-  key: string;
-  label: string;
-  status: "AVAILABLE" | "PARTIAL" | "UNAVAILABLE" | "REVIEW_REQUIRED";
-  observed_matches: number;
-  eligible_matches: number;
-  representation: string;
-  note: string | null;
-};
-
-type Split = {
-  label: string;
-  matches: number;
-  points_per_match: number | null;
-  goals_for_per_match: number | null;
-  goals_against_per_match: number | null;
-};
-
-type TrendPoint = {
-  fixture_id: string;
-  kickoff_time: string | null;
-  home: boolean;
-  points: number;
-  goals_for: number | null;
-  goals_against: number | null;
-  shots: number | null;
-  shots_on_target: number | null;
-  possession: number | null;
-};
-
-type TeamStatsOverview = {
-  persistent_team_code: string;
-  display_name: string;
-  season: string;
-  matches: number;
-  metrics: Metric[];
-  pass_accuracy: number | null;
-  clean_sheet_rate: number | null;
-  failed_to_score_rate: number | null;
-  expected_goals_per_match: number | null;
-  xg_overperformance: number | null;
-  splits: Split[];
-  trend: TrendPoint[];
-  availability: MetricAvailability[];
-  limitations: string[];
 };
 
 type RankingCoverage = {
@@ -111,30 +57,79 @@ type LeagueRankingsResponse = {
   metrics: RankingMetric[];
 };
 
-type FamilyKey = "overview" | "attack";
+type FamilyKey =
+  | "overview"
+  | "attack"
+  | "passing"
+  | "defence"
+  | "discipline";
+
+type AnalyticalFamily = Exclude<FamilyKey, "overview">;
 
 const API_BASE =
   process.env.NEXT_PUBLIC_FRL_API_URL ??
   "http://127.0.0.1:8000";
 
-const tabs: {
-  key: string;
-  label: string;
-  enabled: boolean;
-}[] = [
-  { key: "overview", label: "Overview", enabled: true },
-  { key: "attack", label: "Attack", enabled: true },
-  { key: "passing", label: "Passing", enabled: false },
-  { key: "defence", label: "Defence", enabled: false },
-  { key: "discipline", label: "Discipline", enabled: false },
+const tabs: { key: FamilyKey; label: string }[] = [
+  { key: "overview", label: "Overview" },
+  { key: "attack", label: "Attack" },
+  { key: "passing", label: "Passing" },
+  { key: "defence", label: "Defence" },
+  { key: "discipline", label: "Discipline" },
 ];
 
-const ATTACK_METRIC_KEYS = [
-  "goals_for_per_match",
-  "Shots_per_match",
-  "Shots on target_per_match",
-  "Corners_per_match",
-];
+const FAMILY_CONFIG: Record<
+  AnalyticalFamily,
+  {
+    label: string;
+    metricKeys: string[];
+    description: string;
+  }
+> = {
+  attack: {
+    label: "Attack",
+    metricKeys: [
+      "goals_for_per_match",
+      "Shots_per_match",
+      "Shots on target_per_match",
+      "Corners_per_match",
+    ],
+    description:
+      "Goals and attacking volume from the shared governed Team Stats analysis.",
+  },
+  passing: {
+    label: "Passing",
+    metricKeys: [
+      "Possession_per_match",
+      "Passes_per_match",
+      "Accurate passes_per_match",
+      "Crosses_per_match",
+    ],
+    description:
+      "Possession and passing-volume measures. Possession lives here rather than as a separate analytical family.",
+  },
+  defence: {
+    label: "Defence",
+    metricKeys: [
+      "goals_against_per_match",
+      "Tackles_per_match",
+      "Interceptions_per_match",
+      "Clearances_per_match",
+    ],
+    description:
+      "Defensive outcomes and action volume, kept distinct so high action counts are not automatically interpreted as better defending.",
+  },
+  discipline: {
+    label: "Discipline",
+    metricKeys: [
+      "Fouls conceded_per_match",
+      "Yellow cards_per_match",
+      "Red cards_per_match",
+    ],
+    description:
+      "Fouls and card rates, ranked with lower values first.",
+  },
+};
 
 async function getJson<T>(path: string): Promise<T | null> {
   try {
@@ -150,21 +145,6 @@ async function getJson<T>(path: string): Promise<T | null> {
   } catch {
     return null;
   }
-}
-
-function formatMetric(metric: Metric) {
-  if (metric.unit === "%") {
-    return `${metric.value.toFixed(1)}%`;
-  }
-
-  if (
-    metric.key === "points_per_match" ||
-    metric.key.includes("goals")
-  ) {
-    return metric.value.toFixed(2);
-  }
-
-  return metric.value.toFixed(1);
 }
 
 function formatRankingMetric(metric: RankingMetric, value: number | null) {
@@ -205,20 +185,6 @@ function ordinal(value: number) {
   return `${value}${suffix}`;
 }
 
-function rollingPpg(points: TrendPoint[]) {
-  return points.map((_, index) => {
-    const start = Math.max(0, index - 4);
-    const window = points.slice(start, index + 1);
-
-    return (
-      window.reduce(
-        (total, point) => total + point.points,
-        0
-      ) / window.length
-    );
-  });
-}
-
 function teamStatsHref(
   season: string,
   team: string,
@@ -231,325 +197,33 @@ function teamStatsHref(
   return `/team-stats?${params.toString()}`;
 }
 
-function rankingsHref(season: string, family: FamilyKey, metric?: string) {
+function rankingsHref(season: string, family: AnalyticalFamily) {
   const params = new URLSearchParams({ season, family });
-  if (metric) {
-    params.set("metric", metric);
-  }
   return `/team-stats/rankings?${params.toString()}`;
 }
 
-function OverviewWorkspace({ overview }: { overview: TeamStatsOverview }) {
-  const trend = rollingPpg(overview.trend);
-  const trendPoints = trend
-    .map((value, index) => {
-      const x =
-        trend.length <= 1
-          ? 0
-          : (index / (trend.length - 1)) * 100;
-      const y =
-        100 -
-        Math.min(3, Math.max(0, value)) / 3 * 100;
-      return `${x.toFixed(2)},${y.toFixed(2)}`;
-    })
-    .join(" ");
-
-  const strongest =
-    overview.metrics.reduce<Metric | null>(
-      (best, metric) =>
-        !best || metric.percentile > best.percentile ? metric : best,
-      null
-    );
-
-  const weakest =
-    overview.metrics.reduce<Metric | null>(
-      (worst, metric) =>
-        !worst || metric.percentile < worst.percentile ? metric : worst,
-      null
-    );
-
-  const home = overview.splits.find((split) => split.label === "Home");
-  const away = overview.splits.find((split) => split.label === "Away");
-  const latestRolling = trend.length > 0 ? trend[trend.length - 1] : null;
-  const seasonPpg =
-    overview.metrics.find((metric) => metric.key === "points_per_match")
-      ?.value ?? null;
-
-  return (
-    <main className={styles.workspace}>
-      <section className={styles.metricGrid}>
-        {overview.availability
-          .filter(
-            (availability) =>
-              availability.key !== "expected_goals_per_match"
-          )
-          .map((availability) => {
-            const metric = overview.metrics.find(
-              (candidate) => candidate.key === availability.key
-            );
-
-            return (
-              <article className={styles.metricCard} key={availability.key}>
-                <div className={styles.metricTop}>
-                  <span>{availability.label}</span>
-                  <small>
-                    {metric
-                      ? `${ordinal(metric.rank)} / ${metric.out_of}`
-                      : "Unavailable"}
-                  </small>
-                </div>
-
-                <strong>{metric ? formatMetric(metric) : "—"}</strong>
-
-                <div
-                  className={styles.percentileTrack}
-                  aria-label={
-                    metric
-                      ? `${metric.percentile} percentile`
-                      : `${availability.label} unavailable for this season`
-                  }
-                >
-                  <span
-                    style={{
-                      width: metric ? `${metric.percentile}%` : "0%",
-                    }}
-                  />
-                </div>
-
-                <footer>
-                  <span>
-                    {metric
-                      ? `P${Math.round(metric.percentile)}`
-                      : `${availability.observed_matches}/${availability.eligible_matches}`}
-                  </span>
-                  <span>
-                    {metric
-                      ? "League percentile"
-                      : availability.note ?? "Unavailable for this season"}
-                  </span>
-                </footer>
-              </article>
-            );
-          })}
-      </section>
-
-      <section className={styles.analysisGrid}>
-        <article className={styles.trendPanel}>
-          <header className={styles.sectionHeading}>
-            <div>
-              <p className={styles.kicker}>Season pulse</p>
-              <h2>Five-match rolling PPG</h2>
-            </div>
-
-            <div className={styles.trendReadout}>
-              <span>Latest five</span>
-              <strong>
-                {latestRolling !== null ? latestRolling.toFixed(2) : "—"}
-              </strong>
-              <small>
-                Season {seasonPpg !== null ? seasonPpg.toFixed(2) : "—"}
-              </small>
-            </div>
-          </header>
-
-          <div className={styles.chart}>
-            <div className={styles.chartLabels}>
-              <span>3.0</span>
-              <span>2.0</span>
-              <span>1.0</span>
-              <span>0.0</span>
-            </div>
-
-            <div className={styles.chartCanvas}>
-              <i className={styles.gridLine} style={{ top: "0%" }} />
-              <i className={styles.gridLine} style={{ top: "33.333%" }} />
-              <i className={styles.gridLine} style={{ top: "66.666%" }} />
-              <i className={styles.gridLine} style={{ top: "100%" }} />
-
-              <svg
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                role="img"
-                aria-label="Five-match rolling points per game"
-              >
-                <polyline
-                  points={trendPoints}
-                  vectorEffect="non-scaling-stroke"
-                />
-              </svg>
-            </div>
-          </div>
-
-          <footer className={styles.chartFooter}>
-            <span>Season start</span>
-            <span>Form moves. Baselines matter.</span>
-            <span>Season end</span>
-          </footer>
-        </article>
-
-        <article className={styles.venuePanel}>
-          <header className={styles.sectionHeading}>
-            <div>
-              <p className={styles.kicker}>Venue split</p>
-              <h2>Home / Away</h2>
-            </div>
-          </header>
-
-          {[home, away].map(
-            (split) =>
-              split && (
-                <div className={styles.splitRow} key={split.label}>
-                  <div
-                    className={
-                      split.label === "Home"
-                        ? styles.homeMarker
-                        : styles.awayMarker
-                    }
-                  >
-                    {split.label.charAt(0)}
-                  </div>
-
-                  <div className={styles.splitName}>
-                    <strong>{split.label}</strong>
-                    <span>{split.matches} matches</span>
-                  </div>
-
-                  <div className={styles.splitStat}>
-                    <strong>
-                      {split.points_per_match?.toFixed(2) ?? "—"}
-                    </strong>
-                    <span>PPG</span>
-                  </div>
-
-                  <div className={styles.splitStat}>
-                    <strong>
-                      {split.goals_for_per_match?.toFixed(2) ?? "—"}
-                    </strong>
-                    <span>GF</span>
-                  </div>
-
-                  <div className={styles.splitStat}>
-                    <strong>
-                      {split.goals_against_per_match?.toFixed(2) ?? "—"}
-                    </strong>
-                    <span>GA</span>
-                  </div>
-                </div>
-              )
-          )}
-
-          <div className={styles.venueNote}>
-            {home?.points_per_match != null && away?.points_per_match != null ? (
-              <>
-                <span>Venue effect</span>
-                <strong>
-                  {Math.abs(
-                    home.points_per_match - away.points_per_match
-                  ).toFixed(2)}{" "}
-                  PPG
-                </strong>
-                <p>
-                  {home.points_per_match > away.points_per_match
-                    ? "Stronger home return."
-                    : home.points_per_match < away.points_per_match
-                      ? "Stronger away return."
-                      : "No PPG difference."}
-                </p>
-              </>
-            ) : (
-              <p>Venue comparison unavailable.</p>
-            )}
-          </div>
-        </article>
-      </section>
-
-      <section className={styles.bottomGrid}>
-        <article className={styles.readPanel}>
-          <p className={styles.kicker}>Read the team</p>
-
-          <div className={styles.readItems}>
-            <div>
-              <span>Strongest signal</span>
-              <strong>{strongest?.label ?? "—"}</strong>
-              <p>
-                {strongest
-                  ? `${ordinal(strongest.rank)} of ${strongest.out_of} in the league.`
-                  : "Unavailable."}
-              </p>
-            </div>
-
-            <div>
-              <span>Relative soft spot</span>
-              <strong>{weakest?.label ?? "—"}</strong>
-              <p>
-                {weakest
-                  ? `${ordinal(weakest.rank)} of ${weakest.out_of} in the league.`
-                  : "Unavailable."}
-              </p>
-            </div>
-          </div>
-        </article>
-
-        <article className={styles.secondaryPanel}>
-          <p className={styles.kicker}>Secondary signals</p>
-
-          <div className={styles.secondaryGrid}>
-            <div>
-              <span>Pass accuracy</span>
-              <strong>
-                {overview.pass_accuracy !== null
-                  ? `${(overview.pass_accuracy * 100).toFixed(1)}%`
-                  : "—"}
-              </strong>
-            </div>
-
-            <div>
-              <span>Clean sheets</span>
-              <strong>
-                {overview.clean_sheet_rate !== null
-                  ? `${(overview.clean_sheet_rate * 100).toFixed(0)}%`
-                  : "—"}
-              </strong>
-            </div>
-
-            <div>
-              <span>Failed to score</span>
-              <strong>
-                {overview.failed_to_score_rate !== null
-                  ? `${(overview.failed_to_score_rate * 100).toFixed(0)}%`
-                  : "—"}
-              </strong>
-            </div>
-
-            <div>
-              <span>xG / match</span>
-              <strong>
-                {overview.expected_goals_per_match !== null
-                  ? overview.expected_goals_per_match.toFixed(2)
-                  : "—"}
-              </strong>
-            </div>
-          </div>
-
-          <footer>League context, not a prediction model.</footer>
-        </article>
-      </section>
-    </main>
-  );
-}
-
-function AttackWorkspace({
+function FamilyWorkspace({
   overview,
   rankings,
   teamCode,
+  family,
 }: {
   overview: TeamStatsOverview;
   rankings: LeagueRankingsResponse | null;
   teamCode: string;
+  family: AnalyticalFamily;
 }) {
-  const metrics = ATTACK_METRIC_KEYS.map((key) =>
-    rankings?.metrics.find((metric) => metric.key === key)
-  ).filter((metric): metric is RankingMetric => Boolean(metric));
+  const config = FAMILY_CONFIG[family];
+  const metrics = config.metricKeys
+    .map((key) => rankings?.metrics.find((metric) => metric.key === key))
+    .filter((metric): metric is RankingMetric => Boolean(metric));
+
+  const availableMetrics = metrics.filter((metric) => {
+    const entry = metric.entries.find(
+      (candidate) => candidate.persistent_team_code === teamCode
+    );
+    return entry?.value !== null && entry?.value !== undefined;
+  });
 
   return (
     <main className={styles.workspace}>
@@ -557,20 +231,19 @@ function AttackWorkspace({
         <header className={styles.sectionHeading}>
           <div>
             <p className={styles.kicker}>Analytical family</p>
-            <h2>Attack</h2>
+            <h2>{config.label}</h2>
           </div>
           <Link
             className={styles.kicker}
             style={{ textDecoration: "none" }}
-            href={rankingsHref(overview.season, "attack")}
+            href={rankingsHref(overview.season, family)}
           >
             League rankings →
           </Link>
         </header>
         <p className={styles.context}>
-          Goals, shot volume, shots on target and corners from the same governed
-          season analysis used by League Rankings. Missing current-season
-          observations remain unavailable rather than becoming zero.
+          {config.description} Missing current-season observations remain
+          unavailable rather than becoming zero.
         </p>
       </section>
 
@@ -626,7 +299,9 @@ function AttackWorkspace({
                 </span>
                 <span>
                   {available
-                    ? "League percentile"
+                    ? metric.higher_is_better
+                      ? "Higher values rank first"
+                      : "Lower values rank first"
                     : "No governed observation"}
                 </span>
               </footer>
@@ -637,7 +312,7 @@ function AttackWorkspace({
 
       {metrics.length === 0 && (
         <div className={styles.empty}>
-          Attack analysis is unavailable for this selection.
+          {config.label} analysis is unavailable for this selection.
         </div>
       )}
 
@@ -653,7 +328,10 @@ function AttackWorkspace({
             <div>
               <span>Comparison</span>
               <strong>Premier League</strong>
-              <p>Ranks and percentiles use the same eligible population as Rankings.</p>
+              <p>
+                Ranks and percentiles use the same eligible population as
+                League Rankings.
+              </p>
             </div>
           </div>
         </article>
@@ -662,11 +340,9 @@ function AttackWorkspace({
           <p className={styles.kicker}>Current boundary</p>
           <div className={styles.secondaryGrid}>
             <div>
-              <span>xG / match</span>
+              <span>Observed metrics</span>
               <strong>
-                {overview.expected_goals_per_match !== null
-                  ? overview.expected_goals_per_match.toFixed(2)
-                  : "—"}
+                {availableMetrics.length}/{metrics.length}
               </strong>
             </div>
             <div>
@@ -674,8 +350,8 @@ function AttackWorkspace({
               <strong>{overview.matches}</strong>
             </div>
             <div>
-              <span>Family status</span>
-              <strong>Governed</strong>
+              <span>League population</span>
+              <strong>{rankings?.population_size ?? "—"}</strong>
             </div>
             <div>
               <span>New data</span>
@@ -683,8 +359,8 @@ function AttackWorkspace({
             </div>
           </div>
           <footer>
-            xG remains a separately governed observation and is not silently
-            ranked here.
+            Family views project the existing governed analysis; they do not
+            create substitute observations for missing source evidence.
           </footer>
         </article>
       </section>
@@ -702,8 +378,8 @@ export default async function TeamStatsPage({
   }>;
 }) {
   const query = await searchParams;
-  const activeFamily: FamilyKey =
-    query.family === "attack" ? "attack" : "overview";
+  const activeFamily =
+    tabs.find((tab) => tab.key === query.family)?.key ?? "overview";
 
   const seasonResponse = await getJson<SeasonResponse>("/api/v1/seasons");
   const seasons = seasonResponse?.seasons ?? [];
@@ -749,7 +425,7 @@ export default async function TeamStatsPage({
       : null;
 
   const rankings =
-    activeFamily === "attack" && season
+    activeFamily !== "overview" && season
       ? await getJson<LeagueRankingsResponse>(
           `/api/v1/team-stats/${encodeURIComponent(season)}/rankings`
         )
@@ -784,13 +460,14 @@ export default async function TeamStatsPage({
               teams={teams}
               currentSeason={season}
               currentTeam={requestedTeam}
+              currentFamily={activeFamily}
             />
           )}
         </header>
 
         <nav className={styles.tabs} aria-label="Team Stats sections">
           {tabs.map((tab) => {
-            if (!tab.enabled || !season || !requestedTeam) {
+            if (!season || !requestedTeam) {
               return (
                 <span key={tab.key} className={styles.futureTab}>
                   {tab.label}
@@ -798,18 +475,17 @@ export default async function TeamStatsPage({
               );
             }
 
-            const family = tab.key as FamilyKey;
             return (
               <span
                 key={tab.key}
                 className={
-                  family === activeFamily
+                  tab.key === activeFamily
                     ? styles.activeTab
                     : styles.futureTab
                 }
               >
                 <Link
-                  href={teamStatsHref(season, requestedTeam, family)}
+                  href={teamStatsHref(season, requestedTeam, tab.key)}
                   style={{
                     color: "inherit",
                     textDecoration: "none",
@@ -826,15 +502,16 @@ export default async function TeamStatsPage({
         </nav>
 
         {overview ? (
-          activeFamily === "attack" && requestedTeam ? (
-            <AttackWorkspace
+          activeFamily === "overview" ? (
+            <TeamStatsOverviewWorkspace overview={overview} />
+          ) : requestedTeam ? (
+            <FamilyWorkspace
               overview={overview}
               rankings={rankings}
               teamCode={requestedTeam}
+              family={activeFamily}
             />
-          ) : (
-            <OverviewWorkspace overview={overview} />
-          )
+          ) : null
         ) : (
           <div className={styles.empty}>
             Team Stats data is unavailable for this selection.
