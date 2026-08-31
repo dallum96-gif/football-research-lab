@@ -66,6 +66,14 @@ const families: { key: FamilyKey; label: string }[] = [
   { key: "discipline", label: "Discipline" },
 ];
 
+const FRACTION_PERCENT_KEYS = new Set([
+  "shot_accuracy",
+  "goals_per_shot",
+  "failed_to_score_rate",
+  "pass_accuracy",
+  "clean_sheet_rate",
+]);
+
 const familyMetricKeys: Record<FamilyKey, string[]> = {
   overview: [
     "points_per_match",
@@ -79,22 +87,37 @@ const familyMetricKeys: Record<FamilyKey, string[]> = {
     "goals_for_per_match",
     "Shots_per_match",
     "Shots on target_per_match",
+    "Shots off target_per_match",
+    "Blocked shots_per_match",
     "Corners_per_match",
+    "Offsides_per_match",
+    "Big chances created_per_match",
+    "Big chances missed_per_match",
+    "shot_accuracy",
+    "goals_per_shot",
+    "failed_to_score_rate",
   ],
   passing: [
     "Possession_per_match",
     "Passes_per_match",
     "Accurate passes_per_match",
+    "pass_accuracy",
     "Crosses_per_match",
   ],
   defence: [
     "goals_against_per_match",
     "Tackles_per_match",
+    "Tackles won_per_match",
     "Interceptions_per_match",
+    "Interceptions won_per_match",
     "Clearances_per_match",
+    "Effective clearances_per_match",
+    "Saves_per_match",
+    "clean_sheet_rate",
   ],
   discipline: [
     "Fouls conceded_per_match",
+    "Fouls won_per_match",
     "Yellow cards_per_match",
     "Red cards_per_match",
   ],
@@ -122,7 +145,10 @@ function formatValue(metric: RankingMetric, value: number | null) {
   }
 
   if (metric.unit === "%") {
-    return `${value.toFixed(1)}%`;
+    const displayValue = FRACTION_PERCENT_KEYS.has(metric.key)
+      ? value * 100
+      : value;
+    return `${displayValue.toFixed(1)}%`;
   }
 
   if (
@@ -133,6 +159,12 @@ function formatValue(metric: RankingMetric, value: number | null) {
   }
 
   return value.toFixed(1);
+}
+
+function metricAvailableForSeason(metric: RankingMetric) {
+  return metric.entries.some(
+    (entry) => entry.value !== null && entry.value !== undefined
+  );
 }
 
 function ordinal(value: number | null) {
@@ -217,36 +249,29 @@ function RankingCard({
       </header>
 
       <div className={styles.cardLeaders}>
-        {leaders.length > 0 ? (
-          leaders.map((entry) => (
-            <Link
-              key={entry.persistent_team_code}
-              href={teamHref(season, entry)}
-              className={styles.cardRow}
-            >
-              <strong className={styles.cardRank}>{entry.rank}</strong>
-              <span className={styles.cardKit}>
-                <TeamKit teamName={entry.display_name} />
-              </span>
-              <span className={styles.cardTeam}>{entry.display_name}</span>
-              <strong className={styles.cardValue}>
-                {formatValue(metric, entry.value)}
-              </strong>
-            </Link>
-          ))
-        ) : (
-          <div className={styles.unavailableFamily}>
-            <strong>No governed ranking observations.</strong>
-            <span>Unavailable for this season.</span>
-          </div>
-        )}
+        {leaders.map((entry) => (
+          <Link
+            key={entry.persistent_team_code}
+            href={teamHref(season, entry)}
+            className={styles.cardRow}
+          >
+            <strong className={styles.cardRank}>{entry.rank}</strong>
+            <span className={styles.cardKit}>
+              <TeamKit teamName={entry.display_name} />
+            </span>
+            <span className={styles.cardTeam}>{entry.display_name}</span>
+            <strong className={styles.cardValue}>
+              {formatValue(metric, entry.value)}
+            </strong>
+          </Link>
+        ))}
       </div>
 
       <footer className={styles.cardFooter}>
         <span>
-          {rankedEntries.length > 0
-            ? `${metric.higher_is_better ? "Higher" : "Lower"} values rank first`
-            : "Unavailable for this season"}
+          {metric.higher_is_better
+            ? "Higher values rank first"
+            : "Lower values rank first"}
         </span>
         <span>{rankedEntries.length} observed teams</span>
       </footer>
@@ -266,17 +291,6 @@ function FullRanking({
   const rankedEntries = metric.entries.filter(
     (entry) => entry.rank !== null && entry.value !== null
   );
-
-  if (rankedEntries.length === 0) {
-    return (
-      <section className={styles.tablePanel}>
-        <div className={styles.unavailableFamily}>
-          <strong>No governed ranking observations.</strong>
-          <span>This metric is unavailable for this season.</span>
-        </div>
-      </section>
-    );
-  }
 
   return (
     <section className={styles.tablePanel}>
@@ -380,7 +394,8 @@ export default async function TeamStatsRankingsPage({
     "Overview";
   const activeFamilyMetrics = familyMetricKeys[activeFamily]
     .map((key) => rankings?.metrics.find((metric) => metric.key === key))
-    .filter((metric): metric is RankingMetric => Boolean(metric));
+    .filter((metric): metric is RankingMetric => Boolean(metric))
+    .filter(metricAvailableForSeason);
   const activeMetric =
     activeFamilyMetrics.find((metric) => metric.key === query.metric) ??
     activeFamilyMetrics[0] ??
@@ -450,8 +465,9 @@ export default async function TeamStatsRankingsPage({
                     <p className={teamStyles.kicker}>League Rankings</p>
                     <h2>Overview</h2>
                     <p>
-                      A compact snapshot of the six headline governed rankings
-                      shared with Team View.
+                      Headline metrics are shown only when the selected season
+                      contains a governed observation. Partial coverage remains
+                      visible inside the ranking population.
                     </p>
                   </div>
                   <span className={styles.populationBadge}>
@@ -561,10 +577,10 @@ export default async function TeamStatsRankingsPage({
                   </>
                 ) : (
                   <div className={styles.unavailableFamily}>
-                    <strong>No governed ranking metric here yet.</strong>
+                    <strong>No metric is available for this season.</strong>
                     <span>
-                      FRL will populate this family only when the underlying
-                      metrics are analytically ready.
+                      The family remains part of FRL, but variables with zero
+                      governed observations are not offered for {rankings.season}.
                     </span>
                   </div>
                 )}
@@ -574,8 +590,8 @@ export default async function TeamStatsRankingsPage({
             <footer className={styles.methodNote}>
               <span>{rankings.analysis_version}</span>
               <span>
-                Values, ranks and percentiles are supplied by the shared
-                Team Stats analytical kernel.
+                The catalogue is season-aware: unavailable variables disappear
+                from the selected season; partial coverage remains explicit.
               </span>
             </footer>
           </main>
