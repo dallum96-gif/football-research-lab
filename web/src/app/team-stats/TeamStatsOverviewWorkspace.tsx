@@ -145,63 +145,68 @@ export function TeamStatsOverviewWorkspace({
   const seasonPpg =
     overview.metrics.find((metric) => metric.key === "points_per_match")
       ?.value ?? null;
+  const seasonAvailableMetrics = overview.availability.filter(
+    (availability) =>
+      availability.key !== "expected_goals_per_match" &&
+      availability.status !== "UNAVAILABLE"
+  );
+  const hasSecondarySignals =
+    overview.pass_accuracy !== null ||
+    overview.clean_sheet_rate !== null ||
+    overview.failed_to_score_rate !== null ||
+    overview.expected_goals_per_match !== null;
 
   return (
     <main className={styles.workspace}>
       <section className={styles.metricGrid}>
-        {overview.availability
-          .filter(
-            (availability) =>
-              availability.key !== "expected_goals_per_match"
-          )
-          .map((availability) => {
-            const metric = overview.metrics.find(
-              (candidate) => candidate.key === availability.key
-            );
+        {seasonAvailableMetrics.map((availability) => {
+          const metric = overview.metrics.find(
+            (candidate) => candidate.key === availability.key
+          );
 
-            return (
-              <article className={styles.metricCard} key={availability.key}>
-                <div className={styles.metricTop}>
-                  <span>{availability.label}</span>
-                  <small>
-                    {metric
-                      ? `${ordinal(metric.rank)} / ${metric.out_of}`
-                      : "Unavailable"}
-                  </small>
-                </div>
+          return (
+            <article className={styles.metricCard} key={availability.key}>
+              <div className={styles.metricTop}>
+                <span>{availability.label}</span>
+                <small>
+                  {metric
+                    ? `${ordinal(metric.rank)} / ${metric.out_of}`
+                    : availability.status}
+                </small>
+              </div>
 
-                <strong>{metric ? formatMetric(metric) : "—"}</strong>
+              <strong>{metric ? formatMetric(metric) : "—"}</strong>
 
-                <div
-                  className={styles.percentileTrack}
-                  aria-label={
-                    metric
-                      ? `${metric.percentile} percentile`
-                      : `${availability.label} unavailable for this season`
-                  }
-                >
-                  <span
-                    style={{
-                      width: metric ? `${metric.percentile}%` : "0%",
-                    }}
-                  />
-                </div>
+              <div
+                className={styles.percentileTrack}
+                aria-label={
+                  metric
+                    ? `${metric.percentile} percentile`
+                    : `${availability.label} has partial or review-required coverage`
+                }
+              >
+                <span
+                  style={{
+                    width: metric ? `${metric.percentile}%` : "0%",
+                  }}
+                />
+              </div>
 
-                <footer>
-                  <span>
-                    {metric
-                      ? `P${Math.round(metric.percentile)}`
-                      : `${availability.observed_matches}/${availability.eligible_matches}`}
-                  </span>
-                  <span>
-                    {metric
-                      ? "League percentile"
-                      : availability.note ?? "Unavailable for this season"}
-                  </span>
-                </footer>
-              </article>
-            );
-          })}
+              <footer>
+                <span>
+                  {metric
+                    ? `P${Math.round(metric.percentile)}`
+                    : `${availability.observed_matches}/${availability.eligible_matches}`}
+                </span>
+                <span>
+                  {metric
+                    ? "League percentile"
+                    : availability.note ?? availability.status}
+                </span>
+              </footer>
+            </article>
+          );
+        })}
       </section>
 
       <section className={styles.analysisGrid}>
@@ -361,49 +366,53 @@ export function TeamStatsOverviewWorkspace({
           </div>
         </article>
 
-        <article className={styles.secondaryPanel}>
-          <p className={styles.kicker}>Secondary signals</p>
+        {hasSecondarySignals && (
+          <article className={styles.secondaryPanel}>
+            <p className={styles.kicker}>Secondary signals</p>
 
-          <div className={styles.secondaryGrid}>
-            <div>
-              <span>Pass accuracy</span>
-              <strong>
-                {overview.pass_accuracy !== null
-                  ? `${(overview.pass_accuracy * 100).toFixed(1)}%`
-                  : "—"}
-              </strong>
+            <div className={styles.secondaryGrid}>
+              {overview.pass_accuracy !== null && (
+                <div>
+                  <span>Pass accuracy</span>
+                  <strong>
+                    {(overview.pass_accuracy * 100).toFixed(1)}%
+                  </strong>
+                </div>
+              )}
+
+              {overview.clean_sheet_rate !== null && (
+                <div>
+                  <span>Clean sheets</span>
+                  <strong>
+                    {(overview.clean_sheet_rate * 100).toFixed(0)}%
+                  </strong>
+                </div>
+              )}
+
+              {overview.failed_to_score_rate !== null && (
+                <div>
+                  <span>Failed to score</span>
+                  <strong>
+                    {(overview.failed_to_score_rate * 100).toFixed(0)}%
+                  </strong>
+                </div>
+              )}
+
+              {overview.expected_goals_per_match !== null && (
+                <div>
+                  <span>xG / match</span>
+                  <strong>
+                    {overview.expected_goals_per_match.toFixed(2)}
+                  </strong>
+                </div>
+              )}
             </div>
 
-            <div>
-              <span>Clean sheets</span>
-              <strong>
-                {overview.clean_sheet_rate !== null
-                  ? `${(overview.clean_sheet_rate * 100).toFixed(0)}%`
-                  : "—"}
-              </strong>
-            </div>
-
-            <div>
-              <span>Failed to score</span>
-              <strong>
-                {overview.failed_to_score_rate !== null
-                  ? `${(overview.failed_to_score_rate * 100).toFixed(0)}%`
-                  : "—"}
-              </strong>
-            </div>
-
-            <div>
-              <span>xG / match</span>
-              <strong>
-                {overview.expected_goals_per_match !== null
-                  ? overview.expected_goals_per_match.toFixed(2)
-                  : "—"}
-              </strong>
-            </div>
-          </div>
-
-          <footer>League context, not a prediction model.</footer>
-        </article>
+            <footer>
+              Only signals available in the selected season are shown.
+            </footer>
+          </article>
+        )}
       </section>
     </main>
   );
