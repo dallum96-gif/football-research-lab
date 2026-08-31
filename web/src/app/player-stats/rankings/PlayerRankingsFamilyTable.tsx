@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { RankingMetric } from "../PlayerVisuals";
 import rankingStyles from "./PlayerRankings.module.css";
+import familyStyles from "./PlayerRankingsFamilyTable.module.css";
 
 type SortDirection = "asc" | "desc";
 
@@ -166,11 +167,13 @@ export function PlayerRankingsFamilyTable({
     <>
       <section className={rankingStyles.rankingMetricNav}>
         <div>
-          <p className={rankingStyles.familyKicker}>Metrics</p>
+          <p className={familyStyles.familyKicker}>Metrics</p>
           <h2>{familyLabel}</h2>
         </div>
 
-        <div className={rankingStyles.metricPills}>
+        <div
+          className={`${rankingStyles.metricPills} ${familyStyles.familyMetricPills}`}
+        >
           {availableMetrics.map((metric) => {
             const active = visibleKeys.includes(metric.key);
             return (
@@ -189,21 +192,21 @@ export function PlayerRankingsFamilyTable({
       </section>
 
       <section className={rankingStyles.rankingPanel}>
-        <header className={rankingStyles.familyTableHeading}>
+        <header className={familyStyles.familyTableHeading}>
           <div>
-            <p className={rankingStyles.familyKicker}>{familyLabel}</p>
+            <p className={familyStyles.familyKicker}>{familyLabel}</p>
             <h2>{familyLabel} · {position}</h2>
           </div>
           <span>{cohortDescription}</span>
         </header>
 
-        <div className={rankingStyles.familyTableScroll}>
+        <div className={familyStyles.familyTableScroll}>
           <div
-            className={rankingStyles.familyTable}
+            className={familyStyles.familyTable}
             style={{ minWidth: `${520 + visibleMetrics.length * 112}px` }}
           >
             <div
-              className={rankingStyles.familyTableHeader}
+              className={familyStyles.familyTableHeader}
               style={{ gridTemplateColumns }}
             >
               <span>#</span>
@@ -229,11 +232,11 @@ export function PlayerRankingsFamilyTable({
 
             {sortedRows.map((row, index) => (
               <div
-                className={rankingStyles.familyTableRow}
+                className={familyStyles.familyTableRow}
                 style={{ gridTemplateColumns }}
                 key={row.player_code}
               >
-                <span className={rankingStyles.familyRowNumber}>{index + 1}</span>
+                <span className={familyStyles.familyRowNumber}>{index + 1}</span>
                 <Link
                   href={`/player-stats?season=${encodeURIComponent(
                     season
@@ -248,7 +251,7 @@ export function PlayerRankingsFamilyTable({
                     (candidate) => candidate.player_code === row.player_code
                   );
                   return (
-                    <span className={rankingStyles.familyMetricCell} key={metric.key}>
+                    <span className={familyStyles.familyMetricCell} key={metric.key}>
                       <strong>{formatMetric(metric, entry?.value ?? null)}</strong>
                       {entry?.percentile != null && (
                         <small>P{Math.round(entry.percentile)}</small>
