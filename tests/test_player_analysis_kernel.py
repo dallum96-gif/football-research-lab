@@ -72,21 +72,40 @@ def test_current_season_does_not_invent_absent_rich_passing_metrics() -> None:
     assert analysis["metrics"]["pass_completion"]["availability"] == "UNAVAILABLE"
 
 
-def test_historical_richer_player_representation_can_surface_when_present() -> None:
-    analysis = player_analysis_kernel.season_position_analysis("2025-26", "MID")
+def test_richer_player_metrics_can_surface_when_source_fields_are_present() -> None:
+    player = {
+        "minutes": 900,
+        "attempted_passes": 500,
+        "completed_passes": 400,
+        "key_passes": 20,
+        "big_chances_created": 5,
+        "dribbles": 30,
+    }
 
-    rich_keys = (
-        "attempted_passes",
-        "completed_passes",
-        "key_passes",
-        "big_chances_created",
-        "dribbles",
-    )
-
-    assert any(
-        analysis["metrics"][key]["availability"] != "UNAVAILABLE"
-        for key in rich_keys
-    )
+    assert player_analysis_kernel.metric_value(
+        player,
+        player_analysis_kernel.DEFINITIONS_BY_KEY["attempted_passes"],
+    ) == 500
+    assert player_analysis_kernel.metric_value(
+        player,
+        player_analysis_kernel.DEFINITIONS_BY_KEY["completed_passes"],
+    ) == 400
+    assert player_analysis_kernel.metric_value(
+        player,
+        player_analysis_kernel.DEFINITIONS_BY_KEY["pass_completion"],
+    ) == 80.0
+    assert player_analysis_kernel.metric_value(
+        player,
+        player_analysis_kernel.DEFINITIONS_BY_KEY["key_passes_per_90"],
+    ) == 2.0
+    assert player_analysis_kernel.metric_value(
+        player,
+        player_analysis_kernel.DEFINITIONS_BY_KEY["big_chances_created_per_90"],
+    ) == 0.5
+    assert player_analysis_kernel.metric_value(
+        player,
+        player_analysis_kernel.DEFINITIONS_BY_KEY["dribbles_per_90"],
+    ) == 3.0
 
 
 def test_player_season_navigation_is_source_backed() -> None:
