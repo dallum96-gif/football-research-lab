@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { TeamKit } from "../teams/TeamKit";
 import { TeamStatsControls } from "./TeamStatsControls";
@@ -78,6 +78,14 @@ const tabs: { key: FamilyKey; label: string }[] = [
   { key: "discipline", label: "Discipline" },
 ];
 
+const FRACTION_PERCENT_KEYS = new Set([
+  "shot_accuracy",
+  "goals_per_shot",
+  "failed_to_score_rate",
+  "pass_accuracy",
+  "clean_sheet_rate",
+]);
+
 const FAMILY_CONFIG: Record<
   AnalyticalFamily,
   {
@@ -92,10 +100,18 @@ const FAMILY_CONFIG: Record<
       "goals_for_per_match",
       "Shots_per_match",
       "Shots on target_per_match",
+      "Shots off target_per_match",
+      "Blocked shots_per_match",
       "Corners_per_match",
+      "Offsides_per_match",
+      "Big chances created_per_match",
+      "Big chances missed_per_match",
+      "shot_accuracy",
+      "goals_per_shot",
+      "failed_to_score_rate",
     ],
     description:
-      "Goals and attacking volume from the shared governed Team Stats analysis.",
+      "Goals, shot volume, chance volume and finishing outcomes from the governed Team Stats analysis.",
   },
   passing: {
     label: "Passing",
@@ -103,31 +119,38 @@ const FAMILY_CONFIG: Record<
       "Possession_per_match",
       "Passes_per_match",
       "Accurate passes_per_match",
+      "pass_accuracy",
       "Crosses_per_match",
     ],
     description:
-      "Possession and passing-volume measures. Possession lives here rather than as a separate analytical family.",
+      "Possession, circulation and passing efficiency. Possession lives here rather than as a separate analytical family.",
   },
   defence: {
     label: "Defence",
     metricKeys: [
       "goals_against_per_match",
       "Tackles_per_match",
+      "Tackles won_per_match",
       "Interceptions_per_match",
+      "Interceptions won_per_match",
       "Clearances_per_match",
+      "Effective clearances_per_match",
+      "Saves_per_match",
+      "clean_sheet_rate",
     ],
     description:
-      "Defensive outcomes and action volume, kept distinct so high action counts are not automatically interpreted as better defending.",
+      "Defensive outcomes and action volume. High action counts are rankings, not automatic claims of better defending.",
   },
   discipline: {
     label: "Discipline",
     metricKeys: [
       "Fouls conceded_per_match",
+      "Fouls won_per_match",
       "Yellow cards_per_match",
       "Red cards_per_match",
     ],
     description:
-      "Fouls and card rates, ranked with lower values first.",
+      "Foul and card measures, with ranking direction kept explicit rather than interpreted as a universal quality score.",
   },
 };
 
@@ -153,7 +176,10 @@ function formatRankingMetric(metric: RankingMetric, value: number | null) {
   }
 
   if (metric.unit === "%") {
-    return `${value.toFixed(1)}%`;
+    const displayValue = FRACTION_PERCENT_KEYS.has(metric.key)
+      ? value * 100
+      : value;
+    return `${displayValue.toFixed(1)}%`;
   }
 
   if (
@@ -183,6 +209,12 @@ function ordinal(value: number) {
           : "th";
 
   return `${value}${suffix}`;
+}
+
+function metricAvailableForSeason(metric: RankingMetric) {
+  return metric.entries.some(
+    (entry) => entry.value !== null && entry.value !== undefined
+  );
 }
 
 function teamStatsHref(
@@ -216,7 +248,8 @@ function FamilyWorkspace({
   const config = FAMILY_CONFIG[family];
   const metrics = config.metricKeys
     .map((key) => rankings?.metrics.find((metric) => metric.key === key))
-    .filter((metric): metric is RankingMetric => Boolean(metric));
+    .filter((metric): metric is RankingMetric => Boolean(metric))
+    .filter(metricAvailableForSeason);
 
   const availableMetrics = metrics.filter((metric) => {
     const entry = metric.entries.find(
@@ -242,77 +275,79 @@ function FamilyWorkspace({
           </Link>
         </header>
         <p className={styles.context}>
-          {config.description} Missing current-season observations remain
-          unavailable rather than becoming zero.
+          {config.description} Metrics with no governed observation anywhere in
+          the selected season are not offered in the GUI; partial coverage stays
+          visible and explicit.
         </p>
       </section>
 
-      <section className={styles.metricGrid}>
-        {metrics.map((metric) => {
-          const entry = metric.entries.find(
-            (candidate) => candidate.persistent_team_code === teamCode
-          );
-          const available =
-            entry?.value !== null &&
-            entry?.value !== undefined &&
-            entry.rank !== null &&
-            entry.percentile !== null;
+      {metrics.length > 0 ? (
+        <section className={styles.metricGrid}>
+          {metrics.map((metric) => {
+            const entry = metric.entries.find(
+              (candidate) => candidate.persistent_team_code === teamCode
+            );
+            const available =
+              entry?.value !== null &&
+              entry?.value !== undefined &&
+              entry.rank !== null &&
+              entry.percentile !== null;
 
-          return (
-            <article className={styles.metricCard} key={metric.key}>
-              <div className={styles.metricTop}>
-                <span>{metric.label}</span>
-                <small>
-                  {available && entry?.rank !== null
-                    ? `${ordinal(entry.rank)} / ${entry.out_of}`
-                    : "Unavailable"}
-                </small>
-              </div>
+            return (
+              <article className={styles.metricCard} key={metric.key}>
+                <div className={styles.metricTop}>
+                  <span>{metric.label}</span>
+                  <small>
+                    {available && entry?.rank !== null
+                      ? `${ordinal(entry.rank)} / ${entry.out_of}`
+                      : "Unavailable"}
+                  </small>
+                </div>
 
-              <strong>
-                {entry ? formatRankingMetric(metric, entry.value) : "—"}
-              </strong>
+                <strong>
+                  {entry ? formatRankingMetric(metric, entry.value) : "—"}
+                </strong>
 
-              <div
-                className={styles.percentileTrack}
-                aria-label={
-                  available && entry?.percentile !== null
-                    ? `${entry.percentile} percentile`
-                    : `${metric.label} unavailable for this season`
-                }
-              >
-                <span
-                  style={{
-                    width:
-                      available && entry?.percentile !== null
-                        ? `${entry.percentile}%`
-                        : "0%",
-                  }}
-                />
-              </div>
+                <div
+                  className={styles.percentileTrack}
+                  aria-label={
+                    available && entry?.percentile !== null
+                      ? `${entry.percentile} percentile`
+                      : `${metric.label} unavailable for this team`
+                  }
+                >
+                  <span
+                    style={{
+                      width:
+                        available && entry?.percentile !== null
+                          ? `${entry.percentile}%`
+                          : "0%",
+                    }}
+                  />
+                </div>
 
-              <footer>
-                <span>
-                  {available && entry?.percentile !== null
-                    ? `P${Math.round(entry.percentile)}`
-                    : `${entry?.coverage.observed_matches ?? 0}/${entry?.coverage.eligible_matches ?? overview.matches}`}
-                </span>
-                <span>
-                  {available
-                    ? metric.higher_is_better
-                      ? "Higher values rank first"
-                      : "Lower values rank first"
-                    : "No governed observation"}
-                </span>
-              </footer>
-            </article>
-          );
-        })}
-      </section>
-
-      {metrics.length === 0 && (
+                <footer>
+                  <span>
+                    {available && entry?.percentile !== null
+                      ? `P${Math.round(entry.percentile)}`
+                      : `${entry?.coverage.observed_matches ?? 0}/${entry?.coverage.eligible_matches ?? overview.matches}`}
+                  </span>
+                  <span>
+                    {available
+                      ? metric.higher_is_better
+                        ? "Higher values rank first"
+                        : "Lower values rank first"
+                      : "No team observation"}
+                  </span>
+                </footer>
+              </article>
+            );
+          })}
+        </section>
+      ) : (
         <div className={styles.empty}>
-          {config.label} analysis is unavailable for this selection.
+          No governed {config.label.toLowerCase()} metric is available for{" "}
+          {overview.season}.
         </div>
       )}
 
@@ -340,14 +375,14 @@ function FamilyWorkspace({
           <p className={styles.kicker}>Current boundary</p>
           <div className={styles.secondaryGrid}>
             <div>
-              <span>Observed metrics</span>
+              <span>Team observations</span>
               <strong>
                 {availableMetrics.length}/{metrics.length}
               </strong>
             </div>
             <div>
-              <span>Matches</span>
-              <strong>{overview.matches}</strong>
+              <span>Season options</span>
+              <strong>{metrics.length}</strong>
             </div>
             <div>
               <span>League population</span>
@@ -359,8 +394,9 @@ function FamilyWorkspace({
             </div>
           </div>
           <footer>
-            Family views project the existing governed analysis; they do not
-            create substitute observations for missing source evidence.
+            The catalogue is broader than any one season. Fully unavailable
+            season metrics are hidden; partial and team-specific gaps remain
+            explicit.
           </footer>
         </article>
       </section>
