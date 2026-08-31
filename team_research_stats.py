@@ -63,12 +63,14 @@ def _team_side_row(season, fixture_id, team_code, identity, fixture):
         return None
 
     # Canonical completed-result evidence is independently usable when the
-    # optional packaged team-match representation is absent.  Scheduled rows
-    # remain outside completed-match aggregation, and every unavailable
-    # team-match metric remains missing rather than becoming zero.
+    # optional packaged team-match representation is absent. In that no-package
+    # case, scheduled fixtures remain outside completed-match aggregation.
+    # Historical packaged evidence must remain usable when a canonical result is
+    # intentionally missing, so the known missing-result limitation stays visible
+    # rather than silently shrinking the eligible historical population.
     home_score = number(fixture.get("home_score"))
     away_score = number(fixture.get("away_score"))
-    if home_score is None or away_score is None:
+    if packaged is None and (home_score is None or away_score is None):
         return None
 
     values = {}
