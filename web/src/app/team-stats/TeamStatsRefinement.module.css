@@ -1,0 +1,131 @@
+.overviewMetricGrid {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+.metricCardLink {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
+}
+
+.metricCardLink:hover {
+  transform: translateY(-2px);
+  border-color: var(--frl-border-strong);
+  box-shadow: 0 8px 24px rgba(24, 31, 38, .06);
+}
+
+.metricPercentileTrack span {
+  background: linear-gradient(90deg, #cf5848 0%, #d9a652 42%, #8cb85c 72%, #3e8c55 100%);
+}
+
+.metricContext {
+  align-items: baseline;
+}
+
+.metricContext span:first-child {
+  font-size: .45rem;
+  font-weight: 820;
+}
+
+.metricContext span:last-child {
+  color: var(--frl-muted-soft);
+  font-size: .41rem;
+  font-weight: 740;
+}
+
+.analysisGrid {
+  grid-template-columns: minmax(0, 1.85fr) minmax(270px, .55fr);
+}
+
+.profileScale {
+  margin-right: 104px;
+}
+
+.profileRow {
+  grid-template-columns: 142px minmax(150px, 1fr) 98px;
+}
+
+.performanceScale {
+  overflow: visible;
+  background: linear-gradient(
+    90deg,
+    #c94f43 0%,
+    #d76a49 18%,
+    #daa75a 44%,
+    #a7c76a 66%,
+    #67a95e 82%,
+    #2d7f4c 100%
+  );
+  border-color: rgba(65, 85, 73, .16);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .3);
+}
+
+.profileMarker {
+  width: 10px;
+  height: 10px;
+  background: var(--frl-text);
+  box-shadow: 0 0 0 2px var(--frl-surface), 0 0 0 3px rgba(30, 37, 43, .2);
+}
+
+.profileRank {
+  gap: 0;
+}
+
+.profileRank strong {
+  font-size: .56rem;
+  font-weight: 860;
+}
+
+.profileRank span {
+  margin-top: 1px;
+  font-size: .4rem;
+}
+
+.profileRank small {
+  margin-top: 1px;
+  color: var(--frl-muted);
+  font-size: .38rem;
+  font-weight: 720;
+}
+
+.profileFooter {
+  margin-right: 104px;
+}
+
+.compactVenuePanel {
+  min-height: 0 !important;
+  align-self: start;
+  padding-bottom: 10px !important;
+}
+
+.compactSplitRow {
+  grid-template-columns: 28px minmax(72px, 1fr) 62px 62px !important;
+  padding: 9px 0 !important;
+}
+
+@media (max-width: 1000px) {
+  .overviewMetricGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .analysisGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .overviewMetricGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .profileRow {
+    grid-template-columns: 110px minmax(130px, 1fr) 90px;
+  }
+
+  .profileScale,
+  .profileFooter {
+    margin-left: 122px;
+    margin-right: 96px;
+  }
+}
