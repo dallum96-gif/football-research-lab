@@ -1,0 +1,40 @@
+.tabBand {
+  min-height: 50px;
+  gap: 8px;
+  padding: 6px;
+  border: 1px solid var(--frl-border);
+  border-radius: 12px;
+  background: var(--frl-surface-raised);
+}
+
+.tabBand .activeTab,
+.tabBand .tabLink {
+  align-self: auto;
+  min-height: 36px;
+  padding: 0 13px;
+  border-radius: 8px;
+  font-size: .67rem;
+  font-weight: 820;
+}
+
+.tabBand .activeTab {
+  background: var(--frl-surface);
+  box-shadow: inset 0 0 0 1px var(--frl-border-strong);
+}
+
+.tabBand .activeTab::after {
+  display: none;
+}
+
+.tabBand .tabLink {
+  color: var(--frl-muted);
+}
+
+.tabBand .tabLink:hover {
+  background: var(--frl-surface);
+  color: var(--frl-text);
+}
+
+.workspaceBreathingRoom {
+  padding-top: 16px;
+}
