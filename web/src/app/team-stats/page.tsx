@@ -7,6 +7,7 @@ import {
   type TeamStatsOverview,
 } from "./TeamStatsOverviewWorkspace";
 import styles from "./TeamStats.module.css";
+import refinementStyles from "./TeamStatsRefinement.module.css";
 
 type TeamOption = {
   persistent_team_code: string | null;
@@ -170,6 +171,13 @@ async function getJson<T>(path: string): Promise<T | null> {
   }
 }
 
+function trim(value: number, decimals: number) {
+  const fixed = value.toFixed(decimals);
+  return fixed.includes(".")
+    ? fixed.replace(/0+$/, "").replace(/\.$/, "")
+    : fixed;
+}
+
 function formatRankingMetric(metric: RankingMetric, value: number | null) {
   if (value === null) {
     return "—";
@@ -179,17 +187,18 @@ function formatRankingMetric(metric: RankingMetric, value: number | null) {
     const displayValue = FRACTION_PERCENT_KEYS.has(metric.key)
       ? value * 100
       : value;
-    return `${displayValue.toFixed(1)}%`;
+    return `${trim(displayValue, 1)}%`;
   }
 
   if (
-    metric.key === "points_per_match" ||
-    metric.key.includes("goals")
+    metric.key === "goals_for_per_match" ||
+    metric.key === "goals_against_per_match" ||
+    metric.key === "points_per_match"
   ) {
-    return value.toFixed(2);
+    return trim(value, 1);
   }
 
-  return value.toFixed(1);
+  return trim(value, 0);
 }
 
 function ordinal(value: number) {
@@ -211,6 +220,10 @@ function ordinal(value: number) {
   return `${value}${suffix}`;
 }
 
+function topPercent(rank: number, outOf: number) {
+  return Math.max(1, Math.ceil((rank / outOf) * 100));
+}
+
 function metricAvailableForSeason(metric: RankingMetric) {
   return metric.entries.some(
     (entry) => entry.value !== null && entry.value !== undefined
@@ -229,8 +242,15 @@ function teamStatsHref(
   return `/team-stats?${params.toString()}`;
 }
 
-function rankingsHref(season: string, family: AnalyticalFamily) {
+function rankingsHref(
+  season: string,
+  family: AnalyticalFamily,
+  metric?: string,
+  team?: string
+) {
   const params = new URLSearchParams({ season, family });
+  if (metric) params.set("metric", metric);
+  if (team) params.set("team", team);
   return `/team-stats/rankings?${params.toString()}`;
 }
 
@@ -251,12 +271,22 @@ function FamilyWorkspace({
     .filter((metric): metric is RankingMetric => Boolean(metric))
     .filter(metricAvailableForSeason);
 
-  const availableMetrics = metrics.filter((metric) => {
-    const entry = metric.entries.find(
-      (candidate) => candidate.persistent_team_code === teamCode
-    );
-    return entry?.value !== null && entry?.value !== undefined;
-  });
+  const rankedMetrics = metrics
+    .map((metric) => ({
+      metric,
+      entry: metric.entries.find(
+        (candidate) => candidate.persistent_team_code === teamCode
+      ),
+    }))
+    .sort((a, b) => {
+      const aRank = a.entry?.rank ?? Number.POSITIVE_INFINITY;
+      const bRank = b.entry?.rank ?? Number.POSITIVE_INFINITY;
+      return aRank - bRank || a.metric.label.localeCompare(b.metric.label);
+    });
+
+  const availableMetrics = rankedMetrics.filter(
+    ({ entry }) => entry?.value !== null && entry?.value !== undefined
+  );
 
   return (
     <main className={styles.workspace}>
@@ -269,24 +299,19 @@ function FamilyWorkspace({
           <Link
             className={styles.kicker}
             style={{ textDecoration: "none" }}
-            href={rankingsHref(overview.season, family)}
+            href={rankingsHref(overview.season, family, undefined, teamCode)}
           >
             League rankings →
           </Link>
         </header>
         <p className={styles.context}>
-          {config.description} Metrics with no governed observation anywhere in
-          the selected season are not offered in the GUI; partial coverage stays
-          visible and explicit.
+          {config.description} Tiles are ordered by this team’s current league rank. Metrics with no governed observation anywhere in the selected season are not offered in the GUI.
         </p>
       </section>
 
-      {metrics.length > 0 ? (
+      {rankedMetrics.length > 0 ? (
         <section className={styles.metricGrid}>
-          {metrics.map((metric) => {
-            const entry = metric.entries.find(
-              (candidate) => candidate.persistent_team_code === teamCode
-            );
+          {rankedMetrics.map(({ metric, entry }) => {
             const available =
               entry?.value !== null &&
               entry?.value !== undefined &&
@@ -294,7 +319,12 @@ function FamilyWorkspace({
               entry.percentile !== null;
 
             return (
-              <article className={styles.metricCard} key={metric.key}>
+              <Link
+                className={`${styles.metricCard} ${refinementStyles.metricCardLink}`}
+                key={metric.key}
+                href={rankingsHref(overview.season, family, metric.key, teamCode)}
+                aria-label={`Open ${metric.label} league ranking`}
+              >
                 <div className={styles.metricTop}>
                   <span>{metric.label}</span>
                   <small>
@@ -309,10 +339,10 @@ function FamilyWorkspace({
                 </strong>
 
                 <div
-                  className={styles.percentileTrack}
+                  className={`${styles.percentileTrack} ${refinementStyles.metricPercentileTrack}`}
                   aria-label={
                     available && entry?.percentile !== null
-                      ? `${entry.percentile} percentile`
+                      ? `${Math.round(entry.percentile)}th percentile`
                       : `${metric.label} unavailable for this team`
                   }
                 >
@@ -326,21 +356,19 @@ function FamilyWorkspace({
                   />
                 </div>
 
-                <footer>
+                <footer className={refinementStyles.metricContext}>
                   <span>
                     {available && entry?.percentile !== null
-                      ? `P${Math.round(entry.percentile)}`
+                      ? `${Math.round(entry.percentile)}th percentile`
                       : `${entry?.coverage.observed_matches ?? 0}/${entry?.coverage.eligible_matches ?? overview.matches}`}
                   </span>
                   <span>
-                    {available
-                      ? metric.higher_is_better
-                        ? "Higher values rank first"
-                        : "Lower values rank first"
+                    {available && entry?.rank !== null
+                      ? `Top ${topPercent(entry.rank, entry.out_of)}%`
                       : "No team observation"}
                   </span>
                 </footer>
-              </article>
+              </Link>
             );
           })}
         </section>
@@ -377,26 +405,24 @@ function FamilyWorkspace({
             <div>
               <span>Team observations</span>
               <strong>
-                {availableMetrics.length}/{metrics.length}
+                {availableMetrics.length}/{rankedMetrics.length}
               </strong>
             </div>
             <div>
               <span>Season options</span>
-              <strong>{metrics.length}</strong>
+              <strong>{rankedMetrics.length}</strong>
             </div>
             <div>
               <span>League population</span>
               <strong>{rankings?.population_size ?? "—"}</strong>
             </div>
             <div>
-              <span>New data</span>
-              <strong>None</strong>
+              <span>Tile order</span>
+              <strong>Ranked</strong>
             </div>
           </div>
           <footer>
-            The catalogue is broader than any one season. Fully unavailable
-            season metrics are hidden; partial and team-specific gaps remain
-            explicit.
+            The catalogue is broader than any one season. Fully unavailable season metrics are hidden; partial and team-specific gaps remain explicit.
           </footer>
         </article>
       </section>
