@@ -9,7 +9,9 @@ import styles from "../PlayerStats.module.css";
 
 type SeasonResponse = { seasons: string[] };
 
-type PlayerRankingsResult = PositionRankingData;
+type PlayerRankingsResult = Omit<PositionRankingData, "metrics"> & {
+  metrics: RankingMetric[];
+};
 
 type TeamOption = {
   persistent_team_code: string | null;
