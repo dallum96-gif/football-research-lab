@@ -1,12 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import type { RankingMetric } from "../PlayerVisuals";
 import rankingStyles from "./PlayerRankings.module.css";
 import familyStyles from "./PlayerRankingsFamilyTable.module.css";
 
 type SortDirection = "asc" | "desc";
+type MinutesShare = 0 | 10 | 25 | 50 | 75;
 
 type PlayerRow = {
   player_code: string;
@@ -14,6 +16,8 @@ type PlayerRow = {
   clubs: string[];
   minutes: number;
 };
+
+const MINUTES_OPTIONS: MinutesShare[] = [0, 10, 25, 50, 75];
 
 function trim(value: number, decimals: number) {
   const fixed = value.toFixed(decimals);
@@ -32,6 +36,20 @@ function formatMetric(metric: RankingMetric, value: number | null) {
   return trim(value, 2);
 }
 
+function ordinal(value: number) {
+  const mod100 = value % 100;
+  if (mod100 >= 11 && mod100 <= 13) return `${value}th`;
+  const suffix =
+    value % 10 === 1
+      ? "st"
+      : value % 10 === 2
+        ? "nd"
+        : value % 10 === 3
+          ? "rd"
+          : "th";
+  return `${value}${suffix}`;
+}
+
 function sortIndicator(
   key: string,
   activeKey: string,
@@ -41,18 +59,29 @@ function sortIndicator(
   return direction === "asc" ? "↑" : "↓";
 }
 
+function median(values: number[]) {
+  if (!values.length) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? (sorted[middle - 1] + sorted[middle]) / 2
+    : sorted[middle];
+}
+
 export function PlayerRankingsFamilyTable({
   season,
   familyLabel,
   position,
   metrics,
   cohortDescription,
+  possibleMinutesByClub,
 }: {
   season: string;
   familyLabel: string;
   position: string;
   metrics: RankingMetric[];
   cohortDescription: string;
+  possibleMinutesByClub: Record<string, number>;
 }) {
   const availableMetrics = useMemo(
     () => metrics.filter((metric) => metric.availability !== "UNAVAILABLE"),
@@ -64,6 +93,8 @@ export function PlayerRankingsFamilyTable({
   );
   const [sortKey, setSortKey] = useState<string>("player");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [club, setClub] = useState("ALL");
+  const [minutesShare, setMinutesShare] = useState<MinutesShare>(25);
 
   const metricsByKey = useMemo(
     () => new Map(availableMetrics.map((metric) => [metric.key, metric])),
@@ -91,16 +122,50 @@ export function PlayerRankingsFamilyTable({
     return [...players.values()];
   }, [availableMetrics]);
 
-  function metricValue(metricKey: string, playerCode: string) {
-    const metric = metricsByKey.get(metricKey);
-    if (!metric) return null;
-    return (
-      metric.entries.find((entry) => entry.player_code === playerCode)?.value ??
-      null
-    );
+  const clubs = useMemo(
+    () =>
+      [...new Set(rows.flatMap((row) => row.clubs).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b, "en-GB")
+      ),
+    [rows]
+  );
+
+  const possibleMinutesLookup = useMemo(
+    () =>
+      new Map(
+        Object.entries(possibleMinutesByClub).map(([name, value]) => [
+          name.toLocaleLowerCase("en-GB"),
+          value,
+        ])
+      ),
+    [possibleMinutesByClub]
+  );
+
+  function metricEntry(metricKey: string, playerCode: string) {
+    return metricsByKey
+      .get(metricKey)
+      ?.entries.find((entry) => entry.player_code === playerCode);
   }
 
-  const sortedRows = [...rows].sort((a, b) => {
+  function possibleMinutes(row: PlayerRow) {
+    for (const playerClub of row.clubs) {
+      const value = possibleMinutesLookup.get(
+        playerClub.toLocaleLowerCase("en-GB")
+      );
+      if (value != null && value > 0) return value;
+    }
+    return null;
+  }
+
+  const filteredRows = rows.filter((row) => {
+    if (club !== "ALL" && !row.clubs.includes(club)) return false;
+    if (minutesShare === 0) return true;
+    const available = possibleMinutes(row);
+    if (available == null) return false;
+    return row.minutes >= available * (minutesShare / 100);
+  });
+
+  const sortedRows = [...filteredRows].sort((a, b) => {
     let comparison = 0;
 
     if (sortKey === "player") {
@@ -116,13 +181,13 @@ export function PlayerRankingsFamilyTable({
     } else if (sortKey === "minutes") {
       comparison = a.minutes - b.minutes;
     } else {
-      const aValue = metricValue(sortKey, a.player_code);
-      const bValue = metricValue(sortKey, b.player_code);
+      const aPercentile = metricEntry(sortKey, a.player_code)?.percentile ?? null;
+      const bPercentile = metricEntry(sortKey, b.player_code)?.percentile ?? null;
 
-      if (aValue == null && bValue == null) comparison = 0;
-      else if (aValue == null) return 1;
-      else if (bValue == null) return -1;
-      else comparison = aValue - bValue;
+      if (aPercentile == null && bPercentile == null) comparison = 0;
+      else if (aPercentile == null) return 1;
+      else if (bPercentile == null) return -1;
+      else comparison = aPercentile - bPercentile;
     }
 
     if (comparison === 0) {
@@ -159,42 +224,168 @@ export function PlayerRankingsFamilyTable({
     });
   }
 
-  const gridTemplateColumns = `42px minmax(180px, 1.35fr) minmax(125px, .9fr) 78px ${visibleMetrics
-    .map(() => "minmax(105px, .8fr)")
+  const primaryMetric = visibleMetrics[0] ?? availableMetrics[0] ?? null;
+  const primaryEntries = primaryMetric
+    ? filteredRows
+        .map((row) => metricEntry(primaryMetric.key, row.player_code))
+        .filter(
+          (entry): entry is NonNullable<typeof entry> =>
+            Boolean(entry && entry.value != null && entry.percentile != null)
+        )
+    : [];
+  const leader = [...primaryEntries].sort(
+    (a, b) => (b.percentile ?? -1) - (a.percentile ?? -1)
+  )[0];
+  const medianValue = primaryMetric
+    ? median(
+        primaryEntries
+          .map((entry) => entry.value)
+          .filter((value): value is number => value != null)
+      )
+    : null;
+
+  const profileMetrics = visibleMetrics.length
+    ? visibleMetrics
+    : primaryMetric
+      ? [primaryMetric]
+      : [];
+  const standout = filteredRows
+    .map((row) => {
+      const percentiles = profileMetrics
+        .map((metric) => metricEntry(metric.key, row.player_code)?.percentile)
+        .filter((value): value is number => value != null);
+      const average = percentiles.length
+        ? percentiles.reduce((sum, value) => sum + value, 0) /
+          percentiles.length
+        : null;
+      return { row, average };
+    })
+    .filter(
+      (item): item is { row: PlayerRow; average: number } => item.average != null
+    )
+    .sort((a, b) => b.average - a.average)[0];
+
+  const gridTemplateColumns = `42px minmax(200px, 1.25fr) minmax(135px, .85fr) 82px ${visibleMetrics
+    .map(() => "minmax(150px, .95fr)")
     .join(" ")}`;
 
   return (
     <>
-      <section className={rankingStyles.rankingMetricNav}>
-        <div>
-          <p className={familyStyles.familyKicker}>Metrics</p>
-          <h2>{familyLabel}</h2>
+      <section className={familyStyles.familyControlsPanel}>
+        <div className={familyStyles.familyControlsHeading}>
+          <div>
+            <p className={familyStyles.familyKicker}>Explore the family</p>
+            <h2>{familyLabel} rankings</h2>
+          </div>
+          <span>
+            Filters change the visible players only. Every rank and percentile
+            remains calculated against the full governed {position} cohort.
+          </span>
         </div>
 
-        <div
-          className={`${rankingStyles.metricPills} ${familyStyles.familyMetricPills}`}
-        >
-          {availableMetrics.map((metric) => {
-            const active = visibleKeys.includes(metric.key);
-            return (
-              <button
-                key={metric.key}
-                type="button"
-                data-active={active ? "true" : "false"}
-                aria-pressed={active}
-                onClick={() => toggleMetric(metric.key)}
-              >
-                {metric.label}
-              </button>
-            );
-          })}
+        <div className={familyStyles.familyFilters}>
+          <label className={familyStyles.clubFilter}>
+            <span>Club</span>
+            <select value={club} onChange={(event) => setClub(event.target.value)}>
+              <option value="ALL">All clubs</option>
+              {clubs.map((item) => (
+                <option value={item} key={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div className={familyStyles.minutesFilter}>
+            <span>Minutes played</span>
+            <div>
+              {MINUTES_OPTIONS.map((share) => (
+                <button
+                  key={share}
+                  type="button"
+                  data-active={minutesShare === share ? "true" : "false"}
+                  aria-pressed={minutesShare === share}
+                  onClick={() => setMinutesShare(share)}
+                >
+                  {share === 0 ? "All" : `${share}%+`}
+                </button>
+              ))}
+            </div>
+            <small>Share of possible club league minutes</small>
+          </div>
         </div>
+
+        <div className={familyStyles.metricChooser}>
+          <div>
+            <span>Metric columns</span>
+            <button
+              type="button"
+              onClick={() =>
+                setVisibleKeys(availableMetrics.map((metric) => metric.key))
+              }
+            >
+              Show all
+            </button>
+          </div>
+          <div className={familyStyles.familyMetricPills}>
+            {availableMetrics.map((metric) => {
+              const active = visibleKeys.includes(metric.key);
+              return (
+                <button
+                  key={metric.key}
+                  type="button"
+                  data-active={active ? "true" : "false"}
+                  aria-pressed={active}
+                  onClick={() => toggleMetric(metric.key)}
+                >
+                  {metric.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      <section className={familyStyles.insightStrip}>
+        <article>
+          <span>Visible population</span>
+          <strong>{filteredRows.length}</strong>
+          <small>of {rows.length} {position} players</small>
+        </article>
+        <article>
+          <span>{primaryMetric?.label ?? "Primary metric"} leader</span>
+          <strong>{leader?.player_name ?? "—"}</strong>
+          <small>
+            {leader?.percentile != null
+              ? `P${Math.round(leader.percentile)} · ${formatMetric(
+                  primaryMetric!,
+                  leader.value
+                )}`
+              : "No visible value"}
+          </small>
+        </article>
+        <article>
+          <span>Visible median</span>
+          <strong>
+            {primaryMetric && medianValue != null
+              ? formatMetric(primaryMetric, medianValue)
+              : "—"}
+          </strong>
+          <small>{primaryMetric?.label ?? "No metric selected"}</small>
+        </article>
+        <article>
+          <span>Profile standout</span>
+          <strong>{standout?.row.player_name ?? "—"}</strong>
+          <small>
+            {standout ? `P${Math.round(standout.average)} average` : "No visible profile"}
+          </small>
+        </article>
       </section>
 
       <section className={rankingStyles.rankingPanel}>
         <header className={familyStyles.familyTableHeading}>
           <div>
-            <p className={familyStyles.familyKicker}>{familyLabel}</p>
+            <p className={familyStyles.familyKicker}>League table</p>
             <h2>{familyLabel} · {position}</h2>
           </div>
           <span>{cohortDescription}</span>
@@ -203,7 +394,7 @@ export function PlayerRankingsFamilyTable({
         <div className={familyStyles.familyTableScroll}>
           <div
             className={familyStyles.familyTable}
-            style={{ minWidth: `${520 + visibleMetrics.length * 112}px` }}
+            style={{ minWidth: `${560 + visibleMetrics.length * 156}px` }}
           >
             <div
               className={familyStyles.familyTableHeader}
@@ -223,6 +414,7 @@ export function PlayerRankingsFamilyTable({
                 <button
                   type="button"
                   key={metric.key}
+                  title={`Sort by ${metric.label} league percentile`}
                   onClick={() => changeSort(metric.key, true)}
                 >
                   {metric.label} {sortIndicator(metric.key, sortKey, sortDirection)}
@@ -238,29 +430,69 @@ export function PlayerRankingsFamilyTable({
               >
                 <span className={familyStyles.familyRowNumber}>{index + 1}</span>
                 <Link
+                  className={familyStyles.playerCell}
                   href={`/player-stats?season=${encodeURIComponent(
                     season
                   )}&player=${encodeURIComponent(row.player_code)}`}
                 >
-                  {row.player_name}
+                  <strong>{row.player_name}</strong>
+                  <small>Open Player Stats →</small>
                 </Link>
-                <span>{row.clubs.join(" · ") || "—"}</span>
-                <strong>{row.minutes}</strong>
+                <span className={familyStyles.clubCell}>
+                  {row.clubs.join(" · ") || "—"}
+                </span>
+                <strong className={familyStyles.minutesCell}>{row.minutes}</strong>
                 {visibleMetrics.map((metric) => {
-                  const entry = metric.entries.find(
-                    (candidate) => candidate.player_code === row.player_code
-                  );
+                  const entry = metricEntry(metric.key, row.player_code);
+                  const percentile = entry?.percentile ?? null;
+                  const barStyle = {
+                    "--percentile": `${Math.max(
+                      0,
+                      Math.min(100, percentile ?? 0)
+                    )}%`,
+                  } as CSSProperties;
+
                   return (
                     <span className={familyStyles.familyMetricCell} key={metric.key}>
-                      <strong>{formatMetric(metric, entry?.value ?? null)}</strong>
-                      {entry?.percentile != null && (
-                        <small>P{Math.round(entry.percentile)}</small>
-                      )}
+                      <span className={familyStyles.metricCellTop}>
+                        <strong>{formatMetric(metric, entry?.value ?? null)}</strong>
+                        <span>
+                          {entry?.rank != null
+                            ? `${ordinal(entry.rank)} / ${entry.out_of}`
+                            : "—"}
+                        </span>
+                        <small>
+                          {percentile != null ? `P${Math.round(percentile)}` : "—"}
+                        </small>
+                      </span>
+                      <span
+                        className={familyStyles.metricPerformanceBar}
+                        style={barStyle}
+                        aria-label={
+                          percentile != null
+                            ? `${Math.round(percentile)}th percentile`
+                            : "Percentile unavailable"
+                        }
+                      >
+                        {percentile != null && (
+                          <i
+                            style={{
+                              left: `${Math.max(0, Math.min(100, percentile))}%`,
+                            }}
+                          />
+                        )}
+                      </span>
                     </span>
                   );
                 })}
               </div>
             ))}
+
+            {sortedRows.length === 0 && (
+              <div className={familyStyles.noRows}>
+                No players meet the current club and minutes filters.
+              </div>
+            )}
           </div>
         </div>
       </section>
