@@ -1,4 +1,6 @@
+import Link from "next/link";
 import styles from "./TeamStats.module.css";
+import refinementStyles from "./TeamStatsRefinement.module.css";
 
 export type Metric = {
   key: string;
@@ -58,19 +60,44 @@ export type TeamStatsOverview = {
   limitations: string[];
 };
 
+const OVERVIEW_KEYS = [
+  "goals_for_per_match",
+  "Shots on target_per_match",
+  "shot_accuracy",
+  "pass_accuracy",
+  "goals_against_per_match",
+  "clean_sheet_rate",
+];
+
+const METRIC_FAMILY: Record<string, "attack" | "passing" | "defence"> = {
+  goals_for_per_match: "attack",
+  "Shots on target_per_match": "attack",
+  shot_accuracy: "attack",
+  pass_accuracy: "passing",
+  goals_against_per_match: "defence",
+  clean_sheet_rate: "defence",
+};
+
+function trim(value: number, decimals: number) {
+  const fixed = value.toFixed(decimals);
+  return fixed.includes(".")
+    ? fixed.replace(/0+$/, "").replace(/\.$/, "")
+    : fixed;
+}
+
 function formatMetric(metric: Metric) {
   if (metric.unit === "%") {
-    return `${metric.value.toFixed(1)}%`;
+    return `${trim(metric.value, 1)}%`;
   }
 
   if (
-    metric.key === "points_per_match" ||
-    metric.key.includes("goals")
+    metric.key === "goals_for_per_match" ||
+    metric.key === "goals_against_per_match"
   ) {
-    return metric.value.toFixed(2);
+    return trim(metric.value, 1);
   }
 
-  return metric.value.toFixed(1);
+  return trim(metric.value, 0);
 }
 
 function ordinal(value: number) {
@@ -92,97 +119,73 @@ function ordinal(value: number) {
   return `${value}${suffix}`;
 }
 
+function topPercent(metric: Metric) {
+  return Math.max(1, Math.ceil((metric.rank / metric.out_of) * 100));
+}
+
+function percentileLabel(value: number) {
+  return `${Math.round(value)}th percentile`;
+}
+
+function rankingsHref(overview: TeamStatsOverview, metric: Metric) {
+  const params = new URLSearchParams({
+    season: overview.season,
+    family: METRIC_FAMILY[metric.key] ?? "overview",
+    metric: metric.key,
+    team: overview.persistent_team_code,
+  });
+  return `/team-stats/rankings?${params.toString()}`;
+}
+
 export function TeamStatsOverviewWorkspace({
   overview,
 }: {
   overview: TeamStatsOverview;
 }) {
-  const strongest =
-    overview.metrics.reduce<Metric | null>(
-      (best, metric) =>
-        !best || metric.percentile > best.percentile ? metric : best,
-      null
-    );
+  const overviewMetrics = OVERVIEW_KEYS
+    .map((key) => overview.metrics.find((metric) => metric.key === key))
+    .filter((metric): metric is Metric => Boolean(metric))
+    .sort((a, b) => a.rank - b.rank || b.percentile - a.percentile);
 
-  const weakest =
-    overview.metrics.reduce<Metric | null>(
-      (worst, metric) =>
-        !worst || metric.percentile < worst.percentile ? metric : worst,
-      null
-    );
+  const strongest = overviewMetrics[0] ?? null;
+  const weakest = overviewMetrics[overviewMetrics.length - 1] ?? null;
 
   const home = overview.splits.find((split) => split.label === "Home");
   const away = overview.splits.find((split) => split.label === "Away");
-  const seasonAvailableMetrics = overview.availability.filter(
-    (availability) =>
-      availability.key !== "expected_goals_per_match" &&
-      availability.status !== "UNAVAILABLE"
-  );
-  const percentileProfileMetrics = overview.metrics.filter((metric) =>
-    seasonAvailableMetrics.some(
-      (availability) => availability.key === metric.key
-    )
-  );
-  const hasSecondarySignals =
-    overview.pass_accuracy !== null ||
-    overview.clean_sheet_rate !== null ||
-    overview.failed_to_score_rate !== null ||
-    overview.expected_goals_per_match !== null;
 
   return (
     <main className={styles.workspace}>
-      <section className={styles.metricGrid}>
-        {seasonAvailableMetrics.map((availability) => {
-          const metric = overview.metrics.find(
-            (candidate) => candidate.key === availability.key
-          );
+      <section className={`${styles.metricGrid} ${refinementStyles.overviewMetricGrid}`}>
+        {overviewMetrics.map((metric) => (
+          <Link
+            className={`${styles.metricCard} ${refinementStyles.metricCardLink}`}
+            key={metric.key}
+            href={rankingsHref(overview, metric)}
+            aria-label={`Open ${metric.label} league ranking`}
+          >
+            <div className={styles.metricTop}>
+              <span>{metric.label}</span>
+              <small>{ordinal(metric.rank)} / {metric.out_of}</small>
+            </div>
 
-          return (
-            <article className={styles.metricCard} key={availability.key}>
-              <div className={styles.metricTop}>
-                <span>{availability.label}</span>
-                <small>
-                  {metric
-                    ? `${ordinal(metric.rank)} / ${metric.out_of}`
-                    : availability.status}
-                </small>
-              </div>
+            <strong>{formatMetric(metric)}</strong>
 
-              <strong>{metric ? formatMetric(metric) : "—"}</strong>
+            <div
+              className={`${styles.percentileTrack} ${refinementStyles.metricPercentileTrack}`}
+              aria-label={`${metric.label}: ${percentileLabel(metric.percentile)}`}
+            >
+              <span style={{ width: `${metric.percentile}%` }} />
+            </div>
 
-              <div
-                className={styles.percentileTrack}
-                aria-label={
-                  metric
-                    ? `${metric.percentile} percentile`
-                    : `${availability.label} has partial or review-required coverage`
-                }
-              >
-                <span
-                  style={{
-                    width: metric ? `${metric.percentile}%` : "0%",
-                  }}
-                />
-              </div>
-
-              <footer>
-                <span>
-                  {metric
-                    ? `P${Math.round(metric.percentile)}`
-                    : `${availability.observed_matches}/${availability.eligible_matches}`}
-                </span>
-                <span>
-                  {metric
-                    ? "League percentile"
-                    : availability.note ?? availability.status}
-                </span>
-              </footer>
-            </article>
-          );
-        })}
+            <footer className={refinementStyles.metricContext}>
+              <span>{percentileLabel(metric.percentile)}</span>
+              <span>Top {topPercent(metric)}%</span>
+            </footer>
+          </Link>
+        ))}
       </section>
 
-      <section className={styles.analysisGrid}>
+      <section className={`${styles.analysisGrid} ${refinementStyles.analysisGrid}`}>
         <article className={styles.profilePanel}>
           <header className={styles.sectionHeading}>
             <div>
@@ -194,19 +197,19 @@ export function TeamStatsOverviewWorkspace({
             </span>
           </header>
 
-          {percentileProfileMetrics.length > 0 ? (
+          {overviewMetrics.length > 0 ? (
             <div className={styles.profileViz}>
-              <div className={styles.profileScale} aria-hidden="true">
-                <span>0</span>
+              <div className={`${styles.profileScale} ${refinementStyles.profileScale}`} aria-hidden="true">
+                <span>Worst</span>
                 <span>25</span>
                 <span>50</span>
                 <span>75</span>
-                <span>100</span>
+                <span>Best</span>
               </div>
 
               <div className={styles.profileRows}>
-                {percentileProfileMetrics.map((metric) => (
-                  <div className={styles.profileRow} key={metric.key}>
+                {overviewMetrics.map((metric) => (
+                  <div className={`${styles.profileRow} ${refinementStyles.profileRow}`} key={metric.key}>
                     <div className={styles.profileMetric}>
                       <span>{metric.label}</span>
                       <strong>{formatMetric(metric)}</strong>
@@ -214,35 +217,32 @@ export function TeamStatsOverviewWorkspace({
 
                     <div className={styles.profileBarWrap}>
                       <div
-                        className={styles.profileBar}
-                        aria-label={`${metric.label}: ${metric.percentile} percentile`}
+                        className={`${styles.profileBar} ${refinementStyles.performanceScale}`}
+                        aria-label={`${metric.label}: ${percentileLabel(metric.percentile)}`}
                       >
                         <i className={styles.profileQuarter} style={{ left: "25%" }} />
                         <i className={styles.profileQuarter} style={{ left: "50%" }} />
                         <i className={styles.profileQuarter} style={{ left: "75%" }} />
-                        <span
-                          className={styles.profileFill}
-                          style={{ width: `${metric.percentile}%` }}
-                        />
                         <b
-                          className={styles.profileMarker}
+                          className={`${styles.profileMarker} ${refinementStyles.profileMarker}`}
                           style={{ left: `${metric.percentile}%` }}
                         />
                       </div>
                     </div>
 
-                    <div className={styles.profileRank}>
-                      <strong>P{Math.round(metric.percentile)}</strong>
-                      <span>{ordinal(metric.rank)} / {metric.out_of}</span>
+                    <div className={`${styles.profileRank} ${refinementStyles.profileRank}`}>
+                      <strong>Top {topPercent(metric)}%</strong>
+                      <span>{ordinal(metric.rank)} of {metric.out_of}</span>
+                      <small>{percentileLabel(metric.percentile)}</small>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <footer className={styles.profileFooter}>
-                <span>Lower league percentile</span>
-                <span>Season-specific governed comparison</span>
-                <span>Higher league percentile</span>
+              <footer className={`${styles.profileFooter} ${refinementStyles.profileFooter}`}>
+                <span>0 · worst</span>
+                <span>League percentile · red → green</span>
+                <span>100 · best</span>
               </footer>
             </div>
           ) : (
@@ -252,7 +252,7 @@ export function TeamStatsOverviewWorkspace({
           )}
         </article>
 
-        <article className={styles.venuePanel}>
+        <article className={`${styles.venuePanel} ${refinementStyles.compactVenuePanel}`}>
           <header className={styles.sectionHeading}>
             <div>
               <p className={styles.kicker}>Venue split</p>
@@ -263,7 +263,7 @@ export function TeamStatsOverviewWorkspace({
           {[home, away].map(
             (split) =>
               split && (
-                <div className={styles.splitRow} key={split.label}>
+                <div className={`${styles.splitRow} ${refinementStyles.compactSplitRow}`} key={split.label}>
                   <div
                     className={
                       split.label === "Home"
@@ -280,51 +280,17 @@ export function TeamStatsOverviewWorkspace({
                   </div>
 
                   <div className={styles.splitStat}>
-                    <strong>
-                      {split.points_per_match?.toFixed(2) ?? "—"}
-                    </strong>
-                    <span>PPG</span>
+                    <strong>{split.goals_for_per_match == null ? "—" : trim(split.goals_for_per_match, 1)}</strong>
+                    <span>GF / match</span>
                   </div>
 
                   <div className={styles.splitStat}>
-                    <strong>
-                      {split.goals_for_per_match?.toFixed(2) ?? "—"}
-                    </strong>
-                    <span>GF</span>
-                  </div>
-
-                  <div className={styles.splitStat}>
-                    <strong>
-                      {split.goals_against_per_match?.toFixed(2) ?? "—"}
-                    </strong>
-                    <span>GA</span>
+                    <strong>{split.goals_against_per_match == null ? "—" : trim(split.goals_against_per_match, 1)}</strong>
+                    <span>GA / match</span>
                   </div>
                 </div>
               )
           )}
-
-          <div className={styles.venueNote}>
-            {home?.points_per_match != null && away?.points_per_match != null ? (
-              <>
-                <span>Venue effect</span>
-                <strong>
-                  {Math.abs(
-                    home.points_per_match - away.points_per_match
-                  ).toFixed(2)}{" "}
-                  PPG
-                </strong>
-                <p>
-                  {home.points_per_match > away.points_per_match
-                    ? "Stronger home return."
-                    : home.points_per_match < away.points_per_match
-                      ? "Stronger away return."
-                      : "No PPG difference."}
-                </p>
-              </>
-            ) : (
-              <p>Venue comparison unavailable.</p>
-            )}
-          </div>
         </article>
       </section>
 
@@ -338,7 +304,7 @@ export function TeamStatsOverviewWorkspace({
               <strong>{strongest?.label ?? "—"}</strong>
               <p>
                 {strongest
-                  ? `${ordinal(strongest.rank)} of ${strongest.out_of} in the league.`
+                  ? `${ordinal(strongest.rank)} of ${strongest.out_of} · ${percentileLabel(strongest.percentile)}.`
                   : "Unavailable."}
               </p>
             </div>
@@ -348,60 +314,37 @@ export function TeamStatsOverviewWorkspace({
               <strong>{weakest?.label ?? "—"}</strong>
               <p>
                 {weakest
-                  ? `${ordinal(weakest.rank)} of ${weakest.out_of} in the league.`
+                  ? `${ordinal(weakest.rank)} of ${weakest.out_of} · ${percentileLabel(weakest.percentile)}.`
                   : "Unavailable."}
               </p>
             </div>
           </div>
         </article>
 
-        {hasSecondarySignals && (
-          <article className={styles.secondaryPanel}>
-            <p className={styles.kicker}>Secondary signals</p>
-
-            <div className={styles.secondaryGrid}>
-              {overview.pass_accuracy !== null && (
-                <div>
-                  <span>Pass accuracy</span>
-                  <strong>
-                    {(overview.pass_accuracy * 100).toFixed(1)}%
-                  </strong>
-                </div>
-              )}
-
-              {overview.clean_sheet_rate !== null && (
-                <div>
-                  <span>Clean sheets</span>
-                  <strong>
-                    {(overview.clean_sheet_rate * 100).toFixed(0)}%
-                  </strong>
-                </div>
-              )}
-
-              {overview.failed_to_score_rate !== null && (
-                <div>
-                  <span>Failed to score</span>
-                  <strong>
-                    {(overview.failed_to_score_rate * 100).toFixed(0)}%
-                  </strong>
-                </div>
-              )}
-
-              {overview.expected_goals_per_match !== null && (
-                <div>
-                  <span>xG / match</span>
-                  <strong>
-                    {overview.expected_goals_per_match.toFixed(2)}
-                  </strong>
-                </div>
-              )}
+        <article className={styles.secondaryPanel}>
+          <p className={styles.kicker}>Overview logic</p>
+          <div className={styles.secondaryGrid}>
+            <div>
+              <span>Headline metrics</span>
+              <strong>{overviewMetrics.length}</strong>
             </div>
-
-            <footer>
-              Only signals available in the selected season are shown.
-            </footer>
-          </article>
-        )}
+            <div>
+              <span>League population</span>
+              <strong>{overviewMetrics[0]?.out_of ?? "—"}</strong>
+            </div>
+            <div>
+              <span>Best rank</span>
+              <strong>{strongest ? ordinal(strongest.rank) : "—"}</strong>
+            </div>
+            <div>
+              <span>Lowest rank</span>
+              <strong>{weakest ? ordinal(weakest.rank) : "—"}</strong>
+            </div>
+          </div>
+          <footer>
+            Headline tiles are curated for signal variety and ordered by this team’s current league rank.
+          </footer>
+        </article>
       </section>
     </main>
   );
