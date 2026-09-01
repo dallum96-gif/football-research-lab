@@ -121,7 +121,7 @@ function candidateProfiles(
         .filter((item): item is TileMetric => Boolean(item));
 
       const baseEntry = tileMetrics[0]?.entry;
-      if (!baseEntry || baseEntry.minutes < 90 || tileMetrics.length < 3) continue;
+      if (!baseEntry || baseEntry.minutes < 90 || tileMetrics.length < 4) continue;
 
       const strongest = tileMetrics
         .map(({ entry }) => entry.percentile ?? 0)
@@ -332,7 +332,7 @@ export function PlayersDirectoryGrid({
       )}
 
       <p className={styles.methodNote}>
-        Discovery score = mean of up to four strongest available position-relevant percentiles. It is a browsing aid, not an FRL model score or cross-position ranking.
+        Discovery score = mean of the four strongest available position-relevant percentiles. It is a browsing aid, not an FRL model score or cross-position ranking.
       </p>
     </div>
   );
