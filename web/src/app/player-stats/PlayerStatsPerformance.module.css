@@ -1,0 +1,29 @@
+.performanceTrack {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    #c94f43 0%,
+    #d76a49 18%,
+    #daa75a 44%,
+    #a7c76a 66%,
+    #67a95e 82%,
+    #2d7f4c 100%
+  ) !important;
+}
+
+.performanceTrack > span {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  height: auto !important;
+  border-radius: 0 999px 999px 0;
+  background: var(--frl-surface-raised) !important;
+}
+
+.profilePerformanceTrack > i {
+  z-index: 2;
+  background: var(--frl-text) !important;
+}
