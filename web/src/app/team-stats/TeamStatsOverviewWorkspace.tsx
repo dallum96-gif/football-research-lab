@@ -179,6 +179,22 @@ function resultLetter(point: TrendPoint) {
   return "L";
 }
 
+function splitPoints(split: Split) {
+  if (split.points_per_match === null) return null;
+  return Math.round(split.points_per_match * split.matches);
+}
+
+function splitGoalDifference(split: Split) {
+  if (
+    split.goals_for_per_match === null ||
+    split.goals_against_per_match === null
+  ) {
+    return null;
+  }
+
+  return split.goals_for_per_match - split.goals_against_per_match;
+}
+
 export function TeamStatsOverviewWorkspace({
   overview,
 }: {
@@ -332,34 +348,51 @@ export function TeamStatsOverviewWorkspace({
             </div>
           </header>
 
+          <div className={refinementStyles.venueTableHeader} aria-hidden="true">
+            <span>Venue</span>
+            <span>P</span>
+            <span>Pts</span>
+            <span>GF/m</span>
+            <span>GA/m</span>
+            <span>GD/m</span>
+          </div>
+
           {[home, away].map(
             (split) =>
               split && (
                 <div className={`${styles.splitRow} ${refinementStyles.compactSplitRow}`} key={split.label}>
-                  <div
-                    className={
-                      split.label === "Home"
-                        ? styles.homeMarker
-                        : styles.awayMarker
-                    }
-                  >
-                    {split.label.charAt(0)}
-                  </div>
-
-                  <div className={styles.splitName}>
+                  <div className={refinementStyles.venueName}>
+                    <span
+                      className={
+                        split.label === "Home"
+                          ? styles.homeMarker
+                          : styles.awayMarker
+                      }
+                    >
+                      {split.label.charAt(0)}
+                    </span>
                     <strong>{split.label}</strong>
-                    <span>{split.matches} matches</span>
                   </div>
 
-                  <div className={styles.splitStat}>
-                    <strong>{split.goals_for_per_match == null ? "—" : trim(split.goals_for_per_match, 1)}</strong>
-                    <span>GF / match</span>
-                  </div>
-
-                  <div className={styles.splitStat}>
-                    <strong>{split.goals_against_per_match == null ? "—" : trim(split.goals_against_per_match, 1)}</strong>
-                    <span>GA / match</span>
-                  </div>
+                  <strong className={refinementStyles.venueValue}>{split.matches}</strong>
+                  <strong className={refinementStyles.venueValue}>
+                    {splitPoints(split) ?? "—"}
+                  </strong>
+                  <strong className={refinementStyles.venueValue}>
+                    {split.goals_for_per_match == null
+                      ? "—"
+                      : trim(split.goals_for_per_match, 1)}
+                  </strong>
+                  <strong className={refinementStyles.venueValue}>
+                    {split.goals_against_per_match == null
+                      ? "—"
+                      : trim(split.goals_against_per_match, 1)}
+                  </strong>
+                  <strong className={refinementStyles.venueValue}>
+                    {splitGoalDifference(split) == null
+                      ? "—"
+                      : trim(splitGoalDifference(split) ?? 0, 1)}
+                  </strong>
                 </div>
               )
           )}
