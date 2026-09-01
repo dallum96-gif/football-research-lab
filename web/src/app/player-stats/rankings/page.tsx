@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { AllPlayersRankingsOverview, type PositionRankingData } from "./AllPlayersRankingsOverview";
 import { PlayerRankingsControls } from "./PlayerRankingsControls";
 import { PlayerRankingsOverview } from "./PlayerRankingsOverview";
 import { PlayerRankingsFamilyTable } from "./PlayerRankingsFamilyTable";
@@ -8,22 +9,7 @@ import styles from "../PlayerStats.module.css";
 
 type SeasonResponse = { seasons: string[] };
 
-type PlayerRankingsResult = {
-  analysis_version: string;
-  season: string;
-  position: string;
-  population_size: number;
-  cohort: {
-    competition: string;
-    season: string;
-    position: string;
-    minimum_minutes: number;
-    description: string;
-  };
-  ranking_policy: string;
-  percentile_policy: string;
-  metrics: RankingMetric[];
-};
+type PlayerRankingsResult = PositionRankingData;
 
 type FamilyKey =
   | "overview"
@@ -98,7 +84,8 @@ const OVERVIEW_KEYS: Record<string, string[]> = {
   ],
 };
 
-const POSITIONS = new Set(["GKP", "DEF", "MID", "FWD"]);
+const POSITION_VALUES = ["GKP", "DEF", "MID", "FWD"] as const;
+const POSITIONS = new Set<string>(POSITION_VALUES);
 const API_BASE =
   process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
@@ -117,6 +104,12 @@ function familyHref(season: string, position: string, family: FamilyKey) {
   return `/player-stats/rankings?${params.toString()}`;
 }
 
+async function getPositionRankings(season: string, position: string) {
+  return getJson<PlayerRankingsResult>(
+    `/api/v1/player-stats/${encodeURIComponent(season)}/rankings/${encodeURIComponent(position)}`
+  );
+}
+
 export default async function PlayerRankingsPage({
   searchParams,
 }: {
@@ -133,28 +126,41 @@ export default async function PlayerRankingsPage({
     query.season && seasons.includes(query.season)
       ? query.season
       : seasons[0];
+
+  const requestedPosition = query.position?.toUpperCase();
   const position =
-    query.position && POSITIONS.has(query.position.toUpperCase())
-      ? query.position.toUpperCase()
-      : "FWD";
+    requestedPosition && POSITIONS.has(requestedPosition)
+      ? requestedPosition
+      : "ALL";
 
-  const rankings = season
-    ? await getJson<PlayerRankingsResult>(
-        `/api/v1/player-stats/${encodeURIComponent(
-          season
-        )}/rankings/${encodeURIComponent(position)}`
-      )
-    : null;
+  const allPlayerRankings =
+    season && position === "ALL"
+      ? await Promise.all(
+          POSITION_VALUES.map(async (item) => [item, await getPositionRankings(season, item)] as const)
+        )
+      : [];
 
-  const availableFamilies = FAMILY_ORDER.filter((family) => {
-    if (!rankings) return false;
-    if (family === "overview") {
-      return (OVERVIEW_KEYS[position] ?? []).some((key) =>
-        rankings.metrics.some((metric) => metric.key === key)
-      );
-    }
-    return rankings.metrics.some((metric) => metric.family === family);
-  });
+  const rankingsByPosition: Record<string, PositionRankingData | null> = Object.fromEntries(
+    allPlayerRankings
+  );
+
+  const rankings =
+    season && position !== "ALL"
+      ? await getPositionRankings(season, position)
+      : null;
+
+  const availableFamilies: FamilyKey[] =
+    position === "ALL"
+      ? ["overview"]
+      : FAMILY_ORDER.filter((family) => {
+          if (!rankings) return false;
+          if (family === "overview") {
+            return (OVERVIEW_KEYS[position] ?? []).some((key) =>
+              rankings.metrics.some((metric) => metric.key === key)
+            );
+          }
+          return rankings.metrics.some((metric) => metric.family === family);
+        });
 
   const requestedFamily = query.family as FamilyKey | undefined;
   const family =
@@ -171,6 +177,9 @@ export default async function PlayerRankingsPage({
     : [];
 
   const isOverview = family === "overview";
+  const hasAllPlayerData =
+    position === "ALL" &&
+    Object.values(rankingsByPosition).some((item) => item?.metrics.length);
 
   return (
     <AppShell>
@@ -182,7 +191,7 @@ export default async function PlayerRankingsPage({
               <p className={styles.eyebrow}>Analysis · Player Stats</p>
               <h1>League Rankings</h1>
               <p className={styles.context}>
-                Premier League · {season ?? "Season unavailable"} · {position}
+                Premier League · {season ?? "Season unavailable"} · {position === "ALL" ? "All Players" : position}
               </p>
             </div>
           </div>
@@ -209,7 +218,14 @@ export default async function PlayerRankingsPage({
           ))}
         </nav>
 
-        {rankings && (isOverview || familyMetrics.length > 0) ? (
+        {position === "ALL" && hasAllPlayerData ? (
+          <main className={styles.workspace}>
+            <AllPlayersRankingsOverview
+              season={season ?? ""}
+              rankingsByPosition={rankingsByPosition}
+            />
+          </main>
+        ) : rankings && (isOverview || familyMetrics.length > 0) ? (
           <main className={styles.workspace}>
             {isOverview ? (
               <PlayerRankingsOverview
