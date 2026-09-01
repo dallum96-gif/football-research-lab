@@ -445,11 +445,12 @@ export function PlayerRankingsFamilyTable({
                 {visibleMetrics.map((metric) => {
                   const entry = metricEntry(metric.key, row.player_code);
                   const percentile = entry?.percentile ?? null;
-                  const barStyle = {
-                    "--percentile": `${Math.max(
-                      0,
-                      Math.min(100, percentile ?? 0)
-                    )}%`,
+                  const boundedPercentile = Math.max(
+                    0,
+                    Math.min(100, percentile ?? 0)
+                  );
+                  const disableLegacyMask = {
+                    "--percentile": "100%",
                   } as CSSProperties;
 
                   return (
@@ -467,19 +468,28 @@ export function PlayerRankingsFamilyTable({
                       </span>
                       <span
                         className={familyStyles.metricPerformanceBar}
-                        style={barStyle}
+                        style={disableLegacyMask}
                         aria-label={
                           percentile != null
                             ? `${Math.round(percentile)}th percentile`
                             : "Percentile unavailable"
                         }
                       >
+                        <b
+                          aria-hidden="true"
+                          style={{
+                            position: "absolute",
+                            zIndex: 1,
+                            top: 0,
+                            right: 0,
+                            bottom: 0,
+                            left: `${boundedPercentile}%`,
+                            borderRadius: "0 999px 999px 0",
+                            background: "var(--frl-surface-raised)",
+                          }}
+                        />
                         {percentile != null && (
-                          <i
-                            style={{
-                              left: `${Math.max(0, Math.min(100, percentile))}%`,
-                            }}
-                          />
+                          <i style={{ left: `${boundedPercentile}%` }} />
                         )}
                       </span>
                     </span>
