@@ -8,6 +8,7 @@ import {
   type RankingMetric,
 } from "./PlayerVisuals";
 import styles from "./PlayerStats.module.css";
+import performanceStyles from "./PlayerStatsPerformance.module.css";
 
 type SeasonResponse = { seasons: string[] };
 
@@ -276,8 +277,8 @@ export default async function PlayerStatsPage({
                       </small>
                     </div>
                     <strong>{formatMetric(metric, entry?.value ?? null)}</strong>
-                    <div className={styles.percentileTrack}>
-                      <span style={{ width: `${entry?.percentile ?? 0}%` }} />
+                    <div className={`${styles.percentileTrack} ${performanceStyles.performanceTrack}`}>
+                      <span style={{ left: `${entry?.percentile ?? 0}%` }} />
                     </div>
                     <footer>
                       <span>{entry?.percentile != null ? `P${Math.round(entry.percentile)}` : "—"}</span>
@@ -315,8 +316,8 @@ export default async function PlayerStatsPage({
                         <span>{metric.label}</span>
                         <strong>{formatMetric(metric, entry?.value ?? null)}</strong>
                       </div>
-                      <div className={styles.profileBar}>
-                        <span style={{ width: `${entry?.percentile ?? 0}%` }} />
+                      <div className={`${styles.profileBar} ${performanceStyles.performanceTrack} ${performanceStyles.profilePerformanceTrack}`}>
+                        <span style={{ left: `${entry?.percentile ?? 0}%` }} />
                         <i style={{ left: `${entry?.percentile ?? 0}%` }} />
                       </div>
                       <div className={styles.profileRank}>
