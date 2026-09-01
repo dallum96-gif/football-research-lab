@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PlayerStatsSearch } from "./PlayerStatsSearch";
 import styles from "./PlayerStats.module.css";
 
 type PlayerOption = {
@@ -18,38 +19,25 @@ export function PlayerStatsControls({
   seasons,
   players,
   currentSeason,
-  currentPlayer,
   currentFamily,
   position,
 }: {
   seasons: string[];
   players: PlayerOption[];
   currentSeason: string;
-  currentPlayer: string;
   currentFamily: string;
   position: string;
 }) {
   const router = useRouter();
 
   function changeSeason(season: string) {
-    const params = new URLSearchParams({ season });
-    if (currentFamily !== "overview") params.set("family", currentFamily);
-    router.push(`/player-stats?${params.toString()}`);
-  }
-
-  function changePlayer(player: string) {
-    const params = new URLSearchParams({
-      season: currentSeason,
-      player,
-    });
-    if (currentFamily !== "overview") params.set("family", currentFamily);
-    router.push(`/player-stats?${params.toString()}`);
+    router.push(`/player-stats?season=${encodeURIComponent(season)}`);
   }
 
   const rankingParams = new URLSearchParams({
     season: currentSeason,
-    position,
-    family: currentFamily,
+    position: position === "ALL" ? "ALL" : position,
+    family: position === "ALL" ? "overview" : currentFamily,
   });
 
   return (
@@ -75,21 +63,12 @@ export function PlayerStatsControls({
         </select>
       </label>
 
-      <label>
-        <span>Player</span>
-        <select
-          value={currentPlayer}
-          onChange={(event) => changePlayer(event.target.value)}
-        >
-          {players
-            .filter((player) => player.minutes > 0)
-            .map((player) => (
-              <option key={player.player_code} value={player.player_code}>
-                {player.player_name}
-              </option>
-            ))}
-        </select>
-      </label>
+      <PlayerStatsSearch
+        season={currentSeason}
+        players={players}
+        currentFamily={currentFamily}
+        size="compact"
+      />
     </div>
   );
 }
