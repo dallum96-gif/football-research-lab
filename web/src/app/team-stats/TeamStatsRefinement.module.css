@@ -98,13 +98,33 @@
 
 .compactVenuePanel {
   min-height: 0 !important;
-  align-self: start;
-  padding-bottom: 10px !important;
+  align-self: stretch;
+  padding-bottom: 14px !important;
 }
 
 .compactSplitRow {
-  grid-template-columns: 28px minmax(72px, 1fr) 62px 62px !important;
-  padding: 9px 0 !important;
+  grid-template-columns: 30px minmax(76px, 1fr) 68px 68px !important;
+  padding: 13px 0 !important;
+}
+
+.compactVenuePanel .homeMarker,
+.compactVenuePanel .awayMarker {
+  width: 30px;
+  height: 30px;
+  font-size: .54rem;
+}
+
+.compactVenuePanel .splitName strong {
+  font-size: .66rem;
+}
+
+.compactVenuePanel .splitName span,
+.compactVenuePanel .splitStat span {
+  font-size: .44rem;
+}
+
+.compactVenuePanel .splitStat strong {
+  font-size: .78rem;
 }
 
 .formPanel,
