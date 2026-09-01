@@ -64,29 +64,37 @@
 .profileMarker {
   width: 10px;
   height: 10px;
+  overflow: visible;
   background: var(--frl-text);
   box-shadow: 0 0 0 2px var(--frl-surface), 0 0 0 3px rgba(30, 37, 43, .2);
+}
+
+.profileMarker::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 12px;
+  background: var(--frl-surface-raised);
+  transform: translateY(-50%);
 }
 
 .profileRank {
   gap: 0;
 }
 
-.profileRank strong {
-  font-size: .56rem;
-  font-weight: 860;
+.profileRank strong,
+.profileRank small {
+  display: none;
 }
 
 .profileRank span {
-  margin-top: 1px;
-  font-size: .4rem;
-}
-
-.profileRank small {
-  margin-top: 1px;
-  color: var(--frl-muted);
-  font-size: .38rem;
-  font-weight: 720;
+  margin-top: 0;
+  color: var(--frl-text);
+  font-size: .56rem;
+  font-weight: 860;
 }
 
 .profileFooter {
