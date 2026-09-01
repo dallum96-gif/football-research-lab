@@ -46,6 +46,7 @@ export type PositionRankingData = {
 };
 
 type ScatterPosition = "DEF" | "MID" | "FWD";
+type MinuteQualifier = 0 | 0.1 | 0.25 | 0.5 | 0.75;
 
 type ScatterPoint = {
   player: RankingEntry;
@@ -101,7 +102,13 @@ const SCATTER_CONFIG: Record<
   },
 };
 
-const MINUTE_OPTIONS = [0, 60, 180, 450, 900];
+const MINUTE_OPTIONS: Array<{ value: MinuteQualifier; label: string }> = [
+  { value: 0, label: "All minutes" },
+  { value: 0.1, label: "10%+ possible" },
+  { value: 0.25, label: "25%+ possible" },
+  { value: 0.5, label: "50%+ possible" },
+  { value: 0.75, label: "75%+ possible" },
+];
 const OUTFIELD: ScatterPosition[] = ["DEF", "MID", "FWD"];
 
 function trim(value: number, decimals = 2) {
@@ -125,15 +132,28 @@ function metric(data: PositionRankingData | null | undefined, key: string) {
   return data?.metrics.find((item) => item.key === key) ?? null;
 }
 
+function possibleMinutes(
+  entry: RankingEntry,
+  possibleMinutesByClub: Record<string, number>
+) {
+  return Math.max(
+    0,
+    ...entry.clubs.map((club) => possibleMinutesByClub[club] ?? 0)
+  );
+}
+
 function eligible(
   entry: RankingEntry,
   club: string,
-  minimumMinutes: number
+  minuteQualifier: MinuteQualifier,
+  possibleMinutesByClub: Record<string, number>
 ) {
-  return (
-    entry.minutes >= minimumMinutes &&
-    (club === "ALL" || entry.clubs.includes(club))
-  );
+  if (club !== "ALL" && !entry.clubs.includes(club)) return false;
+  if (minuteQualifier === 0) return true;
+
+  const availableMinutes = possibleMinutes(entry, possibleMinutesByClub);
+  if (availableMinutes <= 0) return true;
+  return entry.minutes >= availableMinutes * minuteQualifier;
 }
 
 function xPosition(value: number, max: number) {
@@ -155,7 +175,8 @@ function leaderAcross(
   datasets: Array<PositionRankingData | null | undefined>,
   key: string,
   club: string,
-  minimumMinutes: number
+  minuteQualifier: MinuteQualifier,
+  possibleMinutesByClub: Record<string, number>
 ) {
   const candidates: Array<{ metric: RankingMetric; entry: RankingEntry }> = [];
 
@@ -163,7 +184,10 @@ function leaderAcross(
     const current = metric(data, key);
     if (!current) return;
     current.entries.forEach((entry) => {
-      if (entry.value == null || !eligible(entry, club, minimumMinutes)) return;
+      if (
+        entry.value == null ||
+        !eligible(entry, club, minuteQualifier, possibleMinutesByClub)
+      ) return;
       candidates.push({ metric: current, entry });
     });
   });
@@ -180,13 +204,15 @@ function leaderAcross(
 export function AllPlayersRankingsOverview({
   season,
   rankingsByPosition,
+  possibleMinutesByClub,
 }: {
   season: string;
   rankingsByPosition: Record<string, PositionRankingData | null>;
+  possibleMinutesByClub: Record<string, number>;
 }) {
   const [scatterPosition, setScatterPosition] = useState<ScatterPosition>("FWD");
   const [club, setClub] = useState("ALL");
-  const [minimumMinutes, setMinimumMinutes] = useState(60);
+  const [minuteQualifier, setMinuteQualifier] = useState<MinuteQualifier>(0.25);
 
   const clubs = useMemo(() => {
     const values = new Set<string>();
@@ -203,14 +229,14 @@ export function AllPlayersRankingsOverview({
     Object.entries(rankingsByPosition).forEach(([position, data]) => {
       data?.metrics.forEach((item) => {
         item.entries.forEach((entry) => {
-          if (eligible(entry, club, minimumMinutes)) {
+          if (eligible(entry, club, minuteQualifier, possibleMinutesByClub)) {
             players.add(`${position}:${entry.player_code}`);
           }
         });
       });
     });
     return players.size;
-  }, [rankingsByPosition, club, minimumMinutes]);
+  }, [rankingsByPosition, club, minuteQualifier, possibleMinutesByClub]);
 
   const signalCards = useMemo(() => {
     const outfield = OUTFIELD.map((position) => rankingsByPosition[position]);
@@ -218,25 +244,25 @@ export function AllPlayersRankingsOverview({
       {
         label: "Scoring leader",
         note: "Goals",
-        result: leaderAcross(outfield, "goals", club, minimumMinutes),
+        result: leaderAcross(outfield, "goals", club, minuteQualifier, possibleMinutesByClub),
       },
       {
         label: "Creative leader",
         note: "xA / 90",
-        result: leaderAcross(outfield, "xa_per_90", club, minimumMinutes),
+        result: leaderAcross(outfield, "xa_per_90", club, minuteQualifier, possibleMinutesByClub),
       },
       {
         label: "Defensive engine",
         note: "Defensive contribution / 90",
-        result: leaderAcross(outfield, "defensive_contribution_per_90", club, minimumMinutes),
+        result: leaderAcross(outfield, "defensive_contribution_per_90", club, minuteQualifier, possibleMinutesByClub),
       },
       {
         label: "Keeper workload",
         note: "Saves / 90",
-        result: leaderAcross([rankingsByPosition.GKP], "saves_per_90", club, minimumMinutes),
+        result: leaderAcross([rankingsByPosition.GKP], "saves_per_90", club, minuteQualifier, possibleMinutesByClub),
       },
     ];
-  }, [rankingsByPosition, club, minimumMinutes]);
+  }, [rankingsByPosition, club, minuteQualifier, possibleMinutesByClub]);
 
   const scatter = useMemo(() => {
     const data = rankingsByPosition[scatterPosition];
@@ -246,7 +272,11 @@ export function AllPlayersRankingsOverview({
     if (!xMetric || !yMetric) return null;
 
     const points = xMetric.entries
-      .filter((entry) => entry.value != null && eligible(entry, club, minimumMinutes))
+      .filter(
+        (entry) =>
+          entry.value != null &&
+          eligible(entry, club, minuteQualifier, possibleMinutesByClub)
+      )
       .map((entry) => {
         const yEntry = yMetric.entries.find(
           (candidate) => candidate.player_code === entry.player_code
@@ -287,7 +317,12 @@ export function AllPlayersRankingsOverview({
       .slice(0, 4);
 
     return { config, xMetric, yMetric, points, candidates, maxX, maxY, averageX, averageY };
-  }, [rankingsByPosition, scatterPosition, club, minimumMinutes]);
+  }, [rankingsByPosition, scatterPosition, club, minuteQualifier, possibleMinutesByClub]);
+
+  const qualifierLabel =
+    minuteQualifier === 0
+      ? "all minutes"
+      : `${Math.round(minuteQualifier * 100)}%+ possible minutes`;
 
   return (
     <div className={styles.landing}>
@@ -317,15 +352,13 @@ export function AllPlayersRankingsOverview({
           </select>
         </label>
         <label>
-          <span>Minutes</span>
+          <span>Minutes qualifier</span>
           <select
-            value={minimumMinutes}
-            onChange={(event) => setMinimumMinutes(Number(event.target.value))}
+            value={minuteQualifier}
+            onChange={(event) => setMinuteQualifier(Number(event.target.value) as MinuteQualifier)}
           >
-            {MINUTE_OPTIONS.map((minutes) => (
-              <option key={minutes} value={minutes}>
-                {minutes === 0 ? "All minutes" : `${minutes}+ min`}
-              </option>
+            {MINUTE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
         </label>
@@ -442,7 +475,7 @@ export function AllPlayersRankingsOverview({
                 </svg>
               </div>
               <footer className={styles.scatterFooter}>
-                <span>{scatter.points.length} players shown · {minimumMinutes}+ min{club !== "ALL" ? ` · ${club}` : ""}</span>
+                <span>{scatter.points.length} players shown · {qualifierLabel}{club !== "ALL" ? ` · ${club}` : ""}</span>
                 <span>Dashed lines = filtered-view averages</span>
               </footer>
             </>
@@ -461,7 +494,15 @@ export function AllPlayersRankingsOverview({
           {scatter?.candidates.length ? (
             <div className={styles.profileList}>
               {scatter.candidates.map((point) => {
-                const label = point.signal ? scatter.config[point.signal === "balanced" ? "balanced" : point.signal === "x-led" ? "xLed" : "yLed"] : "Notable profile";
+                const label = point.signal
+                  ? scatter.config[
+                      point.signal === "balanced"
+                        ? "balanced"
+                        : point.signal === "x-led"
+                          ? "xLed"
+                          : "yLed"
+                    ]
+                  : "Notable profile";
                 return (
                   <Link href={playerHref(season, point.player.player_code)} key={point.player.player_code}>
                     <div className={styles.profileIdentity}>
@@ -492,7 +533,7 @@ export function AllPlayersRankingsOverview({
           <strong>All Players is a discovery view, not one universal ranking.</strong>
           <span>DEF, MID, FWD and GKP rankings remain position-specific underneath.</span>
         </div>
-        <p>Club and minutes controls filter what is visible. They do not recalculate the underlying league-position ranks or percentiles.</p>
+        <p>Club and minutes controls filter what is visible. The minutes qualifier uses each club&apos;s completed league matches × 90; ranks and percentiles are not recalculated.</p>
       </section>
     </div>
   );
