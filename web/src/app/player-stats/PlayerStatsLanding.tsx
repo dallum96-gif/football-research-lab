@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { ClubKit } from "@/components/ClubKit";
 import type { RankingMetric } from "./PlayerVisuals";
 import { PlayerStatsSearch } from "./PlayerStatsSearch";
 import styles from "./PlayerStatsDiscovery.module.css";
@@ -41,12 +41,6 @@ function formatMetric(metric: RankingMetric, value: number | null) {
   if (value == null) return "—";
   if (metric.unit === "%") return `${trim(value, 1)}%`;
   return trim(value, Number.isInteger(value) ? 0 : 2);
-}
-
-function shirtHue(value: string) {
-  let hash = 0;
-  for (const char of value) hash = (hash * 31 + char.charCodeAt(0)) % 360;
-  return hash;
 }
 
 function discoveryCard(
@@ -111,18 +105,16 @@ export function PlayerStatsLanding({
           {cards.map((card) => {
             const result = card.result!;
             const club = result.entry.clubs[0] ?? "Premier League";
-            const style = { "--shirt-hue": shirtHue(club) } as CSSProperties;
 
             return (
               <Link
                 key={`${card.position}-${result.entry.player_code}`}
                 href={`/player-stats?season=${encodeURIComponent(season)}&player=${encodeURIComponent(result.entry.player_code)}`}
                 className={styles.playerCard}
-                style={style}
               >
                 <div className={styles.cardTop}>
-                  <div className={styles.shirtStage} aria-hidden="true">
-                    <span className={styles.shirt} />
+                  <div className={styles.shirtStage}>
+                    <ClubKit club={club} size="large" />
                   </div>
                   <span className={styles.positionBadge}>{card.position}</span>
                 </div>
@@ -164,10 +156,10 @@ export function PlayerStatsLanding({
         <header className={styles.sectionHeading}>
           <div>
             <p>Browse</p>
-            <h2>Prefer the full squad list?</h2>
+            <h2>Prefer the curated player board?</h2>
           </div>
           <Link className={styles.directoryLink} href={`/players?season=${encodeURIComponent(season)}`}>
-            Open Players directory →
+            Open Players →
           </Link>
         </header>
       </section>
