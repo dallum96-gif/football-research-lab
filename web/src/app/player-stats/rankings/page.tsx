@@ -11,6 +11,18 @@ type SeasonResponse = { seasons: string[] };
 
 type PlayerRankingsResult = PositionRankingData;
 
+type TeamOption = {
+  persistent_team_code: string | null;
+  display_name: string;
+};
+
+type TeamOverviewResult = {
+  persistent_team_code: string;
+  display_name: string;
+  season: string;
+  played: number;
+};
+
 type FamilyKey =
   | "overview"
   | "shooting"
@@ -110,6 +122,29 @@ async function getPositionRankings(season: string, position: string) {
   );
 }
 
+async function getPossibleMinutesByClub(season: string) {
+  const teams =
+    (await getJson<TeamOption[]>(`/api/v1/teams/${encodeURIComponent(season)}`)) ?? [];
+
+  const rows = await Promise.all(
+    teams.map(async (team) => {
+      if (!team.persistent_team_code) {
+        return [team.display_name, 0] as const;
+      }
+
+      const overview = await getJson<TeamOverviewResult>(
+        `/api/v1/teams/${encodeURIComponent(season)}/${encodeURIComponent(
+          team.persistent_team_code
+        )}/overview`
+      );
+
+      return [team.display_name, Math.max(0, overview?.played ?? 0) * 90] as const;
+    })
+  );
+
+  return Object.fromEntries(rows) as Record<string, number>;
+}
+
 export default async function PlayerRankingsPage({
   searchParams,
 }: {
@@ -133,16 +168,21 @@ export default async function PlayerRankingsPage({
       ? requestedPosition
       : "ALL";
 
-  const allPlayerRankings =
+  const allPlayerData =
     season && position === "ALL"
-      ? await Promise.all(
-          POSITION_VALUES.map(async (item) => [item, await getPositionRankings(season, item)] as const)
-        )
-      : [];
+      ? await Promise.all([
+          Promise.all(
+            POSITION_VALUES.map(
+              async (item) => [item, await getPositionRankings(season, item)] as const
+            )
+          ),
+          getPossibleMinutesByClub(season),
+        ])
+      : null;
 
-  const rankingsByPosition: Record<string, PositionRankingData | null> = Object.fromEntries(
-    allPlayerRankings
-  );
+  const rankingsByPosition: Record<string, PositionRankingData | null> =
+    Object.fromEntries(allPlayerData?.[0] ?? []);
+  const possibleMinutesByClub = allPlayerData?.[1] ?? {};
 
   const rankings =
     season && position !== "ALL"
@@ -223,6 +263,7 @@ export default async function PlayerRankingsPage({
             <AllPlayersRankingsOverview
               season={season ?? ""}
               rankingsByPosition={rankingsByPosition}
+              possibleMinutesByClub={possibleMinutesByClub}
             />
           </main>
         ) : rankings && (isOverview || familyMetrics.length > 0) ? (
