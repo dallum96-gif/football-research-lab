@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "../PlayerStats.module.css";
 
-const POSITIONS = ["GKP", "DEF", "MID", "FWD"];
+const POSITIONS = [
+  { value: "ALL", label: "All Players" },
+  { value: "GKP", label: "Goalkeepers" },
+  { value: "DEF", label: "Defenders" },
+  { value: "MID", label: "Midfielders" },
+  { value: "FWD", label: "Forwards" },
+];
 
 export function PlayerRankingsControls({
   seasons,
@@ -23,7 +29,7 @@ export function PlayerRankingsControls({
     const params = new URLSearchParams({
       season: nextSeason,
       position: nextPosition,
-      family,
+      family: nextPosition === "ALL" ? "overview" : family,
     });
     router.push(`/player-stats/rankings?${params.toString()}`);
   }
@@ -55,8 +61,8 @@ export function PlayerRankingsControls({
           value={position}
           onChange={(event) => route(currentSeason, event.target.value)}
         >
-          {POSITIONS.map((value) => (
-            <option key={value} value={value}>{value}</option>
+          {POSITIONS.map((option) => (
+            <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
       </label>
