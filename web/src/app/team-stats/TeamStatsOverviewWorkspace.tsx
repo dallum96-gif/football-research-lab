@@ -78,6 +78,30 @@ const METRIC_FAMILY: Record<string, "attack" | "passing" | "defence"> = {
   clean_sheet_rate: "defence",
 };
 
+const BALANCE_FAMILIES = [
+  {
+    key: "attack" as const,
+    label: "Attack",
+    metricKeys: [
+      "goals_for_per_match",
+      "Shots_per_match",
+      "Shots on target_per_match",
+      "shot_accuracy",
+      "failed_to_score_rate",
+    ],
+  },
+  {
+    key: "passing" as const,
+    label: "Passing",
+    metricKeys: ["Possession_per_match", "pass_accuracy"],
+  },
+  {
+    key: "defence" as const,
+    label: "Defence",
+    metricKeys: ["goals_against_per_match", "clean_sheet_rate"],
+  },
+];
+
 function trim(value: number, decimals: number) {
   const fixed = value.toFixed(decimals);
   return fixed.includes(".")
@@ -137,6 +161,24 @@ function rankingsHref(overview: TeamStatsOverview, metric: Metric) {
   return `/team-stats/rankings?${params.toString()}`;
 }
 
+function familyHref(
+  overview: TeamStatsOverview,
+  family: "attack" | "passing" | "defence"
+) {
+  const params = new URLSearchParams({
+    season: overview.season,
+    team: overview.persistent_team_code,
+    family,
+  });
+  return `/team-stats?${params.toString()}`;
+}
+
+function resultLetter(point: TrendPoint) {
+  if (point.points === 3) return "W";
+  if (point.points === 1) return "D";
+  return "L";
+}
+
 export function TeamStatsOverviewWorkspace({
   overview,
 }: {
@@ -147,11 +189,43 @@ export function TeamStatsOverviewWorkspace({
     .filter((metric): metric is Metric => Boolean(metric))
     .sort((a, b) => a.rank - b.rank || b.percentile - a.percentile);
 
-  const strongest = overviewMetrics[0] ?? null;
-  const weakest = overviewMetrics[overviewMetrics.length - 1] ?? null;
-
   const home = overview.splits.find((split) => split.label === "Home");
   const away = overview.splits.find((split) => split.label === "Away");
+
+  const recentForm = overview.trend
+    .filter(
+      (point) => point.goals_for !== null && point.goals_against !== null
+    )
+    .sort((a, b) =>
+      (a.kickoff_time ?? "").localeCompare(b.kickoff_time ?? "")
+    )
+    .slice(-5);
+
+  const recentPoints = recentForm.reduce((total, point) => total + point.points, 0);
+  const recentGoalsFor = recentForm.reduce(
+    (total, point) => total + (point.goals_for ?? 0),
+    0
+  );
+  const recentGoalsAgainst = recentForm.reduce(
+    (total, point) => total + (point.goals_against ?? 0),
+    0
+  );
+
+  const balance = BALANCE_FAMILIES.map((family) => {
+    const metrics = family.metricKeys
+      .map((key) => overview.metrics.find((metric) => metric.key === key))
+      .filter((metric): metric is Metric => Boolean(metric));
+    const score = metrics.length
+      ? metrics.reduce((total, metric) => total + metric.percentile, 0) /
+        metrics.length
+      : null;
+
+    return {
+      ...family,
+      metrics,
+      score,
+    };
+  });
 
   return (
     <main className={styles.workspace}>
@@ -218,7 +292,7 @@ export function TeamStatsOverviewWorkspace({
                     <div className={styles.profileBarWrap}>
                       <div
                         className={`${styles.profileBar} ${refinementStyles.performanceScale}`}
-                        aria-label={`${metric.label}: ${percentileLabel(metric.percentile)}`}
+                        aria-label={`${metric.label}: ${ordinal(metric.rank)} of ${metric.out_of}`}
                       >
                         <i className={styles.profileQuarter} style={{ left: "25%" }} />
                         <i className={styles.profileQuarter} style={{ left: "50%" }} />
@@ -231,9 +305,7 @@ export function TeamStatsOverviewWorkspace({
                     </div>
 
                     <div className={`${styles.profileRank} ${refinementStyles.profileRank}`}>
-                      <strong>Top {topPercent(metric)}%</strong>
                       <span>{ordinal(metric.rank)} of {metric.out_of}</span>
-                      <small>{percentileLabel(metric.percentile)}</small>
                     </div>
                   </div>
                 ))}
@@ -241,7 +313,7 @@ export function TeamStatsOverviewWorkspace({
 
               <footer className={`${styles.profileFooter} ${refinementStyles.profileFooter}`}>
                 <span>0 · worst</span>
-                <span>League percentile · red → green</span>
+                <span>League standing · red → green</span>
                 <span>100 · best</span>
               </footer>
             </div>
@@ -295,54 +367,90 @@ export function TeamStatsOverviewWorkspace({
       </section>
 
       <section className={styles.bottomGrid}>
-        <article className={styles.readPanel}>
-          <p className={styles.kicker}>Read the team</p>
-
-          <div className={styles.readItems}>
+        <article className={`${styles.readPanel} ${refinementStyles.formPanel}`}>
+          <div className={refinementStyles.insightHeading}>
             <div>
-              <span>Strongest signal</span>
-              <strong>{strongest?.label ?? "—"}</strong>
-              <p>
-                {strongest
-                  ? `${ordinal(strongest.rank)} of ${strongest.out_of} · ${percentileLabel(strongest.percentile)}.`
-                  : "Unavailable."}
-              </p>
+              <p className={styles.kicker}>Current run</p>
+              <h3>Recent form</h3>
             </div>
-
-            <div>
-              <span>Relative soft spot</span>
-              <strong>{weakest?.label ?? "—"}</strong>
-              <p>
-                {weakest
-                  ? `${ordinal(weakest.rank)} of ${weakest.out_of} · ${percentileLabel(weakest.percentile)}.`
-                  : "Unavailable."}
-              </p>
-            </div>
+            <span>{recentForm.length ? `Last ${recentForm.length}` : "No results"}</span>
           </div>
+
+          {recentForm.length ? (
+            <>
+              <div className={refinementStyles.formRun} aria-label="Recent league results">
+                {recentForm.map((point) => {
+                  const result = resultLetter(point);
+                  return (
+                    <span
+                      key={point.fixture_id}
+                      className={refinementStyles.formResult}
+                      data-result={result}
+                      title={`${point.home ? "Home" : "Away"} · ${point.goals_for}-${point.goals_against}`}
+                    >
+                      {result}
+                    </span>
+                  );
+                })}
+              </div>
+
+              <div className={refinementStyles.formSummary}>
+                <div>
+                  <span>Points</span>
+                  <strong>{recentPoints}</strong>
+                </div>
+                <div>
+                  <span>Goals</span>
+                  <strong>{recentGoalsFor}</strong>
+                </div>
+                <div>
+                  <span>Conceded</span>
+                  <strong>{recentGoalsAgainst}</strong>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className={refinementStyles.insightEmpty}>
+              No completed league match is available in the current trend window.
+            </p>
+          )}
         </article>
 
-        <article className={styles.secondaryPanel}>
-          <p className={styles.kicker}>Overview logic</p>
-          <div className={styles.secondaryGrid}>
+        <article className={`${styles.secondaryPanel} ${refinementStyles.balancePanel}`}>
+          <div className={refinementStyles.insightHeading}>
             <div>
-              <span>Headline metrics</span>
-              <strong>{overviewMetrics.length}</strong>
+              <p className={styles.kicker}>Relative profile</p>
+              <h3>Team balance</h3>
             </div>
-            <div>
-              <span>League population</span>
-              <strong>{overviewMetrics[0]?.out_of ?? "—"}</strong>
-            </div>
-            <div>
-              <span>Best rank</span>
-              <strong>{strongest ? ordinal(strongest.rank) : "—"}</strong>
-            </div>
-            <div>
-              <span>Lowest rank</span>
-              <strong>{weakest ? ordinal(weakest.rank) : "—"}</strong>
-            </div>
+            <span>League comparison</span>
           </div>
-          <footer>
-            Headline tiles are curated for signal variety and ordered by this team’s current league rank.
+
+          <div className={refinementStyles.balanceRows}>
+            {balance.map((family) => (
+              <Link
+                key={family.key}
+                href={familyHref(overview, family.key)}
+                className={refinementStyles.balanceRow}
+              >
+                <div className={refinementStyles.balanceLabel}>
+                  <strong>{family.label}</strong>
+                  <span>{family.metrics.length} governed metrics</span>
+                </div>
+                <div className={refinementStyles.balanceTrack}>
+                  <span
+                    style={{ width: `${family.score ?? 0}%` }}
+                    aria-hidden="true"
+                  />
+                </div>
+                <strong className={refinementStyles.balanceScore}>
+                  {family.score === null ? "—" : Math.round(family.score)}
+                </strong>
+              </Link>
+            ))}
+          </div>
+
+          <footer className={refinementStyles.balanceNote}>
+            Equal-weight average of available governed league percentiles; a navigation summary, not a model score.
           </footer>
         </article>
       </section>
