@@ -22,6 +22,11 @@ const navGroups = [
     label: "Analysis",
     links: [
       { href: "/team-stats", label: "Team Stats" },
+      {
+        href: "/player-stats/rankings",
+        label: "Player Stats",
+        activePrefix: "/player-stats",
+      },
       { href: "/research", label: "Research" },
       { href: "/visualisations", label: "Visualisation" },
     ],
@@ -39,9 +44,14 @@ export function AppShell({ children }: AppShellProps) {
           <div key={group.label} className="frl-sidebar-group">
             <p className="frl-sidebar-kicker">{group.label}</p>
             {group.links.map((link) => {
+              const activePrefix = "activePrefix" in link
+                ? link.activePrefix
+                : undefined;
               const active = link.href === "/"
                 ? pathname === "/"
-                : pathname === link.href || pathname.startsWith(`${link.href}/`);
+                : activePrefix
+                  ? pathname === activePrefix || pathname.startsWith(`${activePrefix}/`)
+                  : pathname === link.href || pathname.startsWith(`${link.href}/`);
 
               return (
                 <Link

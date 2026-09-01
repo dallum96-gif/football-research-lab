@@ -1,0 +1,258 @@
+.page {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.profileHeader {
+  min-height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: .6rem 0 .95rem;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+}
+
+.monogram,
+.avatar {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--frl-border-strong);
+  background: var(--frl-surface);
+  color: var(--frl-accent);
+  font-weight: 850;
+}
+
+.monogram {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  font-size: .58rem;
+  letter-spacing: -.02em;
+}
+
+.eyebrow,
+.sectionKicker {
+  margin: 0;
+  color: var(--frl-accent);
+  font-size: .55rem;
+  font-weight: 850;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.identity h1 {
+  margin: .13rem 0 0;
+  font-size: clamp(2.1rem, 3vw, 3rem);
+  font-weight: 850;
+  letter-spacing: -.05em;
+  line-height: .98;
+}
+
+.context {
+  margin: .3rem 0 0;
+  color: var(--frl-muted);
+  font-size: .67rem;
+}
+
+.selectControl {
+  display: grid;
+  gap: .25rem;
+}
+
+.selectControl span {
+  color: var(--frl-muted-soft);
+  font-size: .48rem;
+  font-weight: 800;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.selectControl select {
+  min-width: 126px;
+  height: 34px;
+  padding: 0 2rem 0 .7rem;
+  border: 1px solid var(--frl-border);
+  border-radius: 8px;
+  background: var(--frl-surface);
+  color: var(--frl-text);
+  font: inherit;
+  font-size: .62rem;
+  font-weight: 720;
+}
+
+.tabs {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  min-height: 44px;
+  border-top: 1px solid var(--frl-border);
+  border-bottom: 1px solid var(--frl-border-strong);
+}
+
+.activeTab,
+.tabLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  color: var(--frl-text);
+  font-size: .62rem;
+  font-weight: 790;
+  text-decoration: none;
+}
+
+.activeTab::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--frl-accent);
+}
+
+.tabLink {
+  color: var(--frl-muted);
+}
+
+.workspace {
+  padding-top: 12px;
+}
+
+.groups {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.group {
+  overflow: hidden;
+  border: 1px solid var(--frl-border);
+  border-radius: 14px;
+  background: var(--frl-surface);
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 14px 15px 10px;
+  border-bottom: 1px solid var(--frl-border);
+}
+
+.sectionHeading h2 {
+  margin: .15rem 0 0;
+  font-size: 1rem;
+  font-weight: 830;
+  letter-spacing: -.035em;
+}
+
+.sectionHeading > span {
+  color: var(--frl-muted-soft);
+  font-size: .47rem;
+  font-weight: 700;
+}
+
+.playerGrid {
+  display: grid;
+}
+
+.playerLink {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 42px auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--frl-border);
+  color: inherit;
+  text-decoration: none;
+  transition: background .13s ease, transform .13s ease;
+}
+
+.playerLink:last-child {
+  border-bottom: 0;
+}
+
+.playerLink:hover {
+  background: var(--frl-surface-raised);
+}
+
+.playerIdentity {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.playerIdentity strong {
+  overflow: hidden;
+  font-size: .67rem;
+  font-weight: 760;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playerIdentity small,
+.playerMeta small {
+  color: var(--frl-muted-soft);
+  font-size: .43rem;
+}
+
+.playerMeta {
+  display: grid;
+  justify-items: end;
+  gap: 1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.playerMeta strong {
+  font-size: .68rem;
+}
+
+.action {
+  color: var(--frl-muted-soft);
+  font-size: .43rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.playerLink:hover .action {
+  color: var(--frl-accent);
+}
+
+@media (max-width: 900px) {
+  .groups {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .profileHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: .8rem;
+  }
+
+  .playerLink {
+    grid-template-columns: 34px minmax(0, 1fr) 38px;
+  }
+
+  .action {
+    display: none;
+  }
+}

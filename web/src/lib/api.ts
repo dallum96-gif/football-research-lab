@@ -95,11 +95,8 @@ export type FixtureResearchResult = {
   limitations: string[];
 };
 
-const runtimeEnv = (globalThis as typeof globalThis & {
-  process?: { env?: Record<string, string | undefined> };
-}).process?.env;
-
-const API_BASE = runtimeEnv?.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
+const API_BASE =
+  process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
