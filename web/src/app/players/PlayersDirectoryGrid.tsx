@@ -306,15 +306,22 @@ export function PlayersDirectoryGrid({
                 </div>
 
                 <div className={styles.metricList}>
-                  {metrics.map(({ metric, entry }) => (
-                    <div className={styles.metricRow} key={metric.key}>
-                      <span>{metric.label}</span>
-                      <strong>{formatMetric(metric, entry.value)}</strong>
-                      <small data-band={percentileBand(entry.percentile)}>
-                        P{Math.round(entry.percentile ?? 0)}
-                      </small>
-                    </div>
-                  ))}
+                  {metrics.map(({ metric, entry }) => {
+                    const percentile = Math.max(0, Math.min(100, entry.percentile ?? 0));
+                    return (
+                      <div className={styles.metricRow} key={metric.key}>
+                        <span className={styles.metricLabel}>{metric.label}</span>
+                        <strong>{formatMetric(metric, entry.value)}</strong>
+                        <small data-band={percentileBand(entry.percentile)}>
+                          P{Math.round(entry.percentile ?? 0)}
+                        </small>
+                        <span className={styles.metricBar} aria-hidden="true">
+                          <i style={{ left: `${percentile}%` }} />
+                          <b style={{ left: `${percentile}%` }} />
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
 
