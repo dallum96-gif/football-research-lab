@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { PlayerStatsControls } from "./PlayerStatsControls";
+import { PlayerStatsLanding } from "./PlayerStatsLanding";
 import {
   AverageDonuts,
   CohortDistributions,
@@ -97,6 +98,7 @@ const FAMILY_ORDER: FamilyKey[] = [
   "fpl",
 ];
 
+const POSITION_VALUES = ["GKP", "DEF", "MID", "FWD"] as const;
 const API_BASE =
   process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
@@ -148,6 +150,12 @@ function statsHref(season: string, player: string, family: FamilyKey) {
   return `/player-stats?${params.toString()}`;
 }
 
+async function getPositionRankings(season: string, position: string) {
+  return getJson<PlayerRankingsResult>(
+    `/api/v1/player-stats/${encodeURIComponent(season)}/rankings/${encodeURIComponent(position)}`
+  );
+}
+
 export default async function PlayerStatsPage({
   searchParams,
 }: {
@@ -166,7 +174,19 @@ export default async function PlayerStatsPage({
   const playerCode =
     query.player && eligiblePlayers.some((player) => player.player_code === query.player)
       ? query.player
-      : eligiblePlayers[0]?.player_code;
+      : undefined;
+
+  const landingRankings =
+    season && !playerCode
+      ? Object.fromEntries(
+          await Promise.all(
+            POSITION_VALUES.map(async (position) => [
+              position,
+              await getPositionRankings(season, position),
+            ] as const)
+          )
+        ) as Record<string, PlayerRankingsResult | null>
+      : {};
 
   const stats = season && playerCode
     ? await getJson<PlayerStatsResult>(
@@ -175,11 +195,7 @@ export default async function PlayerStatsPage({
     : null;
 
   const rankings = stats
-    ? await getJson<PlayerRankingsResult>(
-        `/api/v1/player-stats/${encodeURIComponent(season ?? "")}/rankings/${encodeURIComponent(
-          stats.player.position
-        )}`
-      )
+    ? await getPositionRankings(season ?? "", stats.player.position)
     : null;
 
   const availableFamilies = FAMILY_ORDER.filter((family) => {
@@ -225,31 +241,38 @@ export default async function PlayerStatsPage({
             </div>
           </div>
 
-          {season && playerCode && selectedPlayer && (
+          {season && (
             <PlayerStatsControls
               seasons={seasons}
               players={eligiblePlayers}
               currentSeason={season}
-              currentPlayer={playerCode}
               currentFamily={activeFamily}
-              position={selectedPlayer.position}
+              position={selectedPlayer?.position ?? "ALL"}
             />
           )}
         </header>
 
-        <nav className={styles.tabs} aria-label="Player Stats sections">
-          {availableFamilies.map((family) => (
-            <Link
-              key={family}
-              href={statsHref(season ?? "", playerCode ?? "", family)}
-              className={family === activeFamily ? styles.activeTab : styles.tab}
-            >
-              {FAMILY_LABELS[family]}
-            </Link>
-          ))}
-        </nav>
+        {selectedPlayer && playerCode && (
+          <nav className={styles.tabs} aria-label="Player Stats sections">
+            {availableFamilies.map((family) => (
+              <Link
+                key={family}
+                href={statsHref(season ?? "", playerCode, family)}
+                className={family === activeFamily ? styles.activeTab : styles.tab}
+              >
+                {FAMILY_LABELS[family]}
+              </Link>
+            ))}
+          </nav>
+        )}
 
-        {stats && rankings && selectedPlayer ? (
+        {!playerCode && season ? (
+          <PlayerStatsLanding
+            season={season}
+            players={eligiblePlayers}
+            rankingsByPosition={landingRankings}
+          />
+        ) : stats && rankings && selectedPlayer && playerCode ? (
           <main className={styles.workspace}>
             <section className={styles.summaryStrip}>
               <div><strong>{selectedPlayer.appearances}</strong><span>Appearances</span></div>
@@ -257,7 +280,7 @@ export default async function PlayerStatsPage({
               <div><strong>{selectedPlayer.minutes}</strong><span>Minutes</span></div>
               <div><strong>{rankings.population_size}</strong><span>{selectedPlayer.position} cohort</span></div>
               <Link
-                href={`/players/${encodeURIComponent(season ?? "")}/${encodeURIComponent(playerCode ?? "")}`}
+                href={`/players/${encodeURIComponent(season ?? "")}/${encodeURIComponent(playerCode)}`}
               >
                 Player profile →
               </Link>
@@ -290,11 +313,11 @@ export default async function PlayerStatsPage({
             </section>
 
             <section className={styles.visualGrid}>
-              <PercentileFingerprint metrics={familyMetrics} playerCode={playerCode ?? ""} />
-              <AverageDonuts metrics={familyMetrics} playerCode={playerCode ?? ""} />
+              <PercentileFingerprint metrics={familyMetrics} playerCode={playerCode} />
+              <AverageDonuts metrics={familyMetrics} playerCode={playerCode} />
             </section>
 
-            <CohortDistributions metrics={familyMetrics} playerCode={playerCode ?? ""} />
+            <CohortDistributions metrics={familyMetrics} playerCode={playerCode} />
 
             <section className={styles.percentilePanel}>
               <header className={styles.sectionHeading}>
