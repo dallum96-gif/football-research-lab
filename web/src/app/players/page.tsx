@@ -7,6 +7,7 @@ import {
   type PositionRankingData,
 } from "./PlayersDirectoryGrid";
 import styles from "./PlayersDirectory.module.css";
+import refinementStyles from "./PlayersDirectoryRefinement.module.css";
 
 type SeasonResponse = {
   seasons: string[];
@@ -102,19 +103,24 @@ export default async function PlayersPage({
           )}
         </header>
 
-        <nav className={styles.tabs} aria-label="Player workspace">
-          <span className={styles.activeTab}>Player profiles</span>
+        <nav
+          className={`${styles.tabs} ${refinementStyles.tabBand}`}
+          aria-label="Player workspace"
+        >
+          <span className={`${styles.activeTab} ${refinementStyles.activeTab}`}>
+            Player profiles
+          </span>
           {season && players.some((player) => player.minutes > 0) && (
             <Link
               href={`/player-stats?season=${encodeURIComponent(season)}`}
-              className={styles.tabLink}
+              className={`${styles.tabLink} ${refinementStyles.tabLink}`}
             >
               Player Stats →
             </Link>
           )}
         </nav>
 
-        <main className={styles.workspace}>
+        <main className={`${styles.workspace} ${refinementStyles.workspaceBreathingRoom}`}>
           {season && players.length > 0 ? (
             <PlayersDirectoryGrid
               season={season}
