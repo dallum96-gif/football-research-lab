@@ -34,9 +34,16 @@ type ShowcasePlayer = {
   metrics: TileMetric[];
 };
 
-const POSITION_ORDER = ["GKP", "DEF", "MID", "FWD"];
+type PositionKey = "GKP" | "DEF" | "MID" | "FWD";
 
-const PROFILE_KEYS: Record<string, string[]> = {
+const POSITION_OPTIONS: Array<{ value: PositionKey; label: string }> = [
+  { value: "GKP", label: "Goalkeepers" },
+  { value: "DEF", label: "Defenders" },
+  { value: "MID", label: "Midfielders" },
+  { value: "FWD", label: "Forwards" },
+];
+
+const PROFILE_KEYS: Record<PositionKey, string[]> = {
   GKP: [
     "saves_per_90",
     "clean_sheets_per_90",
@@ -95,11 +102,11 @@ function candidateProfiles(
   const playerByCode = new Map(players.map((player) => [player.player_code, player]));
   const candidates: ShowcasePlayer[] = [];
 
-  for (const position of POSITION_ORDER) {
+  for (const position of POSITION_OPTIONS.map((option) => option.value)) {
     const ranking = rankingsByPosition[position];
     if (!ranking) continue;
 
-    const metrics = (PROFILE_KEYS[position] ?? [])
+    const metrics = PROFILE_KEYS[position]
       .map((key) => ranking.metrics.find((metric) => metric.key === key))
       .filter((metric): metric is RankingMetric => Boolean(metric));
 
@@ -144,7 +151,7 @@ function candidateProfiles(
         position,
         club: player.clubs[0] ?? baseEntry.clubs[0] ?? "Premier League",
         score,
-        metrics: tileMetrics.slice(0, 5),
+        metrics: tileMetrics.slice(0, 4),
       });
     }
   }
@@ -152,34 +159,6 @@ function candidateProfiles(
   return candidates.sort(
     (a, b) => b.score - a.score || b.player.minutes - a.player.minutes
   );
-}
-
-function sixStandouts(
-  players: PlayerOption[],
-  rankingsByPosition: Record<string, PositionRankingData | null>
-) {
-  const candidates = candidateProfiles(players, rankingsByPosition);
-  const selected: ShowcasePlayer[] = [];
-
-  for (const position of POSITION_ORDER) {
-    const best = candidates.find(
-      (candidate) => candidate.position === position && candidate.score >= 70
-    );
-    if (best) selected.push(best);
-  }
-
-  for (const candidate of candidates) {
-    if (selected.length >= 6) break;
-    if (
-      !selected.some(
-        (existing) => existing.player.player_code === candidate.player.player_code
-      )
-    ) {
-      selected.push(candidate);
-    }
-  }
-
-  return selected.slice(0, 6).sort((a, b) => b.score - a.score);
 }
 
 export function PlayersDirectoryGrid({
@@ -192,10 +171,16 @@ export function PlayersDirectoryGrid({
   rankingsByPosition: Record<string, PositionRankingData | null>;
 }) {
   const [query, setQuery] = useState("");
+  const [position, setPosition] = useState<PositionKey>("MID");
+
+  const candidates = useMemo(
+    () => candidateProfiles(players, rankingsByPosition),
+    [players, rankingsByPosition]
+  );
 
   const showcase = useMemo(
-    () => sixStandouts(players, rankingsByPosition),
-    [players, rankingsByPosition]
+    () => candidates.filter((candidate) => candidate.position === position).slice(0, 3),
+    [candidates, position]
   );
 
   const searchResults = useMemo(() => {
@@ -204,10 +189,7 @@ export function PlayersDirectoryGrid({
 
     return players
       .filter((player) =>
-        [player.player_name, player.position, ...player.clubs]
-          .join(" ")
-          .toLocaleLowerCase("en-GB")
-          .includes(normalised)
+        player.player_name.toLocaleLowerCase("en-GB").includes(normalised)
       )
       .sort((a, b) => {
         const aName = a.player_name.toLocaleLowerCase("en-GB");
@@ -219,14 +201,17 @@ export function PlayersDirectoryGrid({
       .slice(0, 8);
   }, [players, query]);
 
+  const activePositionLabel =
+    POSITION_OPTIONS.find((option) => option.value === position)?.label ?? position;
+
   return (
     <div className={styles.directory}>
       <section className={styles.toolbar}>
         <div className={styles.toolbarCopy}>
           <p>Curated discovery</p>
-          <strong>Six unusually strong positional profiles</strong>
+          <strong>Three unusually strong positional profiles</strong>
           <span>
-            One strong profile is surfaced from each position where possible, then the best remaining outliers fill the board.
+            Cycle by position to surface the strongest governed percentile profiles without turning the page into a full directory.
           </span>
         </div>
 
@@ -236,8 +221,8 @@ export function PlayersDirectoryGrid({
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search any player or club..."
-              aria-label="Search players"
+              placeholder="Search player..."
+              aria-label="Search player"
               autoComplete="off"
             />
           </label>
@@ -264,26 +249,41 @@ export function PlayersDirectoryGrid({
       <header className={styles.summary}>
         <div>
           <p>Players worth checking</p>
-          <h2>Position-relative percentile standouts</h2>
+          <h2>{activePositionLabel} · percentile standouts</h2>
         </div>
-        <span>90+ min · six profiles</span>
+
+        <div className={styles.positionSelector} aria-label="Select player position">
+          {POSITION_OPTIONS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              data-active={position === option.value ? "true" : "false"}
+              aria-pressed={position === option.value}
+              onClick={() => setPosition(option.value)}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+
+        <span>90+ min · top 3</span>
       </header>
 
       {showcase.length > 0 ? (
         <div className={styles.grid}>
-          {showcase.map(({ player, position, club, score, metrics }) => (
+          {showcase.map(({ player, position: playerPosition, club, score, metrics }) => (
             <Link
               className={styles.card}
               key={player.player_code}
               href={`/players/${encodeURIComponent(season)}/${encodeURIComponent(player.player_code)}`}
             >
               <div className={styles.visual}>
-                <span className={styles.position}>{position}</span>
+                <span className={styles.position}>{playerPosition}</span>
                 <span className={styles.profileScore}>
                   <strong>{Math.round(score)}</strong>
                   <small>avg pctl</small>
                 </span>
-                <ClubKit club={club} size="large" />
+                <ClubKit club={club} size="medium" />
               </div>
 
               <div className={styles.body}>
@@ -327,7 +327,7 @@ export function PlayersDirectoryGrid({
         </div>
       ) : (
         <div className={styles.empty}>
-          Not enough governed positional metrics are available to build the six-player showcase yet.
+          Not enough governed {activePositionLabel.toLowerCase()} metrics are available to build the three-player showcase yet.
         </div>
       )}
 
