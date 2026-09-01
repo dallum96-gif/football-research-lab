@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import type { RankingMetric } from "../player-stats/PlayerVisuals";
 import { PlayerDirectorySelect } from "./PlayerDirectorySelect";
-import { PlayersDirectoryGrid } from "./PlayersDirectoryGrid";
+import {
+  PlayersDirectoryGrid,
+  type PositionRankingData,
+} from "./PlayersDirectoryGrid";
 import styles from "./PlayersDirectory.module.css";
 
 type SeasonResponse = {
@@ -15,8 +19,17 @@ type PlayerOption = {
   clubs: string[];
   minutes: number;
   appearances: number;
+  starts: number;
 };
 
+type PlayerRankingsResult = PositionRankingData & {
+  analysis_version: string;
+  season: string;
+  population_size: number;
+  metrics: RankingMetric[];
+};
+
+const POSITION_VALUES = ["GKP", "DEF", "MID", "FWD"] as const;
 const API_BASE =
   process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
@@ -28,6 +41,12 @@ async function getJson<T>(path: string): Promise<T | null> {
   } catch {
     return null;
   }
+}
+
+async function getPositionRankings(season: string, position: string) {
+  return getJson<PlayerRankingsResult>(
+    `/api/v1/player-stats/${encodeURIComponent(season)}/rankings/${encodeURIComponent(position)}`
+  );
 }
 
 export default async function PlayersPage({
@@ -48,6 +67,17 @@ export default async function PlayersPage({
         `/api/v1/players/${encodeURIComponent(season)}`
       )) ?? []
     : [];
+
+  const rankingsByPosition: Record<string, PositionRankingData | null> = season
+    ? Object.fromEntries(
+        await Promise.all(
+          POSITION_VALUES.map(async (position) => [
+            position,
+            await getPositionRankings(season, position),
+          ] as const)
+        )
+      )
+    : {};
 
   return (
     <AppShell>
@@ -86,7 +116,11 @@ export default async function PlayersPage({
 
         <main className={styles.workspace}>
           {season && players.length > 0 ? (
-            <PlayersDirectoryGrid season={season} players={players} />
+            <PlayersDirectoryGrid
+              season={season}
+              players={players}
+              rankingsByPosition={rankingsByPosition}
+            />
           ) : (
             <div className="frl-empty-state">
               No governed player profiles are available for this season.
