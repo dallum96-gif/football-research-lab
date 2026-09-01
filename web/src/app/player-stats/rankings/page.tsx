@@ -218,6 +218,11 @@ export default async function PlayerRankingsPage({
       : rankings.metrics.filter((metric) => metric.family === family)
     : [];
 
+  const familyPossibleMinutesByClub =
+    season && position !== "ALL" && family !== "overview"
+      ? await getPossibleMinutesByClub(season)
+      : {};
+
   const isOverview = family === "overview";
   const hasAllPlayerData =
     position === "ALL" &&
@@ -285,6 +290,7 @@ export default async function PlayerRankingsPage({
                 position={position}
                 metrics={familyMetrics}
                 cohortDescription={rankings.cohort.description}
+                possibleMinutesByClub={familyPossibleMinutesByClub}
               />
             )}
           </main>
