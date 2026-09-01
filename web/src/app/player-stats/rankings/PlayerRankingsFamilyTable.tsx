@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import type { CSSProperties } from "react";
 import { useMemo, useState } from "react";
 import type { RankingMetric } from "../PlayerVisuals";
 import rankingStyles from "./PlayerRankings.module.css";
@@ -445,13 +444,6 @@ export function PlayerRankingsFamilyTable({
                 {visibleMetrics.map((metric) => {
                   const entry = metricEntry(metric.key, row.player_code);
                   const percentile = entry?.percentile ?? null;
-                  const boundedPercentile = Math.max(
-                    0,
-                    Math.min(100, percentile ?? 0)
-                  );
-                  const disableLegacyMask = {
-                    "--percentile": "100%",
-                  } as CSSProperties;
 
                   return (
                     <span className={familyStyles.familyMetricCell} key={metric.key}>
@@ -465,32 +457,6 @@ export function PlayerRankingsFamilyTable({
                         <small>
                           {percentile != null ? `P${Math.round(percentile)}` : "—"}
                         </small>
-                      </span>
-                      <span
-                        className={familyStyles.metricPerformanceBar}
-                        style={disableLegacyMask}
-                        aria-label={
-                          percentile != null
-                            ? `${Math.round(percentile)}th percentile`
-                            : "Percentile unavailable"
-                        }
-                      >
-                        <b
-                          aria-hidden="true"
-                          style={{
-                            position: "absolute",
-                            zIndex: 1,
-                            top: 0,
-                            right: 0,
-                            bottom: 0,
-                            left: `${boundedPercentile}%`,
-                            borderRadius: "0 999px 999px 0",
-                            background: "var(--frl-surface-raised)",
-                          }}
-                        />
-                        {percentile != null && (
-                          <i style={{ left: `${boundedPercentile}%` }} />
-                        )}
                       </span>
                     </span>
                   );

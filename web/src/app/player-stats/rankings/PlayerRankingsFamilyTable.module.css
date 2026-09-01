@@ -316,7 +316,6 @@
 
 .familyMetricCell {
   display: grid;
-  gap: 7px;
   min-width: 0;
   font-variant-numeric: tabular-nums;
 }
@@ -354,48 +353,6 @@
   font-size: .32rem;
   font-weight: 830;
   text-align: center;
-}
-
-.metricPerformanceBar {
-  --percentile: 0%;
-  position: relative;
-  display: block;
-  overflow: hidden;
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    #c94f43 0%,
-    #d76a49 18%,
-    #daa75a 44%,
-    #a7c76a 66%,
-    #67a95e 82%,
-    #2d7f4c 100%
-  );
-}
-
-.metricPerformanceBar::after {
-  content: "";
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: var(--percentile);
-  background: var(--frl-surface-raised);
-}
-
-.metricPerformanceBar i {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  width: 9px;
-  height: 9px;
-  border: 2px solid var(--frl-surface);
-  border-radius: 50%;
-  background: var(--frl-text);
-  box-shadow: 0 0 0 1px var(--frl-border-strong);
-  transform: translate(-50%, -50%);
 }
 
 .noRows {
