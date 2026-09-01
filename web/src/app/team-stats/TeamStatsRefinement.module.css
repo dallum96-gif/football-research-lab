@@ -102,29 +102,58 @@
   padding-bottom: 14px !important;
 }
 
+.venueTableHeader,
 .compactSplitRow {
-  grid-template-columns: 30px minmax(76px, 1fr) 68px 68px !important;
-  padding: 13px 0 !important;
+  display: grid;
+  grid-template-columns: minmax(80px, 1.2fr) repeat(5, minmax(34px, .65fr)) !important;
+  align-items: center;
+  gap: 7px;
+}
+
+.venueTableHeader {
+  margin-top: 16px;
+  padding: 0 0 7px;
+  border-bottom: 1px solid var(--frl-border);
+  color: var(--frl-muted-soft);
+  font-size: .38rem;
+  font-weight: 820;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.venueTableHeader span:not(:first-child) {
+  text-align: right;
+}
+
+.compactSplitRow {
+  padding: 16px 0 !important;
+}
+
+.venueName {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.venueName strong {
+  font-size: .63rem;
+  font-weight: 820;
 }
 
 .compactVenuePanel .homeMarker,
 .compactVenuePanel .awayMarker {
+  flex: 0 0 30px;
   width: 30px;
   height: 30px;
   font-size: .54rem;
 }
 
-.compactVenuePanel .splitName strong {
-  font-size: .66rem;
-}
-
-.compactVenuePanel .splitName span,
-.compactVenuePanel .splitStat span {
-  font-size: .44rem;
-}
-
-.compactVenuePanel .splitStat strong {
-  font-size: .78rem;
+.venueValue {
+  font-size: .72rem;
+  font-weight: 850;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
 .formPanel,
@@ -316,6 +345,23 @@
   .profileFooter {
     margin-left: 122px;
     margin-right: 96px;
+  }
+
+  .venueTableHeader,
+  .compactSplitRow {
+    grid-template-columns: minmax(72px, 1.1fr) repeat(5, minmax(30px, .65fr)) !important;
+    gap: 5px;
+  }
+
+  .venueName {
+    gap: 5px;
+  }
+
+  .compactVenuePanel .homeMarker,
+  .compactVenuePanel .awayMarker {
+    flex-basis: 26px;
+    width: 26px;
+    height: 26px;
   }
 
   .balanceRow {
