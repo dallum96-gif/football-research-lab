@@ -100,6 +100,12 @@ const OVERVIEW_KEYS: Record<string, string[]> = {
 
 const POSITION_VALUES = ["GKP", "DEF", "MID", "FWD"] as const;
 const POSITIONS = new Set<string>(POSITION_VALUES);
+const POSITION_LABELS: Record<(typeof POSITION_VALUES)[number], string> = {
+  GKP: "Goalkeepers",
+  DEF: "Defenders",
+  MID: "Midfielders",
+  FWD: "Forwards",
+};
 const API_BASE =
   process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
@@ -191,18 +197,27 @@ export default async function PlayerRankingsPage({
       ? await getPositionRankings(season, position)
       : null;
 
-  const availableFamilies: FamilyKey[] =
-    position === "ALL"
-      ? ["overview"]
-      : FAMILY_ORDER.filter((family) => {
-          if (!rankings) return false;
-          if (family === "overview") {
-            return (OVERVIEW_KEYS[position] ?? []).some((key) =>
-              rankings.metrics.some((metric) => metric.key === key)
-            );
-          }
-          return rankings.metrics.some((metric) => metric.family === family);
-        });
+  const availableFamilies: FamilyKey[] = FAMILY_ORDER.filter((family) => {
+    if (position === "ALL") {
+      return Object.values(rankingsByPosition).some((item) => {
+        if (!item) return false;
+        if (family === "overview") {
+          return (OVERVIEW_KEYS[item.position] ?? []).some((key) =>
+            item.metrics.some((metric) => metric.key === key)
+          );
+        }
+        return item.metrics.some((metric) => metric.family === family);
+      });
+    }
+
+    if (!rankings) return false;
+    if (family === "overview") {
+      return (OVERVIEW_KEYS[position] ?? []).some((key) =>
+        rankings.metrics.some((metric) => metric.key === key)
+      );
+    }
+    return rankings.metrics.some((metric) => metric.family === family);
+  });
 
   const requestedFamily = query.family as FamilyKey | undefined;
   const family =
@@ -227,6 +242,19 @@ export default async function PlayerRankingsPage({
   const hasAllPlayerData =
     position === "ALL" &&
     Object.values(rankingsByPosition).some((item) => item?.metrics.length);
+  const familyPositions =
+    position === "ALL" && !isOverview
+      ? POSITION_VALUES.flatMap((item) => {
+          const positionRankings = rankingsByPosition[item];
+          if (!positionRankings) return [];
+          const metricCount = positionRankings.metrics.filter(
+            (metric) => metric.family === family
+          ).length;
+          return metricCount > 0
+            ? [{ position: item, rankings: positionRankings, metricCount }]
+            : [];
+        })
+      : [];
 
   return (
     <AppShell>
@@ -265,13 +293,53 @@ export default async function PlayerRankingsPage({
           ))}
         </nav>
 
-        {position === "ALL" && hasAllPlayerData ? (
+        {position === "ALL" && isOverview && hasAllPlayerData ? (
           <main className={styles.workspace}>
             <AllPlayersRankingsOverview
               season={season ?? ""}
               rankingsByPosition={rankingsByPosition}
               possibleMinutesByClub={possibleMinutesByClub}
             />
+          </main>
+        ) : position === "ALL" && familyPositions.length > 0 ? (
+          <main className={styles.workspace}>
+            <section className={styles.familyPositionChooser}>
+              <header>
+                <div>
+                  <p className={styles.kicker}>League Rankings · {FAMILY_LABELS[family]}</p>
+                  <h2>Choose the comparison population</h2>
+                </div>
+                <p>
+                  Player rankings remain position-specific so unlike roles are not
+                  presented as one comparable league table.
+                </p>
+              </header>
+
+              <div className={styles.familyPositionGrid}>
+                {familyPositions.map(
+                  ({ position: item, rankings: itemRankings, metricCount }) => (
+                    <Link
+                      key={item}
+                      href={familyHref(season ?? "", item, family)}
+                      className={styles.familyPositionCard}
+                    >
+                      <span>{item}</span>
+                      <strong>{POSITION_LABELS[item]}</strong>
+                      <small>
+                        {itemRankings.population_size} players · {metricCount}{" "}
+                        governed {metricCount === 1 ? "metric" : "metrics"}
+                      </small>
+                      <b>Open {FAMILY_LABELS[family]} rankings →</b>
+                    </Link>
+                  )
+                )}
+              </div>
+
+              <footer>
+                Select a position here or use the Position control above. The family
+                selection is preserved when you move into its analytical table.
+              </footer>
+            </section>
           </main>
         ) : rankings && (isOverview || familyMetrics.length > 0) ? (
           <main className={styles.workspace}>
