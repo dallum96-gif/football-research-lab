@@ -1,0 +1,123 @@
+.insightStrip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.insightStrip[data-has-team="true"] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.insightCard {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--frl-border);
+  border-radius: 11px;
+  background: var(--frl-surface);
+}
+
+.insightCard > span {
+  display: block;
+  color: var(--frl-muted-soft);
+  font-size: .4rem;
+  font-weight: 800;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.insightCard > strong {
+  display: block;
+  overflow: hidden;
+  margin-top: 4px;
+  font-size: .72rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.insightCard > small {
+  display: block;
+  margin-top: 2px;
+  color: var(--frl-muted);
+  font-size: .42rem;
+  font-weight: 700;
+}
+
+.selectedInsight {
+  border-color: rgba(45, 127, 76, .42);
+  background: linear-gradient(135deg, rgba(80, 145, 86, .09), rgba(80, 145, 86, .02));
+}
+
+.podiumRow {
+  background: linear-gradient(90deg, rgba(181, 153, 73, .055), transparent 36%);
+}
+
+.selectedRow {
+  position: relative;
+  background: rgba(80, 145, 86, .085) !important;
+  box-shadow: inset 3px 0 0 #4f9158;
+}
+
+.rankBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-width: 34px;
+  min-height: 27px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--frl-surface-raised);
+}
+
+.podiumRow .rankBadge {
+  background: rgba(181, 153, 73, .13);
+}
+
+.percentileText {
+  display: grid;
+  gap: 1px;
+}
+
+.percentileText strong {
+  color: var(--frl-text);
+  font-size: .58rem;
+  font-weight: 840;
+}
+
+.percentileText span {
+  color: var(--frl-muted-soft);
+  font-size: .39rem;
+  font-weight: 710;
+}
+
+.rankingHint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--frl-muted-soft);
+  font-size: .42rem;
+}
+
+.rankingHint::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4f9158;
+}
+
+@media (max-width: 900px) {
+  .insightStrip,
+  .insightStrip[data-has-team="true"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .insightStrip,
+  .insightStrip[data-has-team="true"] {
+    grid-template-columns: 1fr;
+  }
+}
