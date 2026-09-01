@@ -67,14 +67,6 @@ const families: { key: FamilyKey; label: string }[] = [
   { key: "discipline", label: "Discipline" },
 ];
 
-const FRACTION_PERCENT_KEYS = new Set([
-  "shot_accuracy",
-  "goals_per_shot",
-  "failed_to_score_rate",
-  "pass_accuracy",
-  "clean_sheet_rate",
-]);
-
 const familyMetricKeys: Record<FamilyKey, string[]> = {
   overview: [
     "goals_for_per_match",
@@ -153,10 +145,7 @@ function formatValue(metric: RankingMetric, value: number | null) {
   }
 
   if (metric.unit === "%") {
-    const displayValue = FRACTION_PERCENT_KEYS.has(metric.key)
-      ? value * 100
-      : value;
-    return `${trim(displayValue, 1)}%`;
+    return `${trim(value, 1)}%`;
   }
 
   if (
