@@ -21,6 +21,62 @@ def test_calibration_bins_compare_mean_prediction_with_observed_rate():
     assert bins[1]["observed_rate"] == 1.0
 
 
+def test_outcome_base_rates_use_only_source_season(monkeypatch):
+    rows = [
+        {"home_score": "2", "away_score": "0"},
+        {"home_score": "1", "away_score": "1"},
+        {"home_score": "0", "away_score": "3"},
+        {"home_score": "1", "away_score": "0"},
+    ]
+    monkeypatch.setattr(
+        evaluate_poisson_v1.poisson_model,
+        "load_source_fixtures",
+        lambda season: rows if season == "2024-25" else [],
+    )
+
+    rates = evaluate_poisson_v1.outcome_base_rates("2024-25")
+
+    assert rates == {
+        "home_win": 0.5,
+        "draw": 0.25,
+        "away_win": 0.25,
+    }
+
+
+def test_add_naive_benchmarks_scores_uniform_and_source_rates(monkeypatch):
+    monkeypatch.setattr(
+        evaluate_poisson_v1,
+        "outcome_base_rates",
+        lambda season: {"home_win": 0.5, "draw": 0.25, "away_win": 0.25},
+    )
+    report = {
+        "source_season": "2024-25",
+        "target_season": "2025-26",
+        "evaluated_fixtures": 1,
+        "excluded_fixtures": 0,
+        "exclusions": {},
+        "metrics": {},
+        "rows": [
+            {
+                "actual": "home_win",
+                "home_win": 0.6,
+                "draw": 0.2,
+                "away_win": 0.2,
+                "brier_1x2": 0.24,
+                "log_loss": 0.51,
+                "correct": True,
+            }
+        ],
+    }
+
+    enriched = evaluate_poisson_v1.add_naive_benchmarks(report)
+    row = enriched["rows"][0]
+
+    assert row["uniform_baseline"]["brier_1x2"] == pytest.approx(2 / 3)
+    assert row["source_rate_baseline"]["brier_1x2"] == pytest.approx(0.375)
+    assert row["source_rate_baseline"]["correct"] is True
+
+
 def test_aggregate_reports_weights_metrics_by_fixture_not_season():
     reports = [
         {
@@ -79,3 +135,4 @@ def test_aggregate_reports_weights_metrics_by_fixture_not_season():
     assert summary["metrics"]["mean_brier_1x2"] == pytest.approx(0.5)
     assert summary["metrics"]["mean_log_loss"] == pytest.approx((0.69 + 1.20 + 0.69) / 3)
     assert summary["metrics"]["top_outcome_accuracy"] == pytest.approx(2 / 3)
+    assert summary["benchmarks"] is None
