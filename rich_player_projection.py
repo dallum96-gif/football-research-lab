@@ -1,20 +1,23 @@
-"""Governed season projection over preserved player-match evidence.
+"""Governed packaged player-season projection for Product/analysis use.
 
-This module is deliberately additive to the existing FPL-derived player research
-layer. It joins through the audited ``pl_code`` bridge already maintained by
-``player_match_stats`` and never substitutes names for player identity.
+Runtime code reads only the tracked/materialised FRL projection under ``data``.
+The preserved provider folders are touched only by the dedicated materialiser.
+Identity is the audited PulseLive/FPL ``pl_code`` bridge, never player name.
 
 Source blanks remain unavailable unless their zero semantics have been audited.
-In particular, xGOT follows FRL's existing trigger rule: a blank xGOT is safe as
-zero only when the player's shot-on-target trigger is zero; a positive-trigger
-blank makes the season xGOT aggregate unavailable.
+xGOT follows FRL's existing trigger rule: a blank xGOT is safe as zero only
+when the shot-on-target trigger is zero; a positive-trigger blank makes the
+season aggregate unavailable.
 """
 from __future__ import annotations
 
+import csv
 from functools import lru_cache
+from pathlib import Path
 
-import player_match_stats
 
+ROOT = Path(__file__).resolve().parent
+PACKAGED = ROOT / "data" / "rich_player_season_stats.csv"
 
 RICH_PLAYER_METRICS = {
     # Shooting / territory
@@ -103,15 +106,17 @@ def _aggregate_xgot(records: tuple[dict, ...], season_fields: set[str]) -> float
             total += value
             observed_any = True
             continue
-
         trigger = _number_or_none(row.get(trigger_field))
         if trigger is not None and trigger > 0:
             return None
-
     return total if observed_any else None
 
 
-def _aggregate(records: tuple[dict, ...], season_fields: set[str]) -> dict[str, float | None]:
+def aggregate_source_records(
+    records: tuple[dict, ...],
+    season_fields: set[str],
+) -> dict[str, float | None]:
+    """Materialisation helper: aggregate one player's source match rows."""
     output: dict[str, float | None] = {}
     for metric, source_field in RICH_PLAYER_METRICS.items():
         if metric == "xgot":
@@ -124,27 +129,33 @@ def _aggregate(records: tuple[dict, ...], season_fields: set[str]) -> dict[str, 
     return output
 
 
+@lru_cache(maxsize=1)
+def _packaged_rows() -> tuple[dict[str, str], ...]:
+    if not PACKAGED.is_file():
+        return tuple()
+    with PACKAGED.open("r", encoding="utf-8-sig", newline="") as handle:
+        return tuple(dict(row) for row in csv.DictReader(handle))
+
+
 @lru_cache(maxsize=20)
 def season_totals_by_pulselive_code(season: str) -> dict[str, dict[str, float | None]]:
-    """Return rich player-season totals keyed by the audited PulseLive/FPL code."""
-    fields = set(player_match_stats.source_fields(season))
-    bridge = player_match_stats.pulselive_player_bridge_index(season)
+    """Return packaged rich totals keyed by audited PulseLive/FPL code."""
     output: dict[str, dict[str, float | None]] = {}
-
-    for pulselive_code, identity in bridge.items():
-        player_id = str(identity.get("player_id") or "").strip()
-        if not player_id:
+    for row in _packaged_rows():
+        if str(row.get("season") or "").strip() != season:
             continue
-        records = player_match_stats.player_match_records_for_player(player_id, season)
-        if not records:
+        code = str(row.get("player_code") or "").strip()
+        if not code:
             continue
-        output[str(pulselive_code)] = _aggregate(records, fields)
-
+        output[code] = {
+            metric: _number_or_none(row.get(metric))
+            for metric in RICH_PLAYER_METRICS
+        }
     return output
 
 
 def enrich_player(player: dict, season: str) -> dict:
-    """Add rich source-backed metrics to one existing player research record."""
+    """Add packaged rich source-backed metrics to one player research record."""
     enriched = dict(player)
     code = str(player.get("player_code") or "").strip()
     rich = season_totals_by_pulselive_code(season).get(code)
@@ -155,8 +166,20 @@ def enrich_player(player: dict, season: str) -> dict:
         return enriched
 
     enriched.update(rich)
-    enriched["_rich_player_projection"] = "PLAYERS_MATCH_STATS_V1"
+    enriched["_rich_player_projection"] = "RICH_PLAYER_SEASON_STATS_V1"
     return enriched
 
 
-__all__ = ["RICH_PLAYER_METRICS", "enrich_player", "season_totals_by_pulselive_code"]
+def clear_caches() -> None:
+    _packaged_rows.cache_clear()
+    season_totals_by_pulselive_code.cache_clear()
+
+
+__all__ = [
+    "PACKAGED",
+    "RICH_PLAYER_METRICS",
+    "aggregate_source_records",
+    "clear_caches",
+    "enrich_player",
+    "season_totals_by_pulselive_code",
+]
