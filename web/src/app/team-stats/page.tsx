@@ -6,8 +6,11 @@ import {
   TeamStatsOverviewWorkspace,
   type TeamStatsOverview,
 } from "./TeamStatsOverviewWorkspace";
+import {
+  TeamFamilyMetricTiles,
+  type TeamFamilyTileMetric,
+} from "./TeamFamilyMetricTiles";
 import styles from "./TeamStats.module.css";
-import refinementStyles from "./TeamStatsRefinement.module.css";
 
 type TeamOption = {
   persistent_team_code: string | null;
@@ -58,18 +61,11 @@ type LeagueRankingsResponse = {
   metrics: RankingMetric[];
 };
 
-type FamilyKey =
-  | "overview"
-  | "attack"
-  | "passing"
-  | "defence"
-  | "discipline";
-
+type FamilyKey = "overview" | "attack" | "passing" | "defence" | "discipline";
 type AnalyticalFamily = Exclude<FamilyKey, "overview">;
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_FRL_API_URL ??
-  "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
 const tabs: { key: FamilyKey; label: string }[] = [
   { key: "overview", label: "Overview" },
@@ -81,11 +77,7 @@ const tabs: { key: FamilyKey; label: string }[] = [
 
 const FAMILY_CONFIG: Record<
   AnalyticalFamily,
-  {
-    label: string;
-    metricKeys: string[];
-    description: string;
-  }
+  { label: string; metricKeys: string[]; description: string }
 > = {
   attack: {
     label: "Attack",
@@ -149,68 +141,12 @@ const FAMILY_CONFIG: Record<
 
 async function getJson<T>(path: string): Promise<T | null> {
   try {
-    const response = await fetch(`${API_BASE}${path}`, {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
+    const response = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
+    if (!response.ok) return null;
     return (await response.json()) as T;
   } catch {
     return null;
   }
-}
-
-function trim(value: number, decimals: number) {
-  const fixed = value.toFixed(decimals);
-  return fixed.includes(".")
-    ? fixed.replace(/0+$/, "").replace(/\.$/, "")
-    : fixed;
-}
-
-function formatRankingMetric(metric: RankingMetric, value: number | null) {
-  if (value === null) {
-    return "—";
-  }
-
-  if (metric.unit === "%") {
-    return `${trim(value, 1)}%`;
-  }
-
-  if (
-    metric.key === "goals_for_per_match" ||
-    metric.key === "goals_against_per_match" ||
-    metric.key === "points_per_match"
-  ) {
-    return trim(value, 1);
-  }
-
-  return trim(value, 0);
-}
-
-function ordinal(value: number) {
-  const mod100 = value % 100;
-
-  if (mod100 >= 11 && mod100 <= 13) {
-    return `${value}th`;
-  }
-
-  const suffix =
-    value % 10 === 1
-      ? "st"
-      : value % 10 === 2
-        ? "nd"
-        : value % 10 === 3
-          ? "rd"
-          : "th";
-
-  return `${value}${suffix}`;
-}
-
-function topPercent(rank: number, outOf: number) {
-  return Math.max(1, Math.ceil((rank / outOf) * 100));
 }
 
 function metricAvailableForSeason(metric: RankingMetric) {
@@ -219,15 +155,9 @@ function metricAvailableForSeason(metric: RankingMetric) {
   );
 }
 
-function teamStatsHref(
-  season: string,
-  team: string,
-  family: FamilyKey
-) {
+function teamStatsHref(season: string, team: string, family: FamilyKey) {
   const params = new URLSearchParams({ season, team });
-  if (family !== "overview") {
-    params.set("family", family);
-  }
+  if (family !== "overview") params.set("family", family);
   return `/team-stats?${params.toString()}`;
 }
 
@@ -260,22 +190,25 @@ function FamilyWorkspace({
     .filter((metric): metric is RankingMetric => Boolean(metric))
     .filter(metricAvailableForSeason);
 
-  const rankedMetrics = metrics
-    .map((metric) => ({
-      metric,
-      entry: metric.entries.find(
-        (candidate) => candidate.persistent_team_code === teamCode
-      ),
-    }))
-    .sort((a, b) => {
-      const aRank = a.entry?.rank ?? Number.POSITIVE_INFINITY;
-      const bRank = b.entry?.rank ?? Number.POSITIVE_INFINITY;
-      return aRank - bRank || a.metric.label.localeCompare(b.metric.label);
-    });
+  const tileMetrics: TeamFamilyTileMetric[] = metrics.map((metric) => {
+    const entry = metric.entries.find(
+      (candidate) => candidate.persistent_team_code === teamCode
+    );
+    return {
+      key: metric.key,
+      label: metric.label,
+      unit: metric.unit,
+      value: entry?.value ?? null,
+      rank: entry?.rank ?? null,
+      outOf: entry?.out_of ?? rankings?.population_size ?? 0,
+      percentile: entry?.percentile ?? null,
+      observedMatches: entry?.coverage.observed_matches ?? 0,
+      eligibleMatches: entry?.coverage.eligible_matches ?? overview.matches,
+      href: rankingsHref(overview.season, family, metric.key, teamCode),
+    };
+  });
 
-  const availableMetrics = rankedMetrics.filter(
-    ({ entry }) => entry?.value !== null && entry?.value !== undefined
-  );
+  const availableMetrics = tileMetrics.filter((metric) => metric.value !== null);
 
   return (
     <main className={styles.workspace}>
@@ -294,79 +227,15 @@ function FamilyWorkspace({
           </Link>
         </header>
         <p className={styles.context}>
-          {config.description} Tiles are ordered by this team’s current league rank. Metrics with no governed observation anywhere in the selected season are not offered in the GUI.
+          {config.description} The vertical-list tiles keep the Team View focused on one club across many measures, while every row opens the equivalent population ranking.
         </p>
       </section>
 
-      {rankedMetrics.length > 0 ? (
-        <section className={styles.metricGrid}>
-          {rankedMetrics.map(({ metric, entry }) => {
-            const available =
-              entry?.value !== null &&
-              entry?.value !== undefined &&
-              entry.rank !== null &&
-              entry.percentile !== null;
-
-            return (
-              <Link
-                className={`${styles.metricCard} ${refinementStyles.metricCardLink}`}
-                key={metric.key}
-                href={rankingsHref(overview.season, family, metric.key, teamCode)}
-                aria-label={`Open ${metric.label} league ranking`}
-              >
-                <div className={styles.metricTop}>
-                  <span>{metric.label}</span>
-                  <small>
-                    {available && entry?.rank !== null
-                      ? `${ordinal(entry.rank)} / ${entry.out_of}`
-                      : "Unavailable"}
-                  </small>
-                </div>
-
-                <strong>
-                  {entry ? formatRankingMetric(metric, entry.value) : "—"}
-                </strong>
-
-                <div
-                  className={`${styles.percentileTrack} ${refinementStyles.metricPercentileTrack}`}
-                  aria-label={
-                    available && entry?.percentile !== null
-                      ? `${Math.round(entry.percentile)}th percentile`
-                      : `${metric.label} unavailable for this team`
-                  }
-                >
-                  <span
-                    style={{
-                      width:
-                        available && entry?.percentile !== null
-                          ? `${entry.percentile}%`
-                          : "0%",
-                    }}
-                  />
-                </div>
-
-                <footer className={refinementStyles.metricContext}>
-                  <span>
-                    {available && entry?.percentile !== null
-                      ? `${Math.round(entry.percentile)}th percentile`
-                      : `${entry?.coverage.observed_matches ?? 0}/${entry?.coverage.eligible_matches ?? overview.matches}`}
-                  </span>
-                  <span>
-                    {available && entry?.rank !== null
-                      ? `Top ${topPercent(entry.rank, entry.out_of)}%`
-                      : "No team observation"}
-                  </span>
-                </footer>
-              </Link>
-            );
-          })}
-        </section>
-      ) : (
-        <div className={styles.empty}>
-          No governed {config.label.toLowerCase()} metric is available for{" "}
-          {overview.season}.
-        </div>
-      )}
+      <TeamFamilyMetricTiles
+        family={family}
+        teamName={overview.display_name}
+        metrics={tileMetrics}
+      />
 
       <section className={styles.bottomGrid}>
         <article className={styles.readPanel}>
@@ -381,8 +250,7 @@ function FamilyWorkspace({
               <span>Comparison</span>
               <strong>Premier League</strong>
               <p>
-                Ranks and percentiles use the same eligible population as
-                League Rankings.
+                Ranks and percentiles use the same eligible population as League Rankings.
               </p>
             </div>
           </div>
@@ -393,21 +261,19 @@ function FamilyWorkspace({
           <div className={styles.secondaryGrid}>
             <div>
               <span>Team observations</span>
-              <strong>
-                {availableMetrics.length}/{rankedMetrics.length}
-              </strong>
+              <strong>{availableMetrics.length}/{tileMetrics.length}</strong>
             </div>
             <div>
-              <span>Season options</span>
-              <strong>{rankedMetrics.length}</strong>
+              <span>Family metrics</span>
+              <strong>{tileMetrics.length}</strong>
             </div>
             <div>
               <span>League population</span>
               <strong>{rankings?.population_size ?? "—"}</strong>
             </div>
             <div>
-              <span>Tile order</span>
-              <strong>Ranked</strong>
+              <span>Layout</span>
+              <strong>Vertical lists</strong>
             </div>
           </div>
           <footer>
@@ -422,11 +288,7 @@ function FamilyWorkspace({
 export default async function TeamStatsPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    season?: string;
-    team?: string;
-    family?: string;
-  }>;
+  searchParams: Promise<{ season?: string; team?: string; family?: string }>;
 }) {
   const query = await searchParams;
   const activeFamily =
@@ -434,34 +296,21 @@ export default async function TeamStatsPage({
 
   const seasonResponse = await getJson<SeasonResponse>("/api/v1/seasons");
   const seasons = seasonResponse?.seasons ?? [];
-
   const season =
-    query.season && seasons.includes(query.season)
-      ? query.season
-      : seasons[0];
+    query.season && seasons.includes(query.season) ? query.season : seasons[0];
 
   const teams = season
-    ? (await getJson<TeamOption[]>(
-        `/api/v1/teams/${encodeURIComponent(season)}`
-      )) ?? []
+    ? (await getJson<TeamOption[]>(`/api/v1/teams/${encodeURIComponent(season)}`)) ?? []
     : [];
-
   const governedTeams = teams.filter(
-    (
-      team
-    ): team is TeamOption & {
-      persistent_team_code: string;
-    } => Boolean(team.persistent_team_code)
+    (team): team is TeamOption & { persistent_team_code: string } =>
+      Boolean(team.persistent_team_code)
   );
 
   const requestedTeam =
-    query.team &&
-    governedTeams.some(
-      (team) => team.persistent_team_code === query.team
-    )
+    query.team && governedTeams.some((team) => team.persistent_team_code === query.team)
       ? query.team
       : governedTeams[0]?.persistent_team_code;
-
   const selectedTeam = governedTeams.find(
     (team) => team.persistent_team_code === requestedTeam
   );
@@ -469,9 +318,7 @@ export default async function TeamStatsPage({
   const overview =
     season && requestedTeam
       ? await getJson<TeamStatsOverview>(
-          `/api/v1/team-stats/${encodeURIComponent(
-            season
-          )}/${encodeURIComponent(requestedTeam)}/overview`
+          `/api/v1/team-stats/${encodeURIComponent(season)}/${encodeURIComponent(requestedTeam)}/overview`
         )
       : null;
 
@@ -494,7 +341,6 @@ export default async function TeamStatsPage({
                 <span className={styles.placeholder}>TS</span>
               )}
             </div>
-
             <div>
               <p className={styles.eyebrow}>Analysis · Team Stats</p>
               <h1>{selectedTeam?.display_name ?? "Team Stats"}</h1>
@@ -520,20 +366,13 @@ export default async function TeamStatsPage({
           {tabs.map((tab) => {
             if (!season || !requestedTeam) {
               return (
-                <span key={tab.key} className={styles.futureTab}>
-                  {tab.label}
-                </span>
+                <span key={tab.key} className={styles.futureTab}>{tab.label}</span>
               );
             }
-
             return (
               <span
                 key={tab.key}
-                className={
-                  tab.key === activeFamily
-                    ? styles.activeTab
-                    : styles.futureTab
-                }
+                className={tab.key === activeFamily ? styles.activeTab : styles.futureTab}
               >
                 <Link
                   href={teamStatsHref(season, requestedTeam, tab.key)}
@@ -564,9 +403,7 @@ export default async function TeamStatsPage({
             />
           ) : null
         ) : (
-          <div className={styles.empty}>
-            Team Stats data is unavailable for this selection.
-          </div>
+          <div className={styles.empty}>Team Stats data is unavailable for this selection.</div>
         )}
       </div>
     </AppShell>
