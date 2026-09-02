@@ -62,6 +62,9 @@ class PlayerStatsCohort(BaseModel):
 
 class PlayerStatsMetric(BaseModel):
     key: str
+    concept_key: str
+    normalization: str
+    supported_normalizations: list[str]
     label: str
     unit: str
     family: str
@@ -104,6 +107,9 @@ class PlayerRankingEntry(BaseModel):
 
 class PlayerRankingMetric(BaseModel):
     key: str
+    concept_key: str
+    normalization: str
+    supported_normalizations: list[str]
     label: str
     unit: str
     family: str
@@ -281,7 +287,8 @@ def get_player_stats(season: str, player_code: str) -> PlayerStatsResult:
         metrics=[PlayerStatsMetric(**metric) for metric in result["metrics"]],
         limitations=[
             "Ranks and percentiles compare only players with the same listed position and at least one recorded minute in the selected season.",
-            "The comparison cohort is intentionally permissive in V1 so early current-season data remains usable; a user-controlled minimum-minutes threshold can be added without changing metric definitions.",
+            "Raw totals and per-90 values are separate governed representations of one metric concept where both are supported.",
+            "The comparison cohort remains permissive so early current-season data stays usable; stronger ranking eligibility rules can be layered onto the governed metric definitions.",
             "Metrics with no governed representation in a season remain unavailable rather than being inferred from adjacent measures.",
         ],
     )
@@ -330,6 +337,9 @@ def get_player_rankings(
         metrics.append(
             PlayerRankingMetric(
                 key=str(definition["key"]),
+                concept_key=str(definition["concept_key"]),
+                normalization=str(definition["normalization"]),
+                supported_normalizations=list(definition["supported_normalizations"]),
                 label=str(definition["label"]),
                 unit=str(definition["unit"]),
                 family=str(definition["family"]),
