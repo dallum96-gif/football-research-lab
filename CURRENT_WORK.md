@@ -1,6 +1,6 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 31 August 2026  
+**Last updated:** 2 September 2026  
 **Checkpoint:** `LIVING_2026_27_INITIAL_INTEGRATION_V1`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
@@ -153,6 +153,22 @@ Corners per match remains an additional family-only Attack ranking metric.
 The 2026/27 frontend now represents governed unavailability explicitly rather than silently omitting current-season metrics that do not have approved observations.
 
 Selective Team Stats family expansion can continue, but it must not distract from or fork the current-season source/temporal architecture.
+
+## Team / Player Stats design-language checkpoint — 2 September 2026
+
+The active `product/team-player-stats` prototype branch now treats **tiled vertical lists** as shared FRL Stats product language across the family-level Team and Player analytical surfaces.
+
+The shared presentation does not collapse the analytical distinction between surfaces:
+
+- Team View remains one team across many metrics; family metrics are arranged as coherent vertical lists with value and league context, and each row links to the equivalent League Ranking;
+- Team League Rankings remains a population view; users may display up to four metric leaderboards at once, each showing the governed top ten teams, with the existing full-ranking ledger retained as drill-down;
+- Player League Rankings uses the same up-to-four leaderboard grammar while retaining player-specific position/minutes/club cohort controls.
+
+The tile selector must reset when the analytical family/cohort changes, and displayed ranking numbers must preserve governed backend ranks/tie policy rather than being renumbered merely by visual row position.
+
+This is a frontend presentation decision only. It does not change the shared analytical kernel, API ranking population, metric definitions, missingness rules or temporal/source governance.
+
+`UI_DESIGN_SYSTEM.md` records the durable visual rule for this component family.
 
 ## Expected-metric standing position
 
