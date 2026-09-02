@@ -285,7 +285,7 @@ export default async function PlayerRankingsPage({
           {availableFamilies.map((item) => (
             <Link
               key={item}
-              href={familyHref(season ?? "", position, item)}
+              href={familyHref(season ?? "", "ALL", item)}
               className={item === family ? styles.activeTab : styles.tab}
             >
               {FAMILY_LABELS[item]}
@@ -337,7 +337,7 @@ export default async function PlayerRankingsPage({
 
               <footer>
                 Select a position here to open its governed comparison population.
-                The family selection is preserved in the analytical table.
+                The family selection is preserved in the leaderboard view.
               </footer>
             </section>
           </main>
