@@ -336,8 +336,8 @@ export default async function PlayerRankingsPage({
               </div>
 
               <footer>
-                Select a position here or use the Position control above. The family
-                selection is preserved when you move into its analytical table.
+                Select a position here to open its governed comparison population.
+                The family selection is preserved in the analytical table.
               </footer>
             </section>
           </main>

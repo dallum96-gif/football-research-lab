@@ -4,14 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "../PlayerStats.module.css";
 
-const POSITIONS = [
-  { value: "ALL", label: "All Players" },
-  { value: "GKP", label: "Goalkeepers" },
-  { value: "DEF", label: "Defenders" },
-  { value: "MID", label: "Midfielders" },
-  { value: "FWD", label: "Forwards" },
-];
-
 export function PlayerRankingsControls({
   seasons,
   currentSeason,
@@ -25,11 +17,11 @@ export function PlayerRankingsControls({
 }) {
   const router = useRouter();
 
-  function route(nextSeason: string, nextPosition: string) {
+  function route(nextSeason: string) {
     const params = new URLSearchParams({
       season: nextSeason,
-      position: nextPosition,
-      family: nextPosition === "ALL" ? "overview" : family,
+      position,
+      family,
     });
     router.push(`/player-stats/rankings?${params.toString()}`);
   }
@@ -40,29 +32,22 @@ export function PlayerRankingsControls({
         <Link href={`/player-stats?season=${encodeURIComponent(currentSeason)}`}>
           Player View
         </Link>
-        <span className={styles.viewActive}>League Rankings</span>
+        <Link
+          href={`/player-stats/rankings?season=${encodeURIComponent(currentSeason)}&position=ALL&family=overview`}
+          className={styles.viewActive}
+        >
+          League Rankings
+        </Link>
       </div>
 
-      <label>
+      <label className={styles.rankingsSeasonControl}>
         <span>Season</span>
         <select
           value={currentSeason}
-          onChange={(event) => route(event.target.value, position)}
+          onChange={(event) => route(event.target.value)}
         >
           {seasons.map((season) => (
             <option key={season} value={season}>{season}</option>
-          ))}
-        </select>
-      </label>
-
-      <label>
-        <span>Position</span>
-        <select
-          value={position}
-          onChange={(event) => route(currentSeason, event.target.value)}
-        >
-          {POSITIONS.map((option) => (
-            <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
       </label>
