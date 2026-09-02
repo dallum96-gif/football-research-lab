@@ -18,22 +18,63 @@ FIXTURE_CORRECTIONS_FILE = (
     / "fixture_corrections.csv"
 )
 
+# Direct team-match fields with governed decade-long source coverage.  Keep
+# provider-native names at this boundary; Team Stats uses the human-readable
+# labels below and preserves source blanks as missing unless separately audited.
 CORE_FIELDS = {
     "Possession": "possessionPercentage",
     "Shots": "totalScoringAtt",
     "Shots on target": "ontargetScoringAtt",
     "Shots off target": "shotOffTarget",
     "Blocked shots": "blockedScoringAtt",
+    "Shots inside box": "attemptsIbox",
+    "Shots outside box": "attemptsObox",
+    "Shots conceded inside box": "attemptsConcededIbox",
+    "Shots conceded outside box": "attemptsConcededObox",
+    "Hit woodwork": "hitWoodwork",
     "Corners": "cornerTaken",
     "Passes": "totalPass",
     "Accurate passes": "accuratePass",
+    "Forward passes": "fwdPass",
+    "Long balls": "totalLongBalls",
+    "Accurate long balls": "accurateLongBalls",
+    "Final third passes": "totalFinalThirdPasses",
+    "Successful final third passes": "successfulFinalThirdPasses",
+    "Through balls": "totalThroughBall",
+    "Accurate through balls": "accurateThroughBall",
     "Crosses": "totalCross",
+    "Final third entries": "finalThirdEntries",
+    "Penalty area entries": "penAreaEntries",
+    "Touches": "touches",
+    "Touches in opposition box": "touchesInOppBox",
+    "Possession lost": "possLostAll",
+    "Possession won attacking third": "possWonAtt3rd",
+    "Possession won middle third": "possWonMid3rd",
+    "Possession won defensive third": "possWonDef3rd",
+    "Ball recoveries": "ballRecovery",
     "Tackles": "totalTackle",
     "Tackles won": "wonTackle",
     "Interceptions": "interception",
     "Interceptions won": "interceptionWon",
+    "Interceptions in box": "interceptionsInBox",
     "Clearances": "totalClearance",
     "Effective clearances": "effectiveClearance",
+    "Blocks": "outfielderBlock",
+    "Duels won": "duelWon",
+    "Duels lost": "duelLost",
+    "Aerial duels won": "aerialWon",
+    "Aerial duels lost": "aerialLost",
+    "Contests won": "wonContest",
+    "Big chances scored": "bigChanceScored",
+    "Open-play assists": "attAssistOpenplay",
+    "Set-piece assists": "attAssistSetplay",
+    "Errors leading to shot": "errorLeadToShot",
+    "Errors leading to goal": "errorLeadToGoal",
+    "Saves inside box": "savedIbox",
+    "Saves outside box": "savedObox",
+    "High claims": "totalHighClaim",
+    "Keeper sweeper actions": "totalKeeperSweeper",
+    "Accurate keeper sweeper actions": "accurateKeeperSweeper",
     "Fouls won": "fkFoulWon",
     "Fouls conceded": "fkFoulLost",
     "Offsides": "totalOffside",
@@ -48,6 +89,7 @@ OPTIONAL_FIELDS = {
     "Expected goals": "expectedGoals",
     "Expected assists": "expectedAssists",
     "Expected goals on target": "expectedGoalsOnTarget",
+    "Expected goals on target conceded": "expectedGoalsOnTargetConceded",
     "Attendance": "attendance",
 }
 
@@ -152,7 +194,6 @@ def verified_fixture_correction(fixture):
 def fixture_source_match(fixture, identity_rows):
     season = fixture["season"]
 
-    # Canonical local team ID -> persistent PL team identity.
     identity = {
         (
             row["season"],
