@@ -14,11 +14,32 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parent
 ARCHIVE_ENV = "FRL_PULSELIVE_ARCHIVE_ROOT"
-DEFAULT_ROOTS = (
-    ROOT / "data" / "raw" / "pulselive",
-    ROOT / "raw" / "pulselive",
-    ROOT.parent / "Premier-League-Stats" / "fpl_scraper" / "fpl_stats" / "data" / "raw" / "pulselive",
-)
+
+
+def default_archive_roots(root: Path | None = None) -> tuple[Path, ...]:
+    """Return deterministic local candidates for preserved PulseLive evidence.
+
+    FRL feature work commonly runs from a dedicated sibling worktree such as
+    ``frl-player-stats`` while the large, untracked snapshot archive remains in
+    the canonical ``football-research-lab`` workspace.  Source discovery must
+    therefore follow the preserved workspace relationship rather than depend on
+    whichever checkout happens to run the API.
+    """
+    selected_root = (root or ROOT).resolve()
+    workspace_root = selected_root.parent
+    candidates = (
+        selected_root / "data" / "raw" / "pulselive",
+        selected_root / "raw" / "pulselive",
+        workspace_root / "football-research-lab" / "data" / "raw" / "pulselive",
+        workspace_root
+        / "Premier-League-Stats"
+        / "fpl_scraper"
+        / "fpl_stats"
+        / "data"
+        / "raw"
+        / "pulselive",
+    )
+    return tuple(dict.fromkeys(path.resolve() for path in candidates))
 
 
 def archive_root() -> Path | None:
@@ -26,7 +47,7 @@ def archive_root() -> Path | None:
     if configured:
         path = Path(configured).expanduser().resolve()
         return path if path.is_dir() else None
-    for path in DEFAULT_ROOTS:
+    for path in default_archive_roots():
         if path.is_dir():
             return path
     return None
