@@ -3,6 +3,7 @@ import { AppShell } from "@/components/AppShell";
 import { TeamKit } from "../../teams/TeamKit";
 import { TeamStatsControls } from "../TeamStatsControls";
 import teamStyles from "../TeamStats.module.css";
+import { TeamRankingsLeaderboards } from "./TeamRankingsLeaderboards";
 import styles from "./LeagueRankings.module.css";
 import refinementStyles from "./LeagueRankingsRefinement.module.css";
 
@@ -13,9 +14,7 @@ type TeamOption = {
   local_team_id: string;
 };
 
-type SeasonResponse = {
-  seasons: string[];
-};
+type SeasonResponse = { seasons: string[] };
 
 type RankingEntry = {
   persistent_team_code: string;
@@ -48,16 +47,10 @@ type LeagueRankingsResponse = {
   metrics: RankingMetric[];
 };
 
-type FamilyKey =
-  | "overview"
-  | "attack"
-  | "passing"
-  | "defence"
-  | "discipline";
+type FamilyKey = "overview" | "attack" | "passing" | "defence" | "discipline";
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_FRL_API_URL ??
-  "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
 
 const families: { key: FamilyKey; label: string }[] = [
   { key: "overview", label: "Overview" },
@@ -118,14 +111,8 @@ const familyMetricKeys: Record<FamilyKey, string[]> = {
 
 async function getJson<T>(path: string): Promise<T | null> {
   try {
-    const response = await fetch(`${API_BASE}${path}`, {
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
+    const response = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
+    if (!response.ok) return null;
     return (await response.json()) as T;
   } catch {
     return null;
@@ -140,14 +127,8 @@ function trim(value: number, decimals: number) {
 }
 
 function formatValue(metric: RankingMetric, value: number | null) {
-  if (value === null) {
-    return "—";
-  }
-
-  if (metric.unit === "%") {
-    return `${trim(value, 1)}%`;
-  }
-
+  if (value === null) return "—";
+  if (metric.unit === "%") return `${trim(value, 1)}%`;
   if (
     metric.key === "goals_for_per_match" ||
     metric.key === "goals_against_per_match" ||
@@ -155,8 +136,7 @@ function formatValue(metric: RankingMetric, value: number | null) {
   ) {
     return trim(value, 1);
   }
-
-  return trim(value, 0);
+  return trim(value, Number.isInteger(value) ? 0 : 2);
 }
 
 function metricAvailableForSeason(metric: RankingMetric) {
@@ -166,24 +146,11 @@ function metricAvailableForSeason(metric: RankingMetric) {
 }
 
 function ordinal(value: number | null) {
-  if (value === null) {
-    return "—";
-  }
-
+  if (value === null) return "—";
   const mod100 = value % 100;
-  if (mod100 >= 11 && mod100 <= 13) {
-    return `${value}th`;
-  }
-
+  if (mod100 >= 11 && mod100 <= 13) return `${value}th`;
   const suffix =
-    value % 10 === 1
-      ? "st"
-      : value % 10 === 2
-        ? "nd"
-        : value % 10 === 3
-          ? "rd"
-          : "th";
-
+    value % 10 === 1 ? "st" : value % 10 === 2 ? "nd" : value % 10 === 3 ? "rd" : "th";
   return `${value}${suffix}`;
 }
 
@@ -206,85 +173,18 @@ function rankingsHref(
   team?: string
 ) {
   const params = new URLSearchParams({ season, family });
-  if (metric) {
-    params.set("metric", metric);
-  }
-  if (team) {
-    params.set("team", team);
-  }
+  if (metric) params.set("metric", metric);
+  if (team) params.set("team", team);
   return `/team-stats/rankings?${params.toString()}`;
 }
 
-function teamHref(
-  season: string,
-  entry: RankingEntry,
-  family: FamilyKey = "overview"
-) {
+function teamHref(season: string, entry: RankingEntry, family: FamilyKey = "overview") {
   const params = new URLSearchParams({
     season,
     team: entry.persistent_team_code,
   });
-  if (family !== "overview") {
-    params.set("family", family);
-  }
+  if (family !== "overview") params.set("family", family);
   return `/team-stats?${params.toString()}`;
-}
-
-function RankingCard({
-  metric,
-  season,
-  selectedTeamCode,
-}: {
-  metric: RankingMetric;
-  season: string;
-  selectedTeamCode?: string;
-}) {
-  const rankedEntries = metric.entries
-    .filter((entry) => entry.rank !== null && entry.value !== null)
-    .sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999));
-  const leaders = rankedEntries.slice(0, 5);
-
-  return (
-    <article className={styles.rankingCard}>
-      <header className={styles.cardHeader}>
-        <div>
-          <span>{metric.label}</span>
-          <small>{metric.unit}</small>
-        </div>
-        <Link href={rankingsHref(season, "overview", metric.key, selectedTeamCode)}>
-          Full ranking
-        </Link>
-      </header>
-
-      <div className={styles.cardLeaders}>
-        {leaders.map((entry) => (
-          <Link
-            key={entry.persistent_team_code}
-            href={teamHref(season, entry)}
-            className={styles.cardRow}
-          >
-            <strong className={styles.cardRank}>{entry.rank}</strong>
-            <span className={styles.cardKit}>
-              <TeamKit teamName={entry.display_name} />
-            </span>
-            <span className={styles.cardTeam}>{entry.display_name}</span>
-            <strong className={styles.cardValue}>
-              {formatValue(metric, entry.value)}
-            </strong>
-          </Link>
-        ))}
-      </div>
-
-      <footer className={styles.cardFooter}>
-        <span>
-          {metric.higher_is_better
-            ? "Higher values rank first"
-            : "Lower values rank first"}
-        </span>
-        <span>{rankedEntries.length} observed teams</span>
-      </footer>
-    </article>
-  );
 }
 
 function median(values: number[]) {
@@ -317,9 +217,7 @@ function FullRanking({
   const minimum = values.length ? Math.min(...values) : null;
   const maximum = values.length ? Math.max(...values) : null;
   const selectedEntry = selectedTeamCode
-    ? rankedEntries.find(
-        (entry) => entry.persistent_team_code === selectedTeamCode
-      ) ?? null
+    ? rankedEntries.find((entry) => entry.persistent_team_code === selectedTeamCode) ?? null
     : null;
 
   return (
@@ -334,13 +232,11 @@ function FullRanking({
           <strong>{leader?.display_name ?? "—"}</strong>
           <small>{leader ? formatValue(metric, leader.value) : "Unavailable"}</small>
         </article>
-
         <article className={refinementStyles.insightCard}>
           <span>League median</span>
           <strong>{formatValue(metric, leagueMedian)}</strong>
           <small>Middle of observed team values</small>
         </article>
-
         <article className={refinementStyles.insightCard}>
           <span>League spread</span>
           <strong>
@@ -350,7 +246,6 @@ function FullRanking({
           </strong>
           <small>{rankedEntries.length} observed teams</small>
         </article>
-
         {selectedEntry && selectedEntry.rank !== null && selectedEntry.percentile !== null && (
           <article className={`${refinementStyles.insightCard} ${refinementStyles.selectedInsight}`}>
             <span>Selected team</span>
@@ -369,7 +264,6 @@ function FullRanking({
           <span>Value</span>
           <span>League standing</span>
         </div>
-
         <div className={styles.rows}>
           {rankedEntries.map((entry) => {
             const selected = entry.persistent_team_code === selectedTeamCode;
@@ -384,7 +278,6 @@ function FullRanking({
                 <strong className={`${styles.rank} ${refinementStyles.rankBadge}`}>
                   {ordinal(entry.rank)}
                 </strong>
-
                 <div className={styles.team}>
                   <span className={styles.teamKit}>
                     <TeamKit teamName={entry.display_name} />
@@ -394,16 +287,10 @@ function FullRanking({
                     <small>{selected ? "Selected team" : entry.persistent_team_code}</small>
                   </div>
                 </div>
-
-                <strong className={styles.value}>
-                  {formatValue(metric, entry.value)}
-                </strong>
-
+                <strong className={styles.value}>{formatValue(metric, entry.value)}</strong>
                 <div className={refinementStyles.percentileText}>
                   <strong>
-                    {entry.percentile === null
-                      ? "—"
-                      : `${Math.round(entry.percentile)}th percentile`}
+                    {entry.percentile === null ? "—" : `${Math.round(entry.percentile)}th percentile`}
                   </strong>
                   <span>
                     {entry.rank === null
@@ -423,26 +310,17 @@ function FullRanking({
 export default async function TeamStatsRankingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{
-    season?: string;
-    family?: string;
-    metric?: string;
-    team?: string;
-  }>;
+  searchParams: Promise<{ season?: string; family?: string; metric?: string; team?: string }>;
 }) {
   const query = await searchParams;
   const seasonResponse = await getJson<SeasonResponse>("/api/v1/seasons");
   const seasons = seasonResponse?.seasons ?? [];
   const season =
-    query.season && seasons.includes(query.season)
-      ? query.season
-      : seasons[0];
+    query.season && seasons.includes(query.season) ? query.season : seasons[0];
 
   const [teams, rankings] = season
     ? await Promise.all([
-        getJson<TeamOption[]>(
-          `/api/v1/teams/${encodeURIComponent(season)}`
-        ),
+        getJson<TeamOption[]>(`/api/v1/teams/${encodeURIComponent(season)}`),
         getJson<LeagueRankingsResponse>(
           `/api/v1/team-stats/${encodeURIComponent(season)}/rankings`
         ),
@@ -450,38 +328,25 @@ export default async function TeamStatsRankingsPage({
     : [null, null];
 
   const governedTeams = (teams ?? []).filter(
-    (
-      team
-    ): team is TeamOption & {
-      persistent_team_code: string;
-    } => Boolean(team.persistent_team_code)
+    (team): team is TeamOption & { persistent_team_code: string } =>
+      Boolean(team.persistent_team_code)
   );
-
   const selectedTeamCode =
-    query.team &&
-    governedTeams.some((team) => team.persistent_team_code === query.team)
+    query.team && governedTeams.some((team) => team.persistent_team_code === query.team)
       ? query.team
       : undefined;
 
-  const requestedFamily = families.find(
-    (family) => family.key === query.family
-  )?.key;
+  const requestedFamily = families.find((family) => family.key === query.family)?.key;
   const activeFamily: FamilyKey = requestedFamily ?? "overview";
   const activeFamilyLabel =
-    families.find((family) => family.key === activeFamily)?.label ??
-    "Overview";
+    families.find((family) => family.key === activeFamily)?.label ?? "Overview";
   const activeFamilyMetrics = familyMetricKeys[activeFamily]
     .map((key) => rankings?.metrics.find((metric) => metric.key === key))
     .filter((metric): metric is RankingMetric => Boolean(metric))
     .filter(metricAvailableForSeason);
-  const activeMetric =
-    activeFamilyMetrics.find((metric) => metric.key === query.metric) ??
-    activeFamilyMetrics[0] ??
-    null;
-  const overviewMetric =
-    activeFamily === "overview" && query.metric
-      ? activeFamilyMetrics.find((metric) => metric.key === query.metric) ?? null
-      : null;
+  const activeMetric = query.metric
+    ? activeFamilyMetrics.find((metric) => metric.key === query.metric) ?? null
+    : null;
   const teamViewCode = selectedTeamCode ?? governedTeams[0]?.persistent_team_code;
 
   return (
@@ -492,7 +357,6 @@ export default async function TeamStatsRankingsPage({
             <div className={teamStyles.kit}>
               <span className={teamStyles.placeholder}>LR</span>
             </div>
-
             <div>
               <p className={teamStyles.eyebrow}>Analysis · Team Stats</p>
               <h1>League Rankings</h1>
@@ -517,18 +381,13 @@ export default async function TeamStatsRankingsPage({
 
         {rankings ? (
           <main className={styles.workspace}>
-            <nav
-              className={styles.familyNav}
-              aria-label="League Rankings sections"
-            >
+            <nav className={styles.familyNav} aria-label="League Rankings sections">
               {families.map((family) => (
                 <Link
                   key={family.key}
                   href={rankingsHref(rankings.season, family.key, undefined, selectedTeamCode)}
                   className={
-                    family.key === activeFamily
-                      ? styles.activeFamily
-                      : styles.familyLink
+                    family.key === activeFamily ? styles.activeFamily : styles.familyLink
                   }
                 >
                   {family.label}
@@ -536,137 +395,56 @@ export default async function TeamStatsRankingsPage({
               ))}
             </nav>
 
-            {activeFamily === "overview" ? (
-              <>
-                <section className={styles.familyIntro}>
-                  <div>
-                    <p className={teamStyles.kicker}>League Rankings</p>
-                    <h2>Overview</h2>
-                    <p>
-                      Six headline league comparisons. Open a card for the full ranking and league context.
-                    </p>
-                  </div>
-                  <span className={styles.populationBadge}>
-                    {rankings.population_size} team population
-                  </span>
-                </section>
-
-                <section className={styles.familySection}>
-                  <div className={styles.cardGrid}>
-                    {activeFamilyMetrics.map((metric) => (
-                      <RankingCard
-                        key={metric.key}
-                        metric={metric}
-                        season={rankings.season}
-                        selectedTeamCode={selectedTeamCode}
-                      />
-                    ))}
-                  </div>
-                </section>
-
-                {overviewMetric && (
-                  <section className={styles.fullRanking}>
-                    <header className={styles.fullRankingHeader}>
-                      <div>
-                        <p className={teamStyles.kicker}>Full ranking</p>
-                        <h2>{overviewMetric.label}</h2>
-                        <p>
-                          Ranked across the governed {rankings.season} Premier League population. Ties use competition ranking.
-                        </p>
-                      </div>
-                      <Link href={rankingsHref(rankings.season, "overview", undefined, selectedTeamCode)}>
-                        Close
-                      </Link>
-                    </header>
-                    <FullRanking
-                      metric={overviewMetric}
-                      rankings={rankings}
-                      selectedTeamCode={selectedTeamCode}
-                    />
-                  </section>
-                )}
-              </>
-            ) : (
-              <section className={styles.familyRankingWorkspace}>
-                <header className={styles.familyRankingHeader}>
-                  <div>
-                    <p className={teamStyles.kicker}>League Rankings</p>
-                    <h2>{activeFamilyLabel}</h2>
-                  </div>
-                  <span className={styles.populationBadge}>
-                    {rankings.population_size} team population
-                  </span>
-                </header>
-
-                {activeFamilyMetrics.length > 0 ? (
-                  <>
-                    <nav
-                      className={styles.metricSubheadings}
-                      aria-label={`${activeFamilyLabel} ranking metrics`}
+            {activeFamilyMetrics.length > 0 ? (
+              activeMetric ? (
+                <section className={styles.fullRanking}>
+                  <header className={styles.fullRankingHeader}>
+                    <div>
+                      <p className={teamStyles.kicker}>Full ranking</p>
+                      <h2>{activeMetric.label}</h2>
+                      <p>
+                        Ranked across the governed {rankings.season} Premier League population. Ties use competition ranking.
+                      </p>
+                    </div>
+                    <Link
+                      href={rankingsHref(
+                        rankings.season,
+                        activeFamily,
+                        undefined,
+                        selectedTeamCode
+                      )}
                     >
-                      {activeFamilyMetrics.map((metric) => (
-                        <Link
-                          key={metric.key}
-                          href={rankingsHref(
-                            rankings.season,
-                            activeFamily,
-                            metric.key,
-                            selectedTeamCode
-                          )}
-                          className={
-                            metric.key === activeMetric?.key
-                              ? styles.activeMetricSubheading
-                              : styles.metricSubheading
-                          }
-                        >
-                          {metric.label}
-                        </Link>
-                      ))}
-                    </nav>
-
-                    {activeMetric && (
-                      <>
-                        <div className={styles.rankingTitleRow}>
-                          <div>
-                            <h3>{activeMetric.label}</h3>
-                            <p>
-                              Full {rankings.season} Premier League ranking with distribution context.
-                            </p>
-                          </div>
-                          {selectedTeamCode ? (
-                            <span className={refinementStyles.rankingHint}>Selected team highlighted</span>
-                          ) : (
-                            <span>
-                              {activeMetric.higher_is_better
-                                ? "Higher values rank first"
-                                : "Lower values rank first"}
-                            </span>
-                          )}
-                        </div>
-                        <FullRanking
-                          metric={activeMetric}
-                          rankings={rankings}
-                          family={activeFamily}
-                          selectedTeamCode={selectedTeamCode}
-                        />
-                        <footer className={styles.detailMeta}>
-                          <span>
-                            {representationLabel(activeMetric.representation)}
-                          </span>
-                          <span>{rankings.ranking_policy}</span>
-                        </footer>
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <div className={styles.unavailableFamily}>
-                    <strong>No metric is available for this season.</strong>
-                    <span>
-                      The family remains part of FRL, but variables with zero governed observations are not offered for {rankings.season}.
-                    </span>
-                  </div>
-                )}
-              </section>
+                      Back to tiles
+                    </Link>
+                  </header>
+                  <FullRanking
+                    metric={activeMetric}
+                    rankings={rankings}
+                    family={activeFamily}
+                    selectedTeamCode={selectedTeamCode}
+                  />
+                  <footer className={styles.detailMeta}>
+                    <span>{representationLabel(activeMetric.representation)}</span>
+                    <span>{rankings.ranking_policy}</span>
+                  </footer>
+                </section>
+              ) : (
+                <TeamRankingsLeaderboards
+                  season={rankings.season}
+                  family={activeFamily}
+                  familyLabel={activeFamilyLabel}
+                  metrics={activeFamilyMetrics}
+                  selectedTeamCode={selectedTeamCode}
+                  populationSize={rankings.population_size}
+                />
+              )
+            ) : (
+              <div className={styles.unavailableFamily}>
+                <strong>No metric is available for this season.</strong>
+                <span>
+                  The family remains part of FRL, but variables with zero governed observations are not offered for {rankings.season}.
+                </span>
+              </div>
             )}
 
             <footer className={styles.methodNote}>
@@ -680,9 +458,7 @@ export default async function TeamStatsRankingsPage({
           <section className={styles.emptyState}>
             <p className={teamStyles.kicker}>League Rankings</p>
             <h2>Ranking data is unavailable.</h2>
-            <p>
-              FRL could not resolve a governed league population for this season.
-            </p>
+            <p>FRL could not resolve a governed league population for this season.</p>
           </section>
         )}
       </div>
