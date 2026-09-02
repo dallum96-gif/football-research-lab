@@ -1,6 +1,6 @@
 # Football Research Laboratory — UI Design System
 
-**Last reviewed:** 30 August 2026  
+**Last reviewed:** 2 September 2026  
 **Applies to:** Active Next.js + React product
 
 For repository-memory governance see `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
@@ -185,7 +185,7 @@ Current Team Stats information architecture:
 ```text
 Team View | League Rankings | Compare later
 
-Overview | Attack | Possession | Passing | Defence | Discipline
+Overview | Attack | Passing (including possession) | Defence | Discipline
 ```
 
 The UI should make the relationship between value and population context legible without overwhelming the user.
@@ -202,6 +202,28 @@ Useful analytical primitives include:
 - provenance/limitation drill-down.
 
 Do not display rank/percentile as decorative certainty when the underlying population/coverage is not comparable.
+
+## Signature vertical-list tiles
+
+Family-level statistical browsing now uses **tiled vertical lists** as a recognisable FRL interaction and presentation pattern across Team and Player analytical surfaces.
+
+The visual grammar is shared, but the analytical orientation must remain correct for each surface:
+
+- **Team View:** one team across many metrics. Tiles group coherent measures vertically; each metric row shows the team's value and league context and can drill into the equivalent population ranking.
+- **Team League Rankings:** many teams within one metric. Up to four metric leaderboards may be visible at once; each tile shows the governed top ten and links to the full ranking ledger.
+- **Player League Rankings:** many players within one metric and an explicit player cohort. Up to four metric leaderboards may be visible at once, with role/minutes/club controls affecting visibility without redefining the governed cohort silently.
+
+For selectable leaderboard surfaces:
+
+- default to no more than four visible metric tiles;
+- selecting a fifth metric requires removing one of the four currently visible metrics;
+- reset metric-selection state when the analytical family/cohort changes rather than allowing stale family state to leak across views;
+- preserve backend/governed rank values, including tie policy, rather than renumbering rows merely by their visual list position;
+- keep the full ranking/detail ledger available as progressive disclosure rather than replacing deeper analysis with the top-ten view.
+
+The four tile accents (coral, green, gold, blue) are a restrained categorical rhythm for this component family, not a universal semantic rainbow. Colour does not redefine metric meaning or ranking direction.
+
+This layout is intended to become recognisable FRL product language: compact, colourful enough to feel playful, fast to scan, but still subordinate to governed football evidence.
 
 ## Metric cards
 
