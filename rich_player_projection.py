@@ -1,11 +1,13 @@
 """Governed season projection over preserved player-match evidence.
 
 This module is deliberately additive to the existing FPL-derived player research
-layer.  It joins through the audited ``pl_code`` bridge already maintained by
+layer. It joins through the audited ``pl_code`` bridge already maintained by
 ``player_match_stats`` and never substitutes names for player identity.
 
-Source blanks remain unavailable unless at least one observation exists for the
-player/field.  No missing rich metric is coerced into a season zero.
+Source blanks remain unavailable unless their zero semantics have been audited.
+In particular, xGOT follows FRL's existing trigger rule: a blank xGOT is safe as
+zero only when the player's shot-on-target trigger is zero; a positive-trigger
+blank makes the season xGOT aggregate unavailable.
 """
 from __future__ import annotations
 
@@ -69,23 +71,56 @@ RICH_PLAYER_METRICS = {
 }
 
 
-def _number(value: object) -> float:
+def _number_or_none(value: object) -> float | None:
     if value in (None, ""):
-        return 0.0
+        return None
     try:
         return float(value)
     except (TypeError, ValueError):
-        return 0.0
+        return None
+
+
+def _sum_observed(records: tuple[dict, ...], source_field: str) -> float | None:
+    observed = [
+        value
+        for row in records
+        if (value := _number_or_none(row.get(source_field))) is not None
+    ]
+    return sum(observed) if observed else None
+
+
+def _aggregate_xgot(records: tuple[dict, ...], season_fields: set[str]) -> float | None:
+    source_field = "expectedGoalsOnTarget"
+    trigger_field = "onTargetScoringAttempt"
+    if source_field not in season_fields or trigger_field not in season_fields:
+        return None
+
+    total = 0.0
+    observed_any = False
+    for row in records:
+        value = _number_or_none(row.get(source_field))
+        if value is not None:
+            total += value
+            observed_any = True
+            continue
+
+        trigger = _number_or_none(row.get(trigger_field))
+        if trigger is not None and trigger > 0:
+            return None
+
+    return total if observed_any else None
 
 
 def _aggregate(records: tuple[dict, ...], season_fields: set[str]) -> dict[str, float | None]:
     output: dict[str, float | None] = {}
     for metric, source_field in RICH_PLAYER_METRICS.items():
+        if metric == "xgot":
+            output[metric] = _aggregate_xgot(records, season_fields)
+            continue
         if source_field not in season_fields:
             output[metric] = None
             continue
-        observed = [row.get(source_field) for row in records if row.get(source_field) not in (None, "")]
-        output[metric] = sum(_number(value) for value in observed) if observed else None
+        output[metric] = _sum_observed(records, source_field)
     return output
 
 
