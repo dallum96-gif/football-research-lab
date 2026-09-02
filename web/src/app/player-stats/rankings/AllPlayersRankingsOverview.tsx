@@ -224,20 +224,6 @@ export function AllPlayersRankingsOverview({
     return [...values].sort((a, b) => a.localeCompare(b));
   }, [rankingsByPosition]);
 
-  const visiblePlayers = useMemo(() => {
-    const players = new Set<string>();
-    Object.entries(rankingsByPosition).forEach(([position, data]) => {
-      data?.metrics.forEach((item) => {
-        item.entries.forEach((entry) => {
-          if (eligible(entry, club, minuteQualifier, possibleMinutesByClub)) {
-            players.add(`${position}:${entry.player_code}`);
-          }
-        });
-      });
-    });
-    return players.size;
-  }, [rankingsByPosition, club, minuteQualifier, possibleMinutesByClub]);
-
   const signalCards = useMemo(() => {
     const outfield = OUTFIELD.map((position) => rankingsByPosition[position]);
     return [
@@ -326,17 +312,6 @@ export function AllPlayersRankingsOverview({
 
   return (
     <div className={styles.landing}>
-      <section className={styles.heroPanel}>
-        <div>
-          <p>League discovery</p>
-          <h2>Explore the whole player pool</h2>
-          <span>
-            Start broad, then move into a position, club or minutes-qualified view without changing the governed league-position ranks.
-          </span>
-        </div>
-        <strong>{visiblePlayers}<small> visible players</small></strong>
-      </section>
-
       <section className={styles.filterBar} aria-label="League discovery filters">
         <div className={styles.filterIntro}>
           <strong>Filter the view</strong>

@@ -3,7 +3,6 @@
   gap: 10px;
 }
 
-.heroPanel,
 .filterBar,
 .signalCard,
 .scatterPanel,
@@ -14,19 +13,6 @@
   background: var(--frl-surface);
 }
 
-.heroPanel {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: 18px 20px;
-  background:
-    radial-gradient(circle at 88% 14%, rgba(45, 127, 76, .12), transparent 27%),
-    radial-gradient(circle at 62% 100%, rgba(218, 167, 90, .10), transparent 33%),
-    var(--frl-surface);
-}
-
-.heroPanel p,
 .scatterHeader p,
 .profilePanel header p {
   margin: 0;
@@ -37,7 +23,6 @@
   text-transform: uppercase;
 }
 
-.heroPanel h2,
 .scatterHeader h2,
 .profilePanel header h2 {
   margin: .24rem 0 0;
@@ -47,7 +32,6 @@
   letter-spacing: -.04em;
 }
 
-.heroPanel > div > span,
 .scatterHeader > div > span,
 .profilePanel header > span {
   display: block;
@@ -56,21 +40,6 @@
   color: var(--frl-muted);
   font-size: .48rem;
   line-height: 1.55;
-}
-
-.heroPanel > strong {
-  flex: 0 0 auto;
-  font-size: 2rem;
-  font-weight: 880;
-  letter-spacing: -.055em;
-  font-variant-numeric: tabular-nums;
-}
-
-.heroPanel > strong small {
-  color: var(--frl-muted-soft);
-  font-size: .43rem;
-  font-weight: 720;
-  letter-spacing: 0;
 }
 
 .filterBar {
@@ -481,7 +450,6 @@
 }
 
 @media (max-width: 760px) {
-  .heroPanel,
   .scatterHeader,
   .methodStrip {
     align-items: flex-start;
