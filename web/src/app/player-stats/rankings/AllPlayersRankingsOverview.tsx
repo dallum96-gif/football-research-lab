@@ -300,7 +300,7 @@ export function AllPlayersRankingsOverview({
         if (aBalanced !== bBalanced) return bBalanced - aBalanced;
         return Math.max(b.xPercentile, b.yPercentile) - Math.max(a.xPercentile, a.yPercentile);
       })
-      .slice(0, 4);
+      .slice(0, 3);
 
     return { config, xMetric, yMetric, points, candidates, maxX, maxY, averageX, averageY };
   }, [rankingsByPosition, scatterPosition, club, minuteQualifier, possibleMinutesByClub]);
