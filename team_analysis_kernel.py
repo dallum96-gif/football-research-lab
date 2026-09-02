@@ -19,7 +19,7 @@ CANONICAL_FIXTURE_RESULT = "CANONICAL_FIXTURE_RESULT"
 DIRECT_TEAM_DERIVATION = "DIRECT_TEAM_DERIVATION"
 COMPETITION_RANK = "COMPETITION_RANK"
 RANK_POSITION_PERCENTILE = "RANK_POSITION_PERCENTILE"
-ANALYSIS_VERSION = "team-analysis-kernel-v3"
+ANALYSIS_VERSION = "team-analysis-kernel-v4"
 
 
 @dataclass(frozen=True)
@@ -33,85 +33,80 @@ class MetricDefinition:
 
 
 OVERVIEW_METRICS = (
-    MetricDefinition(
-        key="points_per_match",
-        label="Points per match",
-        unit="PPG",
-        higher_is_better=True,
-        coverage_key="result_coverage",
-        representation=CANONICAL_FIXTURE_RESULT,
-    ),
-    MetricDefinition(
-        key="goals_for_per_match",
-        label="Goals per match",
-        unit="goals",
-        higher_is_better=True,
-        coverage_key="goals_for",
-        representation=CANONICAL_FIXTURE_RESULT,
-    ),
-    MetricDefinition(
-        key="goals_against_per_match",
-        label="Goals against",
-        unit="goals",
-        higher_is_better=False,
-        coverage_key="goals_against",
-        representation=CANONICAL_FIXTURE_RESULT,
-    ),
-    MetricDefinition(
-        key="Shots_per_match",
-        label="Shots per match",
-        unit="shots",
-        higher_is_better=True,
-        coverage_key="Shots",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Shots on target_per_match",
-        label="Shots on target",
-        unit="shots",
-        higher_is_better=True,
-        coverage_key="Shots on target",
-        representation=DIRECT_TEAM_MATCH,
-    ),
-    MetricDefinition(
-        key="Possession_per_match",
-        label="Possession",
-        unit="%",
-        higher_is_better=True,
-        coverage_key="Possession",
-        representation=DIRECT_TEAM_MATCH,
-    ),
+    MetricDefinition("points_per_match", "Points per match", "PPG", True, "result_coverage", CANONICAL_FIXTURE_RESULT),
+    MetricDefinition("goals_for_per_match", "Goals per match", "goals", True, "goals_for", CANONICAL_FIXTURE_RESULT),
+    MetricDefinition("goals_against_per_match", "Goals against", "goals", False, "goals_against", CANONICAL_FIXTURE_RESULT),
+    MetricDefinition("Shots_per_match", "Shots per match", "shots", True, "Shots", DIRECT_TEAM_MATCH),
+    MetricDefinition("Shots on target_per_match", "Shots on target", "shots", True, "Shots on target", DIRECT_TEAM_MATCH),
+    MetricDefinition("Possession_per_match", "Possession", "%", True, "Possession", DIRECT_TEAM_MATCH),
 )
 
 
-# Expose the preserved Team-Match capability broadly first; product curation can
-# contract this catalogue later. Expected-goal-family measures remain governed
-# by their dedicated routing and are not silently reintroduced here as direct
-# metrics.
+# Broad research vocabulary first; product grouping/visual curation remains a
+# separate decision. Expected-metric-family measures continue through their
+# dedicated governed routing rather than being silently reintroduced here.
 ADDITIONAL_RANKING_METRICS = (
-    # Attack
+    # Attack / shooting / territory
     MetricDefinition("Shots off target_per_match", "Shots off target", "shots", True, "Shots off target", DIRECT_TEAM_MATCH),
     MetricDefinition("Blocked shots_per_match", "Blocked shots", "shots", True, "Blocked shots", DIRECT_TEAM_MATCH),
+    MetricDefinition("Shots inside box_per_match", "Shots inside box", "shots", True, "Shots inside box", DIRECT_TEAM_MATCH),
+    MetricDefinition("Shots outside box_per_match", "Shots outside box", "shots", True, "Shots outside box", DIRECT_TEAM_MATCH),
+    MetricDefinition("Hit woodwork_per_match", "Hit woodwork", "shots", True, "Hit woodwork", DIRECT_TEAM_MATCH),
     MetricDefinition("Corners_per_match", "Corners per match", "corners", True, "Corners", DIRECT_TEAM_MATCH),
     MetricDefinition("Offsides_per_match", "Offsides per match", "offsides", True, "Offsides", DIRECT_TEAM_MATCH),
     MetricDefinition("Big chances created_per_match", "Big chances created", "chances", True, "Big chances created", DIRECT_TEAM_MATCH),
     MetricDefinition("Big chances missed_per_match", "Big chances missed", "chances", True, "Big chances missed", DIRECT_TEAM_MATCH),
+    MetricDefinition("Big chances scored_per_match", "Big chances scored", "chances", True, "Big chances scored", DIRECT_TEAM_MATCH),
+    MetricDefinition("Final third entries_per_match", "Final-third entries", "entries", True, "Final third entries", DIRECT_TEAM_MATCH),
+    MetricDefinition("Penalty area entries_per_match", "Penalty-area entries", "entries", True, "Penalty area entries", DIRECT_TEAM_MATCH),
+    MetricDefinition("Touches in opposition box_per_match", "Touches in opposition box", "touches", True, "Touches in opposition box", DIRECT_TEAM_MATCH),
+    MetricDefinition("Open-play assists_per_match", "Open-play assists", "assists", True, "Open-play assists", DIRECT_TEAM_MATCH),
+    MetricDefinition("Set-piece assists_per_match", "Set-piece assists", "assists", True, "Set-piece assists", DIRECT_TEAM_MATCH),
     MetricDefinition("shot_accuracy", "Shot accuracy", "%", True, "Shots", DIRECT_TEAM_DERIVATION),
     MetricDefinition("goals_per_shot", "Goals per shot", "%", True, "Shots", DIRECT_TEAM_DERIVATION),
     MetricDefinition("failed_to_score_rate", "Failed to score", "%", False, "result_coverage", CANONICAL_FIXTURE_RESULT),
-    # Passing / possession
+    # Passing / progression / possession
     MetricDefinition("Passes_per_match", "Passes per match", "passes", True, "Passes", DIRECT_TEAM_MATCH),
     MetricDefinition("Accurate passes_per_match", "Accurate passes", "passes", True, "Accurate passes", DIRECT_TEAM_MATCH),
-    MetricDefinition("pass_accuracy", "Pass accuracy", "%", True, "Passes", DIRECT_TEAM_DERIVATION),
+    MetricDefinition("Forward passes_per_match", "Forward passes", "passes", True, "Forward passes", DIRECT_TEAM_MATCH),
+    MetricDefinition("Long balls_per_match", "Long balls", "passes", True, "Long balls", DIRECT_TEAM_MATCH),
+    MetricDefinition("Accurate long balls_per_match", "Accurate long balls", "passes", True, "Accurate long balls", DIRECT_TEAM_MATCH),
+    MetricDefinition("Final third passes_per_match", "Final-third passes", "passes", True, "Final third passes", DIRECT_TEAM_MATCH),
+    MetricDefinition("Successful final third passes_per_match", "Successful final-third passes", "passes", True, "Successful final third passes", DIRECT_TEAM_MATCH),
+    MetricDefinition("Through balls_per_match", "Through balls", "passes", True, "Through balls", DIRECT_TEAM_MATCH),
+    MetricDefinition("Accurate through balls_per_match", "Accurate through balls", "passes", True, "Accurate through balls", DIRECT_TEAM_MATCH),
     MetricDefinition("Crosses_per_match", "Crosses per match", "crosses", True, "Crosses", DIRECT_TEAM_MATCH),
-    # Defence
+    MetricDefinition("Touches_per_match", "Touches", "touches", True, "Touches", DIRECT_TEAM_MATCH),
+    MetricDefinition("Possession lost_per_match", "Possession lost", "events", False, "Possession lost", DIRECT_TEAM_MATCH),
+    MetricDefinition("Possession won attacking third_per_match", "Possession won in attacking third", "events", True, "Possession won attacking third", DIRECT_TEAM_MATCH),
+    MetricDefinition("Possession won middle third_per_match", "Possession won in middle third", "events", True, "Possession won middle third", DIRECT_TEAM_MATCH),
+    MetricDefinition("Possession won defensive third_per_match", "Possession won in defensive third", "events", True, "Possession won defensive third", DIRECT_TEAM_MATCH),
+    MetricDefinition("Ball recoveries_per_match", "Ball recoveries", "recoveries", True, "Ball recoveries", DIRECT_TEAM_MATCH),
+    MetricDefinition("pass_accuracy", "Pass accuracy", "%", True, "Passes", DIRECT_TEAM_DERIVATION),
+    # Defence / duels / conceded chances
     MetricDefinition("Tackles_per_match", "Tackles per match", "tackles", True, "Tackles", DIRECT_TEAM_MATCH),
     MetricDefinition("Tackles won_per_match", "Tackles won", "tackles", True, "Tackles won", DIRECT_TEAM_MATCH),
     MetricDefinition("Interceptions_per_match", "Interceptions per match", "interceptions", True, "Interceptions", DIRECT_TEAM_MATCH),
     MetricDefinition("Interceptions won_per_match", "Interceptions won", "interceptions", True, "Interceptions won", DIRECT_TEAM_MATCH),
+    MetricDefinition("Interceptions in box_per_match", "Interceptions in box", "interceptions", True, "Interceptions in box", DIRECT_TEAM_MATCH),
     MetricDefinition("Clearances_per_match", "Clearances per match", "clearances", True, "Clearances", DIRECT_TEAM_MATCH),
     MetricDefinition("Effective clearances_per_match", "Effective clearances", "clearances", True, "Effective clearances", DIRECT_TEAM_MATCH),
+    MetricDefinition("Blocks_per_match", "Blocks", "blocks", True, "Blocks", DIRECT_TEAM_MATCH),
+    MetricDefinition("Duels won_per_match", "Duels won", "duels", True, "Duels won", DIRECT_TEAM_MATCH),
+    MetricDefinition("Duels lost_per_match", "Duels lost", "duels", False, "Duels lost", DIRECT_TEAM_MATCH),
+    MetricDefinition("Aerial duels won_per_match", "Aerial duels won", "duels", True, "Aerial duels won", DIRECT_TEAM_MATCH),
+    MetricDefinition("Aerial duels lost_per_match", "Aerial duels lost", "duels", False, "Aerial duels lost", DIRECT_TEAM_MATCH),
+    MetricDefinition("Contests won_per_match", "Contests won", "duels", True, "Contests won", DIRECT_TEAM_MATCH),
+    MetricDefinition("Shots conceded inside box_per_match", "Shots conceded inside box", "shots", False, "Shots conceded inside box", DIRECT_TEAM_MATCH),
+    MetricDefinition("Shots conceded outside box_per_match", "Shots conceded outside box", "shots", False, "Shots conceded outside box", DIRECT_TEAM_MATCH),
+    MetricDefinition("Errors leading to shot_per_match", "Errors leading to shot", "errors", False, "Errors leading to shot", DIRECT_TEAM_MATCH),
+    MetricDefinition("Errors leading to goal_per_match", "Errors leading to goal", "errors", False, "Errors leading to goal", DIRECT_TEAM_MATCH),
     MetricDefinition("Saves_per_match", "Saves per match", "saves", True, "Saves", DIRECT_TEAM_MATCH),
+    MetricDefinition("Saves inside box_per_match", "Saves inside box", "saves", True, "Saves inside box", DIRECT_TEAM_MATCH),
+    MetricDefinition("Saves outside box_per_match", "Saves outside box", "saves", True, "Saves outside box", DIRECT_TEAM_MATCH),
+    MetricDefinition("High claims_per_match", "High claims", "claims", True, "High claims", DIRECT_TEAM_MATCH),
+    MetricDefinition("Keeper sweeper actions_per_match", "Keeper sweeper actions", "actions", True, "Keeper sweeper actions", DIRECT_TEAM_MATCH),
+    MetricDefinition("Accurate keeper sweeper actions_per_match", "Accurate keeper sweeper actions", "actions", True, "Accurate keeper sweeper actions", DIRECT_TEAM_MATCH),
     MetricDefinition("clean_sheet_rate", "Clean-sheet rate", "%", True, "result_coverage", CANONICAL_FIXTURE_RESULT),
     # Discipline
     MetricDefinition("Fouls conceded_per_match", "Fouls conceded", "fouls", False, "Fouls conceded", DIRECT_TEAM_MATCH),
@@ -123,9 +118,8 @@ ADDITIONAL_RANKING_METRICS = (
 RANKING_METRICS = (*OVERVIEW_METRICS, *ADDITIONAL_RANKING_METRICS)
 METRIC_DEFINITIONS = {metric.key: metric for metric in RANKING_METRICS}
 
-# Team View's Overview is deliberately broader than League Rankings' compact
-# six-card overview. It acts as the season-aware identity/profile snapshot and
-# therefore includes useful derived efficiency measures where governed.
+# Keep the existing overview curation unchanged in this vocabulary pass. The
+# richer catalogue is available underneath; visual organisation comes later.
 TEAM_VIEW_OVERVIEW_KEYS = (
     "points_per_match",
     "goals_for_per_match",
@@ -139,8 +133,6 @@ TEAM_VIEW_OVERVIEW_KEYS = (
     "failed_to_score_rate",
 )
 
-# team_research_stats stores these rates as 0-1 fractions. Product ranking
-# surfaces use percentage points so 0.84 is rendered and ranked as 84.0%.
 FRACTION_RATE_METRICS = {
     "shot_accuracy",
     "goals_per_shot",
@@ -159,7 +151,6 @@ def _coverage(stats: dict, definition: MetricDefinition) -> dict:
             "missing_matches": int(source.get("missing_matches", 0)),
             "coverage_status": source.get("coverage_status", "UNAVAILABLE"),
         }
-
     source = stats.get("metric_coverage", {}).get(definition.coverage_key, {})
     return {
         "eligible_matches": int(source.get("eligible_matches", stats.get("matches", 0))),
@@ -170,10 +161,8 @@ def _coverage(stats: dict, definition: MetricDefinition) -> dict:
 
 
 def rank_metric_entries(entries: list[dict], higher_is_better: bool) -> list[dict]:
-    """Apply the existing Team Stats competition-rank/percentile behaviour centrally."""
     available = [entry for entry in entries if entry.get("value") is not None]
     out_of = len(available)
-
     for entry in entries:
         value = entry.get("value")
         if value is None:
@@ -181,27 +170,16 @@ def rank_metric_entries(entries: list[dict], higher_is_better: bool) -> list[dic
             entry["out_of"] = out_of
             entry["percentile"] = None
             continue
-
         value = float(value)
         better = sum(
             1
             for candidate in available
-            if (
-                float(candidate["value"]) > value
-                if higher_is_better
-                else float(candidate["value"]) < value
-            )
+            if (float(candidate["value"]) > value if higher_is_better else float(candidate["value"]) < value)
         )
         rank = better + 1
-        percentile = (
-            100.0
-            if out_of == 1
-            else round(100.0 * (out_of - rank) / (out_of - 1), 1)
-        )
         entry["rank"] = rank
         entry["out_of"] = out_of
-        entry["percentile"] = percentile
-
+        entry["percentile"] = 100.0 if out_of == 1 else round(100.0 * (out_of - rank) / (out_of - 1), 1)
     return entries
 
 
@@ -212,13 +190,11 @@ def _team_population(season: str) -> list[dict]:
         code = str(row.get("persistent_team_code") or "").strip()
         if not code:
             continue
-        population.append(
-            {
-                "persistent_team_code": code,
-                "display_name": str(row.get("team") or "").strip(),
-                "local_team_id": str(row.get("team_id") or "").strip(),
-            }
-        )
+        population.append({
+            "persistent_team_code": code,
+            "display_name": str(row.get("team") or "").strip(),
+            "local_team_id": str(row.get("team_id") or "").strip(),
+        })
     return population
 
 
@@ -226,42 +202,25 @@ def _player_derived_xg(season: str, team_code: str, stats: dict) -> dict:
     rows = team_research_stats.team_match_stats(season, team_code)
     values: list[float] = []
     missing_fixture_ids: list[str] = []
-
     for row in rows:
         fixture_id = str(row.get("fixture_id") or "")
         side = "home" if row.get("home") else "away"
-        observation = team_expected_metric_observation(
-            season,
-            fixture_id,
-            side,
-            EXPECTED_GOALS,
-        )
+        observation = team_expected_metric_observation(season, fixture_id, side, EXPECTED_GOALS)
         if observation.get("status") == "AVAILABLE" and observation.get("value") is not None:
             values.append(float(observation["value"]))
         else:
             missing_fixture_ids.append(fixture_id)
-
     eligible = len(rows)
     observed = len(values)
     total = sum(values) if values else None
     per_observed_match = total / observed if total is not None and observed else None
-    coverage_status = (
-        "COMPLETE"
-        if observed == eligible and eligible
-        else "PARTIAL"
-        if observed
-        else "UNAVAILABLE"
-    )
-
+    coverage_status = "COMPLETE" if observed == eligible and eligible else "PARTIAL" if observed else "UNAVAILABLE"
     goals_for = stats.get("goals_for")
     xg_overperformance = (
         float(goals_for) - float(total)
-        if total is not None
-        and goals_for is not None
-        and observed == eligible
+        if total is not None and goals_for is not None and observed == eligible
         else None
     )
-
     return {
         "value": per_observed_match,
         "observed_total": total,
@@ -283,7 +242,6 @@ def _direct_xg(season: str, stats: dict) -> dict:
     observed = int(coverage.get("observed_matches", 0))
     value = stats.get("Expected goals_per_match")
     total = stats.get("Expected goals")
-
     return {
         "value": float(value) if value is not None else None,
         "observed_total": float(total) if total is not None else None,
@@ -295,11 +253,7 @@ def _direct_xg(season: str, stats: dict) -> dict:
         "coverage_complete": bool(coverage.get("coverage_complete", False)),
         "representation": DIRECT_TEAM_MATCH,
         "construction_version": "fixture-match-stats-v1",
-        "xg_overperformance": (
-            float(stats["xg_overperformance"])
-            if stats.get("xg_overperformance") is not None
-            else None
-        ),
+        "xg_overperformance": float(stats["xg_overperformance"]) if stats.get("xg_overperformance") is not None else None,
     }
 
 
@@ -329,13 +283,11 @@ def expected_goals_observation(season: str, team_code: str, stats: dict | None =
                 f"for {season}; source-native FPL player-fixture xG remains separate."
             ),
         }
-
     base = {
         "route_purpose": route.purpose,
         "route_coverage_status": route.coverage_status,
         "representation_mixing_allowed": route.representation_mixing_allowed,
     }
-
     if route.representation == PLAYER_MATCH_DERIVED_TEAM_MATCH:
         return {**_player_derived_xg(season, team_code, stats), **base}
     if route.representation == DIRECT_TEAM_MATCH:
@@ -360,10 +312,8 @@ def expected_goals_observation(season: str, team_code: str, stats: dict | None =
 
 @lru_cache(maxsize=16)
 def season_overview_analysis(season: str) -> dict:
-    """Build the governed season result shared by Team View and family Rankings."""
     population = _team_population(season)
     team_stats: dict[str, dict] = {}
-
     for team in population:
         code = team["persistent_team_code"]
         stats = team_research_stats.team_season_stats(season, code)
@@ -383,15 +333,12 @@ def season_overview_analysis(season: str) -> dict:
                 raw_value = float(raw_value)
                 if definition.key in FRACTION_RATE_METRICS:
                     raw_value *= 100.0
-            entries.append(
-                {
-                    **team,
-                    "value": raw_value,
-                    "coverage": _coverage(stats, definition),
-                    "representation": definition.representation,
-                }
-            )
-
+            entries.append({
+                **team,
+                "value": raw_value,
+                "coverage": _coverage(stats, definition),
+                "representation": definition.representation,
+            })
         rank_metric_entries(entries, definition.higher_is_better)
         metrics[definition.key] = {
             "definition": asdict(definition),
@@ -403,16 +350,11 @@ def season_overview_analysis(season: str) -> dict:
     xg = {
         team["persistent_team_code"]: {
             **team,
-            **expected_goals_observation(
-                season,
-                team["persistent_team_code"],
-                team_stats.get(team["persistent_team_code"]),
-            ),
+            **expected_goals_observation(season, team["persistent_team_code"], team_stats.get(team["persistent_team_code"])),
         }
         for team in population
         if team["persistent_team_code"] in team_stats
     }
-
     return {
         "analysis_version": ANALYSIS_VERSION,
         "season": season,
@@ -427,31 +369,19 @@ def season_overview_analysis(season: str) -> dict:
 def team_overview_analysis(season: str, team_code: str) -> dict | None:
     analysis = season_overview_analysis(season)
     selected_metrics = []
-
     for key in TEAM_VIEW_OVERVIEW_KEYS:
         metric = analysis["metrics"][key]
-        entry = next(
-            (
-                item
-                for item in metric["entries"]
-                if item["persistent_team_code"] == str(team_code)
-            ),
-            None,
-        )
+        entry = next((item for item in metric["entries"] if item["persistent_team_code"] == str(team_code)), None)
         if entry is not None:
-            selected_metrics.append(
-                {
-                    **metric["definition"],
-                    **entry,
-                    "ranking_policy": metric["ranking_policy"],
-                    "percentile_policy": metric["percentile_policy"],
-                }
-            )
-
+            selected_metrics.append({
+                **metric["definition"],
+                **entry,
+                "ranking_policy": metric["ranking_policy"],
+                "percentile_policy": metric["percentile_policy"],
+            })
     xg = analysis["expected_goals"].get(str(team_code))
     if not selected_metrics and xg is None:
         return None
-
     identity = selected_metrics[0] if selected_metrics else xg
     return {
         "analysis_version": analysis["analysis_version"],
