@@ -83,19 +83,8 @@ export function TeamRankingsLeaderboards({
   );
 
   useEffect(() => {
-    setVisibleKeys((current) => {
-      const next = current
-        .filter((key) => availableMetricKeys.includes(key))
-        .slice(0, MAX_VISIBLE_METRICS);
-      for (const key of availableMetricKeys) {
-        if (next.length >= MAX_VISIBLE_METRICS) break;
-        if (!next.includes(key)) next.push(key);
-      }
-      return next.length === current.length && next.every((key, index) => key === current[index])
-        ? current
-        : next;
-    });
-  }, [availableMetricKeys]);
+    setVisibleKeys(availableMetricKeys.slice(0, MAX_VISIBLE_METRICS));
+  }, [family, availableMetricKeys]);
 
   const metricsByKey = useMemo(
     () => new Map(metrics.map((metric) => [metric.key, metric])),
@@ -208,30 +197,33 @@ export function TeamRankingsLeaderboards({
                   </header>
 
                   <ol className={tileStyles.leaderboardList}>
-                    {leaders.map((entry, index) => (
-                      <li
-                        key={entry.persistent_team_code}
-                        data-selected={entry.persistent_team_code === selectedTeamCode ? "true" : "false"}
-                      >
-                        <Link href={teamHref(season, family, entry.persistent_team_code)}>
-                          <span
-                            className={tileStyles.listRank}
-                            data-podium={index < 3 ? String(index + 1) : undefined}
-                          >
-                            {String(index + 1).padStart(2, "0")}
-                          </span>
-                          <span className={tileStyles.teamIdentity}>
-                            <span className={tileStyles.teamKit}>
-                              <TeamKit teamName={entry.display_name} />
+                    {leaders.map((entry, index) => {
+                      const displayedRank = entry.rank ?? index + 1;
+                      return (
+                        <li
+                          key={entry.persistent_team_code}
+                          data-selected={entry.persistent_team_code === selectedTeamCode ? "true" : "false"}
+                        >
+                          <Link href={teamHref(season, family, entry.persistent_team_code)}>
+                            <span
+                              className={tileStyles.listRank}
+                              data-podium={displayedRank <= 3 ? String(displayedRank) : undefined}
+                            >
+                              {String(displayedRank).padStart(2, "0")}
                             </span>
-                            <strong>{entry.display_name}</strong>
-                          </span>
-                          <span className={tileStyles.metricValue}>
-                            {formatMetric(metric, entry.value)}
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
+                            <span className={tileStyles.teamIdentity}>
+                              <span className={tileStyles.teamKit}>
+                                <TeamKit teamName={entry.display_name} />
+                              </span>
+                              <strong>{entry.display_name}</strong>
+                            </span>
+                            <span className={tileStyles.metricValue}>
+                              {formatMetric(metric, entry.value)}
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
                   </ol>
 
                   <footer>
