@@ -9,9 +9,13 @@ import player_research
 
 COMPETITION_RANK = "COMPETITION_RANK"
 RANK_POSITION_PERCENTILE = "RANK_POSITION_PERCENTILE"
-ANALYSIS_VERSION = "player-analysis-kernel-v1"
+ANALYSIS_VERSION = "player-analysis-kernel-v2"
 PLAYER_SEASON_AGGREGATE = "PLAYER_SEASON_AGGREGATE"
 PLAYER_SEASON_DERIVATION = "PLAYER_SEASON_DERIVATION"
+
+RAW = "RAW"
+PER_90 = "PER_90"
+RATE = "RATE"
 
 POSITIONS = ("GKP", "DEF", "MID", "FWD")
 FAMILIES = (
@@ -29,6 +33,8 @@ FAMILIES = (
 @dataclass(frozen=True)
 class MetricDefinition:
     key: str
+    concept_key: str
+    normalization: str
     label: str
     unit: str
     family: str
@@ -56,6 +62,8 @@ def _total(
 ) -> MetricDefinition:
     return MetricDefinition(
         key=key,
+        concept_key=key,
+        normalization=RAW,
         label=label,
         unit=unit,
         family=family,
@@ -78,6 +86,8 @@ def _per90(
 ) -> MetricDefinition:
     return MetricDefinition(
         key=key,
+        concept_key=source_key,
+        normalization=PER_90,
         label=label,
         unit=unit,
         family=family,
@@ -117,6 +127,8 @@ METRIC_DEFINITIONS = (
     _per90("completed_passes_per_90", "completed_passes", "Completed passes / 90", "passes", "possession"),
     MetricDefinition(
         key="pass_completion",
+        concept_key="pass_completion",
+        normalization=RATE,
         label="Pass completion",
         unit="%",
         family="possession",
@@ -166,6 +178,31 @@ METRIC_DEFINITIONS = (
 )
 
 DEFINITIONS_BY_KEY = {definition.key: definition for definition in METRIC_DEFINITIONS}
+
+
+def _normalizations_by_concept() -> dict[str, tuple[str, ...]]:
+    normalizations: dict[str, list[str]] = {}
+    for definition in METRIC_DEFINITIONS:
+        values = normalizations.setdefault(definition.concept_key, [])
+        if definition.normalization not in values:
+            values.append(definition.normalization)
+    return {key: tuple(values) for key, values in normalizations.items()}
+
+
+NORMALIZATIONS_BY_CONCEPT = _normalizations_by_concept()
+
+
+def definition_payload(definition: MetricDefinition) -> dict:
+    return {
+        **asdict(definition),
+        "supported_normalizations": list(
+            NORMALIZATIONS_BY_CONCEPT.get(
+                definition.concept_key,
+                (definition.normalization,),
+            )
+        ),
+    }
+
 
 OVERVIEW_KEYS_BY_POSITION = {
     "GKP": (
@@ -329,7 +366,7 @@ def season_position_analysis(season: str, position: str) -> dict:
         rank_metric_entries(entries, definition.higher_is_better)
         observed = sum(entry["value"] is not None for entry in entries)
         metrics[definition.key] = {
-            "definition": asdict(definition),
+            "definition": definition_payload(definition),
             "entries": entries,
             "observed_players": observed,
             "eligible_players": len(entries),
@@ -415,12 +452,17 @@ __all__ = [
     "DEFINITIONS_BY_KEY",
     "FAMILIES",
     "METRIC_DEFINITIONS",
+    "NORMALIZATIONS_BY_CONCEPT",
     "OVERVIEW_KEYS_BY_POSITION",
+    "PER_90",
     "PLAYER_SEASON_AGGREGATE",
     "PLAYER_SEASON_DERIVATION",
     "POSITIONS",
     "RANK_POSITION_PERCENTILE",
+    "RATE",
+    "RAW",
     "MetricDefinition",
+    "definition_payload",
     "metric_value",
     "player_analysis",
     "rank_metric_entries",
