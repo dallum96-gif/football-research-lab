@@ -6,6 +6,13 @@ import type { RankingMetric } from "../PlayerVisuals";
 import familyStyles from "./PlayerRankingsFamilyTable.module.css";
 
 type MinutesShare = 0 | 10 | 25 | 50 | 75;
+type NormalizationView = "RAW" | "PER_90";
+
+type NormalizedRankingMetric = RankingMetric & {
+  concept_key?: string;
+  normalization?: string;
+  supported_normalizations?: string[];
+};
 
 type PlayerRow = {
   player_code: string;
@@ -15,6 +22,13 @@ type PlayerRow = {
 };
 
 const MINUTES_OPTIONS: MinutesShare[] = [0, 10, 25, 50, 75];
+const NORMALIZATION_OPTIONS: Array<{
+  value: NormalizationView;
+  label: string;
+}> = [
+  { value: "RAW", label: "Raw" },
+  { value: "PER_90", label: "Per 90" },
+];
 const MAX_VISIBLE_METRICS = 4;
 const TILE_TONES = ["coral", "green", "gold", "blue"] as const;
 
@@ -35,6 +49,22 @@ function formatMetric(metric: RankingMetric, value: number | null) {
   return trim(value, 2);
 }
 
+function conceptKey(metric: NormalizedRankingMetric) {
+  return metric.concept_key ?? metric.key;
+}
+
+function normalization(metric: NormalizedRankingMetric) {
+  return metric.normalization ?? (metric.key.endsWith("_per_90") ? "PER_90" : "RAW");
+}
+
+function conceptLabel(metrics: NormalizedRankingMetric[]) {
+  const raw = metrics.find((metric) => normalization(metric) === "RAW");
+  if (raw) return raw.label;
+  const rate = metrics.find((metric) => normalization(metric) === "RATE");
+  if (rate) return rate.label;
+  return (metrics[0]?.label ?? "").replace(/\s*\/\s*90$/i, "");
+}
+
 export function PlayerRankingsFamilyTable({
   season,
   familyLabel,
@@ -51,29 +81,74 @@ export function PlayerRankingsFamilyTable({
   possibleMinutesByClub: Record<string, number>;
 }) {
   const availableMetrics = useMemo(
-    () => metrics.filter((metric) => metric.availability !== "UNAVAILABLE"),
+    () =>
+      metrics.filter(
+        (metric) => metric.availability !== "UNAVAILABLE"
+      ) as NormalizedRankingMetric[],
     [metrics]
   );
-  const availableMetricKeys = useMemo(
-    () => availableMetrics.map((metric) => metric.key),
-    [availableMetrics]
+
+  const conceptGroups = useMemo(() => {
+    const groups = new Map<string, NormalizedRankingMetric[]>();
+    for (const metric of availableMetrics) {
+      const key = conceptKey(metric);
+      const group = groups.get(key) ?? [];
+      group.push(metric);
+      groups.set(key, group);
+    }
+    return groups;
+  }, [availableMetrics]);
+
+  const [normalizationView, setNormalizationView] =
+    useState<NormalizationView>("RAW");
+
+  const selectableMetrics = useMemo(() => {
+    const selected: Array<{
+      concept: string;
+      label: string;
+      metric: NormalizedRankingMetric;
+    }> = [];
+
+    for (const [concept, group] of conceptGroups) {
+      const invariantRate = group.find(
+        (metric) => normalization(metric) === "RATE"
+      );
+      const metric =
+        invariantRate ??
+        group.find((candidate) => normalization(candidate) === normalizationView);
+
+      if (metric) {
+        selected.push({
+          concept,
+          label: conceptLabel(group),
+          metric,
+        });
+      }
+    }
+
+    return selected;
+  }, [conceptGroups, normalizationView]);
+
+  const selectableConceptKeys = useMemo(
+    () => selectableMetrics.map((item) => item.concept),
+    [selectableMetrics]
   );
 
-  const [visibleKeys, setVisibleKeys] = useState<string[]>(() =>
-    availableMetrics
+  const [visibleConcepts, setVisibleConcepts] = useState<string[]>(() =>
+    selectableMetrics
       .slice(0, MAX_VISIBLE_METRICS)
-      .map((metric) => metric.key)
+      .map((item) => item.concept)
   );
   const [club, setClub] = useState("ALL");
   const [minutesShare, setMinutesShare] = useState<MinutesShare>(25);
 
   useEffect(() => {
-    setVisibleKeys((current) => {
+    setVisibleConcepts((current) => {
       const next = current
-        .filter((key) => availableMetricKeys.includes(key))
+        .filter((key) => selectableConceptKeys.includes(key))
         .slice(0, MAX_VISIBLE_METRICS);
 
-      for (const key of availableMetricKeys) {
+      for (const key of selectableConceptKeys) {
         if (next.length >= MAX_VISIBLE_METRICS) break;
         if (!next.includes(key)) next.push(key);
       }
@@ -83,12 +158,16 @@ export function PlayerRankingsFamilyTable({
         ? current
         : next;
     });
-  }, [availableMetricKeys]);
+  }, [selectableConceptKeys]);
 
-  const metricsByKey = useMemo(
-    () => new Map(availableMetrics.map((metric) => [metric.key, metric])),
-    [availableMetrics]
+  const metricByConcept = useMemo(
+    () =>
+      new Map(
+        selectableMetrics.map(({ concept, metric }) => [concept, metric])
+      ),
+    [selectableMetrics]
   );
+
   const entriesByMetric = useMemo(
     () =>
       new Map(
@@ -104,10 +183,12 @@ export function PlayerRankingsFamilyTable({
 
   const visibleMetrics = useMemo(
     () =>
-      visibleKeys
-        .map((key) => metricsByKey.get(key))
-        .filter((metric): metric is RankingMetric => Boolean(metric)),
-    [metricsByKey, visibleKeys]
+      visibleConcepts
+        .map((key) => metricByConcept.get(key))
+        .filter(
+          (metric): metric is NormalizedRankingMetric => Boolean(metric)
+        ),
+    [metricByConcept, visibleConcepts]
   );
 
   const rows = useMemo(() => {
@@ -203,17 +284,17 @@ export function PlayerRankingsFamilyTable({
     [entriesByMetric, filteredRows, visibleMetrics]
   );
 
-  function toggleMetric(key: string) {
-    setVisibleKeys((current) => {
-      if (current.includes(key)) {
-        return current.filter((candidate) => candidate !== key);
+  function toggleMetric(concept: string) {
+    setVisibleConcepts((current) => {
+      if (current.includes(concept)) {
+        return current.filter((candidate) => candidate !== concept);
       }
       if (current.length >= MAX_VISIBLE_METRICS) return current;
-      return [...current, key];
+      return [...current, concept];
     });
   }
 
-  const selectionIsFull = visibleKeys.length >= MAX_VISIBLE_METRICS;
+  const selectionIsFull = visibleConcepts.length >= MAX_VISIBLE_METRICS;
 
   return (
     <>
@@ -259,6 +340,26 @@ export function PlayerRankingsFamilyTable({
             </div>
             <small>Share of possible club league minutes</small>
           </div>
+
+          <div className={familyStyles.minutesFilter}>
+            <span>Stat view</span>
+            <div>
+              {NORMALIZATION_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  data-active={
+                    normalizationView === option.value ? "true" : "false"
+                  }
+                  aria-pressed={normalizationView === option.value}
+                  onClick={() => setNormalizationView(option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+            <small>Rates such as pass completion stay unchanged</small>
+          </div>
         </div>
 
         <div className={familyStyles.metricChooser}>
@@ -266,30 +367,30 @@ export function PlayerRankingsFamilyTable({
             <div>
               <span>Leaderboard tiles</span>
               <strong aria-live="polite">
-                {visibleKeys.length} of {MAX_VISIBLE_METRICS} selected
+                {visibleConcepts.length} of {MAX_VISIBLE_METRICS} selected
               </strong>
             </div>
             <p>
               {selectionIsFull
                 ? "Remove one tile to choose another."
-                : `Choose ${MAX_VISIBLE_METRICS - visibleKeys.length} more.`}
+                : `Choose ${MAX_VISIBLE_METRICS - visibleConcepts.length} more.`}
             </p>
           </div>
           <div className={familyStyles.familyMetricPills}>
-            {availableMetrics.map((metric) => {
-              const active = visibleKeys.includes(metric.key);
+            {selectableMetrics.map(({ concept, label }) => {
+              const active = visibleConcepts.includes(concept);
               const disabled = selectionIsFull && !active;
               return (
                 <button
-                  key={metric.key}
+                  key={concept}
                   type="button"
                   data-active={active ? "true" : "false"}
                   aria-pressed={active}
                   disabled={disabled}
                   title={disabled ? "Remove a selected metric first" : undefined}
-                  onClick={() => toggleMetric(metric.key)}
+                  onClick={() => toggleMetric(concept)}
                 >
-                  {metric.label}
+                  {label}
                 </button>
               );
             })}
@@ -318,7 +419,14 @@ export function PlayerRankingsFamilyTable({
               >
                 <header className={familyStyles.cardHeader}>
                   <div>
-                    <span>Top 10 · {position}</span>
+                    <span>
+                      Top 10 · {position} ·{" "}
+                      {normalization(metric) === "PER_90"
+                        ? "Per 90"
+                        : normalization(metric) === "RAW"
+                        ? "Raw"
+                        : "Rate"}
+                    </span>
                     <h3>{metric.label}</h3>
                   </div>
                   <strong>{metric.unit || "Value"}</strong>
