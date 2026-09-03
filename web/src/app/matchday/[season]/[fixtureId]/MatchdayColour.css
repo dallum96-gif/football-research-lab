@@ -1,0 +1,122 @@
+.frl-matchday-colour {
+  --matchday-coral-wash: color-mix(in srgb, var(--frl-accent) 7%, transparent);
+  --matchday-coral-soft: color-mix(in srgb, var(--frl-accent) 11%, var(--frl-surface));
+  --matchday-olive-wash: color-mix(in srgb, var(--frl-secondary) 8%, transparent);
+  --matchday-olive-soft: color-mix(in srgb, var(--frl-secondary) 12%, var(--frl-surface));
+}
+
+.frl-matchday-colour header {
+  padding: .85rem .95rem 1rem;
+  border: 1px solid var(--frl-border);
+  border-bottom: 2px solid var(--frl-text);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 8% 12%, var(--matchday-olive-wash), transparent 31%),
+    radial-gradient(circle at 92% 8%, var(--matchday-coral-wash), transparent 30%),
+    var(--frl-surface);
+}
+
+.frl-matchday-colour nav {
+  overflow: hidden;
+  border: 1px solid var(--frl-border);
+  border-radius: 11px;
+  background:
+    linear-gradient(90deg, var(--matchday-olive-wash), transparent 34%, var(--matchday-coral-wash)),
+    var(--frl-surface);
+}
+
+.frl-matchday-colour nav button {
+  transition: background .14s ease, color .14s ease, border-color .14s ease;
+}
+
+.frl-matchday-colour nav button:hover {
+  background: color-mix(in srgb, var(--frl-accent) 4%, transparent);
+}
+
+.frl-matchday-colour nav button[data-active="true"] {
+  background: var(--matchday-coral-soft);
+  color: var(--frl-text);
+}
+
+.frl-matchday-colour main > div > section:nth-child(odd) {
+  background:
+    radial-gradient(circle at 100% 0%, var(--matchday-coral-wash), transparent 34%),
+    var(--frl-surface);
+}
+
+.frl-matchday-colour main > div > section:nth-child(even) {
+  background:
+    radial-gradient(circle at 0% 100%, var(--matchday-olive-wash), transparent 34%),
+    var(--frl-surface);
+}
+
+.frl-matchday-colour main article {
+  transition: border-color .14s ease, background .14s ease, transform .14s ease;
+}
+
+.frl-matchday-colour main article:nth-child(4n + 1) {
+  border-top-color: color-mix(in srgb, var(--frl-accent) 52%, var(--frl-border));
+}
+
+.frl-matchday-colour main article:nth-child(4n + 2) {
+  border-top-color: color-mix(in srgb, var(--frl-secondary) 58%, var(--frl-border));
+}
+
+.frl-matchday-colour main article:nth-child(4n + 3) {
+  background: color-mix(in srgb, var(--frl-accent) 4%, var(--frl-surface));
+}
+
+.frl-matchday-colour main article:nth-child(4n) {
+  background: color-mix(in srgb, var(--frl-secondary) 5%, var(--frl-surface));
+}
+
+.frl-matchday-colour button[data-active="true"] {
+  border-color: var(--frl-border-strong);
+  background: var(--frl-sidebar);
+  color: var(--frl-surface);
+}
+
+.frl-matchday-colour button[data-active="true"]:hover {
+  color: var(--frl-surface);
+}
+
+.frl-matchday-colour [data-result="W"] {
+  background: var(--matchday-olive-soft) !important;
+  color: color-mix(in srgb, var(--frl-secondary) 72%, var(--frl-text)) !important;
+}
+
+.frl-matchday-colour [data-result="L"] {
+  background: var(--matchday-coral-soft) !important;
+  color: var(--frl-negative) !important;
+}
+
+.frl-matchday-colour [data-result="D"] {
+  background: color-mix(in srgb, var(--frl-muted) 8%, var(--frl-surface)) !important;
+  color: var(--frl-muted) !important;
+}
+
+.frl-matchday-colour [data-positive="true"] {
+  padding: .32rem .42rem;
+  border-radius: 6px;
+  background: var(--matchday-olive-soft);
+}
+
+.frl-matchday-colour input:focus,
+.frl-matchday-colour select:focus {
+  border-bottom-color: var(--frl-accent) !important;
+  box-shadow: 0 2px 0 var(--matchday-coral-wash);
+}
+
+.frl-matchday-colour select:hover {
+  border-bottom-color: var(--frl-accent);
+}
+
+.frl-matchday-colour a:hover {
+  color: var(--frl-accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .frl-matchday-colour main article:hover {
+    border-color: var(--frl-border-strong);
+  }
+}
