@@ -14,6 +14,7 @@ const navGroups = [
     links: [
       { href: "/", label: "Overview" },
       { href: "/fixtures", label: "Fixtures" },
+      { href: "/league-table", label: "League Table" },
       { href: "/teams", label: "Teams" },
       { href: "/players", label: "Players" },
     ],
