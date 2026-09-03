@@ -2,6 +2,11 @@ import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { TeamKit } from "../../teams/TeamKit";
 import { TeamStatsControls } from "../TeamStatsControls";
+import {
+  TEAM_STATS_FAMILIES,
+  teamStatsMetricKeys,
+  type TeamStatsFamilyKey as FamilyKey,
+} from "../teamMetricFamilies";
 import teamStyles from "../TeamStats.module.css";
 import { TeamRankingsLeaderboards } from "./TeamRankingsLeaderboards";
 import styles from "./LeagueRankings.module.css";
@@ -47,67 +52,8 @@ type LeagueRankingsResponse = {
   metrics: RankingMetric[];
 };
 
-type FamilyKey = "overview" | "attack" | "passing" | "defence" | "discipline";
-
 const API_BASE =
   process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
-
-const families: { key: FamilyKey; label: string }[] = [
-  { key: "overview", label: "Overview" },
-  { key: "attack", label: "Attack" },
-  { key: "passing", label: "Passing" },
-  { key: "defence", label: "Defence" },
-  { key: "discipline", label: "Discipline" },
-];
-
-const familyMetricKeys: Record<FamilyKey, string[]> = {
-  overview: [
-    "goals_for_per_match",
-    "Shots on target_per_match",
-    "shot_accuracy",
-    "pass_accuracy",
-    "goals_against_per_match",
-    "clean_sheet_rate",
-  ],
-  attack: [
-    "goals_for_per_match",
-    "Shots_per_match",
-    "Shots on target_per_match",
-    "Shots off target_per_match",
-    "Blocked shots_per_match",
-    "Corners_per_match",
-    "Offsides_per_match",
-    "Big chances created_per_match",
-    "Big chances missed_per_match",
-    "shot_accuracy",
-    "goals_per_shot",
-    "failed_to_score_rate",
-  ],
-  passing: [
-    "Possession_per_match",
-    "Passes_per_match",
-    "Accurate passes_per_match",
-    "pass_accuracy",
-    "Crosses_per_match",
-  ],
-  defence: [
-    "goals_against_per_match",
-    "Tackles_per_match",
-    "Tackles won_per_match",
-    "Interceptions_per_match",
-    "Interceptions won_per_match",
-    "Clearances_per_match",
-    "Effective clearances_per_match",
-    "Saves_per_match",
-    "clean_sheet_rate",
-  ],
-  discipline: [
-    "Fouls conceded_per_match",
-    "Fouls won_per_match",
-    "Yellow cards_per_match",
-    "Red cards_per_match",
-  ],
-};
 
 async function getJson<T>(path: string): Promise<T | null> {
   try {
@@ -336,11 +282,13 @@ export default async function TeamStatsRankingsPage({
       ? query.team
       : undefined;
 
-  const requestedFamily = families.find((family) => family.key === query.family)?.key;
+  const requestedFamily = TEAM_STATS_FAMILIES.find(
+    (family) => family.key === query.family
+  )?.key;
   const activeFamily: FamilyKey = requestedFamily ?? "overview";
   const activeFamilyLabel =
-    families.find((family) => family.key === activeFamily)?.label ?? "Overview";
-  const activeFamilyMetrics = familyMetricKeys[activeFamily]
+    TEAM_STATS_FAMILIES.find((family) => family.key === activeFamily)?.label ?? "Overview";
+  const activeFamilyMetrics = teamStatsMetricKeys(activeFamily)
     .map((key) => rankings?.metrics.find((metric) => metric.key === key))
     .filter((metric): metric is RankingMetric => Boolean(metric))
     .filter(metricAvailableForSeason);
@@ -382,7 +330,7 @@ export default async function TeamStatsRankingsPage({
         {rankings ? (
           <main className={styles.workspace}>
             <nav className={styles.familyNav} aria-label="League Rankings sections">
-              {families.map((family) => (
+              {TEAM_STATS_FAMILIES.map((family) => (
                 <Link
                   key={family.key}
                   href={rankingsHref(rankings.season, family.key, undefined, selectedTeamCode)}
