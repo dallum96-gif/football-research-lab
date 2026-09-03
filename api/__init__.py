@@ -6,12 +6,14 @@ from .fixture_evidence import router as fixture_evidence_router
 from .team_stats_rankings import router as team_stats_rankings_router
 from .player_stats import router as player_stats_router
 from .matchday import router as matchday_router
+from .league_table import router as league_table_router
 
 _frl_api.app.include_router(player_performance_router)
 _frl_api.app.include_router(fixture_evidence_router)
 _frl_api.app.include_router(team_stats_rankings_router)
 _frl_api.app.include_router(player_stats_router)
 _frl_api.app.include_router(matchday_router)
+_frl_api.app.include_router(league_table_router)
 
 # Isolated FRL worktrees deliberately run Next on different localhost ports.
 # Keep browser-origin development requests local-only without pinning the API
