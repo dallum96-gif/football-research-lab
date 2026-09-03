@@ -208,6 +208,7 @@ def _recent_team_side(fixture: dict, side: str) -> dict:
         "team_name": team_identity["display_name"],
         "persistent_team_code": team_code,
         "sample_size": len(matches),
+        "current_season_sample_size": sum(1 for row in matches if row["season"] == season),
         "form": [row["result"] for row in reversed(matches)],
         "points": points,
         "matches": matches,
@@ -256,6 +257,7 @@ def _player_recent_side(fixture: dict, side: str) -> dict:
     }
 
     by_player: dict[str, list[dict]] = defaultdict(list)
+    observed_fixture_ids: set[str] = set()
     for row in _fpl_rows():
         if str(row.get("frl_season") or "") != season:
             continue
@@ -266,12 +268,14 @@ def _player_recent_side(fixture: dict, side: str) -> dict:
         minutes = _number(row.get("source_minutes")) or 0.0
         if minutes <= 0:
             continue
-        kickoff = fixture_times.get(str(row.get("frl_fixture_id") or ""))
+        fixture_id = str(row.get("frl_fixture_id") or "")
+        kickoff = fixture_times.get(fixture_id)
         if kickoff is None or kickoff >= target_kickoff:
             continue
         identity_key = str(row.get("frl_player_identity_key") or row.get("source_player_code") or "").strip()
         if not identity_key:
             continue
+        observed_fixture_ids.add(fixture_id)
         copy = dict(row)
         copy["_kickoff"] = kickoff
         by_player[identity_key].append(copy)
@@ -333,6 +337,7 @@ def _player_recent_side(fixture: dict, side: str) -> dict:
         "team_name": team_name,
         "sample_definition": "up to five most recent player appearances before kickoff in the selected season",
         "player_count": len(players),
+        "fixture_evidence_count": len(observed_fixture_ids),
         "leaderboards": leaderboards,
         "source": "governed FPL player-gameweek evidence",
     }
@@ -364,11 +369,21 @@ def _prediction(fixture: dict) -> dict:
                 source_season,
                 target_season=season,
             )
-        return {"status": "AVAILABLE", **prediction}
+        representations = {
+            str((prediction.get("inputs") or {}).get("home_representation") or ""),
+            str((prediction.get("inputs") or {}).get("away_representation") or ""),
+        }
+        research_status = (
+            "EXPERIMENTAL_PROMOTED_PRIOR"
+            if "PROMOTED_BLEND" in representations
+            else "BASELINE_VALIDATED_CONTINUING_TEAMS"
+        )
+        return {**prediction, "status": "AVAILABLE", "research_status": research_status}
     except ValueError as exc:
         return {
             "status": "UNAVAILABLE",
             "model": poisson_model.MODEL_VERSION,
+            "research_status": "UNAVAILABLE",
             "reason": str(exc),
         }
 
@@ -392,20 +407,50 @@ def fixture_options(season: str) -> list[dict]:
 def build_matchday_pack(season: str, fixture_id: str) -> dict:
     detail = query_api.fixture_detail(season=season, fixture_id=fixture_id)
     fixture = dict(detail["fixture"])
+    prediction = _prediction(fixture)
+    teams = {
+        "home": _recent_team_side(fixture, "home"),
+        "away": _recent_team_side(fixture, "away"),
+    }
+    players = {
+        "home": _player_recent_side(fixture, "home"),
+        "away": _player_recent_side(fixture, "away"),
+    }
+
+    current_team_min = min(
+        int(teams["home"]["current_season_sample_size"]),
+        int(teams["away"]["current_season_sample_size"]),
+    )
+    current_player_min = min(
+        int(players["home"]["fixture_evidence_count"]),
+        int(players["away"]["fixture_evidence_count"]),
+    )
+    early_season = current_team_min < RECENT_MATCH_LIMIT or current_player_min < RECENT_MATCH_LIMIT
 
     return {
         "pack_version": MODEL_VERSION,
         "fixture": fixture,
         "as_of": fixture.get("kickoff_time"),
-        "prediction": _prediction(fixture),
-        "teams": {
-            "home": _recent_team_side(fixture, "home"),
-            "away": _recent_team_side(fixture, "away"),
+        "prediction": prediction,
+        "data_maturity": {
+            "status": "EARLY_SEASON" if early_season else "RECENT_WINDOW_MATURE",
+            "team_current_season_matches": {
+                "home": teams["home"]["current_season_sample_size"],
+                "away": teams["away"]["current_season_sample_size"],
+            },
+            "player_fixture_evidence_matches": {
+                "home": players["home"]["fixture_evidence_count"],
+                "away": players["away"]["fixture_evidence_count"],
+            },
+            "prediction_research_status": prediction.get("research_status"),
+            "note": (
+                "Early-season current campaign evidence is still thin. Team Last 5 can bridge the summer through governed persistent club identity; Player Last 5 remains current-season only."
+                if early_season
+                else "Both teams have a full five-match current-season recent window and at least five current-season player-evidence fixtures before kickoff."
+            ),
         },
-        "players": {
-            "home": _player_recent_side(fixture, "home"),
-            "away": _player_recent_side(fixture, "away"),
-        },
+        "teams": teams,
+        "players": players,
         "matchups": {
             "cards": {
                 "status": "PARTIAL",
