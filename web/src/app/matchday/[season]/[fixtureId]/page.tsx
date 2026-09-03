@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { MatchdayWorkspaceV2 } from "./MatchdayWorkspaceV2";
+import "./MatchdayColour.css";
 
 const API_BASE = (process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
@@ -32,10 +33,12 @@ export default async function MatchdayFixturePage({ params }: MatchdayPageProps)
 
   return (
     <AppShell>
-      <MatchdayWorkspaceV2
-        pack={pack}
-        fixtureOptions={fixtures?.fixtures ?? []}
-      />
+      <div className="frl-matchday-colour">
+        <MatchdayWorkspaceV2
+          pack={pack}
+          fixtureOptions={fixtures?.fixtures ?? []}
+        />
+      </div>
     </AppShell>
   );
 }
