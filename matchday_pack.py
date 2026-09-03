@@ -217,8 +217,28 @@ def _recent_team_side(fixture: dict, side: str) -> dict:
 
 
 def _player_display_name(row: dict) -> str:
-    parts = [str(row.get("source_first_name") or "").strip(), str(row.get("source_second_name") or "").strip()]
+    parts = [
+        str(row.get("source_first_name") or "").strip(),
+        str(row.get("source_second_name") or "").strip(),
+    ]
     return " ".join(part for part in parts if part) or str(row.get("source_player_code") or "Player")
+
+
+def _observed_player_metric(recent: list[dict], source_key: str) -> tuple[float | None, int]:
+    values: list[float] = []
+    if source_key == "__cards__":
+        for row in recent:
+            yellow = _number(row.get("source_yellow_cards"))
+            red = _number(row.get("source_red_cards"))
+            if yellow is None or red is None:
+                continue
+            values.append(yellow + red)
+    else:
+        for row in recent:
+            value = _number(row.get(source_key))
+            if value is not None:
+                values.append(value)
+    return (sum(values) if values else None, len(values))
 
 
 def _player_recent_side(fixture: dict, side: str) -> dict:
@@ -261,16 +281,12 @@ def _player_recent_side(fixture: dict, side: str) -> dict:
         rows.sort(key=lambda row: row["_kickoff"], reverse=True)
         recent = rows[:RECENT_MATCH_LIMIT]
         first = recent[0]
-        totals: dict[str, float] = {}
+        totals: dict[str, float | None] = {}
+        observed: dict[str, int] = {}
         for key, _label, source_key, _unit in PLAYER_METRICS:
-            if source_key == "__cards__":
-                totals[key] = sum(
-                    (_number(row.get("source_yellow_cards")) or 0.0)
-                    + (_number(row.get("source_red_cards")) or 0.0)
-                    for row in recent
-                )
-            else:
-                totals[key] = sum(_number(row.get(source_key)) or 0.0 for row in recent)
+            total, observed_matches = _observed_player_metric(recent, source_key)
+            totals[key] = total
+            observed[key] = observed_matches
 
         players.append(
             {
@@ -281,14 +297,16 @@ def _player_recent_side(fixture: dict, side: str) -> dict:
                 "appearances": len(recent),
                 "minutes": sum(_number(row.get("source_minutes")) or 0.0 for row in recent),
                 "totals": totals,
+                "observed": observed,
             }
         )
 
     leaderboards = []
     for key, label, _source_key, unit in PLAYER_METRICS:
+        eligible = [player for player in players if player["totals"].get(key) is not None]
         ranked = sorted(
-            players,
-            key=lambda player: (-float(player["totals"].get(key, 0.0)), player["player_name"].casefold()),
+            eligible,
+            key=lambda player: (-float(player["totals"][key]), player["player_name"].casefold()),
         )[:5]
         leaderboards.append(
             {
@@ -302,8 +320,9 @@ def _player_recent_side(fixture: dict, side: str) -> dict:
                         "player_name": player["player_name"],
                         "position": player["position"],
                         "appearances": player["appearances"],
+                        "observed_appearances": player["observed"].get(key, 0),
                         "minutes": player["minutes"],
-                        "value": player["totals"].get(key, 0.0),
+                        "value": float(player["totals"][key]),
                     }
                     for index, player in enumerate(ranked, start=1)
                 ],
@@ -373,8 +392,6 @@ def fixture_options(season: str) -> list[dict]:
 def build_matchday_pack(season: str, fixture_id: str) -> dict:
     detail = query_api.fixture_detail(season=season, fixture_id=fixture_id)
     fixture = dict(detail["fixture"])
-    fixture["home_team_name"] = detail["fixture"]["home_team_name"]
-    fixture["away_team_name"] = detail["fixture"]["away_team_name"]
 
     return {
         "pack_version": MODEL_VERSION,
