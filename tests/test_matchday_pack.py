@@ -30,6 +30,22 @@ def test_matchday_pack_recent_team_windows_are_strictly_pre_kickoff() -> None:
         assert all(_dt(str(match["kickoff_time"])) < target_time for match in team["matches"])
 
 
+def test_matchday_player_metric_missingness_does_not_become_zero() -> None:
+    total, observed = matchday_pack._observed_player_metric(
+        [{"source_tackles": ""}],
+        "source_tackles",
+    )
+    assert total is None
+    assert observed == 0
+
+    total, observed = matchday_pack._observed_player_metric(
+        [{"source_tackles": "0"}],
+        "source_tackles",
+    )
+    assert total == 0.0
+    assert observed == 1
+
+
 def test_matchday_pack_exposes_player_tiles_and_poisson_without_fake_foul_model() -> None:
     fixtures = matchday_pack.fixture_options("2026-27")
     target = next(fixture for fixture in fixtures if not fixture["completed"])
