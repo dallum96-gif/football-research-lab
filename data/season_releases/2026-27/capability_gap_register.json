@@ -20,7 +20,7 @@
     },
     {
       "capability": "results_scores",
-      "coverage": "10/380 completed",
+      "coverage": "20/380 completed",
       "note": "Missing scheduled scores remain missing, never zero.",
       "required_grain": "fixture",
       "source_representation": "canonical fixture result",
@@ -38,7 +38,7 @@
     },
     {
       "capability": "scheduled_fixtures",
-      "coverage": "370/380 scheduled",
+      "coverage": "360/380 scheduled",
       "note": "Living schedule remains mutable across releases.",
       "required_grain": "fixture",
       "source_representation": "canonical fixture schedule",
@@ -74,7 +74,7 @@
     },
     {
       "capability": "player_identity",
-      "coverage": "610/610 source identities; 388 cross-source verified; 111 source-native linked; 111 FPL-only source-native",
+      "coverage": "626/626 source identities; 393 cross-source verified; 111 source-native linked; 122 FPL-only source-native",
       "note": "Every FPL identity remains source-usable, but canonical cross-source player identity is incomplete until every source identity is VERIFIED.",
       "required_grain": "player-season",
       "source_representation": "FPL element + player_code relationship",
@@ -92,7 +92,7 @@
     },
     {
       "capability": "participation_minutes",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -110,7 +110,7 @@
     },
     {
       "capability": "starts",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -128,7 +128,7 @@
     },
     {
       "capability": "goals",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -146,7 +146,7 @@
     },
     {
       "capability": "assists",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -164,7 +164,7 @@
     },
     {
       "capability": "expected_goals",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -182,7 +182,7 @@
     },
     {
       "capability": "expected_assists",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -200,7 +200,7 @@
     },
     {
       "capability": "expected_goal_involvements",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -218,7 +218,7 @@
     },
     {
       "capability": "defensive_actions",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -236,7 +236,7 @@
     },
     {
       "capability": "goalkeeper_metrics",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -254,7 +254,7 @@
     },
     {
       "capability": "discipline",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -272,7 +272,7 @@
     },
     {
       "capability": "fpl_bonus_bps",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -290,7 +290,7 @@
     },
     {
       "capability": "fpl_ict",
-      "coverage": "610/610 source rows",
+      "coverage": "1236/1236 source rows",
       "note": "Source-native FPL player-fixture evidence is product-readable; equivalence with historical Opta-derived player-match variables is not asserted.",
       "required_grain": "FPL player × fixture",
       "source_representation": "FPL player-fixture",
@@ -488,7 +488,7 @@
     },
     {
       "capability": "league_table_standings",
-      "coverage": "10 completed fixtures",
+      "coverage": "20 completed fixtures",
       "note": "A current table is partial-season state, not a completed-season comparison.",
       "required_grain": "team-season as of release",
       "source_representation": "derived from canonical completed results",
@@ -506,11 +506,11 @@
     }
   ],
   "capability_count": 28,
-  "information_available_as_of": "2026-08-31T13:26:12Z",
+  "information_available_as_of": "2026-09-03T23:05:45Z",
   "schema_version": "FRL_2026_27_CAPABILITY_GAP_REGISTER_V1",
   "scope": "Capabilities proved by the currently pinned 2026/27 source release, not the football-data universe.",
   "season": "2026-27",
-  "source_release_sha": "1ec7f0dc79055902251cd938650f622b0e79f3cc",
+  "source_release_sha": "ffe99d25a5bd3a8f70c557748fead332f46ed14f",
   "state_totals": {
     "COMPARABLE": 5,
     "CONNECTED": 18,

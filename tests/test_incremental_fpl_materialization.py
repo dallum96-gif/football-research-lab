@@ -198,3 +198,55 @@ def test_identity_classes_and_capability_state_do_not_overclaim_canonical_resolu
     assert player_identity["states"]["IDENTITY_RESOLVED"] is False
     assert player_identity["states"]["REVIEW_REQUIRED"] is True
     assert player_identity["states"]["PRODUCT_READY"] is True
+
+def test_player_identity_collapses_repeated_fixture_observations() -> None:
+    player_rows = [
+        {
+            "element": "1",
+            "player_code": "1001",
+            "team_code": "10",
+            "minutes": "90",
+            "starts": "1",
+        },
+        {
+            "element": "1",
+            "player_code": "1001",
+            "team_code": "10",
+            "minutes": "72",
+            "starts": "1",
+        },
+    ]
+
+    identities = module.build_player_identities(
+        player_rows,
+        season="2026-27",
+        bridge_candidates={"1001": {"9001"}},
+        bridge_seasons={"1001": {"2025-26"}},
+        registered_source_player_ids={"9001"},
+        source_commit="abc123",
+        source_path="_merged/players/2026-27_all_players_gw.csv",
+        source_sha256="deadbeef",
+    )
+
+    assert len(identities) == 1
+    assert identities[0]["fpl_element"] == "1"
+    assert identities[0]["fpl_player_code"] == "1001"
+
+
+def test_player_identity_rejects_element_reuse_for_different_player_code() -> None:
+    player_rows = [
+        {"element": "1", "player_code": "1001", "team_code": "10"},
+        {"element": "1", "player_code": "9999", "team_code": "10"},
+    ]
+
+    with pytest.raises(module.MaterialisationError, match="Inconsistent FPL player identity"):
+        module.build_player_identities(
+            player_rows,
+            season="2026-27",
+            bridge_candidates={},
+            bridge_seasons={},
+            registered_source_player_ids=set(),
+            source_commit="abc123",
+            source_path="_merged/players/2026-27_all_players_gw.csv",
+            source_sha256="deadbeef",
+        )

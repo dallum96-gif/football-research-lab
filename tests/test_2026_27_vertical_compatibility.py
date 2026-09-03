@@ -27,7 +27,7 @@ def test_current_season_fixture_and_table_keep_completed_and_scheduled_states_di
     assert completed.stats is None
     assert completed.player_match_status == "UNAVAILABLE"
 
-    scheduled = get_fixture_detail(SEASON, "11")
+    scheduled = get_fixture_detail(SEASON, "21")
     assert scheduled.fixture.home_score is None
     assert scheduled.fixture.away_score is None
     assert scheduled.stats is None
@@ -35,7 +35,7 @@ def test_current_season_fixture_and_table_keep_completed_and_scheduled_states_di
 
     table = query_api.league_table(SEASON)
     assert len(table["teams"]) == 20
-    assert sum(int(row["played"]) for row in table["teams"]) == 20
+    assert sum(int(row["played"]) for row in table["teams"]) == 40
 
     with pytest.raises(HTTPException) as exc_info:
         get_fixture_detail(SEASON, "9999")
@@ -61,7 +61,7 @@ def test_fpl_player_fixture_resolution_is_explicit_and_preserves_zero_as_observe
     assert result["provenance"]["source_representation"] == "FPL_PLAYER_FIXTURE"
     assert result["provenance"]["historical_opta_equivalence_asserted"] is False
     assert result["provenance"]["source_release_shas"] == [
-        "1ec7f0dc79055902251cd938650f622b0e79f3cc"
+        "ffe99d25a5bd3a8f70c557748fead332f46ed14f"
     ]
 
 
@@ -119,8 +119,8 @@ def test_ura_exposes_current_player_fixture_evidence_and_representation_coverage
         seasons=[SEASON],
         family="fpl",
     )
-    assert coverage["population"] == 610
-    assert coverage["observed"] == 610
+    assert coverage["population"] == 1236
+    assert coverage["observed"] == 1236
     assert coverage["results"][0]["source_representation"] == "FPL_PLAYER_FIXTURE"
 
 
@@ -138,12 +138,12 @@ def test_current_player_identity_preserves_cross_source_and_source_native_states
 
 def test_team_stats_use_current_results_but_fail_closed_for_absent_team_match_metrics() -> None:
     stats = team_research_stats.team_season_stats(SEASON, "3")
-    assert stats["matches"] == 1
-    assert stats["goals_for"] == 3.0
+    assert stats["matches"] == 2
+    assert stats["goals_for"] == 4.0
     assert stats["goals_against"] == 0.0
     assert stats["points_per_match"] == 3.0
     assert stats["metric_coverage"]["Shots"]["observed_matches"] == 0
-    assert stats["metric_coverage"]["Shots"]["missing_matches"] == 1
+    assert stats["metric_coverage"]["Shots"]["missing_matches"] == 2
     assert stats["metric_coverage"]["Shots"]["coverage_status"] == "UNAVAILABLE"
 
     analysis = team_analysis_kernel.team_overview_analysis(SEASON, "3")

@@ -448,13 +448,23 @@ def build_player_identities(
     source_sha256: str,
 ) -> list[dict[str, str]]:
     result: list[dict[str, str]] = []
-    seen_elements: set[str] = set()
+    seen_elements: dict[str, int] = {}
     for row in player_rows:
         element = str(row.get("element", "")).strip()
         player_code = str(row.get("player_code", "")).strip()
         team_code = str(row.get("team_code", "")).strip()
-        if not element or element in seen_elements or not player_code:
-            raise MaterialisationError(f"Missing or duplicate FPL player identity: {element!r}")
+        if not element or not player_code:
+            raise MaterialisationError(f"Missing FPL player identity: {element!r}")
+        if element in seen_elements:
+            existing = result[seen_elements[element]]
+            if existing["fpl_player_code"] != player_code:
+                raise MaterialisationError(
+                    f"Inconsistent FPL player identity for element {element!r}: "
+                    f"{existing['fpl_player_code']!r} != {player_code!r}"
+                )
+            if team_code:
+                existing["fpl_team_code"] = team_code
+            continue
         candidates = bridge_candidates.get(player_code, set())
         evidence_seasons = bridge_seasons.get(player_code, set())
         if len(candidates) > 1:
@@ -497,7 +507,7 @@ def build_player_identities(
                 "source_sha256": source_sha256,
             }
         )
-        seen_elements.add(element)
+        seen_elements[element] = len(result) - 1
     return sorted(result, key=lambda row: int(row["fpl_element"]))
 
 
