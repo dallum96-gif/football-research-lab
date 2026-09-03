@@ -21,6 +21,7 @@ const navGroups = [
   {
     label: "Analysis",
     links: [
+      { href: "/matchday", label: "Matchday" },
       { href: "/team-stats", label: "Team Stats" },
       {
         href: "/player-stats/rankings",
