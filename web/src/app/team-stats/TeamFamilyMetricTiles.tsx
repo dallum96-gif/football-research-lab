@@ -1,5 +1,9 @@
 import Link from "next/link";
 import tileStyles from "./StatsListTiles.module.css";
+import {
+  TEAM_STATS_FAMILY_CONFIG,
+  type TeamStatsAnalyticalFamily,
+} from "./teamMetricFamilies";
 
 export type TeamFamilyTileMetric = {
   key: string;
@@ -14,102 +18,9 @@ export type TeamFamilyTileMetric = {
   href: string;
 };
 
-export type TeamFamilyTileKey = "attack" | "passing" | "defence" | "discipline";
-
-type GroupSpec = {
-  key: string;
-  label: string;
-  metricKeys: string[];
-};
+export type TeamFamilyTileKey = TeamStatsAnalyticalFamily;
 
 const TILE_TONES = ["coral", "green", "gold", "blue"] as const;
-
-const GROUPS: Record<TeamFamilyTileKey, GroupSpec[]> = {
-  attack: [
-    {
-      key: "output",
-      label: "Output",
-      metricKeys: ["goals_for_per_match", "goals_per_shot", "failed_to_score_rate"],
-    },
-    {
-      key: "shooting",
-      label: "Shooting",
-      metricKeys: [
-        "Shots_per_match",
-        "Shots on target_per_match",
-        "Shots off target_per_match",
-        "Blocked shots_per_match",
-        "shot_accuracy",
-      ],
-    },
-    {
-      key: "chance-creation",
-      label: "Chance creation",
-      metricKeys: ["Big chances created_per_match", "Big chances missed_per_match"],
-    },
-    {
-      key: "territory",
-      label: "Territory",
-      metricKeys: ["Corners_per_match", "Offsides_per_match"],
-    },
-  ],
-  passing: [
-    {
-      key: "control",
-      label: "Control",
-      metricKeys: ["Possession_per_match"],
-    },
-    {
-      key: "circulation",
-      label: "Circulation",
-      metricKeys: ["Passes_per_match", "Accurate passes_per_match"],
-    },
-    {
-      key: "efficiency",
-      label: "Efficiency",
-      metricKeys: ["pass_accuracy"],
-    },
-    {
-      key: "delivery",
-      label: "Delivery",
-      metricKeys: ["Crosses_per_match"],
-    },
-  ],
-  defence: [
-    {
-      key: "outcomes",
-      label: "Outcomes",
-      metricKeys: ["goals_against_per_match", "clean_sheet_rate"],
-    },
-    {
-      key: "duels",
-      label: "Duels",
-      metricKeys: ["Tackles_per_match", "Tackles won_per_match"],
-    },
-    {
-      key: "reading",
-      label: "Reading play",
-      metricKeys: ["Interceptions_per_match", "Interceptions won_per_match"],
-    },
-    {
-      key: "recovery",
-      label: "Recovery",
-      metricKeys: ["Clearances_per_match", "Effective clearances_per_match", "Saves_per_match"],
-    },
-  ],
-  discipline: [
-    {
-      key: "fouls",
-      label: "Fouls",
-      metricKeys: ["Fouls conceded_per_match", "Fouls won_per_match"],
-    },
-    {
-      key: "cards",
-      label: "Cards",
-      metricKeys: ["Yellow cards_per_match", "Red cards_per_match"],
-    },
-  ],
-};
 
 function trim(value: number, decimals: number) {
   const fixed = value.toFixed(decimals);
@@ -149,7 +60,7 @@ export function TeamFamilyMetricTiles({
   metrics: TeamFamilyTileMetric[];
 }) {
   const byKey = new Map(metrics.map((metric) => [metric.key, metric]));
-  const groups = GROUPS[family]
+  const groups = TEAM_STATS_FAMILY_CONFIG[family].groups
     .map((group) => ({
       ...group,
       metrics: group.metricKeys
