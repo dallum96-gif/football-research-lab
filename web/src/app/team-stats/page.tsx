@@ -10,6 +10,13 @@ import {
   TeamFamilyMetricTiles,
   type TeamFamilyTileMetric,
 } from "./TeamFamilyMetricTiles";
+import {
+  TEAM_STATS_FAMILIES,
+  TEAM_STATS_FAMILY_CONFIG,
+  teamStatsMetricKeys,
+  type TeamStatsAnalyticalFamily as AnalyticalFamily,
+  type TeamStatsFamilyKey as FamilyKey,
+} from "./teamMetricFamilies";
 import styles from "./TeamStats.module.css";
 
 type TeamOption = {
@@ -61,83 +68,8 @@ type LeagueRankingsResponse = {
   metrics: RankingMetric[];
 };
 
-type FamilyKey = "overview" | "attack" | "passing" | "defence" | "discipline";
-type AnalyticalFamily = Exclude<FamilyKey, "overview">;
-
 const API_BASE =
   process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000";
-
-const tabs: { key: FamilyKey; label: string }[] = [
-  { key: "overview", label: "Overview" },
-  { key: "attack", label: "Attack" },
-  { key: "passing", label: "Passing" },
-  { key: "defence", label: "Defence" },
-  { key: "discipline", label: "Discipline" },
-];
-
-const FAMILY_CONFIG: Record<
-  AnalyticalFamily,
-  { label: string; metricKeys: string[]; description: string }
-> = {
-  attack: {
-    label: "Attack",
-    metricKeys: [
-      "goals_for_per_match",
-      "Shots_per_match",
-      "Shots on target_per_match",
-      "Shots off target_per_match",
-      "Blocked shots_per_match",
-      "Corners_per_match",
-      "Offsides_per_match",
-      "Big chances created_per_match",
-      "Big chances missed_per_match",
-      "shot_accuracy",
-      "goals_per_shot",
-      "failed_to_score_rate",
-    ],
-    description:
-      "Goals, shot volume, chance volume and finishing outcomes from the governed Team Stats analysis.",
-  },
-  passing: {
-    label: "Passing",
-    metricKeys: [
-      "Possession_per_match",
-      "Passes_per_match",
-      "Accurate passes_per_match",
-      "pass_accuracy",
-      "Crosses_per_match",
-    ],
-    description:
-      "Possession, circulation and passing efficiency. Possession lives here rather than as a separate analytical family.",
-  },
-  defence: {
-    label: "Defence",
-    metricKeys: [
-      "goals_against_per_match",
-      "Tackles_per_match",
-      "Tackles won_per_match",
-      "Interceptions_per_match",
-      "Interceptions won_per_match",
-      "Clearances_per_match",
-      "Effective clearances_per_match",
-      "Saves_per_match",
-      "clean_sheet_rate",
-    ],
-    description:
-      "Defensive outcomes and action volume. High action counts are rankings, not automatic claims of better defending.",
-  },
-  discipline: {
-    label: "Discipline",
-    metricKeys: [
-      "Fouls conceded_per_match",
-      "Fouls won_per_match",
-      "Yellow cards_per_match",
-      "Red cards_per_match",
-    ],
-    description:
-      "Foul and card measures, with ranking direction kept explicit rather than interpreted as a universal quality score.",
-  },
-};
 
 async function getJson<T>(path: string): Promise<T | null> {
   try {
@@ -184,8 +116,8 @@ function FamilyWorkspace({
   teamCode: string;
   family: AnalyticalFamily;
 }) {
-  const config = FAMILY_CONFIG[family];
-  const metrics = config.metricKeys
+  const config = TEAM_STATS_FAMILY_CONFIG[family];
+  const metrics = teamStatsMetricKeys(family)
     .map((key) => rankings?.metrics.find((metric) => metric.key === key))
     .filter((metric): metric is RankingMetric => Boolean(metric))
     .filter(metricAvailableForSeason);
@@ -292,7 +224,7 @@ export default async function TeamStatsPage({
 }) {
   const query = await searchParams;
   const activeFamily =
-    tabs.find((tab) => tab.key === query.family)?.key ?? "overview";
+    TEAM_STATS_FAMILIES.find((tab) => tab.key === query.family)?.key ?? "overview";
 
   const seasonResponse = await getJson<SeasonResponse>("/api/v1/seasons");
   const seasons = seasonResponse?.seasons ?? [];
@@ -363,7 +295,7 @@ export default async function TeamStatsPage({
         </header>
 
         <nav className={styles.tabs} aria-label="Team Stats sections">
-          {tabs.map((tab) => {
+          {TEAM_STATS_FAMILIES.map((tab) => {
             if (!season || !requestedTeam) {
               return (
                 <span key={tab.key} className={styles.futureTab}>{tab.label}</span>
