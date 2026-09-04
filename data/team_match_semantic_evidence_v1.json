@@ -1,0 +1,108 @@
+{
+  "schema_version": "1.0.0",
+  "status": "REVIEW_EVIDENCE_ONLY",
+  "purpose": "Machine-readable external semantic corroboration for selected team-match promotion candidates. Presence here does not expose or canonically promote a field.",
+  "sources": {
+    "statsperform_event_definitions": {
+      "url": "https://www.statsperform.com/opta-event-definitions/",
+      "authority": "Stats Perform / Opta",
+      "use": "Primary event-definition support for pass/cross/duel concepts."
+    },
+    "premierleague_stats_clarification": {
+      "url": "https://www.premierleague.com/en/stats/clarification",
+      "authority": "Premier League",
+      "use": "Official public labels and historical availability for Premier League statistics."
+    },
+    "statsperform_duel_article": {
+      "url": "https://www.statsperform.com/insights/a-new-metric-for-evaluating-1v1-ability/",
+      "authority": "Stats Perform / OptaPro",
+      "use": "Supporting explanation that Opta treats aerial and ground contests within the duel concept."
+    }
+  },
+  "fields": {
+    "aerialWon": {
+      "proposed_label": "Aerial duels won",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification", "statsperform_duel_article"],
+      "note": "Public Premier League terminology uses aerial battles won; Opta describes aerial duels as a duel type. Exact source-field aggregation still requires FRL evidence review."
+    },
+    "aerialLost": {
+      "proposed_label": "Aerial duels lost",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification", "statsperform_duel_article"],
+      "note": "Public Premier League terminology uses aerial battles lost; exact source-field aggregation still requires FRL evidence review."
+    },
+    "duelWon": {
+      "proposed_label": "Duels won",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification", "statsperform_duel_article"],
+      "note": "Official Premier League public statistics expose duels won/lost; Opta documentation describes aerial and ground duel concepts."
+    },
+    "duelLost": {
+      "proposed_label": "Duels lost",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification", "statsperform_duel_article"],
+      "note": "Official Premier League public statistics expose duels won/lost."
+    },
+    "headClearance": {
+      "proposed_label": "Headed clearances",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "Official Premier League public statistics explicitly list headed clearances."
+    },
+    "backwardPass": {
+      "proposed_label": "Backward passes",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification", "statsperform_event_definitions"],
+      "note": "Official Premier League public statistics explicitly list backward passes; Opta defines the underlying pass event family."
+    },
+    "openPlayPass": {
+      "proposed_label": "Open-play passes",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_event_definitions"],
+      "note": "Opta event definitions explicitly identify open-play passes as a pass categorisation."
+    },
+    "fwdPass": {
+      "proposed_label": "Forward passes",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_event_definitions"],
+      "note": "The pass family and directional qualifiers are consistent with Opta semantics, but the exact aggregate source-field definition should still be confirmed."
+    },
+    "totalCrossNocorner": {
+      "proposed_label": "Crosses excluding corners",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_event_definitions"],
+      "note": "Opta defines crosses as a distinct event concept. The no-corner qualifier is strongly suggested by the source key but needs direct source-definition confirmation."
+    },
+    "effectiveHeadClearance": {
+      "proposed_label": "Effective headed clearances",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "Headed clearances are an official public concept; the meaning of the effective qualifier needs source-definition confirmation."
+    },
+    "longPassOwnToOpp": {
+      "proposed_label": "Long passes from own half to opposition half",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_event_definitions"],
+      "note": "Opta defines pass events and qualifiers, but this exact aggregate requires direct source-definition confirmation."
+    },
+    "longPassOwnToOppSuccess": {
+      "proposed_label": "Successful long passes from own half to opposition half",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_event_definitions"],
+      "note": "Proposed interpretation is source-name based and should be supported by the empirical child<=parent invariant before promotion."
+    },
+    "totalContest": {
+      "proposed_label": "Dribble/contest attempts",
+      "support_grade": "LOW_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_duel_article"],
+      "note": "Contest semantics are not sufficiently established by the external sources used here. Keep fail-closed pending direct source-definition evidence."
+    },
+    "wonContest": {
+      "proposed_label": "Successful dribble/contests",
+      "support_grade": "LOW_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_duel_article"],
+      "note": "The exact source-field meaning of contest requires direct definition evidence; empirical won<=total consistency is supporting evidence only."
+    }
+  }
+}
