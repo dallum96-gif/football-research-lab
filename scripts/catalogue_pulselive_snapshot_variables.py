@@ -107,14 +107,19 @@ def _logical_family(path: str, entity_level: str) -> tuple[str, str]:
         return 'Lineups & roles', 'lineup/role token'
     if any(token in low for token in ('kickoff', 'timestamp', 'minute', 'seconds', 'period', 'clock', 'date', 'status', 'venue', 'attendance')):
         return 'Match context & timing', 'match/timing token'
+
+    # Semantic event/action tokens must beat generic identifier suffixes. For
+    # example, assistPlayerId is an identity-bearing scalar, but the variable's
+    # football meaning is the assist relationship, not generic player identity.
+    if any(token in low for token in ('assist', 'chancecreated', 'keypass', 'attassist')):
+        return 'Creation & assists', 'creation/assist token'
+
     if any(token in low for token in ('playerid', 'teamid', 'eventid', 'matchid', 'fixtureid', 'displayname', 'firstname', 'lastname', 'slug', 'code')) or leaf in {'id', 'name'}:
         return 'Identity & relationships', 'identity token'
     if any(token in low for token in ('save', 'keeper', 'goalkeeper', 'claim', 'punch', 'sweeper', 'goalkick')):
         return 'Goalkeeping', 'goalkeeping token'
     if any(token in low for token in ('yellow', 'redcard', 'cardtype', 'foul', 'offside', 'discipline')):
         return 'Discipline', 'discipline token'
-    if any(token in low for token in ('assist', 'chancecreated', 'keypass', 'attassist')):
-        return 'Creation & assists', 'creation/assist token'
     if any(token in low for token in ('pass', 'cross', 'through', 'chipped')):
         return 'Passing', 'passing token'
     if any(token in low for token in ('possession', 'touch', 'carry', 'progress', 'dribble', 'contest', 'dispossess')):
