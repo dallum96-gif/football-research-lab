@@ -99,6 +99,27 @@ TEAM_PROMOTION_BATCH_V1_FIELDS = {
     "totalCrossNocorner": "exposed",
 }
 
+# Second controlled expansion. These fields were promoted only after the V2
+# evidence audit established complete decade-wide numeric observation (7,600
+# team-match rows), non-negative values, direct Opta concept support, and
+# zero-violation subset checks where a parent/child relationship was asserted.
+#
+# Sparse/no-zero fields remain held until their blank-vs-zero semantics are
+# governed. finalThirdEntries/penAreaEntries also remain held because the V2
+# audit falsified the proposed nested-count relationship (35 violations), even
+# though each source field may later prove independently usable.
+#
+# See data/team_match_semantic_evidence_v2.json and
+# data/team_match_semantic_promotion_batch_v2.json.
+TEAM_PROMOTION_BATCH_V2_FIELDS = {
+    "ballRecovery": "exposed",
+    "successfulFinalThirdPasses": "exposed",
+    "totalChippedPass": "exposed",
+    "totalFinalThirdPasses": "exposed",
+    "touches": "exposed",
+    "unsuccessfulTouch": "exposed",
+}
+
 COMMON_PLAYER_MATCH_FIELDS = {
     "matchId": "exposed",
     "gameweek": "exposed",
@@ -207,7 +228,10 @@ def _build_family(family: str, fields: dict[str, str]) -> tuple[SourceFieldSpec,
 SOURCE_FIELD_REGISTRY = (
     _build_family(
         "team_match",
-        COMMON_TEAM_FIELDS | TEAM_CURATED_FIELDS | TEAM_PROMOTION_BATCH_V1_FIELDS,
+        COMMON_TEAM_FIELDS
+        | TEAM_CURATED_FIELDS
+        | TEAM_PROMOTION_BATCH_V1_FIELDS
+        | TEAM_PROMOTION_BATCH_V2_FIELDS,
     )
     + _build_family("player_match", COMMON_PLAYER_MATCH_FIELDS | PLAYER_MATCH_CURATED_FIELDS)
     + _build_family("player_season", PLAYER_SEASON_FIELDS)
