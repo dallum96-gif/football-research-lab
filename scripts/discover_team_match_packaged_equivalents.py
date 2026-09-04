@@ -32,14 +32,92 @@ def _tokens(name: str) -> tuple[str, ...]:
     spaced = re.sub(r'[^A-Za-z0-9]+', ' ', spaced).lower()
     aliases = {
         'att': 'attempt', 'atts': 'attempt', 'poss': 'possession', 'fwd': 'forward',
-        'opp': 'opposition', 'def': 'defensive', 'ibox': 'inbox', 'obox': 'outsidebox',
+        'opp': 'opposition', 'def': 'defensive', 'ibox': 'insidebox', 'inbox': 'insidebox',
+        'obox': 'outsidebox', 'obx': 'outsidebox', 'obxd': 'outsidebox',
         'fk': 'freekick', 'pct': 'percentage', 'acc': 'accurate',
+        'hd': 'header', 'head': 'header', 'headed': 'header',
+        'lf': 'leftfoot', 'rf': 'rightfoot', 'pen': 'penalty',
+        'goals': 'goal', 'shots': 'shot',
     }
     return tuple(aliases.get(token, token) for token in spaced.split() if token)
 
 
 def _normalised(name: str) -> str:
     return ''.join(_tokens(name))
+
+
+def _semantic_signature(name: str) -> dict[str, str | bool]:
+    """Extract high-risk qualifiers that must agree for equivalence review.
+
+    This is deliberately conservative. It is not a semantic parser; it only
+    blocks obvious false friends such as generic goals vs penalty goals or
+    headed attempts vs penalty attempts from receiving a high similarity lane.
+    """
+    tokens = set(_tokens(name))
+
+    if 'header' in tokens:
+        body_part = 'HEADER'
+    elif 'leftfoot' in tokens:
+        body_part = 'LEFT_FOOT'
+    elif 'rightfoot' in tokens:
+        body_part = 'RIGHT_FOOT'
+    else:
+        body_part = ''
+
+    if 'insidebox' in tokens:
+        box_location = 'INSIDE_BOX'
+    elif 'outsidebox' in tokens:
+        box_location = 'OUTSIDE_BOX'
+    elif 'box' in tokens:
+        box_location = 'BOX_UNSPECIFIED'
+    else:
+        box_location = ''
+
+    if 'target' in tokens:
+        outcome = 'TARGET'
+    elif 'miss' in tokens:
+        outcome = 'MISS'
+    elif 'post' in tokens or 'woodwork' in tokens:
+        outcome = 'POST_OR_WOODWORK'
+    elif 'goal' in tokens:
+        outcome = 'GOAL'
+    else:
+        outcome = ''
+
+    if 'right' in tokens:
+        direction = 'RIGHT'
+    elif 'left' in tokens:
+        direction = 'LEFT'
+    elif 'centre' in tokens or 'center' in tokens:
+        direction = 'CENTRE'
+    else:
+        direction = ''
+
+    return {
+        'penalty': 'penalty' in tokens,
+        'freekick': 'freekick' in tokens,
+        'own_goal': 'own' in tokens and 'goal' in tokens,
+        'body_part': body_part,
+        'box_location': box_location,
+        'outcome': outcome,
+        'direction': direction,
+    }
+
+
+def _semantic_conflicts(raw_field: str, candidate: str) -> tuple[str, ...]:
+    raw = _semantic_signature(raw_field)
+    cand = _semantic_signature(candidate)
+    conflicts: list[str] = []
+
+    for key in ('penalty', 'freekick', 'own_goal'):
+        if bool(raw[key]) != bool(cand[key]):
+            conflicts.append(key)
+
+    for key in ('body_part', 'box_location', 'outcome', 'direction'):
+        if str(raw[key]) != str(cand[key]) and (raw[key] or cand[key]):
+            conflicts.append(key)
+
+    return tuple(conflicts)
 
 
 def _score(raw_field: str, candidate: str) -> tuple[float, float, float]:
@@ -70,13 +148,20 @@ def suggest_equivalents(
         raw_field = str(raw.get('source_field') or '').strip()
         if not raw_field:
             continue
+
         scored = []
+        rejected: list[tuple[str, tuple[str, ...]]] = []
         for candidate in candidates:
+            conflicts = _semantic_conflicts(raw_field, candidate)
+            if conflicts:
+                rejected.append((candidate, conflicts))
+                continue
             combined, sequence, jaccard = _score(raw_field, candidate)
             scored.append((combined, sequence, jaccard, candidate))
         scored.sort(key=lambda item: (-item[0], item[3].casefold()))
         top = scored[:top_n]
         best = top[0] if top else (0.0, 0.0, 0.0, '')
+
         if best[0] >= 0.82:
             lane = 'STRONG_NAME_SIMILARITY_REVIEW'
         elif best[0] >= 0.64:
@@ -90,10 +175,14 @@ def suggest_equivalents(
             'raw_snapshot_coverage_pct': str(raw.get('raw_snapshot_coverage_pct') or ''),
             'raw_sample_values': str(raw.get('raw_sample_values') or ''),
             'route_discovery_lane': lane,
+            'semantic_guard_status': 'QUALIFIER_GUARD_APPLIED',
+            'semantic_conflict_candidates_rejected': len(rejected),
             'best_candidate': best[3],
             'best_score': best[0],
             'governance_note': (
-                'String/taxonomy similarity is discovery evidence only. It does not establish '
+                'Similarity is a discovery aid only. Candidates with incompatible penalty, '
+                'set-piece, own-goal, body-part, box-location, outcome or direction qualifiers '
+                'are rejected before scoring. Surviving similarity still does not establish '
                 'semantic equivalence, source routing, identity compatibility or comparability.'
             ),
         }
@@ -116,21 +205,24 @@ def build_discovery(queue_rows: Iterable[Mapping[str, object]]) -> dict[str, obj
     packaged_fields = tuple(str(row['source_field']) for row in catalog)
     rows = suggest_equivalents(queue_rows, packaged_fields)
     return {
-        'schema_version': '1.0.0',
+        'schema_version': '1.1.0',
         'raw_snapshot_only_fields': len(rows),
         'route_discovery_lane_counts': dict(sorted(Counter(str(row['route_discovery_lane']) for row in rows).items())),
+        'semantic_conflict_candidates_rejected': sum(int(row['semantic_conflict_candidates_rejected']) for row in rows),
         'rows': list(rows),
         'interpretation': (
-            'This is a discovery aid for the 59 raw-snapshot-only team-match fields. '
-            'Suggestions are generated from source-name/taxonomy similarity only and must '
-            'never be treated as semantic equivalence without source-level validation.'
+            'This is a guarded discovery aid for the raw-snapshot-only team-match fields. '
+            'High-risk qualifier conflicts are rejected before similarity scoring. Surviving '
+            'suggestions remain review evidence only and must never be treated as semantic '
+            'equivalence without source-level validation.'
         ),
     }
 
 
 OUTPUT_FIELDS = (
     'raw_source_field', 'taxonomy_category', 'raw_snapshot_coverage_pct', 'raw_sample_values',
-    'route_discovery_lane', 'best_candidate', 'best_score',
+    'route_discovery_lane', 'semantic_guard_status', 'semantic_conflict_candidates_rejected',
+    'best_candidate', 'best_score',
     'candidate_1', 'candidate_1_score', 'candidate_2', 'candidate_2_score',
     'candidate_3', 'candidate_3_score', 'candidate_4', 'candidate_4_score',
     'candidate_5', 'candidate_5_score', 'governance_note',
@@ -153,7 +245,7 @@ def write_discovery(result: Mapping[str, object], output_dir: Path) -> tuple[Pat
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description='Suggest possible packaged equivalents for raw-snapshot-only team-match fields.'
+        description='Suggest guarded possible packaged equivalents for raw-snapshot-only team-match fields.'
     )
     parser.add_argument('--queue', type=Path, default=DEFAULT_QUEUE)
     parser.add_argument('--output-dir', type=Path, default=DEFAULT_OUTPUT_DIR)
@@ -172,12 +264,14 @@ def main() -> int:
             'lane': row['route_discovery_lane'],
             'best_candidate': row['best_candidate'],
             'best_score': row['best_score'],
+            'semantic_conflict_candidates_rejected': row['semantic_conflict_candidates_rejected'],
         }
         for row in list(result['rows'])[:20]
     ]
     print(json.dumps({
         'raw_snapshot_only_fields': result['raw_snapshot_only_fields'],
         'route_discovery_lane_counts': result['route_discovery_lane_counts'],
+        'semantic_conflict_candidates_rejected': result['semantic_conflict_candidates_rejected'],
         'first_20_suggestions': preview,
         'csv_output': str(csv_path),
         'json_output': str(json_path),
