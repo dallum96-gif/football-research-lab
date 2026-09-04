@@ -1,0 +1,79 @@
+{
+  "schema_version": "1.0.0",
+  "status": "REVIEW_EVIDENCE_ONLY",
+  "purpose": "External semantic corroboration for selected V2 team-match promotion candidates. Presence here is review evidence only and does not expose a field.",
+  "sources": {
+    "statsperform_fifa_match_data_definitions": {
+      "url": "https://www.statsperform.com/insights/fifa-match-data-definitions/",
+      "authority": "Stats Perform / Opta",
+      "use": "Direct definition support for blocked-pass / blocked-cross defensive actions."
+    },
+    "statsperform_betting_showcase_pass_definitions": {
+      "url": "https://optaplayerstats.statsperform.com/en_GB/soccer/d%C3%A1n-bajnoks%C3%A1g-2026-2027/aa2sqzvq68621ok3nca8csrh0/match/view/5vsl8zrcyoqqpovwa98l0lvdg/opta-points",
+      "authority": "Stats Perform / Opta",
+      "use": "Direct definition of chipped passes and explicit statement that Opta pass events can be categorised by defensive/middle/final-third pitch zones."
+    },
+    "premierleague_stats_clarification": {
+      "url": "https://www.premierleague.com/en/stats/clarification",
+      "authority": "Premier League",
+      "use": "Official Premier League statistical vocabulary and Opta data-capture provenance, including recoveries and goal kicks."
+    }
+  },
+  "fields": {
+    "blockedPass": {
+      "proposed_label": "Blocked passes",
+      "support_grade": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_fifa_match_data_definitions"],
+      "note": "Stats Perform explicitly distinguishes a blocked pass/cross as a defensive action when a cleanly played pass is intercepted on its intended path. Team-match aggregation still requires ordinary FRL coverage/missingness review."
+    },
+    "totalChippedPass": {
+      "proposed_label": "Chipped passes",
+      "support_grade": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_betting_showcase_pass_definitions"],
+      "note": "Stats Perform explicitly defines a chipped pass as a lofted pass with an intended recipient. The source key strongly indicates the team-match count of this event type."
+    },
+    "totalFinalThirdPasses": {
+      "proposed_label": "Passes in the final third",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_betting_showcase_pass_definitions"],
+      "note": "Opta documentation explicitly states that passes can be broken down by defensive, middle and final-third pitch zones. Exact aggregate inclusion semantics should be supported by empirical checks."
+    },
+    "successfulFinalThirdPasses": {
+      "proposed_label": "Successful passes in the final third",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_betting_showcase_pass_definitions"],
+      "note": "Final-third pass categorisation is directly supported by Opta documentation. The successful subset interpretation should be supported by a zero-violation successful<=total invariant before promotion."
+    },
+    "ballRecovery": {
+      "proposed_label": "Ball recoveries",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "The Premier League explicitly exposes Recoveries in its Opta-derived statistical vocabulary. The field name is highly consistent with that concept, while exact aggregation still requires FRL review."
+    },
+    "goalKicks": {
+      "proposed_label": "Goal kicks",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "The Premier League explicitly lists goal kicks in its Opta-derived goalkeeping statistics."
+    },
+    "touches": {
+      "proposed_label": "Touches",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "Premier League documentation states that Opta records what happens every time a player touches the ball. This supports the general touch-event concept but is not a direct definition of the team aggregate."
+    },
+    "touchesInOppBox": {
+      "proposed_label": "Touches in opposition box",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "The underlying touch-event capture is authoritative; the opposition-box qualifier remains source-name based and should be supported by touchesInOppBox<=touches empirical evidence."
+    }
+  },
+  "explicitly_not_upgraded_by_this_evidence": [
+    "unsuccessfulTouch",
+    "finalThirdEntries",
+    "penAreaEntries",
+    "lostCorners"
+  ],
+  "governance_note": "External terminology corroborates concepts but never substitutes for FRL source-field, missingness, aggregation and comparability review."
+}
