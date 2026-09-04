@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "decision_date": "2026-09-04",
+  "status": "VERIFIED_ARCHIVE_WIDE",
+  "purpose": "Record the archive-wide validation of FRL's governed source-native fixture event and tactical-context research seam over the preserved PulseLive snapshot archive.",
+  "source_archive_scope": {
+    "seasons": [
+      "2016-17",
+      "2017-18",
+      "2018-19",
+      "2019-20",
+      "2020-21",
+      "2021-22",
+      "2022-23",
+      "2023-24",
+      "2024-25",
+      "2025-26"
+    ],
+    "fixtures": 3800,
+    "fixtures_per_season": 380
+  },
+  "fixture_route_validation": {
+    "event_status_pass": 3800,
+    "event_status_fail": 0,
+    "tactical_context_status_pass": 3800,
+    "tactical_context_status_fail": 0
+  },
+  "normalised_event_evidence": {
+    "total_events": 50182,
+    "goal": 10787,
+    "card": 14269,
+    "substitution": 25126
+  },
+  "event_player_identity_bridge": {
+    "primary_verified": 49625,
+    "primary_unresolved": 287,
+    "secondary_verified": 32443,
+    "secondary_unresolved": 101,
+    "note": "Unresolved source references remain explicit and are not inferred."
+  },
+  "lineup_and_tactical_context": {
+    "lineup_player_rows": 145637,
+    "lineup_identity_verified": 144645,
+    "lineup_identity_unresolved": 992,
+    "formation_team_sides_available": 7600,
+    "manager_rows": 7728
+  },
+  "implementation": {
+    "research_seam": "fixture_context_research.py",
+    "source_normaliser": "pulselive_fixture_evidence.py",
+    "archive_audit": "scripts/audit_fixture_context_research.py",
+    "fixture_relationship": "source_family_adapters.resolve_source_match",
+    "player_identity_bridge": "source_family_adapters.resolve_pulselive_player_identity"
+  },
+  "architectural_decision": "The 123 non-team-statistical football/match raw paths must be industrialised as coherent natural-grain evidence objects rather than 123 independent variables. The first proven vertical slice is fixture event and tactical context: canonical fixture -> verified PulseLive source match -> preserved snapshot -> normalised goal/card/substitution and lineup/formation/manager evidence -> explicit player-identity bridge decisions.",
+  "product_implications": [
+    "Matchday / Fixture Intelligence can consume event chronology and tactical context from one governed evidence seam.",
+    "Opposition Report can consume formation, role, personnel and manager context without treating raw JSON paths as leaderboard metrics.",
+    "Player references retain explicit verified/unresolved identity status rather than source-ID coincidence.",
+    "The remaining 123-path programme should continue by natural analytical object and grain, not by raw path count."
+  ],
+  "governance_note": "This capability proof establishes archive-wide routing, normalisation and identity-bridge coverage for the preserved historical snapshots. It does not imply current-season 2026/27 snapshot availability, canonical promotion of every event attribute, or approval of higher-order tactical derivations."
+}
