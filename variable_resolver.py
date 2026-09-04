@@ -84,13 +84,21 @@ ALIASES: dict[str, VariableDefinition] = {
 }
 
 
-def _registered_families(field: str) -> tuple[str, ...]:
-    return tuple(spec.family for spec in _all_specs() if spec.source_field == field)
-
-
 def _all_specs():
     for family in ("team_match", "player_match", "player_season", "squad"):
         yield from fields_for_family(family)
+
+
+def _registered_specs(field: str, family: str | None = None) -> tuple[object, ...]:
+    return tuple(
+        spec
+        for spec in _all_specs()
+        if spec.source_field == field and (family is None or spec.family == family)
+    )
+
+
+def _registered_families(field: str) -> tuple[str, ...]:
+    return tuple(dict.fromkeys(spec.family for spec in _registered_specs(field)))
 
 
 def _season_families(field: str, season: str | None) -> tuple[str, ...]:
@@ -100,6 +108,42 @@ def _season_families(field: str, season: str | None) -> tuple[str, ...]:
         family
         for family in ("team_match", "player_match", "player_season", "squad")
         if field in set(available_fields(family, season))
+    )
+
+
+def _source_definition(name: str, family: str) -> VariableDefinition:
+    """Return registry-aware metadata for one source-native field.
+
+    Empirical discovery is intentionally broader than semantic promotion. A
+    field may therefore be source-present/queryable in ``research_field_query``
+    while remaining unavailable to reusable/canonical consumers until it is
+    explicitly promoted in ``source_field_registry``.
+    """
+    specs = _registered_specs(name, family)
+    if len(specs) > 1:
+        raise UnsupportedContextError(
+            f"Variable '{name}' has multiple registry definitions in family '{family}'."
+        )
+    if specs:
+        spec = specs[0]
+        return VariableDefinition(
+            name=name,
+            label=name,
+            family=family,
+            source_field=name,
+            status=spec.semantic_status,
+            definition=spec.notes or None,
+        )
+    return VariableDefinition(
+        name=name,
+        label=name,
+        family=family,
+        source_field=name,
+        status="uncatalogued",
+        definition=(
+            "Source field observed in approved evidence but not yet semantically "
+            "promoted for reusable FRL consumer access."
+        ),
     )
 
 
@@ -132,7 +176,7 @@ def _infer_definition(name: str, family: str | None, season: str | None) -> Vari
             raise UnknownVariableError(
                 f"Variable/source field '{name}' is not available for family '{family}' in the requested context."
             )
-        return VariableDefinition(name=name, label=name, family=family, source_field=name)
+        return _source_definition(name, family)
 
     if not families:
         raise UnknownVariableError(f"Unknown FRL variable/source field: {name}")
@@ -140,7 +184,7 @@ def _infer_definition(name: str, family: str | None, season: str | None) -> Vari
         raise UnsupportedContextError(
             f"Variable '{name}' exists in multiple source families {list(families)}; supply an explicit family or entity context."
         )
-    return VariableDefinition(name=name, label=name, family=families[0], source_field=name)
+    return _source_definition(name, families[0])
 
 
 def variable_definition(name: str, *, family: str | None = None, season: str | None = None) -> VariableDefinition:
@@ -190,7 +234,7 @@ def _native_result(*, definition: VariableDefinition, season: str, fixture_id: s
         "results": raw.get("results", []),
         "provenance": {
             "source_fields": [definition.source_field or definition.name],
-            "registry_status": "native",
+            "registry_status": definition.status,
         },
     }
 
@@ -216,7 +260,7 @@ def resolve_variable(
 
     if definition.status != "exposed":
         raise VariableUnavailableError(
-            f"Variable '{name}' is not exposed for reusable consumer access."
+            f"Variable '{name}' has status '{definition.status}' and is not exposed for reusable consumer access."
         )
 
     if definition.family == "fpl":
@@ -283,6 +327,7 @@ def resolve_variable(
 __all__ = [
     "VariableDefinition",
     "VariableResolutionError",
+    "VariableUnavailableError",
     "resolve_variable",
     "variable_definition",
 ]
