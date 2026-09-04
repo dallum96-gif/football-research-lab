@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "decision_date": "2026-09-04",
-  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE",
+  "status": "VERIFIED_GENERIC_ACCESS",
   "family": "team_match",
   "purpose": "Record the first controlled semantic promotion batch from the September 2026 PulseLive capability industrialisation programme.",
   "promotion_rule": "Promote only fields with strong source-name clarity plus supporting external football semantics where available, decade-wide packaged coverage, and empirical invariant evidence for paired/subset relationships where applicable.",
@@ -20,10 +20,25 @@
     "successfulOpenPlayPass",
     "totalCrossNocorner"
   ],
+  "verification": {
+    "local_regression_gate": "PASS",
+    "targeted_tests_passed": 13,
+    "exposed_team_match_stat_fields": 39,
+    "generic_access_passed": 39,
+    "generic_access_failed": 0,
+    "all_exposed_fields_pass_generic_access": true,
+    "audit_script": "scripts/audit_exposed_team_match_generic_access.py",
+    "audit_outputs": [
+      "data/audits/team_match_generic_access/exposed_team_match_generic_access.csv",
+      "data/audits/team_match_generic_access/exposed_team_match_generic_access.json"
+    ],
+    "interpretation": "The team-match industrialisation pattern is verified end-to-end for all 39 currently exposed PulseLive team-match statistics: discovery, explicit family/grain resolution and generic fixture retrieval all pass without per-metric extractors."
+  },
   "evidence_sources": {
     "external_semantics": "data/team_match_semantic_evidence_v1.json",
     "empirical_audit_script": "scripts/audit_team_match_candidate_invariants.py",
     "promotion_review_script": "scripts/build_team_match_promotion_review_pack.py",
+    "generic_access_audit_script": "scripts/audit_exposed_team_match_generic_access.py",
     "source_registry": "source_field_registry.py"
   },
   "empirical_invariant_results": [
