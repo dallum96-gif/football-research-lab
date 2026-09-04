@@ -72,6 +72,33 @@ TEAM_CURATED_FIELDS = {
     "expectedGoalsOnTarget": "exposed",
 }
 
+# First controlled expansion from the September 2026 PulseLive capability
+# industrialisation programme. These fields are decade-wide in the approved
+# packaged team-match representation and were promoted only after combining:
+# source-name clarity, external football-definition support where available,
+# and empirical invariant checks for paired/subset relationships.
+#
+# See data/team_match_semantic_evidence_v1.json and
+# data/audits/team_match_candidate_invariants/ for the review evidence.
+# Deliberately excluded from this batch are ambiguous concepts such as
+# totalContest/wonContest, challengeLost, effectiveHeadClearance and the
+# cryptic shot-location/goal-mouth qualifier families.
+TEAM_PROMOTION_BATCH_V1_FIELDS = {
+    "accurateCrossNocorner": "exposed",
+    "aerialLost": "exposed",
+    "aerialWon": "exposed",
+    "backwardPass": "exposed",
+    "duelLost": "exposed",
+    "duelWon": "exposed",
+    "fwdPass": "exposed",
+    "headClearance": "exposed",
+    "longPassOwnToOpp": "exposed",
+    "longPassOwnToOppSuccess": "exposed",
+    "openPlayPass": "exposed",
+    "successfulOpenPlayPass": "exposed",
+    "totalCrossNocorner": "exposed",
+}
+
 COMMON_PLAYER_MATCH_FIELDS = {
     "matchId": "exposed",
     "gameweek": "exposed",
@@ -178,7 +205,10 @@ def _build_family(family: str, fields: dict[str, str]) -> tuple[SourceFieldSpec,
 
 
 SOURCE_FIELD_REGISTRY = (
-    _build_family("team_match", COMMON_TEAM_FIELDS | TEAM_CURATED_FIELDS)
+    _build_family(
+        "team_match",
+        COMMON_TEAM_FIELDS | TEAM_CURATED_FIELDS | TEAM_PROMOTION_BATCH_V1_FIELDS,
+    )
     + _build_family("player_match", COMMON_PLAYER_MATCH_FIELDS | PLAYER_MATCH_CURATED_FIELDS)
     + _build_family("player_season", PLAYER_SEASON_FIELDS)
     + _build_family("squad", SQUAD_FIELDS)
