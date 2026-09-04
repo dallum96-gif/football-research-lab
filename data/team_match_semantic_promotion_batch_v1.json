@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0.0",
+  "decision_date": "2026-09-04",
+  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE",
+  "family": "team_match",
+  "purpose": "Record the first controlled semantic promotion batch from the September 2026 PulseLive capability industrialisation programme.",
+  "promotion_rule": "Promote only fields with strong source-name clarity plus supporting external football semantics where available, decade-wide packaged coverage, and empirical invariant evidence for paired/subset relationships where applicable.",
+  "promoted_fields": [
+    "accurateCrossNocorner",
+    "aerialLost",
+    "aerialWon",
+    "backwardPass",
+    "duelLost",
+    "duelWon",
+    "fwdPass",
+    "headClearance",
+    "longPassOwnToOpp",
+    "longPassOwnToOppSuccess",
+    "openPlayPass",
+    "successfulOpenPlayPass",
+    "totalCrossNocorner"
+  ],
+  "evidence_sources": {
+    "external_semantics": "data/team_match_semantic_evidence_v1.json",
+    "empirical_audit_script": "scripts/audit_team_match_candidate_invariants.py",
+    "promotion_review_script": "scripts/build_team_match_promotion_review_pack.py",
+    "source_registry": "source_field_registry.py"
+  },
+  "empirical_invariant_results": [
+    {
+      "rule_id": "effective_head_clearance_lte_head_clearance",
+      "child_field": "effectiveHeadClearance",
+      "parent_field": "headClearance",
+      "rows_compared": 7585,
+      "violations": 0,
+      "note": "Supports headClearance semantics; effectiveHeadClearance itself remains held because the qualifier 'effective' is not yet directly defined."
+    },
+    {
+      "rule_id": "successful_long_own_to_opp_lte_total",
+      "child_field": "longPassOwnToOppSuccess",
+      "parent_field": "longPassOwnToOpp",
+      "rows_compared": 7600,
+      "violations": 0
+    },
+    {
+      "rule_id": "successful_open_play_pass_lte_open_play_pass",
+      "child_field": "successfulOpenPlayPass",
+      "parent_field": "openPlayPass",
+      "rows_compared": 7600,
+      "violations": 0
+    },
+    {
+      "rule_id": "accurate_noncorner_cross_lte_total_noncorner_cross",
+      "child_field": "accurateCrossNocorner",
+      "parent_field": "totalCrossNocorner",
+      "rows_compared": 6936,
+      "violations": 0
+    },
+    {
+      "rule_id": "aerial_won_lte_duel_won",
+      "child_field": "aerialWon",
+      "parent_field": "duelWon",
+      "rows_compared": 7600,
+      "violations": 0
+    },
+    {
+      "rule_id": "aerial_lost_lte_duel_lost",
+      "child_field": "aerialLost",
+      "parent_field": "duelLost",
+      "rows_compared": 7600,
+      "violations": 0
+    }
+  ],
+  "supporting_but_not_sufficient_invariant": {
+    "rule_id": "won_contest_lte_total_contest",
+    "rows_compared": 7581,
+    "violations": 0,
+    "decision": "DO_NOT_PROMOTE",
+    "reason": "The exact Opta/PulseLive meaning of contest remains insufficiently defined. Empirical consistency alone is not semantic proof."
+  },
+  "explicitly_held_fields": [
+    "challengeLost",
+    "effectiveHeadClearance",
+    "totalContest",
+    "wonContest",
+    "leftsidePass",
+    "rightsidePass",
+    "passesLeft",
+    "passesRight"
+  ],
+  "held_family_note": "Cryptic shot-location, body-part, goal-mouth and outcome qualifier fields remain outside this promotion batch even where name similarity exists. They require direct semantic/route validation.",
+  "governance_note": "Exposure here means reusable source-native FRL research access at team_match grain. It does not imply GUI exposure, approved derived percentages, sparse-zero interpretation beyond separately audited rules, or current-season 2026/27 availability."
+}
