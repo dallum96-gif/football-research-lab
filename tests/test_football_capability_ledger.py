@@ -3,7 +3,7 @@ from __future__ import annotations
 from scripts.build_football_capability_ledger import build_ledger
 
 
-def test_ledger_keeps_team_stats_and_remaining_football_paths_in_scope():
+def test_ledger_preserves_master_source_and_football_subset_hierarchy():
     rows = [
         {
             'resource': 'stats',
@@ -45,10 +45,14 @@ def test_ledger_keeps_team_stats_and_remaining_football_paths_in_scope():
 
     result = build_ledger(rows)
 
-    assert result['north_star_football_paths'] == 2
+    assert result['master_snapshotted_source_paths'] == 3
+    assert result['capture_provenance_paths'] == 1
+    assert result['football_match_paths'] == 2
     assert result['team_match_statistical_paths'] == 1
     assert result['remaining_football_paths'] == 1
-    assert {row['north_star_status'] for row in result['rows']} == {'IN_SCOPE_372'}
+    assert {row['source_universe_status'] for row in result['rows']} == {
+        'FOOTBALL_MATCH_SUBSET_OF_553'
+    }
     assert {row['workstream'] for row in result['rows']} == {
         'TEAM_MATCH_STATISTICS',
         'EVENTS',
@@ -76,5 +80,8 @@ def test_ledger_routes_lineups_and_managers_to_separate_workstreams():
     result = build_ledger(rows)
     by_path = {row['path']: row for row in result['rows']}
 
+    assert result['master_snapshotted_source_paths'] == 2
+    assert result['capture_provenance_paths'] == 0
+    assert result['football_match_paths'] == 2
     assert by_path['homeTeam.players[].position']['workstream'] == 'PLAYER_LINEUP_CONTEXT'
     assert by_path['managers[].name']['workstream'] == 'MANAGERS'
