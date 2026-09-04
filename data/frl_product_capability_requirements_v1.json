@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0.0",
+  "status": "ACTIVE_PRODUCT_REQUIREMENTS_V1",
+  "checkpoint_date": "2026-09-04",
+  "objective": "Use product and research requirements to decide which football capabilities FRL should connect, govern, industrialise or acquire next.",
+  "product_principles": {
+    "visual_first": true,
+    "fixture_first_for_matchday": true,
+    "progressive_disclosure": true,
+    "full_governed_depth_remains_research_accessible": true,
+    "product_surfaces_share_one_governed_variable_architecture": true,
+    "fpl_native_measures_stay_in_fpl_context": true,
+    "bookmaker_odds_required_for_initial_matchday_intelligence": false
+  },
+  "progressive_disclosure_layers": [
+    {
+      "id": "GLANCE",
+      "purpose": "Understand the football story in seconds",
+      "presentation": ["visual summaries", "small number of high-information signals", "clear entity and period context"]
+    },
+    {
+      "id": "EXPLORE",
+      "purpose": "Understand major components of performance or style",
+      "presentation": ["football families", "visualisations", "selected supporting metrics", "smooth cross-navigation"]
+    },
+    {
+      "id": "ANALYSE",
+      "purpose": "Investigate the underlying statistical evidence",
+      "presentation": ["broader metric universe", "rankings", "distributions", "splits", "time windows", "comparisons", "full ledgers"]
+    },
+    {
+      "id": "RESEARCH",
+      "purpose": "Inspect meaning, provenance, coverage and reusable research access",
+      "presentation": ["source route", "definition", "coverage", "missingness", "transformation", "population", "temporal semantics"]
+    }
+  ],
+  "gap_classes": [
+    "SOURCE_PRESENT_NOT_CONNECTED",
+    "CONNECTED_NOT_GOVERNED",
+    "SEMANTICS_UNRESOLVED",
+    "IDENTITY_UNRESOLVED",
+    "DERIVATION_NOT_APPROVED",
+    "COVERAGE_INSUFFICIENT",
+    "CURRENT_SEASON_ABSENT",
+    "HISTORICAL_ABSENT",
+    "COMPARABILITY_UNRESOLVED",
+    "RIGHTS_OR_OPERATIONAL_BLOCK"
+  ],
+  "capability_status_classes": [
+    "STRONG_NOW",
+    "PARTIAL_NOW",
+    "HISTORICAL_ONLY",
+    "CURRENT_ONLY",
+    "SOURCE_PRESENT_NOT_CONNECTED",
+    "DEMONSTRATED_GAP",
+    "NOT_YET_REQUIRED"
+  ],
+  "experiences": [
+    {
+      "id": "PLAYER_SCOUTING",
+      "name": "Player Scouting",
+      "primary_question": "What sort of player is this, how are they performing, and what should an analyst care about?",
+      "entry_entity": "Player",
+      "summary_priority": "visual_first",
+      "required_capability_families": [
+        {"id": "PLAYER_IDENTITY_ROLE", "priority": "P0", "natural_grains": ["Player", "Player-Season", "Player-Fixture"], "examples": ["position", "role", "minutes", "starts"]},
+        {"id": "PLAYER_SHOOTING", "priority": "P0", "natural_grains": ["Player-Fixture", "Player-Season"], "examples": ["shots", "shots on target", "goals", "xG", "xGOT"]},
+        {"id": "PLAYER_CREATION", "priority": "P0", "natural_grains": ["Player-Fixture", "Player-Season"], "examples": ["assists", "xA", "key passes", "big chances created"]},
+        {"id": "PLAYER_PASSING", "priority": "P0", "natural_grains": ["Player-Fixture", "Player-Season"], "examples": ["attempted passes", "completed passes", "pass completion", "opposition-half passes", "long balls"]},
+        {"id": "PLAYER_PROGRESSION", "priority": "P0", "natural_grains": ["Player-Fixture", "Player-Season"], "examples": ["progressive passes", "carries", "progressive carries", "touches", "possession lost"]},
+        {"id": "PLAYER_DEFENDING", "priority": "P1", "natural_grains": ["Player-Fixture", "Player-Season"], "examples": ["tackles", "interceptions", "recoveries", "clearances", "blocks", "duels"]},
+        {"id": "PLAYER_AERIAL", "priority": "P1", "natural_grains": ["Player-Fixture", "Player-Season"], "examples": ["aerial duels won", "aerial duels lost"]},
+        {"id": "PLAYER_GOALKEEPING", "priority": "P1", "natural_grains": ["Player-Fixture", "Player-Season"], "examples": ["saves", "claims", "sweeper actions", "goals conceded", "xGC"]},
+        {"id": "PLAYER_TEMPORAL_ROLE", "priority": "P1", "natural_grains": ["Player-Fixture", "Context"], "examples": ["form", "role change", "minutes trend", "starting status"]}
+      ],
+      "known_requirement_notes": [
+        "Current-season rich individual passing/progression evidence is a demonstrated priority gap; FPL ICT Creativity must not be used as a substitute for genuine passing data.",
+        "Player cohort, role and minimum-minutes semantics must be governed before strong scouting interpretation."
+      ]
+    },
+    {
+      "id": "TEAM_SCOUTING",
+      "name": "Team Scouting",
+      "primary_question": "What kind of team is this, what are they good at, how do they behave, and what is unusual about them?",
+      "entry_entity": "Team",
+      "summary_priority": "visual_first",
+      "required_capability_families": [
+        {"id": "TEAM_RESULTS_STATE", "priority": "P0", "natural_grains": ["Team-Fixture", "Team-Season"], "examples": ["results", "goals", "form", "home-away splits"]},
+        {"id": "TEAM_SHOOTING", "priority": "P0", "natural_grains": ["Team-Fixture"], "examples": ["shots", "shots on target", "shots by zone", "big chances", "xG"]},
+        {"id": "TEAM_CREATION", "priority": "P0", "natural_grains": ["Team-Fixture"], "examples": ["big chances created", "assists", "crosses", "through balls", "final-third entries"]},
+        {"id": "TEAM_PASSING", "priority": "P0", "natural_grains": ["Team-Fixture"], "examples": ["passes", "accurate passes", "forward passes", "long balls", "final-third passes"]},
+        {"id": "TEAM_POSSESSION_PROGRESSION", "priority": "P0", "natural_grains": ["Team-Fixture"], "examples": ["possession", "territory", "progression", "possession won", "possession lost"]},
+        {"id": "TEAM_DEFENDING_DUELS", "priority": "P0", "natural_grains": ["Team-Fixture"], "examples": ["tackles", "interceptions", "clearances", "blocks", "duels", "aerial duels"]},
+        {"id": "TEAM_GOALKEEPING", "priority": "P1", "natural_grains": ["Team-Fixture"], "examples": ["saves", "claims", "sweeper actions"]},
+        {"id": "TEAM_SET_PIECES", "priority": "P1", "natural_grains": ["Team-Fixture", "Event"], "examples": ["corners", "set-piece assists", "set-piece events"]}
+      ],
+      "known_requirement_notes": [
+        "The preserved historical PulseLive archive contains a broad team-match statistics surface.",
+        "Rich current-season team-match evidence is a major capability requirement rather than a reason to simplify historical Team Stats."
+      ]
+    },
+    {
+      "id": "OPPOSITION_REPORT",
+      "name": "Opposition Report",
+      "primary_question": "If I were preparing to face this team, what would I need to understand?",
+      "entry_entity": "Team",
+      "summary_priority": "visual_first",
+      "required_capability_families": [
+        {"id": "OPPOSITION_STYLE", "priority": "P0", "natural_grains": ["Team-Fixture", "Team-Season"], "examples": ["passing profile", "territory", "progression", "crossing", "long-ball tendency"]},
+        {"id": "OPPOSITION_CHANCE_CREATION", "priority": "P0", "natural_grains": ["Team-Fixture", "Event"], "examples": ["shots", "big chances", "through balls", "crosses", "final-third behaviour"]},
+        {"id": "OPPOSITION_DEFENSIVE_BEHAVIOUR", "priority": "P0", "natural_grains": ["Team-Fixture"], "examples": ["recoveries", "tackles", "interceptions", "shot suppression", "duels"]},
+        {"id": "OPPOSITION_GAME_STATE", "priority": "P1", "natural_grains": ["Event", "Team-Fixture"], "examples": ["scoring chronology", "cards", "substitutions", "state-dependent performance"]},
+        {"id": "OPPOSITION_FORMATIONS_PERSONNEL", "priority": "P1", "natural_grains": ["Team-Fixture", "Player-Fixture"], "examples": ["formation", "lineup", "substitutions", "player contribution concentration"]}
+      ]
+    },
+    {
+      "id": "MATCHDAY_FIXTURE_INTELLIGENCE",
+      "name": "Matchday / Fixture Intelligence",
+      "primary_question": "What does the evidence tell us about this fixture?",
+      "entry_entity": "Fixture",
+      "summary_priority": "visual_first_fixture_first",
+      "required_capability_families": [
+        {"id": "MATCHDAY_TEAM_RECENT_STATE", "priority": "P0", "natural_grains": ["Team-Fixture", "Historical-State"], "examples": ["recent form", "home-away", "shots", "goals", "xG"]},
+        {"id": "MATCHDAY_PLAYER_RECENT_STATE", "priority": "P0", "natural_grains": ["Player-Fixture", "Historical-State"], "examples": ["minutes", "starts", "shots", "assists", "tackles", "saves"]},
+        {"id": "MATCHDAY_SHOOTING_SCORING", "priority": "P0", "natural_grains": ["Team-Fixture", "Player-Fixture"], "examples": ["shots", "shots on target", "goals", "xG"]},
+        {"id": "MATCHDAY_CREATION", "priority": "P0", "natural_grains": ["Team-Fixture", "Player-Fixture"], "examples": ["assists", "xA", "key passes", "crosses"]},
+        {"id": "MATCHDAY_DEFENSIVE_ACTIVITY", "priority": "P0", "natural_grains": ["Team-Fixture", "Player-Fixture"], "examples": ["tackles", "recoveries", "fouls", "cards"]},
+        {"id": "MATCHDAY_GOALKEEPING", "priority": "P1", "natural_grains": ["Player-Fixture", "Team-Fixture"], "examples": ["saves", "shots faced", "xGC"]},
+        {"id": "MATCHDAY_SET_PIECES", "priority": "P1", "natural_grains": ["Team-Fixture", "Player-Fixture"], "examples": ["corners", "crosses"]},
+        {"id": "MATCHDAY_MODEL_OUTPUT", "priority": "P1", "natural_grains": ["Fixture", "Historical-State"], "examples": ["score distribution", "outcome probability", "calibration context"]}
+      ],
+      "known_requirement_notes": [
+        "Initial fixture intelligence forms an independent football opinion and does not require bookmaker odds.",
+        "A future odds layer should be kept separate from ordinary football evidence and used for explicit market-value questions.",
+        "Time-safe current player evidence is particularly valuable for this experience."
+      ]
+    },
+    {
+      "id": "RESEARCH_EXPLORER",
+      "name": "Research Explorer",
+      "primary_question": "What evidence do we possess and what football question can I interrogate?",
+      "entry_entity": "Variable or entity",
+      "summary_priority": "breadth_with_progressive_disclosure",
+      "required_capability_families": [
+        {"id": "UNIVERSAL_VARIABLE_ACCESS", "priority": "P0", "natural_grains": ["Fixture", "Team-Fixture", "Player-Fixture", "Team-Season", "Player-Season", "Event", "Context"], "examples": ["governed retrieval", "coverage", "provenance", "transformation"]},
+        {"id": "GENERIC_TRANSFORMATIONS", "priority": "P0", "natural_grains": ["Analysis"], "examples": ["totals", "rates", "per-match", "per-90 where valid", "splits", "rolling windows"]},
+        {"id": "POPULATION_COMPARISON", "priority": "P0", "natural_grains": ["Analysis"], "examples": ["rank", "percentile", "distribution", "cohort"]},
+        {"id": "VARIABLE_DISCOVERY", "priority": "P1", "natural_grains": ["Metadata"], "examples": ["families", "definitions", "season availability", "source routes", "limitations"]}
+      ]
+    }
+  ],
+  "acquisition_priority_scoring": {
+    "dimensions": [
+      "number_of_product_experiences_unlocked",
+      "research_and_modelling_value",
+      "current_season_importance",
+      "historical_depth_value",
+      "player_vs_team_grain_importance",
+      "identity_and_semantic_complexity",
+      "rights_and_operational_cost",
+      "provider_lock_in_risk"
+    ],
+    "rule": "Do not evaluate supplementary sources until the requirement has been checked against the preserved FRL ecosystem and classified as a genuine unresolved gap."
+  },
+  "next_execution_sequence": [
+    "INDUSTRIALISE_TEAM_MATCH_CAPABILITY",
+    "PROTOTYPE_PLAYER_SCOUTING_INFORMATION_HIERARCHY",
+    "PROTOTYPE_TEAM_SCOUTING_INFORMATION_HIERARCHY",
+    "PROTOTYPE_OPPOSITION_REPORT_INFORMATION_HIERARCHY",
+    "REFINE_MATCHDAY_FIXTURE_INTELLIGENCE_HIERARCHY",
+    "SCORE_CAPABILITY_GAPS_BY_PRODUCT_VALUE",
+    "BEGIN_REQUIREMENT_LED_SOURCE_EVALUATION"
+  ]
+}
