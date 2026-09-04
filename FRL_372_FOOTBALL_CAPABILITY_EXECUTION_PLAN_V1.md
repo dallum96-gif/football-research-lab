@@ -1,26 +1,37 @@
 # FRL 372 Football Capability Execution Plan V1
 
-**Status:** Active capability-industrialisation plan  
+**Status:** Active football-subset industrialisation plan  
 **Date:** 2026-09-04  
+**Master source universe:** `FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md`  
 **Parent product direction:** `FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md`
 
 ---
 
 ## Objective
 
-Turn the preserved PulseLive football evidence universe into a coherent, governed FRL capability layer without reducing the ambition to the easiest source family.
+Industrialise the **372 football/match paths inside the 553-path master snapshotted source universe** without reducing the ambition to the easiest source family.
 
 The preserved raw audit established:
 
-- **553** distinct scalar raw paths;
-- **181** capture/provenance paths;
-- **372** football/match paths;
-- **249** team-match statistical paths;
+- **553** distinct scalar raw paths — the master snapshotted source universe;
+- **181** capture/provenance paths — evidence infrastructure;
+- **372** football/match paths — the football-capability subset;
+- **249** team-match statistical paths — Phase 1 of football industrialisation;
 - **123** additional football paths covering events, lineups, managers and match/team context.
 
-The active capability North Star is therefore:
+The governing hierarchy is therefore:
 
-> **372 football/match raw paths remain in scope for semantic understanding, governed research access or explicit context/evidence roles.**
+```text
+553 MASTER SNAPSHOTTED SOURCE PATHS
+├── 181 capture / provenance
+└── 372 football / match
+    ├── 249 team-match statistics
+    └── 123 events / lineups / managers / context
+```
+
+This plan concerns the **372 football/match subset**. It does not replace or narrow the 553-path master source universe.
+
+The 372 paths remain in scope for semantic understanding, governed research access or explicit context/evidence roles.
 
 This does not mean 372 canonical metrics or 372 GUI elements.
 
@@ -46,7 +57,7 @@ The September reconciliation established:
 
 This means Phase 1 is primarily a semantic/governance and route-discovery problem, not a requirement to write 249 bespoke extractors.
 
-The 249 must never be mistaken for the final capability boundary.
+The 249 must never be mistaken for either the 372 football subset or the 553 master source universe.
 
 ---
 
@@ -200,8 +211,9 @@ Therefore:
 4. **Prove generic transformations and population/ranking semantics over the expanded team universe.**
 5. **Prototype Team Scouting / Opposition Report using governed capability only.**
 6. **Industrialise the remaining 123 football paths by workstream: Events → Lineups/Roles → Match/Manager Context.**
-7. **Score genuine unresolved capability gaps against Player Scouting, Team Scouting, Opposition Report, Matchday and Research needs.**
-8. **Only then begin requirement-led current/future source acquisition.**
+7. **Use the 181 provenance paths from the 553 master universe to strengthen source evidence, reproducibility and temporal auditability where relevant.**
+8. **Score genuine unresolved capability gaps against Player Scouting, Team Scouting, Opposition Report, Matchday and Research needs.**
+9. **Only then begin requirement-led current/future source acquisition.**
 
 ---
 
@@ -220,4 +232,4 @@ rather than a new bespoke extractor, API route and UI implementation for every f
 
 The long-term desired property is:
 
-> **FRL can safely answer questions across essentially the full legitimate football evidence universe it possesses, while each product experience remains simple, visual and coherent.**
+> **FRL can safely answer questions across essentially the full legitimate football evidence universe it possesses, while preserving the full 553-path source/evidence universe underneath and keeping each product experience simple, visual and coherent.**
