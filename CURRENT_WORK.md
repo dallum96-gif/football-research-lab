@@ -1,7 +1,7 @@
 # Current Work — Football Research Laboratory
 
 **Last updated:** 4 September 2026  
-**Checkpoint:** `PRODUCT_NORTH_STAR_CAPABILITY_LED_V1`
+**Checkpoint:** `TEAM_MATCH_GENERIC_ACCESS_PROVEN_V1`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
@@ -211,23 +211,51 @@ The goal is not 249 bespoke functions or 249 GUI widgets.
 
 The goal is a generic governed route in which additional metrics increasingly become catalogue/governance work rather than new architecture.
 
-## Team-match capability reconciliation — 4 September 2026
+## Team-match capability industrialisation milestone — 4 September 2026
 
-The first 249-field reconciliation has now been run locally and validated by tests.
-
-Result:
+The initial 249-field reconciliation established:
 
 - **26** `EXISTING_EXPOSED`;
 - **164** `EXISTING_SOURCE_FIELD_UNCATALOGUED`;
 - **59** `RAW_SNAPSHOT_ONLY`.
 
-Implication:
+The first controlled semantic promotion batch then promoted 13 additional team-match fields after source-name review, external semantic corroboration where available, decade-wide packaged coverage, and zero-violation empirical invariant checks for relevant child/parent relationships.
 
-- the 26 already have explicit semantic exposure and need generic-access verification;
-- the 164 already have packaged historical source-field evidence and primarily need semantic, aggregation, missingness and comparability review before promotion;
-- the 59 require packaged-equivalent/route discovery before they can join the same source-family machinery.
+The current reconciliation is therefore:
 
-A governance boundary issue was also identified in `variable_resolver.py`: empirically discovered but uncatalogued source fields could inherit the dataclass default `exposed` status. That boundary is now being corrected so source-native research visibility does not silently imply reusable/canonical exposure.
+- **39** `EXISTING_EXPOSED`;
+- **151** `EXISTING_SOURCE_FIELD_UNCATALOGUED`;
+- **59** `RAW_SNAPSHOT_ONLY`.
+
+The generic-access audit has now verified **39/39 exposed team-match statistical fields** end-to-end:
+
+- all 39 are discoverable as exposed;
+- all 39 resolve at explicit `team_match` grain;
+- all 39 execute against observed historical fixture evidence through the shared generic query route;
+- all 39 return source-field-consistent results;
+- no per-metric extractor is required.
+
+This proves the core industrialisation pattern:
+
+```text
+SOURCE FIELD
+    ↓
+SEMANTIC GOVERNANCE
+    ↓
+DISCOVERY
+    ↓
+EXPLICIT GRAIN RESOLUTION
+    ↓
+GENERIC RESEARCH RETRIEVAL
+```
+
+A family-collision bug exposed by `interceptionWon` was also fixed: explicit family context now takes precedence when the same source field legitimately exists at multiple grains, while aliases remain available in their own family.
+
+The remaining 151 packaged fields should now be treated primarily as a governance/semantics workload rather than an extraction-architecture workload.
+
+The 59 raw-snapshot-only team statistics remain a separate route-discovery/raw-routing problem; fuzzy name similarity is discovery evidence only and must not establish equivalence.
+
+The controlled promotion decision and evidence are recorded in `data/team_match_semantic_promotion_batch_v1.json`.
 
 ## Known capability implications
 
@@ -288,7 +316,7 @@ Every apparent gap should be classified before acquisition as one of:
 
 The active objective is now:
 
-> **Industrialise FRL's broad source and football-variable capability and prototype the new scouting/opposition/fixture information hierarchy, then use those product requirements to score genuine capability gaps before evaluating new data sources.**
+> **Scale the proven generic team-match capability method across defensible parts of the remaining 151 packaged fields, industrialise the other 123 football/match paths by natural grain, and prototype the scouting/opposition/fixture information hierarchy before requirement-led source acquisition.**
 
 This objective deliberately precedes broad supplementary-provider acquisition.
 
@@ -301,16 +329,16 @@ This objective deliberately precedes broad supplementary-provider acquisition.
 - keep all 372 football/match paths explicitly in scope for later semantic/governance work;
 - never redefine the master universe around the 249 team-stat subset.
 
-### 2. Industrialise the 249 team-match-statistic capability
+### 2. Scale the proven 249 team-match-statistic capability method
 
-- reconcile raw PulseLive team-match fields with the existing source-field/canonical-variable architecture;
-- verify the 26 already exposed fields through generic access;
-- triage the 164 packaged-but-uncatalogued fields into semantic-promotion batches;
+- preserve the verified 39/39 generic-access baseline;
+- triage the remaining 151 packaged-but-uncatalogued fields into evidence-backed semantic-promotion batches;
 - classify aggregation semantics;
 - classify missingness / sparse-zero semantics;
 - record season coverage and comparability;
 - discover packaged equivalents/routes for the 59 raw-snapshot-only fields;
 - provide generic research access where semantics are defensible;
+- continue to fail closed on ambiguous qualifiers and source meanings;
 - do not promote all 249 fields into the GUI.
 
 ### 3. Industrialise the remaining 123 football/match paths
@@ -377,6 +405,7 @@ Do not use a historical fixed test count as a universal baseline.
 For current work:
 
 - protect source/identity/temporal/missingness contracts;
+- preserve the 39/39 exposed team-match generic-access gate while scaling the registry;
 - prefer generic analytical seams over page-specific extraction;
 - run targeted tests for any new capability route;
 - run affected query/API/data regressions;
