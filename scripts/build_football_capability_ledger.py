@@ -19,6 +19,13 @@ def _read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def _is_capture(row: Mapping[str, object]) -> bool:
+    return (
+        str(row.get('logical_family') or '') == 'Capture & provenance'
+        or str(row.get('entity_level') or '') == 'Capture metadata'
+    )
+
+
 def _workstream(row: Mapping[str, object]) -> str:
     entity = str(row.get('entity_level') or '')
     resource = str(row.get('resource') or '')
@@ -59,14 +66,12 @@ def _capability_role(row: Mapping[str, object], workstream: str) -> str:
 
 
 def build_ledger(raw_rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
+    source_rows = [dict(row) for row in raw_rows]
+    football_rows = [row for row in source_rows if not _is_capture(row)]
+    capture_rows = [row for row in source_rows if _is_capture(row)]
+
     rows: list[dict[str, object]] = []
-
-    for raw in raw_rows:
-        if str(raw.get('logical_family') or '') == 'Capture & provenance':
-            continue
-        if str(raw.get('entity_level') or '') == 'Capture metadata':
-            continue
-
+    for raw in football_rows:
         workstream = _workstream(raw)
         rows.append({
             'resource': str(raw.get('resource') or ''),
@@ -81,7 +86,7 @@ def build_ledger(raw_rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
             'value_types': str(raw.get('value_types') or ''),
             'sample_values': str(raw.get('sample_values') or ''),
             'example_match_ids': str(raw.get('example_match_ids') or ''),
-            'north_star_status': 'IN_SCOPE_372',
+            'source_universe_status': 'FOOTBALL_MATCH_SUBSET_OF_553',
         })
 
     rows.sort(key=lambda row: (
@@ -97,8 +102,10 @@ def build_ledger(raw_rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
     non_team_stats = len(rows) - team_stats
 
     return {
-        'schema_version': '1.0.0',
-        'north_star_football_paths': len(rows),
+        'schema_version': '1.1.0',
+        'master_snapshotted_source_paths': len(source_rows),
+        'capture_provenance_paths': len(capture_rows),
+        'football_match_paths': len(rows),
         'team_match_statistical_paths': team_stats,
         'remaining_football_paths': non_team_stats,
         'workstream_counts': dict(sorted(workstreams.items())),
@@ -106,11 +113,13 @@ def build_ledger(raw_rows: Iterable[Mapping[str, object]]) -> dict[str, object]:
         'logical_family_counts': dict(sorted(families.items())),
         'rows': rows,
         'interpretation': (
-            'The 372 non-capture PulseLive raw paths are the preserved football capability '
-            'universe for this archive. The 249 team-match statistics are Phase 1 because '
-            'they share one coherent analytical grain; the remaining 123 event, lineup, '
-            'manager and match-context paths remain explicitly in scope for later phases. '
-            'Raw-path inclusion does not itself establish canonical semantics or product readiness.'
+            'The full raw-source master universe is every snapshotted scalar path. '
+            'Within that universe, capture/provenance paths are evidence infrastructure '
+            'and the non-capture football/match paths are the analytical/context subset. '
+            'The 249 team-match statistics are Phase 1 because they share one coherent '
+            'analytical grain; the remaining event, lineup, manager and match-context '
+            'paths remain explicitly in scope for later phases. Raw-path inclusion does '
+            'not itself establish canonical semantics or product readiness.'
         ),
     }
 
@@ -128,7 +137,7 @@ OUTPUT_FIELDS = (
     'value_types',
     'sample_values',
     'example_match_ids',
-    'north_star_status',
+    'source_universe_status',
 )
 
 
@@ -151,8 +160,9 @@ def write_ledger(result: Mapping[str, object], output_dir: Path) -> tuple[Path, 
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=(
-            'Build the explicit 372-path football capability ledger so the broader '
-            'North Star remains visible while team-match statistics are industrialised.'
+            'Build the explicit source-capability hierarchy: full snapshotted source '
+            'universe, capture/provenance subset, football/match subset, and the '
+            'team-match-statistics Phase 1 workstream.'
         )
     )
     parser.add_argument('--raw-catalogue', type=Path, default=DEFAULT_RAW_CATALOGUE)
@@ -171,7 +181,9 @@ def main() -> int:
     summary = {
         key: result[key]
         for key in (
-            'north_star_football_paths',
+            'master_snapshotted_source_paths',
+            'capture_provenance_paths',
+            'football_match_paths',
             'team_match_statistical_paths',
             'remaining_football_paths',
             'workstream_counts',
