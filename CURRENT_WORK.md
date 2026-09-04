@@ -29,6 +29,10 @@ Its product promise is:
 
 > **FRL should make enormous statistical depth feel simple, visual and fluid — whether the user is scouting a player, studying a team, preparing for an opponent, researching a population, or forming an independent view of a fixture.**
 
+The master PulseLive source-capability hierarchy is recorded in:
+
+`FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md`
+
 ## Current development branch state
 
 Active development work for the current Matchday / capability / product-direction sequence is on:
@@ -168,28 +172,62 @@ Bet-builder support can emerge by surfacing football phenomena corresponding to 
 
 Bookmaker odds are not required for this initial experience. A future odds layer, if acquired, should answer the separate market-value question and remain explicitly quarantined from ordinary football evidence.
 
-## Full-data capability objective
+## Full-source capability hierarchy
 
-FRL should curate presentation, **not artificially curate away data capability**.
+FRL should curate presentation, **not artificially curate away data or evidence capability**.
 
 The September raw PulseLive snapshot audit established:
 
 - 3,800 preserved fixture snapshots;
-- 553 distinct scalar raw paths;
-- 372 football/match raw paths after capture/provenance metadata is separated;
-- 249 team-match statistical raw paths.
+- **553 distinct scalar raw paths — the master snapshotted source universe**;
+- **181 capture/provenance paths — evidence infrastructure**;
+- **372 football/match raw paths — the football-capability subset**;
+- **249 team-match statistical raw paths — the first industrialisation block**;
+- **123 additional football/match paths — events, lineups, managers, identity and match/team context**.
+
+The hierarchy is:
+
+```text
+553 MASTER SNAPSHOTTED RAW SOURCE PATHS
+├── 181 capture / provenance
+└── 372 football / match
+    ├── 249 team-match statistics
+    └── 123 other football / match paths
+```
 
 These numbers describe source evidence, not 553 independently governed metrics.
 
-The active capability ambition is:
+The master source objective is:
+
+> **Understand, preserve and appropriately route the full 553-path source universe, while promoting legitimate football capabilities into governed analytical access and retaining provenance paths as evidence infrastructure.**
+
+The active football-capability ambition inside that master universe is:
 
 > **Make every legitimate governed football variable research-accessible where evidence permits; let individual product surfaces select only the variables that answer their question well.**
 
-The 249 team-match statistic surface is a particularly attractive industrialisation target because the variables share a common source family and natural analytical grain.
+The 249 team-match statistic surface is a particularly attractive Phase 1 target because the variables share a common source family and natural analytical grain.
 
 The goal is not 249 bespoke functions or 249 GUI widgets.
 
 The goal is a generic governed route in which additional metrics increasingly become catalogue/governance work rather than new architecture.
+
+## Team-match capability reconciliation — 4 September 2026
+
+The first 249-field reconciliation has now been run locally and validated by tests.
+
+Result:
+
+- **26** `EXISTING_EXPOSED`;
+- **164** `EXISTING_SOURCE_FIELD_UNCATALOGUED`;
+- **59** `RAW_SNAPSHOT_ONLY`.
+
+Implication:
+
+- the 26 already have explicit semantic exposure and need generic-access verification;
+- the 164 already have packaged historical source-field evidence and primarily need semantic, aggregation, missingness and comparability review before promotion;
+- the 59 require packaged-equivalent/route discovery before they can join the same source-family machinery.
+
+A governance boundary issue was also identified in `variable_resolver.py`: empirically discovered but uncatalogued source fields could inherit the dataclass default `exposed` status. That boundary is now being corrected so source-native research visibility does not silently imply reusable/canonical exposure.
 
 ## Known capability implications
 
@@ -250,24 +288,44 @@ Every apparent gap should be classified before acquisition as one of:
 
 The active objective is now:
 
-> **Industrialise FRL's broad football-variable capability and prototype the new scouting/opposition/fixture information hierarchy, then use those product requirements to score genuine capability gaps before evaluating new data sources.**
+> **Industrialise FRL's broad source and football-variable capability and prototype the new scouting/opposition/fixture information hierarchy, then use those product requirements to score genuine capability gaps before evaluating new data sources.**
 
 This objective deliberately precedes broad supplementary-provider acquisition.
 
 ## Immediate execution sequence
 
-### 1. Industrialise the 249 team-match-statistic capability
+### 1. Preserve and classify the 553-path master source universe
+
+- retain all 553 raw paths as the master audit/source universe;
+- keep 181 capture/provenance paths as evidence infrastructure rather than football metrics;
+- keep all 372 football/match paths explicitly in scope for later semantic/governance work;
+- never redefine the master universe around the 249 team-stat subset.
+
+### 2. Industrialise the 249 team-match-statistic capability
 
 - reconcile raw PulseLive team-match fields with the existing source-field/canonical-variable architecture;
-- identify which variables already have governed definitions/routes;
-- identify fields that are only source-present;
+- verify the 26 already exposed fields through generic access;
+- triage the 164 packaged-but-uncatalogued fields into semantic-promotion batches;
 - classify aggregation semantics;
 - classify missingness / sparse-zero semantics;
-- record season coverage;
+- record season coverage and comparability;
+- discover packaged equivalents/routes for the 59 raw-snapshot-only fields;
 - provide generic research access where semantics are defensible;
 - do not promote all 249 fields into the GUI.
 
-### 2. Prototype Player Scouting information hierarchy
+### 3. Industrialise the remaining 123 football/match paths
+
+By natural grain/workstream:
+
+- Events;
+- Player/Team Lineups, Formations and Roles;
+- Match and Team Context;
+- Manager Context;
+- Identity / relationship evidence.
+
+These can create event chronology, game-state reconstruction, role/formation context, personnel continuity and other research capabilities without forcing them into leaderboard-stat semantics.
+
+### 4. Prototype Player Scouting information hierarchy
 
 Using only already-governed evidence initially:
 
@@ -277,21 +335,21 @@ Using only already-governed evidence initially:
 - prove smooth drill-down into deeper metrics;
 - expose unavailable capability honestly rather than filling space.
 
-### 3. Prototype Team Scouting and Opposition Report
+### 5. Prototype Team Scouting and Opposition Report
 
 - establish the visual style/profile summary;
 - group rich historical team variables into analyst-relevant football questions;
 - prove navigation from curated summary → family → full evidence;
 - keep Team Profile identity/story distinct.
 
-### 4. Refine Matchday into Fixture Intelligence
+### 6. Refine Matchday into Fixture Intelligence
 
 - preserve fixture-first navigation;
 - organise evidence around matchup questions rather than sportsbook markets;
 - identify player/team evidence that maps naturally to common bet-builder phenomena;
 - retain model provenance, sample context and uncertainty.
 
-### 5. Score capability gaps
+### 7. Score capability gaps
 
 For each experience classify required capabilities as:
 
@@ -308,7 +366,7 @@ Then prioritise gaps by:
 - rights/operational cost;
 - provider-lock-in risk.
 
-### 6. Begin requirement-led source evaluation
+### 8. Begin requirement-led source evaluation
 
 Only then define exact missing capability bundles and evaluate providers/sources against them.
 
@@ -349,9 +407,11 @@ Fresh sessions should use this order:
 3. `CURRENT_WORK.md`
 4. `data/frl_documentation_state_v1.json`
 5. `FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md`
-6. `data/frl_product_capability_requirements_v1.json`
-7. task-relevant durable contracts / dated audits
-8. current implementation
+6. `FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md`
+7. `FRL_372_FOOTBALL_CAPABILITY_EXECUTION_PLAN_V1.md`
+8. `data/frl_product_capability_requirements_v1.json`
+9. task-relevant durable contracts / dated audits
+10. current implementation
 
 The documentation-sync rule remains mandatory:
 
