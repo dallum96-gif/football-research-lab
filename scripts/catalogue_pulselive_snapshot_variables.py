@@ -4,7 +4,7 @@ import argparse
 import csv
 import json
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -38,8 +38,7 @@ def _scalar_type(value: Any) -> str:
 def _safe_sample(value: Any) -> str:
     if value is None:
         return ''
-    text = str(value).replace('\n', ' ').replace('\r', ' ').strip()
-    return text[:160]
+    return str(value).replace('\n', ' ').replace('\r', ' ').strip()[:160]
 
 
 def _walk_scalars(value: Any, prefix: str = '') -> Iterable[tuple[str, Any]]:
@@ -51,7 +50,6 @@ def _walk_scalars(value: Any, prefix: str = '') -> Iterable[tuple[str, Any]]:
     if isinstance(value, list):
         child_prefix = f'{prefix}[]' if prefix else '[]'
         if not value:
-            # Preserve knowledge that an array exists even when this snapshot has no rows.
             yield _normalise_path(child_prefix), None
             return
         for child in value:
@@ -62,8 +60,7 @@ def _walk_scalars(value: Any, prefix: str = '') -> Iterable[tuple[str, Any]]:
 
 
 def _leaf_name(path: str) -> str:
-    tail = path.rsplit('.', 1)[-1]
-    return tail.replace('[]', '')
+    return path.rsplit('.', 1)[-1].replace('[]', '')
 
 
 def _entity_level(resource: str, path: str) -> tuple[str, str]:
@@ -74,14 +71,23 @@ def _entity_level(resource: str, path: str) -> tuple[str, str]:
         return 'Capture metadata', 'metadata envelope'
     if resource == '__fixture_context__' or 'fixture' in low_resource:
         return 'Fixture / match', 'fixture resource or fixture context'
+
+    # Resource grain wins over field-name heuristics. Event payloads routinely
+    # contain playerId/assistPlayerId, but those scalar values still live at
+    # event grain rather than player/lineup grain.
+    if (
+        low_resource in {'events', 'event', 'commentary'}
+        or any(token in low_resource for token in ('event', 'commentary'))
+        or any(token in low for token in ('goals[]', 'cards[]', 'subs[]', 'events[]', 'commentary[]'))
+    ):
+        return 'Event', 'event resource or event-array path'
+
+    if low_resource == 'stats' or 'teamstat' in low_resource or low.startswith('[].stats.'):
+        return 'Team-match statistic', 'stats resource'
     if 'manager' in low:
         return 'Manager', 'manager path'
     if any(token in low for token in ('players[]', 'playerid', 'playername', 'shirt', 'substitute')) and 'stats' not in low_resource:
         return 'Player / lineup', 'player-like lineup path'
-    if any(token in low for token in ('goals[]', 'cards[]', 'subs[]', 'events[]', 'commentary[]')):
-        return 'Event', 'event-array path'
-    if low_resource == 'stats' or 'teamstat' in low_resource or low.startswith('[].stats.'):
-        return 'Team-match statistic', 'stats resource'
     if any(token in low for token in ('formation', 'lineup', 'teamcontext')):
         return 'Team / lineup', 'formation or lineup path'
     if any(token in low for token in ('hometeam', 'awayteam', 'teamid', 'teamname')):
@@ -128,10 +134,9 @@ def _logical_family(path: str, entity_level: str) -> tuple[str, str]:
     return 'Other / review', 'no confident semantic token'
 
 
-def _payload_and_meta(name: str, resource: Any) -> tuple[Any, dict[str, Any]]:
+def _payload_and_meta(resource: Any) -> tuple[Any, dict[str, Any]]:
     if isinstance(resource, dict) and 'payload' in resource:
-        metadata = {key: value for key, value in resource.items() if key != 'payload'}
-        return resource.get('payload'), metadata
+        return resource.get('payload'), {k: v for k, v in resource.items() if k != 'payload'}
     return resource, {}
 
 
@@ -144,8 +149,7 @@ def _snapshot_id(snapshot: dict[str, Any], path: Path) -> str:
     value = snapshot.get('source_match_id')
     if value not in (None, ''):
         return str(value)
-    parent = path.parent.name
-    return parent.removeprefix('match-').removeprefix('match_')
+    return path.parent.name.removeprefix('match-').removeprefix('match_')
 
 
 def _snapshot_paths(root: Path) -> list[Path]:
@@ -186,15 +190,12 @@ def catalogue_archive(root: Path, *, limit: int | None = None) -> dict[str, Any]
         fixture = snapshot.get('fixture')
         if isinstance(fixture, dict):
             scans.append(('__fixture_context__', fixture))
-        snapshot_meta = {
-            key: value for key, value in snapshot.items()
-            if key not in {'resources', 'fixture'}
-        }
+        snapshot_meta = {k: v for k, v in snapshot.items() if k not in {'resources', 'fixture'}}
         if snapshot_meta:
             scans.append(('__snapshot_meta__', snapshot_meta))
 
         for name, resource in resources.items():
-            payload, metadata = _payload_and_meta(str(name), resource)
+            payload, metadata = _payload_and_meta(resource)
             scans.append((str(name), payload))
             if metadata:
                 scans.append((f'__resource_meta__:{name}', metadata))
@@ -223,8 +224,7 @@ def catalogue_archive(root: Path, *, limit: int | None = None) -> dict[str, Any]
                     }
                 record = records[key]
                 record['scalar_observations'] += 1
-                value_type = _scalar_type(value)
-                record['value_types'][value_type] += 1
+                record['value_types'][_scalar_type(value)] += 1
                 if value is not None:
                     record['non_null_observations'] += 1
                     sample = _safe_sample(value)
@@ -239,7 +239,7 @@ def catalogue_archive(root: Path, *, limit: int | None = None) -> dict[str, Any]
     rows: list[dict[str, Any]] = []
     for record in records.values():
         rows.append({
-            **{key: value for key, value in record.items() if key != 'value_types'},
+            **{k: v for k, v in record.items() if k != 'value_types'},
             'value_types': ', '.join(sorted(record['value_types'])),
             'snapshot_coverage_pct': round(record['snapshot_count'] / snapshots_read * 100.0, 1) if snapshots_read else 0.0,
             'sample_values': ' | '.join(record['sample_values']),
@@ -252,18 +252,14 @@ def catalogue_archive(root: Path, *, limit: int | None = None) -> dict[str, Any]
         row['path'].casefold(),
     ))
 
-    by_entity = Counter(row['entity_level'] for row in rows)
-    by_family = Counter(row['logical_family'] for row in rows)
-    by_resource = Counter(row['resource'] for row in rows)
-
     return {
         'archive_root': str(root),
         'snapshot_files_scanned': len(paths),
         'snapshots_read': snapshots_read,
         'distinct_variables': len(rows),
-        'distinct_variables_by_entity_level': dict(sorted(by_entity.items())),
-        'distinct_variables_by_logical_family': dict(sorted(by_family.items())),
-        'distinct_variables_by_resource': dict(sorted(by_resource.items())),
+        'distinct_variables_by_entity_level': dict(sorted(Counter(row['entity_level'] for row in rows).items())),
+        'distinct_variables_by_logical_family': dict(sorted(Counter(row['logical_family'] for row in rows).items())),
+        'distinct_variables_by_resource': dict(sorted(Counter(row['resource'] for row in rows).items())),
         'rows': rows,
         'failures': failures,
         'classification_note': (
@@ -274,20 +270,10 @@ def catalogue_archive(root: Path, *, limit: int | None = None) -> dict[str, Any]
 
 
 CSV_FIELDS = (
-    'entity_level',
-    'logical_family',
-    'resource',
-    'path',
-    'leaf_name',
-    'snapshot_count',
-    'snapshot_coverage_pct',
-    'scalar_observations',
-    'non_null_observations',
-    'value_types',
-    'sample_values',
-    'sample_match_ids',
-    'entity_classification_basis',
-    'family_classification_basis',
+    'entity_level', 'logical_family', 'resource', 'path', 'leaf_name',
+    'snapshot_count', 'snapshot_coverage_pct', 'scalar_observations',
+    'non_null_observations', 'value_types', 'sample_values', 'sample_match_ids',
+    'entity_classification_basis', 'family_classification_basis',
 )
 
 
@@ -313,49 +299,29 @@ def main() -> int:
             'resource, entity-level, semantic-family and coverage metadata.'
         )
     )
+    parser.add_argument('--archive-root', type=Path, help='Explicit PulseLive archive root. Defaults to FRL archive discovery.')
     parser.add_argument(
-        '--archive-root',
-        type=Path,
-        help='Explicit PulseLive archive root. Defaults to FRL archive discovery.',
-    )
-    parser.add_argument(
-        '--output-dir',
-        type=Path,
+        '--output-dir', type=Path,
         default=ROOT / 'data' / 'audits' / 'pulselive_raw_variables',
         help='Directory for CSV and JSON outputs.',
     )
-    parser.add_argument(
-        '--limit',
-        type=int,
-        default=None,
-        help='Optional maximum number of snapshot files to inspect.',
-    )
+    parser.add_argument('--limit', type=int, default=None, help='Optional maximum number of snapshot files to inspect.')
     args = parser.parse_args()
 
     root = args.archive_root.expanduser().resolve() if args.archive_root else pulselive_fixture_evidence.archive_root()
     if root is None or not root.is_dir():
-        raise SystemExit(
-            'No PulseLive archive root was found. Set FRL_PULSELIVE_ARCHIVE_ROOT '
-            'or pass --archive-root.'
-        )
+        raise SystemExit('No PulseLive archive root was found. Set FRL_PULSELIVE_ARCHIVE_ROOT or pass --archive-root.')
     if args.limit is not None and args.limit < 1:
         raise SystemExit('--limit must be at least 1 when supplied.')
 
     result = catalogue_archive(root, limit=args.limit)
     csv_path, json_path = write_catalogue(result, args.output_dir.expanduser().resolve())
 
-    summary = {
-        key: result[key]
-        for key in (
-            'archive_root',
-            'snapshot_files_scanned',
-            'snapshots_read',
-            'distinct_variables',
-            'distinct_variables_by_entity_level',
-            'distinct_variables_by_logical_family',
-            'distinct_variables_by_resource',
-        )
-    }
+    summary = {key: result[key] for key in (
+        'archive_root', 'snapshot_files_scanned', 'snapshots_read', 'distinct_variables',
+        'distinct_variables_by_entity_level', 'distinct_variables_by_logical_family',
+        'distinct_variables_by_resource',
+    )}
     summary['csv_output'] = str(csv_path)
     summary['json_output'] = str(json_path)
     summary['failures'] = len(result['failures'])
