@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "decision_date": "2026-09-04",
+  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE",
+  "family": "team_match",
+  "purpose": "Record the second controlled semantic promotion batch from the September 2026 PulseLive capability industrialisation programme.",
+  "promotion_rule": "Promote only fields with complete decade-wide numeric observation, non-negative values, sufficiently direct Opta concept support, and zero-violation empirical subset checks where a parent/child relationship is asserted. Sparse/no-zero source fields remain held until blank-versus-zero semantics are governed.",
+  "promoted_fields": [
+    "ballRecovery",
+    "successfulFinalThirdPasses",
+    "totalChippedPass",
+    "totalFinalThirdPasses",
+    "touches",
+    "unsuccessfulTouch"
+  ],
+  "evidence_sources": {
+    "external_semantics": "data/team_match_semantic_evidence_v2.json",
+    "empirical_audit_script": "scripts/audit_team_match_promotion_v2_evidence.py",
+    "source_registry": "source_field_registry.py"
+  },
+  "empirical_results": [
+    {
+      "rule_id": "successful_final_third_passes_lte_total",
+      "child_field": "successfulFinalThirdPasses",
+      "parent_field": "totalFinalThirdPasses",
+      "rows_compared": 7600,
+      "violations": 0
+    },
+    {
+      "rule_id": "chipped_passes_lte_total_passes",
+      "child_field": "totalChippedPass",
+      "parent_field": "totalPass",
+      "rows_compared": 7600,
+      "violations": 0
+    },
+    {
+      "rule_id": "unsuccessful_touch_lte_touches",
+      "child_field": "unsuccessfulTouch",
+      "parent_field": "touches",
+      "rows_compared": 7600,
+      "violations": 0
+    },
+    {
+      "rule_id": "ball_recoveries_lte_touches",
+      "child_field": "ballRecovery",
+      "parent_field": "touches",
+      "rows_compared": 7600,
+      "violations": 0,
+      "note": "Supporting consistency evidence only; the promotion relies primarily on the direct Opta Ball Recovery definition and complete numeric source coverage."
+    }
+  ],
+  "complete_numeric_profile": {
+    "required_rows_per_field": 7600,
+    "fields": [
+      "ballRecovery",
+      "successfulFinalThirdPasses",
+      "totalChippedPass",
+      "totalFinalThirdPasses",
+      "touches",
+      "unsuccessfulTouch"
+    ],
+    "negative_rows": 0
+  },
+  "explicitly_held_fields": {
+    "blockedPass": "Direct semantic support exists, but 7,595/7,600 nonblank observations with no observed zeros require sparse-zero/blank semantics before reusable exposure.",
+    "touchesInOppBox": "The 7,598-row touchesInOppBox<=touches check has zero violations, but two blanks and no observed zeros require sparse-zero/blank semantics before reusable exposure.",
+    "goalKicks": "Direct concept support exists, but 7,579/7,600 nonblank observations with no observed zeros require sparse-zero/blank semantics before reusable exposure.",
+    "lostCorners": "7,440/7,600 nonblank observations with no observed zeros require sparse-zero review; the proposed opponent-corner equality could not be tested because the packaged representation supplied no comparable paired observations in the V2 audit.",
+    "finalThirdEntries": "Complete numeric coverage, but exact entry semantics remain insufficiently defined for this batch.",
+    "penAreaEntries": "Complete numeric coverage, but the proposed penAreaEntries<=finalThirdEntries nesting hypothesis produced 35 violations and is explicitly rejected as a semantic assumption."
+  },
+  "falsified_assumption": {
+    "rule_id": "penalty_area_entries_lte_final_third_entries",
+    "rows_compared": 7600,
+    "violations": 35,
+    "decision": "DO_NOT_USE_AS_SEMANTIC_INVARIANT",
+    "interpretation": "Penalty-area entries and final-third entries cannot be treated as simple nested counts on the evidence observed. This does not prove either field is invalid; it blocks that proposed relationship as a governance shortcut."
+  },
+  "governance_note": "Exposure means reusable source-native FRL research access at team_match grain. It does not imply GUI exposure, approval of derived rates, current-season 2026/27 availability, or semantic equivalence to differently named provider fields."
+}
