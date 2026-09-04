@@ -92,3 +92,27 @@ def test_uncatalogued_source_field_remains_available_for_evidence_first_research
 
     assert result["registry_status"] == "UNCATALOGUED"
     assert [row["value"] for row in result["results"]] == ["7", "3"]
+
+
+def test_explicit_family_disambiguates_same_named_alias_and_source_field(monkeypatch):
+    def _available(family: str, season: str):
+        if family in {"team_match", "player_match"}:
+            return ("interceptionWon",)
+        return tuple()
+
+    monkeypatch.setattr(variable_resolver, "available_fields", _available)
+
+    team_definition = variable_resolver.variable_definition(
+        "interceptionWon", family="team_match", season="2025-26"
+    )
+    player_definition = variable_resolver.variable_definition(
+        "interceptionWon", family="player_match", season="2025-26"
+    )
+
+    assert team_definition.family == "team_match"
+    assert team_definition.source_field == "interceptionWon"
+    assert team_definition.status == "exposed"
+
+    assert player_definition.family == "player_match"
+    assert player_definition.source_field == "interceptionWon"
+    assert player_definition.status == "exposed"
