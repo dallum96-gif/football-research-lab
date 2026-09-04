@@ -4,7 +4,7 @@
   "checkpoint_id": "PRODUCT_NORTH_STAR_CAPABILITY_LED_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Industrialise broad governed football-variable capability, prototype visual-first scouting/opposition/fixture experiences, score genuine capability gaps, then evaluate supplementary data sources against product requirements",
+  "active_product_phase": "Preserve and route the 553-path master snapshotted source universe, industrialise the 372 football/match subset beginning with 249 team-match statistics, prototype visual-first scouting/opposition/fixture experiences, score genuine capability gaps, then evaluate supplementary data sources against product requirements",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -28,6 +28,8 @@
   ],
   "current_reference_documents": [
     "FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md",
+    "FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md",
+    "FRL_372_FOOTBALL_CAPABILITY_EXECUTION_PLAN_V1.md",
     "data/frl_product_capability_requirements_v1.json",
     "FRL_2026_27_INTEGRATION_CHECKPOINT_2026-08-31.md",
     "FRL_2026_27_STATS_VISUALISATION_COVERAGE_AUDIT_2026-09-03.md",
@@ -41,10 +43,14 @@
     "production Streamlit interface",
     "current research baseline is **26/26**",
     "immediate priority remains completing Fixture Workspace V1",
-    "That integration has not yet started"
+    "That integration has not yet started",
+    "372 football/match raw paths are the master snapshotted source universe",
+    "249 team-match statistical paths are the master capability universe"
   ],
   "architecture_sensitive_paths": [
     "FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md",
+    "FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md",
+    "FRL_372_FOOTBALL_CAPABILITY_EXECUTION_PLAN_V1.md",
     "data/frl_product_capability_requirements_v1.json",
     "FRL_SOURCE_NORMALISATION_CONTRACT.md",
     "FRL_SOURCE_ROUTING_CONTRACT.md",
@@ -58,6 +64,10 @@
     "canonical_route_registry.py",
     "variable_capability_inventory.py",
     "research_access.py",
+    "variable_resolver.py",
+    "scripts/build_football_capability_ledger.py",
+    "scripts/triage_team_match_capability_queue.py",
+    "scripts/reconcile_pulselive_team_stat_capability.py",
     "team_metric_missingness.py",
     "team_research_stats.py",
     "team_analysis_kernel.py",
@@ -78,6 +88,8 @@
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
     "FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md",
+    "FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md",
+    "FRL_372_FOOTBALL_CAPABILITY_EXECUTION_PLAN_V1.md",
     "data/frl_product_capability_requirements_v1.json",
     "data/frl_documentation_state_v1.json"
   ]
