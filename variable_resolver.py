@@ -149,14 +149,15 @@ def _source_definition(name: str, family: str) -> VariableDefinition:
 
 def _infer_definition(name: str, family: str | None, season: str | None) -> VariableDefinition:
     alias = ALIASES.get(name)
-    if alias is not None:
-        if family is not None and family != alias.family:
-            raise UnsupportedContextError(
-                f"Variable '{name}' belongs to {alias.family}, not {family}."
-            )
-        return alias
 
+    # Explicit family context is authoritative when the same source field
+    # genuinely exists in that family. This prevents a legacy alias in one
+    # family from hijacking a valid, explicitly requested definition in another.
+    # With no explicit family, aliases retain their historical convenience
+    # behaviour and ambiguous source fields still require caller context.
     if family == "fpl":
+        if alias is not None and alias.family == "fpl":
+            return alias
         row = fpl_variable_definition(name)
         return VariableDefinition(
             name=name,
@@ -172,11 +173,20 @@ def _infer_definition(name: str, family: str | None, season: str | None) -> Vari
         families = tuple(dict.fromkeys((*families, *discovered)))
 
     if family is not None:
-        if family not in families:
-            raise UnknownVariableError(
-                f"Variable/source field '{name}' is not available for family '{family}' in the requested context."
+        if alias is not None and family == alias.family:
+            return alias
+        if family in families:
+            return _source_definition(name, family)
+        if alias is not None:
+            raise UnsupportedContextError(
+                f"Variable '{name}' belongs to {alias.family}, not {family}."
             )
-        return _source_definition(name, family)
+        raise UnknownVariableError(
+            f"Variable/source field '{name}' is not available for family '{family}' in the requested context."
+        )
+
+    if alias is not None:
+        return alias
 
     if not families:
         raise UnknownVariableError(f"Unknown FRL variable/source field: {name}")
