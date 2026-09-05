@@ -1,0 +1,100 @@
+{
+  "schema_version": "1.0.0",
+  "status": "REVIEW_EVIDENCE_ONLY",
+  "decision_date": "2026-09-05",
+  "purpose": "Bulk exact-field semantic evidence for the fifth team-match promotion batch. This evidence deliberately resolves legacy provider field names by family rather than treating each field as a separate research project.",
+  "sources": {
+    "legacy_opta_f9_field_reference": {
+      "url": "https://github.com/tomh05/football-scores/blob/master/data/reference/opta-f9-stats.json",
+      "authority": "Legacy Opta F9 field-reference mirror (third-party hosted)",
+      "use": "Exact legacy snake_case field keys and field-level descriptions corresponding to the packaged PulseLive/Opta-style team-match names used by FRL."
+    },
+    "statsperform_opta_event_definitions": {
+      "url": "https://www.statsperform.com/opta-event-definitions/",
+      "authority": "Stats Perform / Opta",
+      "use": "Current official conceptual corroboration for event families such as passing, defending, goalkeeping and chance creation."
+    }
+  },
+  "exact_key_map": {
+    "accurateBackZonePass": "accurate_back_zone_pass",
+    "accurateCornersIntobox": "accurate_corners_intobox",
+    "accurateFwdZonePass": "accurate_fwd_zone_pass",
+    "accurateKeeperSweeper": "accurate_keeper_sweeper",
+    "accuratePullBack": "accurate_pull_back",
+    "accurateThroughBall": "accurate_through_ball",
+    "accurateThrows": "accurate_throws",
+    "attAssistOpenplay": "att_assist_openplay",
+    "attAssistSetplay": "att_assist_setplay",
+    "attemptsConcededIbox": "attempts_conceded_ibox",
+    "attemptsConcededObox": "attempts_conceded_obox",
+    "bigChanceScored": "big_chance_scored",
+    "challengeLost": "challenge_lost",
+    "crosses18yard": "crosses_18yard",
+    "crosses18yardplus": "crosses_18yardplus",
+    "divingSave": "diving_save",
+    "effectiveBlockedCross": "effective_blocked_cross",
+    "effectiveHeadClearance": "effective_head_clearance",
+    "errorLeadToGoal": "error_lead_to_goal",
+    "errorLeadToShot": "error_lead_to_shot",
+    "finalThirdEntries": "final_third_entries",
+    "fouledFinalThird": "fouled_final_third",
+    "freekickCross": "freekick_cross",
+    "hitWoodwork": "hit_woodwork",
+    "interceptionsInBox": "interceptions_in_box",
+    "leftsidePass": "leftside_pass",
+    "outfielderBlock": "outfielder_block",
+    "overrun": "overrun",
+    "passesLeft": "passes_left",
+    "passesRight": "passes_right",
+    "penAreaEntries": "pen_area_entries",
+    "possLostAll": "poss_lost_all",
+    "possWonAtt3rd": "poss_won_att_3rd",
+    "possWonDef3rd": "poss_won_def_3rd",
+    "possWonMid3rd": "poss_won_mid_3rd",
+    "rightsidePass": "rightside_pass",
+    "savedIbox": "saved_ibox",
+    "savedObox": "saved_obox",
+    "subsMade": "subs_made",
+    "totalBackZonePass": "total_back_zone_pass",
+    "totalContest": "total_contest",
+    "totalCornersIntobox": "total_corners_intobox",
+    "totalFwdZonePass": "total_fwd_zone_pass",
+    "totalHighClaim": "total_high_claim",
+    "totalKeeperSweeper": "total_keeper_sweeper",
+    "totalPullBack": "total_pull_back",
+    "totalThroughBall": "total_through_ball",
+    "totalThrows": "total_throws",
+    "wonContest": "won_contest"
+  },
+  "semantic_resolutions": {
+    "contest_family": "The exact field reference distinguishes totalContest as dribble/contest attempts and wonContest as successful dribbles, while challengeLost is a missed challenge where the defender is beaten. Existing wonContest<=totalContest empirical evidence therefore becomes supporting evidence rather than the source of the definition.",
+    "entry_family": "finalThirdEntries and penAreaEntries are independently defined boundary-entry actions. V2's 35 penAreaEntries>finalThirdEntries observations only falsified a proposed nesting shortcut; they do not conflict with the now-direct field definitions.",
+    "directional_pass_family": "leftsidePass/rightsidePass and passesLeft/passesRight are separate documented concepts. The former are directional passes to the team/player side in the attacking half; the latter are passes to the corresponding wing. They must remain distinct FRL variables.",
+    "accurate_total_pairs": "The exact reference supplies both parent and successful/accurate child definitions for back-zone passes, forward-zone passes, corners into the box, keeper sweeper actions, pull-backs, through balls and throw-ins. Existing zero-violation child<=parent audits are supporting consistency evidence.",
+    "missingness": "Direct semantic resolution does not alter missingness. Any source blank remains missing unless a separate audited structural-zero rule exists."
+  },
+  "empirical_support": {
+    "v1_invariant_audit": "scripts/audit_team_match_candidate_invariants.py",
+    "v4_evidence_stack": "scripts/audit_team_match_v4_evidence_stack.py",
+    "known_zero_violation_pairs": [
+      "wonContest<=totalContest",
+      "effectiveHeadClearance<=headClearance",
+      "accurateBackZonePass<=totalBackZonePass",
+      "accurateCornersIntobox<=totalCornersIntobox",
+      "accurateFwdZonePass<=totalFwdZonePass",
+      "accurateKeeperSweeper<=totalKeeperSweeper",
+      "accuratePullBack<=totalPullBack",
+      "accurateThroughBall<=totalThroughBall",
+      "accurateThrows<=totalThrows",
+      "effectiveBlockedCross<=blockedCross"
+    ]
+  },
+  "explicitly_not_promoted_by_v5": {
+    "redCard": "Exact red_card and total_red_card definitions both exist. Because FRL already exposes totalRedCard, redCard remains held pending direct reconciliation of the two team-match aggregates and card-event representation.",
+    "successfulFiftyFifty": "No exact field definition was established in the V5 reference pass.",
+    "successfulPutThrough": "The legacy reference says this concept was Bundesliga-specific; it is not promoted merely because historical numeric rows exist.",
+    "attemptsIbox": "No exact attempts_ibox key was established in the legacy reference used for this batch.",
+    "attemptsObox": "No exact attempts_obox key was established in the legacy reference used for this batch."
+  },
+  "governance_note": "Exact legacy field-reference support plus existing packaged-source evidence is sufficient for source-native research exposure where no contradictory FRL evidence exists. It does not imply complete coverage, structural-zero semantics, GUI suitability, approved derived rates or current-season availability."
+}
