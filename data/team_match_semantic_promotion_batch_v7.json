@@ -1,7 +1,8 @@
 {
   "schema_version": "1.0.0",
   "decision_date": "2026-09-05",
-  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE",
+  "status": "VERIFIED_GENERIC_ACCESS",
+  "verification_date": "2026-09-05",
   "family": "team_match",
   "purpose": "Promote the directly supported subset of the post-V6 packaged residue using existing FRL governed labels plus direct legacy field definitions.",
   "promotion_rule": "Promote only fields in the 23-field residue where either FRL already treats the field as a governed direct team-match concept or an external legacy Opta-family definition directly resolves the exact field. Preserve blanks as missing and retain unresolved duplicates/expected/physical/competition-specific fields.",
@@ -56,6 +57,13 @@
       "FAIL": 0,
       "all_exposed_fields_pass_generic_access": true
     }
+  },
+  "local_verification": {
+    "milestone_gate": "PASSED",
+    "pytest_test_modules": 11,
+    "reconciliation": "176 exposed / 14 uncatalogued / 59 raw-only",
+    "generic_access": "176/176 PASS",
+    "documentation_sync": "PASS"
   },
   "governance_note": "V7 is a residue-resolution batch, not a relaxation of governance. The remaining 14 fields require dedicated overlap, expected-metric, physical-metric, competition-specific or direct-definition work."
 }
