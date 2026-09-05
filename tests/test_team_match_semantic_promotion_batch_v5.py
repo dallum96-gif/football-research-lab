@@ -67,6 +67,20 @@ PROMOTED_V5 = {
     "wonContest",
 }
 
+HISTORICALLY_HELD_AFTER_V5 = {
+    "redCard",
+    "successfulFiftyFifty",
+    "successfulPutThrough",
+    "attemptsIbox",
+    "attemptsObox",
+}
+
+STILL_HELD_AFTER_V7 = {
+    "redCard",
+    "successfulFiftyFifty",
+    "successfulPutThrough",
+}
+
 
 def _team_statuses() -> dict[str, str]:
     return {
@@ -75,12 +89,9 @@ def _team_statuses() -> dict[str, str]:
     }
 
 
-def test_v5_manifest_records_bulk_batch_and_expected_gate():
+def test_v5_manifest_records_verified_bulk_batch_and_expected_gate():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    assert manifest["status"] in {
-        "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE",
-        "VERIFIED_GENERIC_ACCESS",
-    }
+    assert manifest["status"] == "VERIFIED_GENERIC_ACCESS"
     assert manifest["promotion_count"] == 49
     assert set(manifest["promoted_fields"]) == PROMOTED_V5
     expected = manifest["expected_post_gate"]["reconciliation"]
@@ -90,6 +101,11 @@ def test_v5_manifest_records_bulk_batch_and_expected_gate():
         "EXISTING_SOURCE_FIELD_UNCATALOGUED": 77,
         "RAW_SNAPSHOT_ONLY": 59,
     }
+
+
+def test_v5_historical_hold_set_is_preserved_in_manifest():
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    assert HISTORICALLY_HELD_AFTER_V5 == set(manifest["explicitly_held_fields_at_v5"])
 
 
 def test_v5_exact_reference_map_covers_every_promoted_field():
@@ -133,13 +149,8 @@ def test_v5_preserves_distinct_directional_pass_concepts():
     assert len(mapped) == 4
 
 
-def test_v5_keeps_known_unresolved_fields_out_of_registry():
+def test_only_genuinely_unresolved_v5_candidates_remain_unexposed_after_v7():
     statuses = _team_statuses()
-    for field in {
-        "redCard",
-        "successfulFiftyFifty",
-        "successfulPutThrough",
-        "attemptsIbox",
-        "attemptsObox",
-    }:
-        assert statuses.get(field) != "exposed"
+    assert all(statuses.get(field) != "exposed" for field in STILL_HELD_AFTER_V7)
+    assert statuses["attemptsIbox"] == "exposed"
+    assert statuses["attemptsObox"] == "exposed"
