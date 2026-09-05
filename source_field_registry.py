@@ -195,6 +195,71 @@ TEAM_PROMOTION_BATCH_V5_FIELDS = {
     "wonContest": "exposed",
 }
 
+# Sixth controlled expansion: a second bulk exact-field pass over the remaining
+# packaged shooting, assist, penalty, goalkeeper, discipline and match-event
+# aggregate families. Exact legacy F9 keys are required for this batch; fields
+# with unresolved overlap, competition-specific collection or newer-model /
+# physical semantics remain held. Blanks remain missing.
+#
+# See data/team_match_semantic_evidence_v6.json and
+# data/team_match_semantic_promotion_batch_v6.json.
+TEAM_PROMOTION_BATCH_V6_FIELDS = {
+    "accurateFreekickCross": "exposed",
+    "attCorner": "exposed",
+    "attFastbreak": "exposed",
+    "attFreekickGoal": "exposed",
+    "attFreekickMiss": "exposed",
+    "attFreekickTarget": "exposed",
+    "attFreekickTotal": "exposed",
+    "attObxdLeft": "exposed",
+    "attObxdRight": "exposed",
+    "attOneOnOne": "exposed",
+    "attOpenplay": "exposed",
+    "attPenGoal": "exposed",
+    "attPenMiss": "exposed",
+    "attPenPost": "exposed",
+    "attPenTarget": "exposed",
+    "attPostHigh": "exposed",
+    "attPostLeft": "exposed",
+    "attPostRight": "exposed",
+    "attSetpiece": "exposed",
+    "attemptedTackleFoul": "exposed",
+    "clearanceOffLine": "exposed",
+    "contentiousDecision": "exposed",
+    "defenderGoals": "exposed",
+    "dispossessed": "exposed",
+    "forwardGoals": "exposed",
+    "foulThrowIn": "exposed",
+    "goalAssist": "exposed",
+    "goalAssistDeadball": "exposed",
+    "goalAssistIntentional": "exposed",
+    "goalAssistOpenplay": "exposed",
+    "goalAssistSetplay": "exposed",
+    "goalFastbreak": "exposed",
+    "goalsOpenplay": "exposed",
+    "goodHighClaim": "exposed",
+    "handBall": "exposed",
+    "midfielderGoals": "exposed",
+    "offtargetAttAssist": "exposed",
+    "ontargetAttAssist": "exposed",
+    "ownGoals": "exposed",
+    "penGoalsConceded": "exposed",
+    "penaltyConceded": "exposed",
+    "penaltyFaced": "exposed",
+    "penaltySave": "exposed",
+    "penaltyWon": "exposed",
+    "possLostCtrl": "exposed",
+    "postScoringAtt": "exposed",
+    "punches": "exposed",
+    "rescindedRedCard": "exposed",
+    "secondYellow": "exposed",
+    "shieldBallOop": "exposed",
+    "shotFastbreak": "exposed",
+    "sixYardBlock": "exposed",
+    "totalAttAssist": "exposed",
+    "totalFastbreak": "exposed",
+}
+
 COMMON_PLAYER_MATCH_FIELDS = {
     "matchId": "exposed",
     "gameweek": "exposed",
@@ -307,7 +372,8 @@ SOURCE_FIELD_REGISTRY = (
         | TEAM_PROMOTION_BATCH_V2_FIELDS
         | TEAM_PROMOTION_BATCH_V3_FIELDS
         | TEAM_PROMOTION_BATCH_V4_FIELDS
-        | TEAM_PROMOTION_BATCH_V5_FIELDS,
+        | TEAM_PROMOTION_BATCH_V5_FIELDS
+        | TEAM_PROMOTION_BATCH_V6_FIELDS,
     )
     + _build_family("player_match", COMMON_PLAYER_MATCH_FIELDS | PLAYER_MATCH_CURATED_FIELDS)
     + _build_family("player_season", PLAYER_SEASON_FIELDS)
