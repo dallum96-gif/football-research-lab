@@ -136,7 +136,9 @@ def test_only_genuinely_unresolved_v4_candidates_still_fail_closed_after_v5():
             )
         except UnknownVariableError:
             continue
-        assert definition.status == "uncatalogued"
+        # Later source-universe governance can classify a historical hold as
+        # retained/restricted without making it reusable canonical access.
+        assert definition.status in {"retained", "restricted", "uncatalogued"}
         with pytest.raises((VariableUnavailableError, UnknownVariableError)):
             resolve_variable(
                 field,
