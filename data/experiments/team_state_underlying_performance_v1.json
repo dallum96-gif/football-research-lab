@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0.0",
+  "experiment_id": "TEAM_STATE_UNDERLYING_PERFORMANCE_V1",
+  "status": "DESIGN_REGISTERED_NOT_RUN",
+  "registered_date": "2026-09-05",
+  "question": "Does recent underlying attacking and defensive performance improve next-match probability forecasts beyond established team strength?",
+  "primary_hypothesis": "A small pre-specified block of recent underlying performance measurements contains incremental predictive information beyond the frozen Poisson V1 team-strength baseline.",
+  "null_hypothesis": "The pre-specified Team State performance block does not improve out-of-sample probability forecasts beyond the baseline on a matched fixture population.",
+  "research_object": "team_state.py::fixture_team_states",
+  "forecast_cutoff": "target fixture kickoff",
+  "temporal_status": {
+    "event_time_cutoff": "ENFORCED",
+    "source_information_availability": "OPERATIONAL_ASSUMPTION_NOT_SOURCE_TIMESTAMP_PROVEN",
+    "constraint": "Results remain experimental until the historical publication-time assumption is explicitly audited or replaced by timestamped evidence."
+  },
+  "baseline": {
+    "model": "Poisson V1.0",
+    "rule": "Freeze the current baseline before challenger fitting; do not tune it using challenger evaluation results."
+  },
+  "challengers": [
+    {
+      "id": "ADAPTIVE_DIXON_COLES_V1",
+      "purpose": "Replace frozen prior-season strength with regularised time-aware attacking and defensive strength plus low-score dependence correction."
+    },
+    {
+      "id": "ADAPTIVE_DIXON_COLES_PLUS_TEAM_STATE_V1",
+      "purpose": "Test incremental information from the pre-specified Team State feature block without unrestricted feature search."
+    }
+  ],
+  "primary_feature_block": [
+    "recent_5.shot_share",
+    "recent_5.xg_share",
+    "recent_5.xg_per_shot_for",
+    "recent_5.xg_per_shot_against",
+    "recent_5.penalty_area_entries_for",
+    "recent_5.penalty_area_entries_against",
+    "recent_5.schedule_strength_opponent_pre_match_ppg"
+  ],
+  "secondary_descriptive_features": [
+    "recent_5.goals_for",
+    "recent_5.goals_against",
+    "recent_5.shots_for",
+    "recent_5.shots_against",
+    "recent_5.possession",
+    "recent_5.final_third_entries_for",
+    "recent_5.final_third_entries_against",
+    "change_vs_prior_season"
+  ],
+  "evaluation": {
+    "design": "chronological development and evaluation with identical eligible-fixture populations for paired comparisons",
+    "primary_score": "multiclass_log_loss",
+    "secondary_scores": [
+      "multiclass_brier_score",
+      "calibration_by_probability_bin",
+      "most_probable_outcome_accuracy",
+      "fixture_exclusion_rate"
+    ],
+    "market_evaluation": "separate prospective phase using timestamped available prices and explicit margin removal; no historical profitability claim from model scores alone",
+    "multiple_testing_rule": "All tried feature blocks, windows, transforms and thresholds must be retained in the experiment record."
+  },
+  "promotion_rule": "No challenger becomes a trusted FRL forecasting model because it looks plausible or wins one backtest. Promotion requires repeatable out-of-sample improvement, acceptable calibration, stable coverage and a clear temporal/provenance contract.",
+  "professional_benchmark_note": "Current professional/public systems commonly combine dynamic team strength with richer performance evidence. FRL should compare these ingredients empirically rather than inventing an unvalidated composite form score."
+}
