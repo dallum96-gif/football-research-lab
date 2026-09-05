@@ -1,7 +1,7 @@
 # Current Work — Football Research Laboratory
 
 **Last updated:** 5 September 2026  
-**Checkpoint:** `SOURCE_UNIVERSE_TEAM_AND_PLAYER_PROVEN_V1`
+**Checkpoint:** `HEAD_TO_HEAD_BETBUILDER_V1`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
@@ -122,11 +122,92 @@ Materialised state:
 
 FPL remains a distinct source family. FPL ICT Creativity must never be relabelled as detailed passing/key-pass evidence.
 
+## Team State and forecasting — first controlled model progression
+
+`Team State V1` is available as a pre-fixture research object with recent-5, recent-10, season-to-date and prior-season windows. Its event-time cutoff is the target fixture kickoff; historical source-publication-time equivalence remains explicitly not yet proven.
+
+The first controlled forecasting challenger is complete:
+
+- frozen Poisson V1 control;
+- Adaptive Dixon-Coles V1 selected only on 2017/18–2020/21 development seasons;
+- untouched holdout: 2021/22–2025/26;
+- Adaptive DC coverage: **1,900/1,900** completed holdout fixtures;
+- Poisson V1 coverage: **1,360/1,900**;
+- common-population log loss: **1.065515 Poisson / 1.013105 Adaptive DC**;
+- common-population Brier: **0.638726 / 0.606504**;
+- common-population accuracy: **47.43% / 50.51%**;
+- paired log-loss improvement: **+0.052411**.
+
+Robustness closeout strengthened the result:
+
+- Adaptive DC improved log loss in **all five holdout seasons**;
+- paired bootstrap 95% interval: **+0.031951 to +0.072532**;
+- the Dixon-Coles low-score `rho` correction itself contributed only about **+0.000334** log-loss improvement, so the useful gain is predominantly the adaptive time-varying strength system;
+- control status: `CONTROL_FREEZE_SUPPORTED_FOR_NEXT_EXPERIMENT`.
+
+Adaptive DC is therefore the **frozen experimental forecasting control** for the next Team State incremental-information experiment. It is not yet a trusted production model and no betting-market edge is claimed.
+
+## Head-to-Head + BetBuilder Stat Pack V1 — visible product milestone
+
+The first combined analytical matchup product is now implemented on `model/poisson-v1`.
+
+Route:
+
+`/head-to-head/{season}/{fixtureId}`
+
+API:
+
+`/api/v1/head-to-head/{season}/{fixture_id}`
+
+The page is deliberately organised around the workflow:
+
+**fixture → BetBuilder evidence → analytical team profiles → independent model picture → player watchlists**
+
+V1 BetBuilder evidence uses ten fixed, pre-specified team thresholds — five for each side:
+
+- 1+ goal;
+- 10+ shots;
+- 4+ shots on target;
+- 4+ corners;
+- 2+ yellow cards.
+
+Each entry pairs:
+
+1. the selected team's recent pre-match hit frequency; and
+2. the opponent's recent allowance frequency for the same governed statistic.
+
+The resulting `evidence_index` is explicitly descriptive and **must not be presented as a calibrated betting probability**. Thresholds were fixed before target-match evaluation and are not selected after seeing results.
+
+The same page also exposes:
+
+- recent analytical profiles for both teams from governed pre-kickoff team evidence;
+- the frozen Adaptive Dixon-Coles control as a separate probability layer;
+- expected goals and leading exact-score probabilities from the forecasting control;
+- current-season player watchlists from governed FPL evidence;
+- explicit early-season and coverage limitations;
+- direct navigation from the existing Matchday workspace.
+
+The Head-to-Head route deliberately avoids the legacy external Player-Match filesystem dependency required by full fixture-detail enrichment and runs from repository-contained governed evidence. The older Matchday fixture-detail path still contains a hard-coded local `Premier-League-Stats` root in `match_stats.py`; this is now explicit portability debt rather than a hidden dependency of Head-to-Head V1.
+
+Validation for this milestone on GitHub Actions:
+
+- **17 Python / regression tests: PASS**;
+- **Next.js TypeScript check: PASS**;
+- **Next.js production build: PASS**.
+
 ## Immediate objective
 
-> **Consume the now-routed team and player source universes through shared FRL research/product services. Let analytical/product demand determine which retained/restricted/raw-native representations need deeper semantic promotion next.**
+> **Develop Analytical Profile + Head-to-Head as complementary views over one governed evidence layer, with the BetBuilder Stat Pack at the centre of fixture-specific synthesis.**
 
-Near-term work should increasingly use these capabilities in Team Scouting, Player Scouting, Opposition Report, Matchday / Fixture Intelligence, Rankings and Research Explorer rather than resuming mass field-by-field promotion without a concrete analytical need.
+Near-term sequence:
+
+1. deepen the analytical team profile beyond the initial recent-match slice using the now-routed 249-field team universe;
+2. expand Head-to-Head from fixed V1 thresholds into richer attack-v-opponent-defence evidence while preserving exact coverage and provenance;
+3. promote fouls/cards, set-piece and player-market evidence only where source semantics support it;
+4. remove the remaining hard-coded local Player-Match filesystem dependency from the legacy Matchday enrichment path;
+5. run the pre-registered Adaptive DC + Team State forecasting experiment without allowing model work to displace the scouting/opposition product programme.
+
+Team Scouting, Player Scouting, Opposition Report, Matchday / Fixture Intelligence, Rankings and Research Explorer remain active destinations for the same source universe rather than separate statistical systems.
 
 ## Non-negotiables
 
@@ -136,3 +217,4 @@ Near-term work should increasingly use these capabilities in Team Scouting, Play
 - Never discard a legitimate variable solely because coverage begins later than 2016/17.
 - Never force event/tactical objects through a scalar-variable interface merely for uniformity.
 - Never let product surfaces invent independent definitions of governed football concepts.
+- Never present a descriptive BetBuilder evidence index as a calibrated probability or guaranteed betting return.
