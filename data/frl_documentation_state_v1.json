@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-09-05",
-  "checkpoint_id": "TEAM_MATCH_V2_AND_FIXTURE_CONTEXT_PROVEN_V1",
+  "checkpoint_id": "TEAM_MATCH_V2_AND_FIXTURE_CONTEXT_PROVEN_V1_V3_PENDING",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Preserve and route the 553-path master snapshotted source universe; preserve the verified 45/45 team-match generic-access baseline; resolve high-value sparse-zero and semantic blockers through independent evidence; continue natural-grain industrialisation of the 123 non-team-statistical football paths; consume the archive-wide proven fixture event/tactical-context seam through shared Matchday and Opposition analytical services; prototype visual-first scouting/opposition/fixture experiences; score genuine capability gaps; then evaluate supplementary sources against product requirements",
+  "active_product_phase": "Preserve and route the 553-path master snapshotted source universe; preserve the verified 45/45 team-match generic-access baseline; verify coverage-aware Team-Match Promotion Batch V3 without converting genuine blanks to zero; continue semantic governance across the remaining packaged and raw-only team statistics; continue natural-grain industrialisation of the 123 non-team-statistical football paths; consume the archive-wide proven fixture event/tactical-context seam through shared Matchday and Opposition analytical services; prototype visual-first scouting/opposition/fixture experiences; score genuine capability gaps; then evaluate supplementary sources against product requirements",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -36,6 +36,7 @@
     "data/team_match_semantic_promotion_batch_v1.json",
     "data/team_match_semantic_evidence_v2.json",
     "data/team_match_semantic_promotion_batch_v2.json",
+    "data/team_match_semantic_promotion_batch_v3.json",
     "data/fixture_context_research_capability_v1.json",
     "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "FRL_2026_27_INTEGRATION_CHECKPOINT_2026-08-31.md",
@@ -53,6 +54,8 @@
     "39/39 exposed team-match fields remain the current generic-access baseline",
     "151 packaged-but-uncatalogued team-match fields remain after promotion batch v2",
     "Team-Match Promotion Batch V2 is still pending local verification",
+    "blockedPass, touchesInOppBox and goalKicks require structural-zero approval before they can be exposed",
+    "lostCorners is equivalent to opponent cornerTaken",
     "123 non-team-statistical football paths are only an unstructured future-work backlog",
     "event/lineup context has not yet been normalised",
     "immediate priority remains completing Fixture Workspace V1",
@@ -69,6 +72,7 @@
     "data/team_match_semantic_promotion_batch_v1.json",
     "data/team_match_semantic_evidence_v2.json",
     "data/team_match_semantic_promotion_batch_v2.json",
+    "data/team_match_semantic_promotion_batch_v3.json",
     "data/fixture_context_research_capability_v1.json",
     "FRL_SOURCE_NORMALISATION_CONTRACT.md",
     "FRL_SOURCE_ROUTING_CONTRACT.md",
@@ -124,7 +128,9 @@
     "data/frl_product_capability_requirements_v1.json",
     "data/team_match_semantic_promotion_batch_v1.json",
     "data/team_match_semantic_promotion_batch_v2.json",
+    "data/team_match_semantic_promotion_batch_v3.json",
     "data/fixture_context_research_capability_v1.json",
+    "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "data/frl_documentation_state_v1.json"
   ]
 }
