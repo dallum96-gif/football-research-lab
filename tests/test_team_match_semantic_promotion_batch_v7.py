@@ -26,7 +26,6 @@ PROMOTED_V7 = {
     "attemptsObox",
     "ptsDroppedWinningPos",
     "ptsGainedLosingPos",
-    "winningGoal",
 }
 
 HELD_AFTER_V7 = {
@@ -42,6 +41,7 @@ HELD_AFTER_V7 = {
     "successfulFiftyFifty",
     "successfulPutThrough",
     "totalDistance",
+    "winningGoal",
     "yellowCard",
 }
 
@@ -56,20 +56,21 @@ def _team_statuses() -> dict[str, str]:
 def test_v7_manifest_records_exact_residue_batch_and_gate():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     assert manifest["status"] == "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE"
-    assert manifest["promotion_count"] == 10
+    assert manifest["promotion_count"] == 9
     assert set(manifest["promoted_fields"]) == PROMOTED_V7
     assert set(manifest["explicitly_held_fields"]) == HELD_AFTER_V7
     assert manifest["expected_post_gate"]["reconciliation"] == {
         "team_match_raw_paths": 249,
-        "EXISTING_EXPOSED": 177,
-        "EXISTING_SOURCE_FIELD_UNCATALOGUED": 13,
+        "EXISTING_EXPOSED": 176,
+        "EXISTING_SOURCE_FIELD_UNCATALOGUED": 14,
         "RAW_SNAPSHOT_ONLY": 59,
     }
 
 
-def test_v7_evidence_covers_every_promoted_field():
+def test_v7_evidence_covers_every_promoted_field_and_explicitly_holds_winning_goal():
     evidence = json.loads(EVIDENCE.read_text(encoding="utf-8"))
     assert set(evidence["fields"]) == PROMOTED_V7
+    assert "winningGoal" in evidence["explicit_non_promotion"]
 
 
 def test_v7_fields_are_exposed_and_remaining_residue_is_not():
@@ -99,11 +100,12 @@ def test_v7_does_not_create_structural_zero_rules():
         assert structural_zero is False
 
 
-def test_v7_preserves_competition_specific_and_card_overlap_holds():
+def test_v7_preserves_competition_specific_card_overlap_and_winning_goal_holds():
     statuses = _team_statuses()
     assert statuses.get("putThrough") != "exposed"
     assert statuses.get("successfulPutThrough") != "exposed"
     assert statuses.get("redCard") != "exposed"
     assert statuses.get("yellowCard") != "exposed"
+    assert statuses.get("winningGoal") != "exposed"
     assert statuses["totalRedCard"] == "exposed"
     assert statuses["totalYelCard"] == "exposed"
