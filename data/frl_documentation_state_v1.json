@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-09-05",
-  "checkpoint_id": "SOURCE_UNIVERSE_TEAM_AND_PLAYER_PROVEN_V1",
+  "checkpoint_id": "HEAD_TO_HEAD_BETBUILDER_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Preserve the proven full team/source routing and exhaustive Player-Match accounting; consume these capabilities through shared Team Scouting, Player Scouting, Opposition, Matchday, Rankings and Research services; promote retained/restricted/raw-native representations only when a concrete analytical need justifies deeper semantic governance",
+  "active_product_phase": "Develop Analytical Profile and Head-to-Head as complementary projections of the governed evidence layer, keep the BetBuilder Stat Pack central to fixture-specific synthesis, deepen the profiles from the routed team/player universe, and run the frozen Adaptive DC plus Team State experiment without displacing scouting/opposition product work",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -25,16 +25,19 @@
     "FRL_IDENTITY_RELATIONSHIP_CONTRACT_V1.md",
     "NON_DESTRUCTION_ASSURANCE.md",
     "FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md",
-    "FRL_2026_27_INCREMENTAL_SEASON_INTEGRATION_PLAN.md"
+    "FRL_2026_27_INCREMENTAL_SEASON_INTEGRATION_PLAN.md",
+    "FRL_COMPETITIVE_INTELLIGENCE_STANDARD.md"
   ],
   "current_reference_documents": [
     "FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md",
+    "FRL_COMPETITIVE_INTELLIGENCE_STANDARD.md",
     "FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md",
     "FRL_372_FOOTBALL_CAPABILITY_EXECUTION_PLAN_V1.md",
     "data/frl_product_capability_requirements_v1.json",
     "data/team_match_semantic_promotion_batch_v7.json",
     "data/pulselive_team_stat_raw_field_index.json",
     "data/fixture_context_research_capability_v1.json",
+    "data/experiments/team_state_underlying_performance_v1.json",
     "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "FRL_DOCUMENTATION_SYNC_CONTRACT.md"
   ],
@@ -53,10 +56,13 @@
     "Team-Match Promotion Batch V7 is still pending local verification",
     "lostCorners is equivalent to opponent cornerTaken",
     "372 football/match raw paths are the master snapshotted source universe",
-    "249 team-match statistical paths are the master capability universe"
+    "249 team-match statistical paths are the master capability universe",
+    "Immediate priority remains Fixture Workspace V1",
+    "Team State feature block has already proved incremental predictive value"
   ],
   "architecture_sensitive_paths": [
     "FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md",
+    "FRL_COMPETITIVE_INTELLIGENCE_STANDARD.md",
     "FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md",
     "FRL_372_FOOTBALL_CAPABILITY_EXECUTION_PLAN_V1.md",
     "data/team_match_semantic_promotion_batch_v7.json",
@@ -67,6 +73,11 @@
     "raw_team_stat_research.py",
     "fixture_context_research.py",
     "rich_player_projection.py",
+    "team_state.py",
+    "adaptive_dixon_coles.py",
+    "head_to_head.py",
+    "api/head_to_head.py",
+    "web/src/app/head-to-head/",
     "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md",
     "scripts/audit_player_match_source_universe.py",
