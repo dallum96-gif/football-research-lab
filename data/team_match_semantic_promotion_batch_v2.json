@@ -1,7 +1,8 @@
 {
   "schema_version": "1.0.0",
   "decision_date": "2026-09-04",
-  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE",
+  "verification_date": "2026-09-05",
+  "status": "VERIFIED_GENERIC_ACCESS",
   "family": "team_match",
   "purpose": "Record the second controlled semantic promotion batch from the September 2026 PulseLive capability industrialisation programme.",
   "promotion_rule": "Promote only fields with complete decade-wide numeric observation, non-negative values, sufficiently direct Opta concept support, and zero-violation empirical subset checks where a parent/child relationship is asserted. Sparse/no-zero source fields remain held until blank-versus-zero semantics are governed.",
@@ -13,9 +14,25 @@
     "touches",
     "unsuccessfulTouch"
   ],
+  "verification": {
+    "targeted_pytest": "24 passed in 1.71s",
+    "reconciliation": {
+      "team_match_raw_paths": 249,
+      "existing_exposed": 45,
+      "existing_source_field_uncatalogued": 145,
+      "raw_snapshot_only": 59
+    },
+    "generic_access_audit": {
+      "exposed_team_match_stat_fields": 45,
+      "pass": 45,
+      "fail": 0,
+      "all_exposed_fields_pass_generic_access": true
+    }
+  },
   "evidence_sources": {
     "external_semantics": "data/team_match_semantic_evidence_v2.json",
     "empirical_audit_script": "scripts/audit_team_match_promotion_v2_evidence.py",
+    "generic_access_audit_script": "scripts/audit_exposed_team_match_generic_access.py",
     "source_registry": "source_field_registry.py"
   },
   "empirical_results": [
@@ -65,7 +82,7 @@
     "blockedPass": "Direct semantic support exists, but 7,595/7,600 nonblank observations with no observed zeros require sparse-zero/blank semantics before reusable exposure.",
     "touchesInOppBox": "The 7,598-row touchesInOppBox<=touches check has zero violations, but two blanks and no observed zeros require sparse-zero/blank semantics before reusable exposure.",
     "goalKicks": "Direct concept support exists, but 7,579/7,600 nonblank observations with no observed zeros require sparse-zero/blank semantics before reusable exposure.",
-    "lostCorners": "7,440/7,600 nonblank observations with no observed zeros require sparse-zero review; the proposed opponent-corner equality could not be tested because the packaged representation supplied no comparable paired observations in the V2 audit.",
+    "lostCorners": "7,440/7,600 nonblank observations with no observed zeros require sparse-zero review; the prior decade aggregate opponent-corner equality audit was invalidated by grouping fixture IDs without season context and must be rerun using season+fixture keys.",
     "finalThirdEntries": "Complete numeric coverage, but exact entry semantics remain insufficiently defined for this batch.",
     "penAreaEntries": "Complete numeric coverage, but the proposed penAreaEntries<=finalThirdEntries nesting hypothesis produced 35 violations and is explicitly rejected as a semantic assumption."
   },
