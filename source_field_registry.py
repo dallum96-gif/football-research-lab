@@ -77,12 +77,6 @@ TEAM_CURATED_FIELDS = {
 # packaged team-match representation and were promoted only after combining:
 # source-name clarity, external football-definition support where available,
 # and empirical invariant checks for paired/subset relationships.
-#
-# See data/team_match_semantic_evidence_v1.json and
-# data/audits/team_match_candidate_invariants/ for the review evidence.
-# Deliberately excluded from this batch are ambiguous concepts such as
-# totalContest/wonContest, challengeLost, effectiveHeadClearance and the
-# cryptic shot-location/goal-mouth qualifier families.
 TEAM_PROMOTION_BATCH_V1_FIELDS = {
     "accurateCrossNocorner": "exposed",
     "aerialLost": "exposed",
@@ -99,17 +93,8 @@ TEAM_PROMOTION_BATCH_V1_FIELDS = {
     "totalCrossNocorner": "exposed",
 }
 
-# Second controlled expansion. These fields were promoted only after the V2
-# evidence audit established complete decade-wide numeric observation (7,600
-# team-match rows), non-negative values, direct Opta concept support, and
-# zero-violation subset checks where a parent/child relationship was asserted.
-#
-# finalThirdEntries/penAreaEntries remain held because the V2 audit falsified
-# the proposed nested-count relationship (35 violations), even though each
-# source field may later prove independently usable.
-#
-# See data/team_match_semantic_evidence_v2.json and
-# data/team_match_semantic_promotion_batch_v2.json.
+# Second controlled expansion. See data/team_match_semantic_evidence_v2.json
+# and data/team_match_semantic_promotion_batch_v2.json.
 TEAM_PROMOTION_BATCH_V2_FIELDS = {
     "ballRecovery": "exposed",
     "successfulFinalThirdPasses": "exposed",
@@ -119,40 +104,17 @@ TEAM_PROMOTION_BATCH_V2_FIELDS = {
     "unsuccessfulTouch": "exposed",
 }
 
-# Third controlled expansion. These fields have sufficiently clear source
-# semantics for reusable source-native research access, but the sparse-zero
-# audit did NOT establish that their occasional source blanks encode zero.
-# Therefore exposure deliberately preserves those blanks as missing under the
-# standing team-match missingness contract. This is a coverage-aware exposure,
-# not a structural-zero promotion.
-#
-# lostCorners remained excluded at the V3 decision point because the then-used
-# opponent-corner comparison had unexplained disagreements. V4 later obtained
-# direct Opta Corner Lost semantics and documented why Corner Lost need not
-# equal opponent Corner Taken, so the historical V3 hold is preserved in its
-# manifest without freezing future runtime governance.
-#
-# See scripts/audit_team_match_sparse_zero_candidates.py and
-# data/team_match_semantic_promotion_batch_v3.json.
+# Third controlled expansion: coverage-aware exposure with blanks preserved as
+# missing. See data/team_match_semantic_promotion_batch_v3.json.
 TEAM_PROMOTION_BATCH_V3_FIELDS = {
     "blockedPass": "exposed",
     "goalKicks": "exposed",
     "touchesInOppBox": "exposed",
 }
 
-# Fourth controlled expansion. V4 combines authoritative Opta/Premier League
-# concept evidence with decade-wide zero-violation child<=parent checks for
-# eight accurate outcome fields. It also promotes directly defined parent and
-# standalone concepts. Historical blanks remain missing; no structural-zero
-# semantics are added by this batch.
-#
-# redCard and subsMade remain outside the batch pending reconciliation against
-# existing totalRedCard and the governed fixture-event seam respectively.
-# Relationship-only fields without adequate direct semantic support also remain
-# fail-closed even when their empirical child<=parent checks pass.
-#
-# See data/team_match_semantic_evidence_v4.json,
-# scripts/audit_team_match_v4_evidence_stack.py and
+# Fourth controlled expansion: direct concept evidence plus zero-violation
+# accurate/total relationships where applicable. Historical blanks remain
+# missing. See data/team_match_semantic_evidence_v4.json and
 # data/team_match_semantic_promotion_batch_v4.json.
 TEAM_PROMOTION_BATCH_V4_FIELDS = {
     "accurateChippedPass": "exposed",
@@ -171,6 +133,66 @@ TEAM_PROMOTION_BATCH_V4_FIELDS = {
     "totalLayoffs": "exposed",
     "totalLongBalls": "exposed",
     "wonCorners": "exposed",
+}
+
+# Fifth controlled expansion: bulk exact-field semantic resolution. V5 uses an
+# exact legacy Opta F9 field-reference mapping to resolve coherent families in
+# one pass rather than treating each source field as a separate project. Prior
+# empirical invariants remain supporting evidence. No new structural-zero rule
+# is introduced; source blanks remain missing.
+#
+# See data/team_match_semantic_evidence_v5.json and
+# data/team_match_semantic_promotion_batch_v5.json.
+TEAM_PROMOTION_BATCH_V5_FIELDS = {
+    "accurateBackZonePass": "exposed",
+    "accurateCornersIntobox": "exposed",
+    "accurateFwdZonePass": "exposed",
+    "accurateKeeperSweeper": "exposed",
+    "accuratePullBack": "exposed",
+    "accurateThroughBall": "exposed",
+    "accurateThrows": "exposed",
+    "attAssistOpenplay": "exposed",
+    "attAssistSetplay": "exposed",
+    "attemptsConcededIbox": "exposed",
+    "attemptsConcededObox": "exposed",
+    "bigChanceScored": "exposed",
+    "challengeLost": "exposed",
+    "crosses18yard": "exposed",
+    "crosses18yardplus": "exposed",
+    "divingSave": "exposed",
+    "effectiveBlockedCross": "exposed",
+    "effectiveHeadClearance": "exposed",
+    "errorLeadToGoal": "exposed",
+    "errorLeadToShot": "exposed",
+    "finalThirdEntries": "exposed",
+    "fouledFinalThird": "exposed",
+    "freekickCross": "exposed",
+    "hitWoodwork": "exposed",
+    "interceptionsInBox": "exposed",
+    "leftsidePass": "exposed",
+    "outfielderBlock": "exposed",
+    "overrun": "exposed",
+    "passesLeft": "exposed",
+    "passesRight": "exposed",
+    "penAreaEntries": "exposed",
+    "possLostAll": "exposed",
+    "possWonAtt3rd": "exposed",
+    "possWonDef3rd": "exposed",
+    "possWonMid3rd": "exposed",
+    "rightsidePass": "exposed",
+    "savedIbox": "exposed",
+    "savedObox": "exposed",
+    "subsMade": "exposed",
+    "totalBackZonePass": "exposed",
+    "totalContest": "exposed",
+    "totalCornersIntobox": "exposed",
+    "totalFwdZonePass": "exposed",
+    "totalHighClaim": "exposed",
+    "totalKeeperSweeper": "exposed",
+    "totalPullBack": "exposed",
+    "totalThroughBall": "exposed",
+    "totalThrows": "exposed",
+    "wonContest": "exposed",
 }
 
 COMMON_PLAYER_MATCH_FIELDS = {
@@ -237,8 +259,6 @@ PLAYER_SEASON_FIELDS = {
     "interceptions": "exposed",
     "tacklesWon": "exposed",
     "touches": "exposed",
-    # Conservative first promotion batch: decade-wide source-native fields
-    # whose semantics are sufficiently explicit for reusable FRL access.
     "aerialDuels": "exposed",
     "aerialDuelsLost": "exposed",
     "aerialDuelsWon": "exposed",
@@ -286,7 +306,8 @@ SOURCE_FIELD_REGISTRY = (
         | TEAM_PROMOTION_BATCH_V1_FIELDS
         | TEAM_PROMOTION_BATCH_V2_FIELDS
         | TEAM_PROMOTION_BATCH_V3_FIELDS
-        | TEAM_PROMOTION_BATCH_V4_FIELDS,
+        | TEAM_PROMOTION_BATCH_V4_FIELDS
+        | TEAM_PROMOTION_BATCH_V5_FIELDS,
     )
     + _build_family("player_match", COMMON_PLAYER_MATCH_FIELDS | PLAYER_MATCH_CURATED_FIELDS)
     + _build_family("player_season", PLAYER_SEASON_FIELDS)
