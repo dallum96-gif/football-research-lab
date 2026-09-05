@@ -38,10 +38,11 @@ HISTORICALLY_HELD_AFTER_V2 = {
     "penAreaEntries",
 }
 
-# Current fail-closed set after V3 promoted the first three fields above as
-# coverage-aware source-native variables while preserving blanks as missing.
-STILL_HELD_AFTER_V3 = {
-    "lostCorners",
+# Current fail-closed subset after later batches superseded the V2 holds with
+# additional evidence. V3 promoted blockedPass/touchesInOppBox/goalKicks and V4
+# promoted lostCorners after direct Opta Corner Lost semantics explained why it
+# need not equal opponent cornerTaken.
+STILL_HELD_AFTER_V4 = {
     "finalThirdEntries",
     "penAreaEntries",
 }
@@ -70,10 +71,10 @@ def test_v2_historical_hold_set_is_preserved_in_manifest():
     assert HISTORICALLY_HELD_AFTER_V2 <= set(manifest["explicitly_held_fields"])
 
 
-def test_current_post_v3_held_fields_remain_unpromoted():
+def test_current_post_v4_held_fields_remain_unpromoted():
     statuses = _team_catalogue_statuses()
-    assert STILL_HELD_AFTER_V3 <= statuses.keys()
-    assert {statuses[field] for field in STILL_HELD_AFTER_V3} == {"UNCATALOGUED"}
+    assert STILL_HELD_AFTER_V4 <= statuses.keys()
+    assert {statuses[field] for field in STILL_HELD_AFTER_V4} == {"UNCATALOGUED"}
 
 
 def test_v2_definition_uses_team_match_registry_status():
@@ -111,7 +112,7 @@ def test_explicit_team_family_disambiguates_touches_from_player_match():
 
 
 def test_current_semantically_unresolved_fields_still_fail_closed():
-    for field in STILL_HELD_AFTER_V3:
+    for field in STILL_HELD_AFTER_V4:
         definition = variable_definition(
             field, family="team_match", season="2024-25"
         )
