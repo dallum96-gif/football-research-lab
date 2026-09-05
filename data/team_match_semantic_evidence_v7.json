@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "decision_date": "2026-09-05",
+  "family": "team_match",
+  "purpose": "Resolve the directly supported portion of the post-V6 23-field residue without reopening a generic promotion queue.",
+  "evidence_sources": [
+    {
+      "source": "FRL match_stats.py",
+      "role": "internal governed direct-field evidence",
+      "note": "CORE_FIELDS explicitly labels attemptsIbox as Shots inside box and attemptsObox as Shots outside box under the direct team-match governed field boundary."
+    },
+    {
+      "source": "adror1/nwslR advanced team/player stat documentation",
+      "role": "legacy Opta-family field definitions",
+      "note": "Provides direct descriptions for attFreekickPost, attIboxOwnGoal, attLgCentre/Left/Right, attemptsIbox/Obox and points gained/dropped fields."
+    },
+    {
+      "source": "current Premier League API field inventory / compatible soccer-stat documentation",
+      "role": "current field-name corroboration",
+      "note": "Confirms attemptsIbox/Obox and the long-range/own-goal/game-state field family remain live football-stat concepts; winningGoal remains a current player statistic."
+    }
+  ],
+  "fields": {
+    "attFreekickPost": "Direct free kick that hits the post/woodwork.",
+    "attIboxOwnGoal": "Own goal from inside the box.",
+    "attLgCentre": "Shot from central area outside the box at long range (>35 yards).",
+    "attLgLeft": "Shot from left outside the box at long range (>35 yards).",
+    "attLgRight": "Shot from right outside the box at long range (>35 yards).",
+    "attemptsIbox": "Total shots from inside the box; independently labelled as Shots inside box in FRL's governed match_stats boundary.",
+    "attemptsObox": "Total shots from outside the box; independently labelled as Shots outside box in FRL's governed match_stats boundary.",
+    "ptsDroppedWinningPos": "Points dropped from winning positions.",
+    "ptsGainedLosingPos": "Points gained from losing positions.",
+    "winningGoal": "Winning-goal flag/count; current football-stat documentation uses winning_goal for the game-winning goal indicator."
+  },
+  "governance_note": "These fields are promoted as source-native team-match concepts only. No new structural-zero rule, cross-provider equality or derived-rate approval is created."
+}
