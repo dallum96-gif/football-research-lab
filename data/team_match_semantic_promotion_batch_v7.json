@@ -5,7 +5,7 @@
   "family": "team_match",
   "purpose": "Promote the directly supported subset of the post-V6 packaged residue using existing FRL governed labels plus direct legacy field definitions.",
   "promotion_rule": "Promote only fields in the 23-field residue where either FRL already treats the field as a governed direct team-match concept or an external legacy Opta-family definition directly resolves the exact field. Preserve blanks as missing and retain unresolved duplicates/expected/physical/competition-specific fields.",
-  "promotion_count": 10,
+  "promotion_count": 9,
   "promoted_fields": [
     "attFreekickPost",
     "attIboxOwnGoal",
@@ -15,8 +15,7 @@
     "attemptsIbox",
     "attemptsObox",
     "ptsDroppedWinningPos",
-    "ptsGainedLosingPos",
-    "winningGoal"
+    "ptsGainedLosingPos"
   ],
   "evidence_sources": {
     "semantic_evidence": "data/team_match_semantic_evidence_v7.json",
@@ -41,21 +40,22 @@
     "successfulFiftyFifty",
     "successfulPutThrough",
     "totalDistance",
+    "winningGoal",
     "yellowCard"
   ],
   "expected_post_gate": {
     "reconciliation": {
       "team_match_raw_paths": 249,
-      "EXISTING_EXPOSED": 177,
-      "EXISTING_SOURCE_FIELD_UNCATALOGUED": 13,
+      "EXISTING_EXPOSED": 176,
+      "EXISTING_SOURCE_FIELD_UNCATALOGUED": 14,
       "RAW_SNAPSHOT_ONLY": 59
     },
     "generic_access": {
-      "exposed_team_match_stat_fields": 177,
-      "PASS": 177,
+      "exposed_team_match_stat_fields": 176,
+      "PASS": 176,
       "FAIL": 0,
       "all_exposed_fields_pass_generic_access": true
     }
   },
-  "governance_note": "V7 is a residue-resolution batch, not a relaxation of governance. The remaining 13 fields require dedicated overlap, expected-metric, physical-metric, competition-specific or direct-definition work."
+  "governance_note": "V7 is a residue-resolution batch, not a relaxation of governance. The remaining 14 fields require dedicated overlap, expected-metric, physical-metric, competition-specific or direct-definition work."
 }
