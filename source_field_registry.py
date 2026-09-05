@@ -104,10 +104,9 @@ TEAM_PROMOTION_BATCH_V1_FIELDS = {
 # team-match rows), non-negative values, direct Opta concept support, and
 # zero-violation subset checks where a parent/child relationship was asserted.
 #
-# Sparse/no-zero fields remain held until their blank-vs-zero semantics are
-# governed. finalThirdEntries/penAreaEntries also remain held because the V2
-# audit falsified the proposed nested-count relationship (35 violations), even
-# though each source field may later prove independently usable.
+# finalThirdEntries/penAreaEntries remain held because the V2 audit falsified
+# the proposed nested-count relationship (35 violations), even though each
+# source field may later prove independently usable.
 #
 # See data/team_match_semantic_evidence_v2.json and
 # data/team_match_semantic_promotion_batch_v2.json.
@@ -118,6 +117,25 @@ TEAM_PROMOTION_BATCH_V2_FIELDS = {
     "totalFinalThirdPasses": "exposed",
     "touches": "exposed",
     "unsuccessfulTouch": "exposed",
+}
+
+# Third controlled expansion. These fields have sufficiently clear source
+# semantics for reusable source-native research access, but the sparse-zero
+# audit did NOT establish that their occasional source blanks encode zero.
+# Therefore exposure deliberately preserves those blanks as missing under the
+# standing team-match missingness contract. This is a coverage-aware exposure,
+# not a structural-zero promotion.
+#
+# lostCorners remains excluded: the corrected opponent-route audit found 145
+# disagreements in 7,438 observed comparisons and no independent blank-zero
+# corroboration.
+#
+# See scripts/audit_team_match_sparse_zero_candidates.py and
+# data/team_match_semantic_promotion_batch_v3.json.
+TEAM_PROMOTION_BATCH_V3_FIELDS = {
+    "blockedPass": "exposed",
+    "goalKicks": "exposed",
+    "touchesInOppBox": "exposed",
 }
 
 COMMON_PLAYER_MATCH_FIELDS = {
@@ -231,7 +249,8 @@ SOURCE_FIELD_REGISTRY = (
         COMMON_TEAM_FIELDS
         | TEAM_CURATED_FIELDS
         | TEAM_PROMOTION_BATCH_V1_FIELDS
-        | TEAM_PROMOTION_BATCH_V2_FIELDS,
+        | TEAM_PROMOTION_BATCH_V2_FIELDS
+        | TEAM_PROMOTION_BATCH_V3_FIELDS,
     )
     + _build_family("player_match", COMMON_PLAYER_MATCH_FIELDS | PLAYER_MATCH_CURATED_FIELDS)
     + _build_family("player_season", PLAYER_SEASON_FIELDS)
