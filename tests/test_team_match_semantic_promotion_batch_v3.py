@@ -1,12 +1,18 @@
 from __future__ import annotations
 
+import pytest
+
 from source_field_registry import fields_for_family
 from team_metric_missingness import (
     BLANK_IS_MISSING,
     normalise_team_match_observation,
     team_match_missingness_semantics,
 )
-from variable_resolver import UnsupportedVariableError, resolve_variable
+from variable_resolver import (
+    VariableUnavailableError,
+    resolve_variable,
+    variable_definition,
+)
 
 
 PROMOTED_V3 = {
@@ -27,7 +33,11 @@ def test_v3_fields_are_exposed_at_team_match_grain():
     statuses = _team_statuses()
     for field in PROMOTED_V3:
         assert statuses[field] == "exposed"
-        definition = resolve_variable(field, family="team_match")
+        definition = variable_definition(
+            field,
+            family="team_match",
+            season="2024-25",
+        )
         assert definition.family == "team_match"
         assert definition.source_field == field
         assert definition.status == "exposed"
@@ -48,12 +58,21 @@ def test_v3_promotion_does_not_turn_blanks_into_structural_zero():
 def test_lost_corners_remains_unexposed_after_conflicting_opponent_evidence():
     statuses = _team_statuses()
     assert statuses.get("lostCorners") != "exposed"
-    try:
-        resolve_variable("lostCorners", family="team_match")
-    except UnsupportedVariableError:
-        pass
-    else:
-        raise AssertionError("lostCorners must remain fail-closed until semantics are governed")
+
+    definition = variable_definition(
+        "lostCorners",
+        family="team_match",
+        season="2024-25",
+    )
+    assert definition.status == "uncatalogued"
+
+    with pytest.raises(VariableUnavailableError):
+        resolve_variable(
+            "lostCorners",
+            family="team_match",
+            season="2024-25",
+            fixture_id="1",
+        )
 
 
 def test_v3_does_not_change_existing_shot_sparse_zero_contract():
