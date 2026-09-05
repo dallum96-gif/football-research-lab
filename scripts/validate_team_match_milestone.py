@@ -129,6 +129,12 @@ def main() -> int:
     uncatalogued = int(status_counts.get("EXISTING_SOURCE_FIELD_UNCATALOGUED", 0))
     raw_only = int(status_counts.get("RAW_SNAPSHOT_ONLY", 0))
     raw_paths = int(reconciliation.get("team_match_raw_paths", 0))
+    remaining_packaged = sorted(
+        str(row.get("source_field") or "")
+        for row in reconciliation.get("rows", [])
+        if str(row.get("reconciliation_status") or "")
+        == "EXISTING_SOURCE_FIELD_UNCATALOGUED"
+    )
 
     if raw_paths and raw_paths != 249:
         errors.append(f"Expected 249 team-match raw paths, found {raw_paths}.")
@@ -165,6 +171,8 @@ def main() -> int:
     print(f"Reconciliation: {exposed} exposed / {uncatalogued} uncatalogued / {raw_only} raw-only")
     print(f"Generic access: {generic_pass}/{generic_count} PASS")
     print(f"Documentation sync: {'PASS' if docs_ok else 'FAIL'}")
+    print(f"Remaining packaged fields: {len(remaining_packaged)}")
+    print(json.dumps(remaining_packaged, indent=2))
 
     if errors:
         print("\nFailures:")
