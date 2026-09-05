@@ -1,7 +1,7 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 4 September 2026  
-**Checkpoint:** `FIXTURE_CONTEXT_ARCHIVE_WIDE_PROVEN_V1_TEAM_MATCH_V2_PENDING`
+**Last updated:** 5 September 2026  
+**Checkpoint:** `TEAM_MATCH_V2_AND_FIXTURE_CONTEXT_PROVEN_V1`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
@@ -108,7 +108,7 @@ RESEARCH EXPLORER
 
 These must not become separate statistical systems.
 
-## Product experience decisions — 4 September 2026
+## Product experience decisions
 
 ### Visual summaries first
 
@@ -178,7 +178,7 @@ The active football-capability ambition inside that master universe is:
 
 > **Make every legitimate governed football variable research-accessible where evidence permits; let individual product surfaces select only the variables that answer their question well.**
 
-## Team-match capability industrialisation — verified V1 baseline
+## Team-match capability industrialisation — V1 and V2 verified
 
 The initial 249-field reconciliation established:
 
@@ -186,23 +186,15 @@ The initial 249-field reconciliation established:
 - **164** `EXISTING_SOURCE_FIELD_UNCATALOGUED`;
 - **59** `RAW_SNAPSHOT_ONLY`.
 
-Promotion Batch V1 then promoted 13 additional team-match fields after source-name review, external semantic corroboration where available, decade-wide packaged coverage, and zero-violation empirical invariant checks for relevant child/parent relationships.
+Promotion Batch V1 promoted 13 additional team-match fields after source-name review, external semantic corroboration where available, decade-wide packaged coverage, and zero-violation empirical invariant checks for relevant child/parent relationships.
 
-The verified post-V1 reconciliation is:
+The post-V1 state became:
 
 - **39** `EXISTING_EXPOSED`;
 - **151** `EXISTING_SOURCE_FIELD_UNCATALOGUED`;
 - **59** `RAW_SNAPSHOT_ONLY`.
 
-The generic-access audit verified **39/39 exposed team-match statistical fields** end-to-end:
-
-- all 39 are discoverable as exposed;
-- all 39 resolve at explicit `team_match` grain;
-- all 39 execute against observed historical fixture evidence through the shared generic query route;
-- all 39 return source-field-consistent results;
-- no per-metric extractor is required.
-
-This proves the industrialisation pattern:
+The generic-access audit verified **39/39** exposed fields end-to-end and proved the industrialisation pattern:
 
 ```text
 SOURCE FIELD
@@ -216,17 +208,7 @@ EXPLICIT GRAIN RESOLUTION
 GENERIC RESEARCH RETRIEVAL
 ```
 
-A family-collision bug exposed by `interceptionWon` was also fixed: explicit family context now takes precedence when the same source field legitimately exists at multiple grains, while aliases remain available in their own family.
-
-The 59 raw-snapshot-only team statistics remain a separate route-discovery/raw-routing problem; fuzzy name similarity is discovery evidence only and must not establish equivalence.
-
-The V1 decision and evidence are recorded in `data/team_match_semantic_promotion_batch_v1.json`.
-
-## Team-match Promotion Batch V2 — registry promoted, local gate pending
-
-The V2 review queue narrowed the 151 packaged-but-ungoverned fields into explicit evidence lanes. The V2 empirical audit then evaluated the strongest immediate candidates across all **7,600 historical team-match rows**.
-
-Six fields have now been promoted in `source_field_registry.py`, pending the local regression/reconciliation gate:
+Promotion Batch V2 then promoted six further fields:
 
 - `ballRecovery`;
 - `successfulFinalThirdPasses`;
@@ -235,35 +217,71 @@ Six fields have now been promoted in `source_field_registry.py`, pending the loc
 - `touches`;
 - `unsuccessfulTouch`.
 
-Promotion evidence includes:
+V2 evidence included:
 
-- complete 7,600/7,600 numeric observations for all six;
+- complete **7,600/7,600** numeric observations for all six;
 - no negative values;
 - direct/current Opta definitions for Ball Recovery, Touches and Unsuccessful Touch;
 - direct Opta chipped-pass definition and explicit pass segmentation by final-third zone;
-- `successfulFinalThirdPasses <= totalFinalThirdPasses`: 7,600 comparisons / 0 violations;
-- `totalChippedPass <= totalPass`: 7,600 / 0;
-- `unsuccessfulTouch <= touches`: 7,600 / 0;
-- `ballRecovery <= touches`: 7,600 / 0 as supporting consistency evidence.
+- `successfulFinalThirdPasses <= totalFinalThirdPasses`: **7,600 / 0 violations**;
+- `totalChippedPass <= totalPass`: **7,600 / 0**;
+- `unsuccessfulTouch <= touches`: **7,600 / 0**;
+- `ballRecovery <= touches`: **7,600 / 0** as supporting consistency evidence.
 
-The validated baseline remains **39/39** until the local V2 regression and generic-access audits are rerun. If the gate passes, reconciliation should become **45 exposed / 145 packaged-but-ungoverned / 59 raw-only** and the generic-access baseline should become **45/45**.
+The local V2 gate on 5 September 2026 passed:
 
-Fields deliberately held after V2 include:
+- targeted regression suite: **24 passed in 1.71s**;
+- reconciliation: **45 exposed / 145 packaged-but-ungoverned / 59 raw-only**;
+- exposed-field generic-access audit: **45 PASS / 0 FAIL**;
+- `all_exposed_fields_pass_generic_access: true`.
 
-- `blockedPass`, `touchesInOppBox`, `goalKicks`, `lostCorners` — direct or plausible concepts, but occasional blanks combined with no observed zeros require explicit sparse-zero/blank semantics;
-- `finalThirdEntries`, `penAreaEntries` — complete numeric coverage, but exact entry semantics remain unresolved.
+Therefore the current verified team-match baseline is **45/45 generic access**.
 
-A proposed shortcut was explicitly falsified rather than silently accepted:
+The V1 and V2 decisions are recorded in:
 
-- `penAreaEntries <= finalThirdEntries` produced **35 violations in 7,600 rows**.
+- `data/team_match_semantic_promotion_batch_v1.json`;
+- `data/team_match_semantic_promotion_batch_v2.json`.
 
-Therefore penalty-area entries and final-third entries must **not** be treated as simple nested counts on current evidence. This does not invalidate either source field independently; it blocks that proposed semantic relationship.
+A family-collision bug exposed by `interceptionWon` was fixed during V1: explicit family context takes precedence when the same source field legitimately exists at multiple grains, while aliases remain available in their own family.
 
-The V2 decision is recorded in `data/team_match_semantic_promotion_batch_v2.json` and supporting terminology in `data/team_match_semantic_evidence_v2.json`.
+## Team-match fields currently held after V2
+
+Four high-value fields are held specifically on blank-versus-zero semantics:
+
+- `blockedPass` — 7,595/7,600 nonblank, no observed zeros;
+- `touchesInOppBox` — 7,598/7,600 nonblank, no observed zeros;
+- `goalKicks` — 7,579/7,600 nonblank, no observed zeros;
+- `lostCorners` — 7,440/7,600 nonblank, no observed zeros.
+
+These must not be promoted merely because the names are clear or blanks are rare. The standing rule in `FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md` remains:
+
+> **A source blank is missing by default. It may become a structural zero only when the football concept, source representation and audited period provide specific evidence that blank encodes zero occurrences.**
+
+A new read-only corroboration audit is now the active evidence gate:
+
+`scripts/audit_team_match_sparse_zero_candidates.py`
+
+It seeks independent support by:
+
+- comparing each team field with the exact same player-match source field summed to team/fixture grain where that route exists;
+- requiring the player route to agree with observed team values before using it to interpret blanks;
+- retaining player blanks as missing rather than manufacturing zero sums;
+- retesting `lostCorners` against opponent `cornerTaken` using **season + fixture** identity rather than fixture ID alone.
+
+The earlier aggregate `lostCorners` test that returned zero comparable observations was structurally invalid because fixture IDs repeat by season. That result must not be used as semantic evidence.
+
+Two further V2 candidates remain held on semantics rather than missingness:
+
+- `finalThirdEntries`;
+- `penAreaEntries`.
+
+The proposed shortcut `penAreaEntries <= finalThirdEntries` produced **35 violations in 7,600 rows**. Therefore penalty-area entries and final-third entries must **not** be treated as simple nested counts on current evidence. This does not invalidate either source field independently; it blocks that proposed semantic relationship.
+
+The 59 raw-snapshot-only team statistics remain a separate route-discovery/raw-routing problem; fuzzy name similarity is discovery evidence only and must not establish equivalence.
 
 ## Remaining 123 football/match paths — natural-grain industrialisation
 
-The 123 football/match paths outside the 249 team-statistical block have now been triaged:
+The 123 football/match paths outside the 249 team-statistical block have been triaged:
 
 - 58 Events;
 - 10 Managers;
@@ -300,7 +318,7 @@ EXPLICIT PULSELIVE → PLAYER-MATCH IDENTITY DECISIONS
 FIXTURE-CONTEXT RESEARCH RESULT
 ```
 
-The archive-wide local audit has verified this route over all **3,800 preserved fixtures**:
+The archive-wide local audit verified this route over all **3,800 preserved fixtures**:
 
 - Event route: **3,800 PASS / 0 FAIL**;
 - Tactical-context route: **3,800 PASS / 0 FAIL**;
@@ -365,25 +383,26 @@ Every apparent gap should be classified before acquisition as source present but
 
 The active objective is now:
 
-> **Verify Team-Match Promotion Batch V2 through the proven 45-field generic-access gate, then scale semantic/missingness governance across the remaining team-stat fields while extending the proven fixture event/tactical-context seam into Matchday, Opposition Report and the broader 123-path natural-grain programme.**
+> **Preserve the verified 45/45 team-match generic-access baseline, resolve the next high-value missingness/semantic blockers without weakening governance, and begin consuming the archive-wide proven fixture event/tactical-context seam in shared Matchday and Opposition analytical services while continuing the 123-path natural-grain programme.**
 
 This objective deliberately precedes broad supplementary-provider acquisition.
 
 ## Immediate execution sequence
 
-### 1. Verify Team-Match Promotion Batch V2
+### 1. Resolve sparse-zero candidates by independent evidence
 
-- run targeted V2 registry/resolver tests;
-- rerun 249-field reconciliation;
-- require the expected **45 / 145 / 59** split before marking V2 verified;
-- rerun exposed-team generic access and require **45/45**;
-- update V2 manifest from pending to verified only after that gate passes.
+- run `tests/test_team_match_sparse_zero_candidates.py`;
+- run `scripts/audit_team_match_sparse_zero_candidates.py` across the decade;
+- determine whether exact player-match aggregation exists for `blockedPass`, `touchesInOppBox`, `goalKicks` and/or `lostCorners`;
+- require corroborating routes to agree with observed team values before using them to interpret blanks;
+- retest `lostCorners` against opponent corners using season-aware fixture identity;
+- only extend `FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md` when structural-zero evidence is specific and defensible.
 
-### 2. Continue team-match semantic and missingness industrialisation
+### 2. Continue team-match semantic industrialisation
 
-- preserve the verified generic-access architecture;
+- preserve the verified **45/45** generic-access gate;
 - prioritise direct-definition and complete-coverage candidates;
-- investigate sparse-zero semantics before exposing no-zero/occasionally-blank fields;
+- keep `finalThirdEntries` / `penAreaEntries` fail-closed until exact semantics are established;
 - continue to fail closed on ambiguous qualifiers and falsified assumptions;
 - investigate the 59 raw-only fields by route/source evidence rather than increasingly permissive fuzzy matching.
 
@@ -440,7 +459,7 @@ Do not use a historical fixed test count as a universal baseline.
 For current work:
 
 - protect source/identity/temporal/missingness contracts;
-- preserve the verified **39/39** exposed team-match generic-access gate until V2 is locally proven, then advance explicitly to 45/45;
+- preserve the verified **45/45** exposed team-match generic-access gate;
 - preserve the **3,800/3,800** fixture event/tactical-context route as an archive-wide regression gate;
 - prefer generic analytical seams over page-specific extraction;
 - run targeted tests for any new capability route;
