@@ -72,11 +72,6 @@ TEAM_CURATED_FIELDS = {
     "expectedGoalsOnTarget": "exposed",
 }
 
-# First controlled expansion from the September 2026 PulseLive capability
-# industrialisation programme. These fields are decade-wide in the approved
-# packaged team-match representation and were promoted only after combining:
-# source-name clarity, external football-definition support where available,
-# and empirical invariant checks for paired/subset relationships.
 TEAM_PROMOTION_BATCH_V1_FIELDS = {
     "accurateCrossNocorner": "exposed",
     "aerialLost": "exposed",
@@ -93,8 +88,6 @@ TEAM_PROMOTION_BATCH_V1_FIELDS = {
     "totalCrossNocorner": "exposed",
 }
 
-# Second controlled expansion. See data/team_match_semantic_evidence_v2.json
-# and data/team_match_semantic_promotion_batch_v2.json.
 TEAM_PROMOTION_BATCH_V2_FIELDS = {
     "ballRecovery": "exposed",
     "successfulFinalThirdPasses": "exposed",
@@ -104,18 +97,12 @@ TEAM_PROMOTION_BATCH_V2_FIELDS = {
     "unsuccessfulTouch": "exposed",
 }
 
-# Third controlled expansion: coverage-aware exposure with blanks preserved as
-# missing. See data/team_match_semantic_promotion_batch_v3.json.
 TEAM_PROMOTION_BATCH_V3_FIELDS = {
     "blockedPass": "exposed",
     "goalKicks": "exposed",
     "touchesInOppBox": "exposed",
 }
 
-# Fourth controlled expansion: direct concept evidence plus zero-violation
-# accurate/total relationships where applicable. Historical blanks remain
-# missing. See data/team_match_semantic_evidence_v4.json and
-# data/team_match_semantic_promotion_batch_v4.json.
 TEAM_PROMOTION_BATCH_V4_FIELDS = {
     "accurateChippedPass": "exposed",
     "accurateCross": "exposed",
@@ -135,14 +122,7 @@ TEAM_PROMOTION_BATCH_V4_FIELDS = {
     "wonCorners": "exposed",
 }
 
-# Fifth controlled expansion: bulk exact-field semantic resolution. V5 uses an
-# exact legacy Opta F9 field-reference mapping to resolve coherent families in
-# one pass rather than treating each source field as a separate project. Prior
-# empirical invariants remain supporting evidence. No new structural-zero rule
-# is introduced; source blanks remain missing.
-#
-# See data/team_match_semantic_evidence_v5.json and
-# data/team_match_semantic_promotion_batch_v5.json.
+# Bulk exact-field semantic resolution. See V5 evidence/manifest.
 TEAM_PROMOTION_BATCH_V5_FIELDS = {
     "accurateBackZonePass": "exposed",
     "accurateCornersIntobox": "exposed",
@@ -195,14 +175,7 @@ TEAM_PROMOTION_BATCH_V5_FIELDS = {
     "wonContest": "exposed",
 }
 
-# Sixth controlled expansion: a second bulk exact-field pass over the remaining
-# packaged shooting, assist, penalty, goalkeeper, discipline and match-event
-# aggregate families. Exact legacy F9 keys are required for this batch; fields
-# with unresolved overlap, competition-specific collection or newer-model /
-# physical semantics remain held. Blanks remain missing.
-#
-# See data/team_match_semantic_evidence_v6.json and
-# data/team_match_semantic_promotion_batch_v6.json.
+# Second bulk exact-field pass. See V6 evidence/manifest.
 TEAM_PROMOTION_BATCH_V6_FIELDS = {
     "accurateFreekickCross": "exposed",
     "attCorner": "exposed",
@@ -258,6 +231,23 @@ TEAM_PROMOTION_BATCH_V6_FIELDS = {
     "sixYardBlock": "exposed",
     "totalAttAssist": "exposed",
     "totalFastbreak": "exposed",
+}
+
+# Post-V6 residue resolution. These exact fields have direct legacy definitions
+# or an existing governed FRL direct-field label. Blanks remain missing.
+# See data/team_match_semantic_evidence_v7.json and
+# data/team_match_semantic_promotion_batch_v7.json.
+TEAM_PROMOTION_BATCH_V7_FIELDS = {
+    "attFreekickPost": "exposed",
+    "attIboxOwnGoal": "exposed",
+    "attLgCentre": "exposed",
+    "attLgLeft": "exposed",
+    "attLgRight": "exposed",
+    "attemptsIbox": "exposed",
+    "attemptsObox": "exposed",
+    "ptsDroppedWinningPos": "exposed",
+    "ptsGainedLosingPos": "exposed",
+    "winningGoal": "exposed",
 }
 
 COMMON_PLAYER_MATCH_FIELDS = {
@@ -373,7 +363,8 @@ SOURCE_FIELD_REGISTRY = (
         | TEAM_PROMOTION_BATCH_V3_FIELDS
         | TEAM_PROMOTION_BATCH_V4_FIELDS
         | TEAM_PROMOTION_BATCH_V5_FIELDS
-        | TEAM_PROMOTION_BATCH_V6_FIELDS,
+        | TEAM_PROMOTION_BATCH_V6_FIELDS
+        | TEAM_PROMOTION_BATCH_V7_FIELDS,
     )
     + _build_family("player_match", COMMON_PLAYER_MATCH_FIELDS | PLAYER_MATCH_CURATED_FIELDS)
     + _build_family("player_season", PLAYER_SEASON_FIELDS)
