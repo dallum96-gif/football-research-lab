@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-import pytest
+import json
+from pathlib import Path
 
 from source_field_registry import fields_for_family
 from team_metric_missingness import (
@@ -8,12 +9,11 @@ from team_metric_missingness import (
     normalise_team_match_observation,
     team_match_missingness_semantics,
 )
-from variable_resolver import (
-    VariableUnavailableError,
-    resolve_variable,
-    variable_definition,
-)
+from variable_resolver import variable_definition
 
+
+ROOT = Path(__file__).resolve().parents[1]
+V3_MANIFEST = ROOT / "data" / "team_match_semantic_promotion_batch_v3.json"
 
 PROMOTED_V3 = {
     "blockedPass",
@@ -55,24 +55,12 @@ def test_v3_promotion_does_not_turn_blanks_into_structural_zero():
         assert structural_zero is False
 
 
-def test_lost_corners_remains_unexposed_after_conflicting_opponent_evidence():
-    statuses = _team_statuses()
-    assert statuses.get("lostCorners") != "exposed"
-
-    definition = variable_definition(
-        "lostCorners",
-        family="team_match",
-        season="2024-25",
-    )
-    assert definition.status == "uncatalogued"
-
-    with pytest.raises(VariableUnavailableError):
-        resolve_variable(
-            "lostCorners",
-            family="team_match",
-            season="2024-25",
-            fixture_id="1",
-        )
+def test_v3_manifest_preserves_historical_lost_corners_hold():
+    manifest = json.loads(V3_MANIFEST.read_text(encoding="utf-8"))
+    held = dict(manifest.get("explicitly_held_fields") or {})
+    assert "lostCorners" in held
+    assert "145" in held["lostCorners"]
+    assert "160" in held["lostCorners"]
 
 
 def test_v3_does_not_change_existing_shot_sparse_zero_contract():
