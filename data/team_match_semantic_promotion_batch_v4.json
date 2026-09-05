@@ -24,11 +24,20 @@
     "totalLongBalls",
     "wonCorners"
   ],
+  "expected_post_gate": {
+    "reconciliation": {
+      "EXISTING_EXPOSED": 64,
+      "EXISTING_SOURCE_FIELD_UNCATALOGUED": 126,
+      "RAW_SNAPSHOT_ONLY": 59
+    },
+    "generic_access_pass": 64
+  },
   "evidence_sources": {
     "external_semantics": "data/team_match_semantic_evidence_v4.json",
     "evidence_stack_audit": "scripts/audit_team_match_v4_evidence_stack.py",
     "post_v3_matrix": "scripts/build_team_match_post_v3_evidence_matrix.py",
     "generic_access_audit": "scripts/audit_exposed_team_match_generic_access.py",
+    "milestone_gate": "scripts/validate_team_match_milestone.py",
     "source_registry": "source_field_registry.py"
   },
   "relationship_evidence": {
