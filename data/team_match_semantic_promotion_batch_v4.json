@@ -1,7 +1,8 @@
 {
   "schema_version": "1.0.0",
   "decision_date": "2026-09-05",
-  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE",
+  "verification_date": "2026-09-05",
+  "status": "VERIFIED_GENERIC_ACCESS",
   "family": "team_match",
   "purpose": "Record the fourth controlled semantic promotion batch from the September 2026 PulseLive capability industrialisation programme.",
   "promotion_rule": "Promote source-native team-match fields only where authoritative Opta/Premier League concept evidence is sufficiently strong and, for accurate/successful child concepts, the proposed child<=parent relationship is decade-wide empirically consistent. Incomplete historical coverage is permitted only with blanks preserved as missing; it never implies structural zero.",
@@ -76,6 +77,21 @@
     "successfulPutThrough": "Zero-violation relationship evidence exists, but the exact put-through source definition is not yet governed.",
     "accurateThrows": "Complete zero-violation relationship evidence exists, but throw-in/throw semantics have not yet been directly corroborated for this source field.",
     "effectiveBlockedCross": "Zero-violation relationship evidence exists, but the effective qualifier remains undefined."
+  },
+  "verification": {
+    "targeted_regression_tests": "28 passed in 0.96s (repeat run; prior run 28 passed in 1.02s)",
+    "reconciliation": {
+      "team_match_raw_paths": 249,
+      "EXISTING_EXPOSED": 64,
+      "EXISTING_SOURCE_FIELD_UNCATALOGUED": 126,
+      "RAW_SNAPSHOT_ONLY": 59
+    },
+    "generic_access": {
+      "exposed_team_match_stat_fields": 64,
+      "PASS": 64,
+      "FAIL": 0,
+      "all_exposed_fields_pass_generic_access": true
+    }
   },
   "governance_note": "Exposure means reusable source-native team_match research access. It does not imply complete historical coverage, structural-zero interpretation, GUI exposure, approved derived rates, current-season 2026/27 availability, or equivalence to differently named provider fields."
 }
