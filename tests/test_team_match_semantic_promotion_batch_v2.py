@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import pytest
 
 import research_access
@@ -12,6 +15,8 @@ from variable_resolver import (
 )
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
 PROMOTED_BATCH_V2 = {
     "ballRecovery",
     "successfulFinalThirdPasses",
@@ -21,10 +26,21 @@ PROMOTED_BATCH_V2 = {
     "unsuccessfulTouch",
 }
 
-HELD_AFTER_V2 = {
+# Historical V2 decision: these fields were held at that checkpoint. Later
+# governance may legitimately promote a subset, so runtime tests must not freeze
+# the historical hold set forever.
+HISTORICALLY_HELD_AFTER_V2 = {
     "blockedPass",
     "touchesInOppBox",
     "goalKicks",
+    "lostCorners",
+    "finalThirdEntries",
+    "penAreaEntries",
+}
+
+# Current fail-closed set after V3 promoted the first three fields above as
+# coverage-aware source-native variables while preserving blanks as missing.
+STILL_HELD_AFTER_V3 = {
     "lostCorners",
     "finalThirdEntries",
     "penAreaEntries",
@@ -45,10 +61,19 @@ def test_v2_promoted_batch_is_exposed_in_runtime_catalogue():
     assert {statuses[field] for field in PROMOTED_BATCH_V2} == {"exposed"}
 
 
-def test_v2_held_fields_remain_unpromoted():
+def test_v2_historical_hold_set_is_preserved_in_manifest():
+    manifest = json.loads(
+        (ROOT / "data" / "team_match_semantic_promotion_batch_v2.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert HISTORICALLY_HELD_AFTER_V2 <= set(manifest["explicitly_held_fields"])
+
+
+def test_current_post_v3_held_fields_remain_unpromoted():
     statuses = _team_catalogue_statuses()
-    assert HELD_AFTER_V2 <= statuses.keys()
-    assert {statuses[field] for field in HELD_AFTER_V2} == {"UNCATALOGUED"}
+    assert STILL_HELD_AFTER_V3 <= statuses.keys()
+    assert {statuses[field] for field in STILL_HELD_AFTER_V3} == {"UNCATALOGUED"}
 
 
 def test_v2_definition_uses_team_match_registry_status():
@@ -85,8 +110,8 @@ def test_explicit_team_family_disambiguates_touches_from_player_match():
         variable_definition("touches", season="2024-25")
 
 
-def test_sparse_or_semantically_unresolved_v2_fields_still_fail_closed():
-    for field in HELD_AFTER_V2:
+def test_current_semantically_unresolved_fields_still_fail_closed():
+    for field in STILL_HELD_AFTER_V3:
         definition = variable_definition(
             field, family="team_match", season="2024-25"
         )
