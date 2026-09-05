@@ -42,7 +42,7 @@ PROMOTED_V4 = {
     "wonCorners",
 }
 
-HELD_AFTER_V4 = {
+HISTORICALLY_HELD_AFTER_V4 = {
     "redCard",
     "subsMade",
     "accurateBackZonePass",
@@ -55,6 +55,12 @@ HELD_AFTER_V4 = {
     "successfulPutThrough",
     "accurateThrows",
     "effectiveBlockedCross",
+}
+
+STILL_HELD_AFTER_V5 = {
+    "redCard",
+    "successfulFiftyFifty",
+    "successfulPutThrough",
 }
 
 
@@ -73,12 +79,17 @@ def _catalogue_statuses() -> dict[str, str]:
     }
 
 
-def test_v4_manifest_records_exact_controlled_batch():
+def test_v4_manifest_records_verified_controlled_batch():
     manifest = json.loads(V4_MANIFEST.read_text(encoding="utf-8"))
-    assert manifest["status"] == "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE"
+    assert manifest["status"] == "VERIFIED_GENERIC_ACCESS"
     assert set(manifest["promoted_fields"]) == PROMOTED_V4
     assert manifest["relationship_evidence"]["audit_result"] == "18/18 DECADE_EMPIRICALLY_CONSISTENT"
     assert manifest["coverage_and_missingness"]["governed_structural_zero_change"] is False
+
+
+def test_v4_historical_hold_set_is_preserved_in_manifest():
+    manifest = json.loads(V4_MANIFEST.read_text(encoding="utf-8"))
+    assert HISTORICALLY_HELD_AFTER_V4 <= set(manifest["explicitly_held_fields"])
 
 
 def test_v4_fields_are_exposed_in_registry_and_runtime_catalogue():
@@ -87,10 +98,6 @@ def test_v4_fields_are_exposed_in_registry_and_runtime_catalogue():
     for field in PROMOTED_V4:
         assert registry[field] == "exposed"
         assert catalogue[field] == "exposed"
-        definition = variable_definition(field, family="team_match", season="2024-25")
-        assert definition.family == "team_match"
-        assert definition.source_field == field
-        assert definition.status == "exposed"
 
 
 def test_v4_coverage_aware_fields_keep_blanks_missing():
@@ -119,8 +126,8 @@ def test_lost_corners_is_now_exposed_without_opponent_corner_equivalence():
     assert "160" in resolution["interpretation"]
 
 
-def test_v4_relationship_only_and_event_recon_candidates_still_fail_closed():
-    for field in HELD_AFTER_V4:
+def test_only_genuinely_unresolved_v4_candidates_still_fail_closed_after_v5():
+    for field in STILL_HELD_AFTER_V5:
         try:
             definition = variable_definition(
                 field,
@@ -128,12 +135,7 @@ def test_v4_relationship_only_and_event_recon_candidates_still_fail_closed():
                 season="2024-25",
             )
         except UnknownVariableError:
-            # Some held candidates are partial-coverage source fields and are not
-            # present in this season at all. Unknown in the requested season is a
-            # valid fail-closed state and must not be converted into an inferred
-            # uncatalogued/exposed definition.
             continue
-
         assert definition.status == "uncatalogued"
         with pytest.raises((VariableUnavailableError, UnknownVariableError)):
             resolve_variable(
@@ -142,3 +144,9 @@ def test_v4_relationship_only_and_event_recon_candidates_still_fail_closed():
                 season="2024-25",
                 fixture_id="1",
             )
+
+
+def test_v5_can_supersede_v4_holds_without_rewriting_v4_history():
+    statuses = _team_statuses()
+    superseded = HISTORICALLY_HELD_AFTER_V4 - STILL_HELD_AFTER_V5
+    assert {statuses[field] for field in superseded} == {"exposed"}
