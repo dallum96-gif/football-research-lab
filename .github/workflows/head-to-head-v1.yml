@@ -11,6 +11,8 @@ on:
       - "tests/test_head_to_head.py"
       - "web/src/app/head-to-head/**"
       - "web/src/app/matchday/[season]/[fixtureId]/page.tsx"
+      - "CURRENT_WORK.md"
+      - "data/frl_documentation_state_v1.json"
       - ".github/workflows/head-to-head-v1.yml"
   workflow_dispatch:
 
@@ -42,6 +44,9 @@ jobs:
           tests/test_matchday_pack.py
           tests/test_team_state.py
           tests/test_adaptive_dixon_coles.py
+
+      - name: Validate documentation sync
+        run: python scripts/check_documentation_sync.py
 
       - name: Set up Node
         uses: actions/setup-node@v4
