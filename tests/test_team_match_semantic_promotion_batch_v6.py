@@ -53,6 +53,7 @@ STILL_HELD_AFTER_V7 = {
     "successfulFiftyFifty",
     "successfulPutThrough",
     "totalDistance",
+    "winningGoal",
     "yellowCard",
 }
 
