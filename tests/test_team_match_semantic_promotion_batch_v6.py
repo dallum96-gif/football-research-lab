@@ -16,85 +16,43 @@ MANIFEST = ROOT / "data" / "team_match_semantic_promotion_batch_v6.json"
 EVIDENCE = ROOT / "data" / "team_match_semantic_evidence_v6.json"
 
 PROMOTED_V6 = {
-    "accurateFreekickCross",
-    "attCorner",
-    "attFastbreak",
-    "attFreekickGoal",
-    "attFreekickMiss",
-    "attFreekickTarget",
-    "attFreekickTotal",
-    "attObxdLeft",
-    "attObxdRight",
-    "attOneOnOne",
-    "attOpenplay",
-    "attPenGoal",
-    "attPenMiss",
-    "attPenPost",
-    "attPenTarget",
-    "attPostHigh",
-    "attPostLeft",
-    "attPostRight",
-    "attSetpiece",
-    "attemptedTackleFoul",
-    "clearanceOffLine",
-    "contentiousDecision",
-    "defenderGoals",
-    "dispossessed",
-    "forwardGoals",
-    "foulThrowIn",
-    "goalAssist",
-    "goalAssistDeadball",
-    "goalAssistIntentional",
-    "goalAssistOpenplay",
-    "goalAssistSetplay",
-    "goalFastbreak",
-    "goalsOpenplay",
-    "goodHighClaim",
-    "handBall",
-    "midfielderGoals",
-    "offtargetAttAssist",
-    "ontargetAttAssist",
-    "ownGoals",
-    "penGoalsConceded",
-    "penaltyConceded",
-    "penaltyFaced",
-    "penaltySave",
-    "penaltyWon",
-    "possLostCtrl",
-    "postScoringAtt",
-    "punches",
-    "rescindedRedCard",
-    "secondYellow",
-    "shieldBallOop",
-    "shotFastbreak",
-    "sixYardBlock",
-    "totalAttAssist",
-    "totalFastbreak",
+    "accurateFreekickCross", "attCorner", "attFastbreak", "attFreekickGoal",
+    "attFreekickMiss", "attFreekickTarget", "attFreekickTotal", "attObxdLeft",
+    "attObxdRight", "attOneOnOne", "attOpenplay", "attPenGoal", "attPenMiss",
+    "attPenPost", "attPenTarget", "attPostHigh", "attPostLeft", "attPostRight",
+    "attSetpiece", "attemptedTackleFoul", "clearanceOffLine", "contentiousDecision",
+    "defenderGoals", "dispossessed", "forwardGoals", "foulThrowIn", "goalAssist",
+    "goalAssistDeadball", "goalAssistIntentional", "goalAssistOpenplay",
+    "goalAssistSetplay", "goalFastbreak", "goalsOpenplay", "goodHighClaim",
+    "handBall", "midfielderGoals", "offtargetAttAssist", "ontargetAttAssist",
+    "ownGoals", "penGoalsConceded", "penaltyConceded", "penaltyFaced",
+    "penaltySave", "penaltyWon", "possLostCtrl", "postScoringAtt", "punches",
+    "rescindedRedCard", "secondYellow", "shieldBallOop", "shotFastbreak",
+    "sixYardBlock", "totalAttAssist", "totalFastbreak",
 }
 
-HELD_AFTER_V6 = {
-    "attFreekickPost",
-    "attIboxOwnGoal",
-    "attLgCentre",
-    "attLgLeft",
-    "attLgRight",
+HISTORICALLY_HELD_AFTER_V6 = {
+    "attFreekickPost", "attIboxOwnGoal", "attLgCentre", "attLgLeft", "attLgRight",
+    "attOboxOwnGoal", "attemptsIbox", "attemptsObox", "expectedGoalsFreekick",
+    "expectedGoalsOnTargetConceded", "fiftyFifty", "freekickTotal", "keeperGoals",
+    "ptsDroppedWinningPos", "ptsGainedLosingPos", "putThrough", "redCard",
+    "subsGoals", "successfulFiftyFifty", "successfulPutThrough", "totalDistance",
+    "winningGoal", "yellowCard",
+}
+
+STILL_HELD_AFTER_V7 = {
     "attOboxOwnGoal",
-    "attemptsIbox",
-    "attemptsObox",
     "expectedGoalsFreekick",
     "expectedGoalsOnTargetConceded",
     "fiftyFifty",
     "freekickTotal",
     "keeperGoals",
-    "ptsDroppedWinningPos",
-    "ptsGainedLosingPos",
     "putThrough",
     "redCard",
     "subsGoals",
     "successfulFiftyFifty",
     "successfulPutThrough",
     "totalDistance",
-    "winningGoal",
     "yellowCard",
 }
 
@@ -106,12 +64,12 @@ def _team_statuses() -> dict[str, str]:
     }
 
 
-def test_v6_manifest_records_bulk_batch_and_expected_gate():
+def test_v6_manifest_records_verified_bulk_batch_and_expected_gate():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    assert manifest["status"] == "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE"
+    assert manifest["status"] == "VERIFIED_GENERIC_ACCESS"
     assert manifest["promotion_count"] == 54
     assert set(manifest["promoted_fields"]) == PROMOTED_V6
-    assert set(manifest["explicitly_held_fields"]) == HELD_AFTER_V6
+    assert set(manifest["explicitly_held_fields"]) == HISTORICALLY_HELD_AFTER_V6
     expected = manifest["expected_post_gate"]["reconciliation"]
     assert expected == {
         "team_match_raw_paths": 249,
@@ -132,9 +90,11 @@ def test_v6_fields_are_exposed_in_team_registry():
     assert {statuses[field] for field in PROMOTED_V6} == {"exposed"}
 
 
-def test_v6_keeps_remaining_unresolved_fields_out_of_registry():
+def test_v6_historical_hold_set_can_be_superseded_by_v7_without_rewriting_history():
     statuses = _team_statuses()
-    assert all(statuses.get(field) != "exposed" for field in HELD_AFTER_V6)
+    promoted_later = HISTORICALLY_HELD_AFTER_V6 - STILL_HELD_AFTER_V7
+    assert {statuses[field] for field in promoted_later} == {"exposed"}
+    assert all(statuses.get(field) != "exposed" for field in STILL_HELD_AFTER_V7)
 
 
 def test_v6_does_not_create_structural_zero_rules():
