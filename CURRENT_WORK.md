@@ -1,7 +1,7 @@
 # Current Work — Football Research Laboratory
 
 **Last updated:** 5 September 2026  
-**Checkpoint:** `TEAM_MATCH_V7_AND_FIXTURE_CONTEXT_PROVEN_V1`
+**Checkpoint:** `SOURCE_UNIVERSE_TEAM_AND_PLAYER_PROVEN_V1`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
@@ -33,68 +33,61 @@ The preserved PulseLive archive contains **3,800 Premier League fixture snapshot
     └── 123 other football / match paths
 ```
 
-The 553-path universe remains the master source/evidence universe.
+The 553-path universe remains the master PulseLive source/evidence universe.
 
-## Team-match capability — V1 through V7 verified
+## Team-match source universe — routed and governed
 
-Initial reconciliation:
+Initial reconciliation began at:
 
 - 26 exposed;
 - 164 packaged/source-field uncatalogued;
 - 59 raw-only.
 
-Verified current state after V7:
+The source-universe milestone gate on 5 September 2026 proved:
 
 ```text
 249 TEAM-MATCH STATISTICAL PATHS
-├── 176 governed + generic research access verified
-├── 14 packaged/source-field exceptional residue
-└── 59 raw-only route-discovery/raw-routing work
+├── 176 canonical/governed + generic access verified
+├──   8 governed retained source fields
+├──   6 governed restricted source fields
+└──  59 raw-only source representations with generic preserved-snapshot route
 ```
 
-The combined local milestone gate on 5 September 2026 passed:
+Validation result:
 
-- **Pytest: PASS across 11 milestone test modules**;
-- reconciliation: **176 exposed / 14 uncatalogued / 59 raw-only**;
-- generic access: **176/176 PASS**;
+- **Pytest: PASS across 12 milestone modules**;
+- packaged/governed: **176 exposed / 8 retained / 6 restricted / 0 uncatalogued**;
+- canonical generic access: **176/176 PASS**;
+- raw-only pathway: **59/59 ROUTED through preserved PulseLive stats**;
 - documentation sync: **PASS**.
 
-V5–V7 demonstrated that exact source/provider definitions can be applied in coherent bulk families rather than treating every legacy field as a separate research project. Across the accelerated phase, the verified baseline moved from **64 to 176 exposed fields** without changing the missingness standard.
+The 59 raw-only fields are no longer a pathway-discovery backlog. They remain source-native evidence until semantic promotion is justified, but every one has a governed research route.
 
 Standing missingness rule:
 
 > **A source blank is missing by default. Structural zero requires specific evidence for that concept, representation and period.**
 
-No new structural-zero rules were introduced by V5, V6 or V7.
+## Player-Match source universe — exhaustively accounted
 
-### Remaining 14 packaged fields
+The decade-wide Player-Match schema union across 2016/17–2025/26 contains **86 observed source fields**.
+
+The same source-universe milestone gate proved:
 
 ```text
-attOboxOwnGoal
-expectedGoalsFreekick
-expectedGoalsOnTargetConceded
-fiftyFifty
-freekickTotal
-keeperGoals
-putThrough
-redCard
-subsGoals
-successfulFiftyFifty
-successfulPutThrough
-totalDistance
-winningGoal
-yellowCard
+86 PLAYER-MATCH SOURCE FIELDS
+├── 81 exposed for generic research access
+├──  4 retained metadata/source-context fields
+└──  1 restricted duplicate CSV column
+
+0 observed fields uncatalogued
+81/81 exposed fields generic-access PASS
 ```
 
-These are an **exception set, not a normal promotion backlog**. They include:
+Partial-period capability is explicitly preserved rather than discarded. A legitimate field may be exposed even when it exists only in later seasons; outside its observed seasons it remains unavailable/missing and is never coerced to zero.
 
-- expected-metric fields that belong under the expected-metric routing contract;
-- duplicate/overlapping card representations requiring reconciliation against `totalRedCard` / `totalYelCard` and event evidence;
-- competition-specific `putThrough` fields;
-- physical/tracking data (`totalDistance`);
-- a small number of legacy concepts still lacking sufficiently direct PulseLive-specific semantic evidence.
+Examples include expected metrics, carry/progression fields and the 2025/26 physical-distance fields.
 
-Do not spend time forcing these into the scalar exposed count merely to reach a round number.
+A stale Player-Match dribble route was also corrected: `successfulDribbles` / `unsuccessfulDribbles` are not advertised as native Player-Match source fields. Rich Player-Match take-on capability uses the observed `totalContest` / `wonContest` representation, with unsuccessful contests derived from attempts minus successful contests.
 
 ## Fixture event & tactical context — archive-wide proven
 
@@ -131,14 +124,15 @@ FPL remains a distinct source family. FPL ICT Creativity must never be relabelle
 
 ## Immediate objective
 
-> **Preserve the verified 176/176 team-match baseline and use the governed capability in FRL product/research services. Treat the 14 packaged residue fields and 59 raw-only paths as exception/routing work to resume when there is a concrete analytical need.**
+> **Consume the now-routed team and player source universes through shared FRL research/product services. Let analytical/product demand determine which retained/restricted/raw-native representations need deeper semantic promotion next.**
 
-Near-term product work should consume the proven evidence through shared Team Scouting, Opposition Report, Matchday / Fixture Intelligence, Rankings and Research Explorer services rather than continuing promotion work for its own sake.
+Near-term work should increasingly use these capabilities in Team Scouting, Player Scouting, Opposition Report, Matchday / Fixture Intelligence, Rankings and Research Explorer rather than resuming mass field-by-field promotion without a concrete analytical need.
 
 ## Non-negotiables
 
 - Never manufacture semantic equivalence from field-name similarity.
 - Never convert source blanks to zero without concept-specific audited approval.
 - Never collapse raw source path → source field → canonical variable into one layer.
+- Never discard a legitimate variable solely because coverage begins later than 2016/17.
 - Never force event/tactical objects through a scalar-variable interface merely for uniformity.
 - Never let product surfaces invent independent definitions of governed football concepts.
