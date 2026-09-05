@@ -1,0 +1,59 @@
+name: Adaptive DC research closeout
+
+on:
+  push:
+    branches:
+      - "model/poisson-v1"
+    paths:
+      - "adaptive_dixon_coles.py"
+      - "poisson_model.py"
+      - "query_lab.py"
+      - "fixtures_master_corrected.csv"
+      - "identity/team_seasons.csv"
+      - "scripts/evaluate_adaptive_dixon_coles_v1.py"
+      - "scripts/validate_adaptive_dixon_coles_milestone.py"
+      - "scripts/audit_adaptive_dixon_coles_robustness.py"
+      - "scripts/predict_adaptive_dixon_coles_slate.py"
+      - "tests/test_adaptive_dixon_coles.py"
+      - "tests/test_poisson_model.py"
+      - "tests/test_poisson_evaluation.py"
+      - "tests/test_team_state.py"
+      - ".github/workflows/adaptive-dc-research.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  research:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install research dependencies
+        run: python -m pip install pytest
+
+      - name: Validate controlled Adaptive DC milestone
+        run: python scripts/validate_adaptive_dixon_coles_milestone.py
+
+      - name: Run robustness closeout
+        run: python scripts/audit_adaptive_dixon_coles_robustness.py
+
+      - name: Forecast 5 September 2026 slate
+        run: python scripts/predict_adaptive_dixon_coles_slate.py --season 2026-27 --date 2026-09-05
+
+      - name: Upload research artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: adaptive-dc-research-2026-09-05
+          path: |
+            data/adaptive_dixon_coles_v1_backtest_summary.json
+            data/adaptive_dixon_coles_v1_robustness.json
+            artifacts/forecast_snapshots/adaptive_dc_2026-27_2026-09-05.json
+            artifacts/forecast_snapshots/adaptive_dc_2026-27_2026-09-05.html
