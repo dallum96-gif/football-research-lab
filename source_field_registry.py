@@ -126,9 +126,11 @@ TEAM_PROMOTION_BATCH_V2_FIELDS = {
 # standing team-match missingness contract. This is a coverage-aware exposure,
 # not a structural-zero promotion.
 #
-# lostCorners remains excluded: the corrected opponent-route audit found 145
-# disagreements in 7,438 observed comparisons and no independent blank-zero
-# corroboration.
+# lostCorners remained excluded at the V3 decision point because the then-used
+# opponent-corner comparison had unexplained disagreements. V4 later obtained
+# direct Opta Corner Lost semantics and documented why Corner Lost need not
+# equal opponent Corner Taken, so the historical V3 hold is preserved in its
+# manifest without freezing future runtime governance.
 #
 # See scripts/audit_team_match_sparse_zero_candidates.py and
 # data/team_match_semantic_promotion_batch_v3.json.
@@ -136,6 +138,39 @@ TEAM_PROMOTION_BATCH_V3_FIELDS = {
     "blockedPass": "exposed",
     "goalKicks": "exposed",
     "touchesInOppBox": "exposed",
+}
+
+# Fourth controlled expansion. V4 combines authoritative Opta/Premier League
+# concept evidence with decade-wide zero-violation child<=parent checks for
+# eight accurate outcome fields. It also promotes directly defined parent and
+# standalone concepts. Historical blanks remain missing; no structural-zero
+# semantics are added by this batch.
+#
+# redCard and subsMade remain outside the batch pending reconciliation against
+# existing totalRedCard and the governed fixture-event seam respectively.
+# Relationship-only fields without adequate direct semantic support also remain
+# fail-closed even when their empirical child<=parent checks pass.
+#
+# See data/team_match_semantic_evidence_v4.json,
+# scripts/audit_team_match_v4_evidence_stack.py and
+# data/team_match_semantic_promotion_batch_v4.json.
+TEAM_PROMOTION_BATCH_V4_FIELDS = {
+    "accurateChippedPass": "exposed",
+    "accurateCross": "exposed",
+    "accurateFlickOn": "exposed",
+    "accurateGoalKicks": "exposed",
+    "accurateKeeperThrows": "exposed",
+    "accurateLaunches": "exposed",
+    "accurateLayoffs": "exposed",
+    "accurateLongBalls": "exposed",
+    "blockedCross": "exposed",
+    "keeperThrows": "exposed",
+    "lostCorners": "exposed",
+    "totalFlickOn": "exposed",
+    "totalLaunches": "exposed",
+    "totalLayoffs": "exposed",
+    "totalLongBalls": "exposed",
+    "wonCorners": "exposed",
 }
 
 COMMON_PLAYER_MATCH_FIELDS = {
@@ -250,7 +285,8 @@ SOURCE_FIELD_REGISTRY = (
         | TEAM_CURATED_FIELDS
         | TEAM_PROMOTION_BATCH_V1_FIELDS
         | TEAM_PROMOTION_BATCH_V2_FIELDS
-        | TEAM_PROMOTION_BATCH_V3_FIELDS,
+        | TEAM_PROMOTION_BATCH_V3_FIELDS
+        | TEAM_PROMOTION_BATCH_V4_FIELDS,
     )
     + _build_family("player_match", COMMON_PLAYER_MATCH_FIELDS | PLAYER_MATCH_CURATED_FIELDS)
     + _build_family("player_season", PLAYER_SEASON_FIELDS)
