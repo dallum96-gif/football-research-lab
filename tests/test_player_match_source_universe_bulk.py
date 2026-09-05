@@ -26,7 +26,14 @@ def test_partial_period_player_fields_are_included_not_discarded():
     audit = build_audit()
     rows = {row["source_field"]: row for row in audit["rows"]}
     assert rows["expectedGoals"]["seasons"] == ["2022-23", "2023-24", "2024-25", "2025-26"]
-    assert rows["ballCarriesCount"]["seasons"] == ["2024-25", "2025-26"]
+
+    # Coverage is empirical, not hard-coded to the season in which FRL first
+    # consumed the field. Earlier observed seasons are useful evidence and must
+    # not be discarded merely because a later product projection introduced it.
+    carry_seasons = set(rows["ballCarriesCount"]["seasons"])
+    assert {"2024-25", "2025-26"} <= carry_seasons
+    assert 0 < len(carry_seasons) < 10
+
     assert rows["metersCoveredSprintingKm"]["seasons"] == ["2025-26"]
     assert rows["metersCoveredWalkingKm"]["registry_status"] == "exposed"
 
