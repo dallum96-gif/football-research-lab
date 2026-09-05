@@ -55,6 +55,17 @@ def _number(value: object) -> float | None:
         return None
 
 
+def _canonical_fixture(season: str, fixture_id: str) -> dict:
+    rows = query_api.fixtures(season=season, team=None, limit=500)["results"]
+    fixture = next(
+        (dict(row) for row in rows if str(row.get("fixture_id") or "") == str(fixture_id)),
+        None,
+    )
+    if fixture is None:
+        raise ValueError(f"Fixture not found: {season}/{fixture_id}")
+    return fixture
+
+
 @lru_cache(maxsize=2048)
 def _team_fixture_metric(season: str, team_name: str, fixture_id: str, source_key: str) -> float | None:
     team_code = team_research_stats.team_code_for_name(season, team_name)
@@ -222,8 +233,50 @@ def _adaptive_prediction(fixture: dict) -> dict:
     }
 
 
+def _portable_base_pack(season: str, fixture_id: str) -> dict:
+    fixture = _canonical_fixture(season, fixture_id)
+    teams = {
+        "home": matchday_pack._recent_team_side(fixture, "home"),
+        "away": matchday_pack._recent_team_side(fixture, "away"),
+    }
+    players = {
+        "home": matchday_pack._player_recent_side(fixture, "home"),
+        "away": matchday_pack._player_recent_side(fixture, "away"),
+    }
+    current_team_min = min(
+        int(teams["home"]["current_season_sample_size"]),
+        int(teams["away"]["current_season_sample_size"]),
+    )
+    current_player_min = min(
+        int(players["home"]["fixture_evidence_count"]),
+        int(players["away"]["fixture_evidence_count"]),
+    )
+    early_season = current_team_min < matchday_pack.RECENT_MATCH_LIMIT or current_player_min < matchday_pack.RECENT_MATCH_LIMIT
+    return {
+        "fixture": fixture,
+        "teams": teams,
+        "players": players,
+        "data_maturity": {
+            "status": "EARLY_SEASON" if early_season else "RECENT_WINDOW_MATURE",
+            "team_current_season_matches": {
+                "home": teams["home"]["current_season_sample_size"],
+                "away": teams["away"]["current_season_sample_size"],
+            },
+            "player_fixture_evidence_matches": {
+                "home": players["home"]["fixture_evidence_count"],
+                "away": players["away"]["fixture_evidence_count"],
+            },
+            "note": (
+                "Early-season current campaign evidence is still thin. Team Last 5 can bridge the summer through governed persistent club identity; Player Last 5 remains current-season only."
+                if early_season
+                else "Both teams have a full five-match current-season recent window and at least five current-season player-evidence fixtures before kickoff."
+            ),
+        },
+    }
+
+
 def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
-    base = matchday_pack.build_matchday_pack(season, fixture_id)
+    base = _portable_base_pack(season, fixture_id)
     fixture = dict(base["fixture"])
     forecast = _adaptive_prediction(fixture)
     entries = _betbuilder_entries(base)
@@ -247,6 +300,7 @@ def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
             "The evidence index is descriptive and must not be presented as an estimated betting probability.",
             "Player watchlists remain current-season FPL evidence and can be thin early in the season.",
             "Foul-drawn/foul-committed and referee-adjusted card matchup modelling remains withheld until its semantics and coverage are governed.",
+            "The Head-to-Head route deliberately avoids the legacy external Player-Match filesystem dependency used by full fixture-detail enrichment.",
         ],
     }
 
