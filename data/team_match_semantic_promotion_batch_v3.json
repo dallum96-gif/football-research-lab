@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0.0",
   "decision_date": "2026-09-05",
-  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE",
+  "status": "VERIFIED_GENERIC_ACCESS",
   "family": "team_match",
   "purpose": "Record the third controlled semantic promotion batch from the September 2026 PulseLive capability industrialisation programme.",
   "promotion_rule": "A field may be exposed for reusable source-native team_match research access when its football concept is sufficiently clear and the generic query layer preserves source blanks as missing. Structural-zero governance is separate and is never inferred from sparse/no-zero encoding alone.",
@@ -55,6 +55,21 @@
       "OPPONENT_ROUTE_REVIEW_CONFLICTS": 1
     },
     "structural_zero_promotions": 0
+  },
+  "local_validation": {
+    "date": "2026-09-05",
+    "targeted_regression_tests": "25 passed in 0.61s",
+    "reconciliation": {
+      "EXISTING_EXPOSED": 48,
+      "EXISTING_SOURCE_FIELD_UNCATALOGUED": 142,
+      "RAW_SNAPSHOT_ONLY": 59
+    },
+    "generic_access": {
+      "exposed_team_match_stat_fields": 48,
+      "PASS": 48,
+      "FAIL": 0,
+      "all_exposed_fields_pass_generic_access": true
+    }
   },
   "governance_note": "Exposure means reusable source-native research access at team_match grain. It does not imply complete coverage, structural-zero interpretation, GUI exposure, approval of derived rates, current-season 2026/27 availability, or equivalence to differently named provider fields."
 }
