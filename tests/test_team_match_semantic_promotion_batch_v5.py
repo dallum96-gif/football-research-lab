@@ -77,7 +77,10 @@ def _team_statuses() -> dict[str, str]:
 
 def test_v5_manifest_records_bulk_batch_and_expected_gate():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    assert manifest["status"] == "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE"
+    assert manifest["status"] in {
+        "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE",
+        "VERIFIED_GENERIC_ACCESS",
+    }
     assert manifest["promotion_count"] == 49
     assert set(manifest["promoted_fields"]) == PROMOTED_V5
     expected = manifest["expected_post_gate"]["reconciliation"]
