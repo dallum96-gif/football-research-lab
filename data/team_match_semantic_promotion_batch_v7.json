@@ -1,0 +1,61 @@
+{
+  "schema_version": "1.0.0",
+  "decision_date": "2026-09-05",
+  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE",
+  "family": "team_match",
+  "purpose": "Promote the directly supported subset of the post-V6 packaged residue using existing FRL governed labels plus direct legacy field definitions.",
+  "promotion_rule": "Promote only fields in the 23-field residue where either FRL already treats the field as a governed direct team-match concept or an external legacy Opta-family definition directly resolves the exact field. Preserve blanks as missing and retain unresolved duplicates/expected/physical/competition-specific fields.",
+  "promotion_count": 10,
+  "promoted_fields": [
+    "attFreekickPost",
+    "attIboxOwnGoal",
+    "attLgCentre",
+    "attLgLeft",
+    "attLgRight",
+    "attemptsIbox",
+    "attemptsObox",
+    "ptsDroppedWinningPos",
+    "ptsGainedLosingPos",
+    "winningGoal"
+  ],
+  "evidence_sources": {
+    "semantic_evidence": "data/team_match_semantic_evidence_v7.json",
+    "internal_direct_field_boundary": "match_stats.py",
+    "source_registry": "source_field_registry.py",
+    "milestone_validator": "scripts/validate_team_match_milestone.py"
+  },
+  "coverage_and_missingness": {
+    "decision": "BLANK_REMAINS_MISSING_UNLESS_SEPARATELY_GOVERNED",
+    "governed_structural_zero_change": false
+  },
+  "explicitly_held_fields": [
+    "attOboxOwnGoal",
+    "expectedGoalsFreekick",
+    "expectedGoalsOnTargetConceded",
+    "fiftyFifty",
+    "freekickTotal",
+    "keeperGoals",
+    "putThrough",
+    "redCard",
+    "subsGoals",
+    "successfulFiftyFifty",
+    "successfulPutThrough",
+    "totalDistance",
+    "yellowCard"
+  ],
+  "expected_post_gate": {
+    "reconciliation": {
+      "team_match_raw_paths": 249,
+      "EXISTING_EXPOSED": 177,
+      "EXISTING_SOURCE_FIELD_UNCATALOGUED": 13,
+      "RAW_SNAPSHOT_ONLY": 59
+    },
+    "generic_access": {
+      "exposed_team_match_stat_fields": 177,
+      "PASS": 177,
+      "FAIL": 0,
+      "all_exposed_fields_pass_generic_access": true
+    }
+  },
+  "governance_note": "V7 is a residue-resolution batch, not a relaxation of governance. The remaining 13 fields require dedicated overlap, expected-metric, physical-metric, competition-specific or direct-definition work."
+}
