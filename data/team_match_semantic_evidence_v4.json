@@ -1,0 +1,146 @@
+{
+  "schema_version": "1.0.0",
+  "status": "REVIEW_EVIDENCE_ONLY",
+  "purpose": "Post-V3 external semantic corroboration for selected remaining PulseLive team-match source fields. This file records concept evidence only and does not itself expose, canonically label, aggregate or promote any field.",
+  "sources": {
+    "statsperform_opta_event_definitions": {
+      "url": "https://www.statsperform.com/opta-event-definitions/",
+      "authority": "Stats Perform / Opta",
+      "use": "Primary event-definition support for cards, passes, launches, flick-ons, lay-offs, corners and blocked crosses."
+    },
+    "statsperform_betting_event_definitions": {
+      "url": "https://optaplayerstats.statsperform.com/en_GB/opta-event-definitions",
+      "authority": "Stats Perform / Opta",
+      "use": "Additional public Opta definitions for pass-event subtypes including chipped passes, launches, flick-ons and lay-offs."
+    },
+    "premierleague_stats_clarification": {
+      "url": "https://www.premierleague.com/en/stats/clarification",
+      "authority": "Premier League",
+      "use": "Official Premier League statistical vocabulary including club red cards, substitutions, long balls, corners, goalkeeper throw-outs and goal kicks."
+    }
+  },
+  "fields": {
+    "redCard": {
+      "proposed_label": "Red cards",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "premierleague_stats_clarification"],
+      "note": "Opta explicitly collects red cards and the Premier League exposes club red-card statistics. Exact source-field aggregation remains subject to ordinary FRL source review."
+    },
+    "subsMade": {
+      "proposed_label": "Substitutions made",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "The Premier League exposes club substitution statistics. The source-field name is strongly consistent with a team-match substitution count, but FRL still requires source-native validation before promotion."
+    },
+    "accurateChippedPass": {
+      "proposed_label": "Accurate chipped passes",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "statsperform_betting_event_definitions"],
+      "note": "Opta directly defines a chipped pass. The accurate subset interpretation should be supported by a zero-violation accurateChippedPass<=totalChippedPass audit."
+    },
+    "totalLongBalls": {
+      "proposed_label": "Long balls",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "Long balls are explicitly part of the Premier League statistical vocabulary. Exact team-match source aggregation still requires FRL review."
+    },
+    "accurateLongBalls": {
+      "proposed_label": "Accurate long balls",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "The long-ball concept is official. The accurate subset interpretation should be supported by an accurateLongBalls<=totalLongBalls audit."
+    },
+    "totalLaunches": {
+      "proposed_label": "Launches",
+      "support_grade": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "statsperform_betting_event_definitions"],
+      "note": "Opta directly defines a Launch as a long high ball into space or an area for players to chase or challenge for the ball."
+    },
+    "accurateLaunches": {
+      "proposed_label": "Accurate launches",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "statsperform_betting_event_definitions"],
+      "note": "The Launch concept is directly defined. The accurate subset interpretation should be supported by an accurateLaunches<=totalLaunches audit."
+    },
+    "totalFlickOn": {
+      "proposed_label": "Flick-ons",
+      "support_grade": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "statsperform_betting_event_definitions"],
+      "note": "Opta directly defines a Flick-On as a glancing pass with head or foot onto a teammate while helping the ball on in the same general direction."
+    },
+    "accurateFlickOn": {
+      "proposed_label": "Accurate flick-ons",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "statsperform_betting_event_definitions"],
+      "note": "The Flick-On concept is directly defined. The accurate subset interpretation should be supported by an accurateFlickOn<=totalFlickOn audit."
+    },
+    "totalLayoffs": {
+      "proposed_label": "Lay-offs",
+      "support_grade": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "statsperform_betting_event_definitions"],
+      "note": "Opta directly defines a Lay-Off as a first-time pass away from goal under pressure, typically by a forward with their back to goal."
+    },
+    "accurateLayoffs": {
+      "proposed_label": "Accurate lay-offs",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "statsperform_betting_event_definitions"],
+      "note": "The Lay-Off concept is directly defined. The accurate subset interpretation should be supported by an accurateLayoffs<=totalLayoffs audit."
+    },
+    "blockedCross": {
+      "proposed_label": "Blocked crosses",
+      "support_grade": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions"],
+      "note": "Opta explicitly describes Blocked Passes / Blocked Crosses as defensive actions when a cleanly played pass or cross is already travelling on its intended path and is blocked."
+    },
+    "keeperThrows": {
+      "proposed_label": "Goalkeeper throws / throw-outs",
+      "support_grade": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "premierleague_stats_clarification"],
+      "note": "Opta explicitly distinguishes Keeper Throws from ordinary passes and the Premier League exposes goalkeeper throw-outs. Exact source-field aggregation remains subject to FRL review."
+    },
+    "accurateKeeperThrows": {
+      "proposed_label": "Accurate goalkeeper throws",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "premierleague_stats_clarification"],
+      "note": "The goalkeeper-throw concept is directly supported; the accurate subset interpretation should be empirically checked against keeperThrows."
+    },
+    "accurateGoalKicks": {
+      "proposed_label": "Accurate goal kicks",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "premierleague_stats_clarification"],
+      "note": "Goal kicks are explicitly recognised in Opta pass-event categorisation and Premier League goalkeeper statistics. The accurate outcome qualifier still requires source-level review."
+    },
+    "accurateCross": {
+      "proposed_label": "Accurate crosses",
+      "support_grade": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT",
+      "sources": ["premierleague_stats_clarification"],
+      "note": "Crosses and cross accuracy are official Premier League statistical concepts. The accurateCross<=totalCross relationship should be empirically verified."
+    },
+    "wonCorners": {
+      "proposed_label": "Corners won",
+      "support_grade": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions", "premierleague_stats_clarification"],
+      "note": "Opta directly defines Corner Won as a corner awarded to the attacking team after the ball leaves play."
+    },
+    "lostCorners": {
+      "proposed_label": "Corners lost / conceded",
+      "support_grade": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "sources": ["statsperform_opta_event_definitions"],
+      "note": "Opta directly defines Corner Lost as collected for the team conceding the corner. Opta also states Corner Won/Lost and Corner Taken use different collection criteria, so their aggregate totals may differ. The previously observed lostCorners-versus-opponent-cornerTaken mismatches are therefore not evidence against the Corner Lost interpretation. Historical blanks must still remain missing unless independently governed otherwise."
+    }
+  },
+  "explicitly_not_defined_here": [
+    "crosses18yard",
+    "crosses18yardplus",
+    "totalThrows",
+    "accurateThrows",
+    "effectiveBlockedCross",
+    "outfielderBlock",
+    "fouledFinalThird",
+    "divingSave",
+    "overrun",
+    "finalThirdEntries",
+    "penAreaEntries"
+  ],
+  "governance_note": "External terminology is semantic corroboration only. It never substitutes for FRL source-field, relationship, missingness, aggregation, comparability or temporal review."
+}
