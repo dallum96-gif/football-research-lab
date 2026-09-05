@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0.0",
+  "decision_date": "2026-09-05",
+  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE",
+  "family": "team_match",
+  "purpose": "Record the third controlled semantic promotion batch from the September 2026 PulseLive capability industrialisation programme.",
+  "promotion_rule": "A field may be exposed for reusable source-native team_match research access when its football concept is sufficiently clear and the generic query layer preserves source blanks as missing. Structural-zero governance is separate and is never inferred from sparse/no-zero encoding alone.",
+  "promoted_fields": [
+    "blockedPass",
+    "goalKicks",
+    "touchesInOppBox"
+  ],
+  "missingness_policy": {
+    "decision": "BLANK_REMAINS_MISSING",
+    "scope": "Preserved direct team-match representation, Premier League 2016-17 through 2025-26",
+    "rationale": "The sparse-zero corroboration audit found no exact player-match route for any candidate, so no candidate earned structural-zero treatment. Exposure therefore preserves occasional source blanks as genuinely missing under the standing FRL team-match missingness contract.",
+    "governed_structural_zero_change": false
+  },
+  "field_evidence": {
+    "blockedPass": {
+      "semantic_support": "HIGH_DIRECT_DEFINITION_SUPPORT",
+      "observed_nonblank_rows": 7595,
+      "blank_rows": 5,
+      "observed_zero_rows": 0,
+      "player_match_corroboration": "NO_EXACT_PLAYER_MATCH_CORROBORATION_ROUTE",
+      "decision": "EXPOSE_WITH_MISSINGNESS_PRESERVED"
+    },
+    "touchesInOppBox": {
+      "semantic_support": "MEDIUM_EXTERNAL_CONCEPT_SUPPORT_PLUS_EMPIRICAL_SUBSET_SUPPORT",
+      "observed_nonblank_rows": 7598,
+      "blank_rows": 2,
+      "observed_zero_rows": 0,
+      "subset_check": "touchesInOppBox <= touches: 7,598 comparisons / 0 violations",
+      "player_match_corroboration": "NO_EXACT_PLAYER_MATCH_CORROBORATION_ROUTE",
+      "decision": "EXPOSE_WITH_MISSINGNESS_PRESERVED"
+    },
+    "goalKicks": {
+      "semantic_support": "HIGH_EXTERNAL_CONCEPT_SUPPORT",
+      "observed_nonblank_rows": 7579,
+      "blank_rows": 21,
+      "observed_zero_rows": 0,
+      "player_match_corroboration": "NO_EXACT_PLAYER_MATCH_CORROBORATION_ROUTE",
+      "decision": "EXPOSE_WITH_MISSINGNESS_PRESERVED"
+    }
+  },
+  "explicitly_held_fields": {
+    "lostCorners": "No exact player-match corroboration route exists. The corrected season+fixture opponent comparison produced 7,438 observed pairs, 7,293 exact matches and 145 mismatches; all 160 lostCorners blanks paired with opponent cornerTaken blanks, so neither semantic equivalence nor blank-zero treatment is established.",
+    "finalThirdEntries": "Complete numeric coverage, but exact entry semantics remain insufficiently defined.",
+    "penAreaEntries": "Complete numeric coverage, but the proposed penAreaEntries<=finalThirdEntries nesting shortcut was falsified by 35 violations."
+  },
+  "sparse_zero_audit": {
+    "script": "scripts/audit_team_match_sparse_zero_candidates.py",
+    "status_counts": {
+      "NO_EXACT_PLAYER_MATCH_CORROBORATION_ROUTE": 4,
+      "OPPONENT_ROUTE_REVIEW_CONFLICTS": 1
+    },
+    "structural_zero_promotions": 0
+  },
+  "governance_note": "Exposure means reusable source-native research access at team_match grain. It does not imply complete coverage, structural-zero interpretation, GUI exposure, approval of derived rates, current-season 2026/27 availability, or equivalence to differently named provider fields."
+}
