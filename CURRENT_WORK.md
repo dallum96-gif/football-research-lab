@@ -1,19 +1,19 @@
 # Current Work — Football Research Laboratory
 
 **Last updated:** 5 September 2026  
-**Checkpoint:** `TEAM_MATCH_V3_AND_FIXTURE_CONTEXT_PROVEN_V1`
+**Checkpoint:** `TEAM_MATCH_V4_AND_FIXTURE_CONTEXT_PROVEN_V1`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
 ## Current platform state
 
-FRL is a governed football research and modelling environment whose active product frontend is **Next.js + React**, with **FastAPI** as the frontend-facing API. Streamlit remains legacy/reference only.
+FRL is a governed football research and modelling environment. The active product frontend is **Next.js + React**, with **FastAPI** as the frontend-facing API. Streamlit is legacy/reference only.
 
 Standing architecture:
 
 - canonical fixture, team and player identity rather than source-ID coincidence;
 - preserved source-native evidence with explicit provenance;
-- temporal/as-of reconstruction so FRL can distinguish what is true now from what was knowable earlier;
+- temporal/as-of reconstruction;
 - explicit missing, partial, unresolved and unavailable states rather than silent zero/fallback behaviour;
 - governed source routing and explicit derivations;
 - reproducible materialisation from pinned evidence;
@@ -27,9 +27,7 @@ The active product North Star is `FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITEC
 
 ## Development branch
 
-Active development is on:
-
-`model/poisson-v1`
+Active development is on `model/poisson-v1`.
 
 `main` / `origin/main` remains the stable integration line. Do not casually rebase, reset or merge merely to simplify history.
 
@@ -63,11 +61,7 @@ Living-season rules remain unchanged:
 
 ## Product state
 
-Completed/frozen-for-now surfaces include:
-
-- Homepage V1;
-- standalone Fixtures V1;
-- Team Profile V1.
+Completed/frozen-for-now surfaces include Homepage V1, standalone Fixtures V1 and Team Profile V1.
 
 Active/recent analytical surfaces include:
 
@@ -80,7 +74,7 @@ Active/recent analytical surfaces include:
 
 The shared tiled vertical-list language remains a valid FRL Stats interaction pattern.
 
-The product is not a sequence of isolated stat pages. The experience architecture is:
+The product experience architecture remains:
 
 ```text
 GOVERNED FOOTBALL EVIDENCE / VARIABLES
@@ -94,66 +88,47 @@ STATS / RANKINGS / COMPARE
 RESEARCH EXPLORER
 ```
 
-### Product interaction principles
+Interaction principles:
 
-- **Visual summaries first.** The first view should communicate the football story quickly.
-- **Progressive disclosure.** Glance → Explore → Analyse → Research.
-- **Player Scouting.** Role/profile, strengths, weaknesses, current form, cohort context and key output.
-- **Team Scouting.** Explain what kind of team it is, how it plays and what it does unusually well/poorly.
-- **Opposition Report.** Answer: *If I were preparing to face this team, what would I need to understand?*
-- **Matchday / Fixture Intelligence.** Answer: *What does the evidence tell us about this fixture?* Football-first, not sportsbook-first.
-- Odds, if acquired later, remain a separate price/value layer rather than contaminating football evidence.
+- visual summaries first;
+- progressive disclosure: Glance → Explore → Analyse → Research;
+- scouting surfaces explain football style, role, strengths, weaknesses and context rather than dumping metrics;
+- Matchday remains fixture-first and football-first, not sportsbook-first;
+- odds, if acquired later, remain a separate price/value layer.
 
 ## Full-source capability hierarchy
 
-The September raw PulseLive snapshot audit established:
+The preserved PulseLive archive contains **3,800 Premier League fixture snapshots** across 2016/17–2025/26.
 
-- 3,800 preserved fixture snapshots;
-- **553 distinct scalar raw paths — the master snapshotted source universe**;
-- **181 capture/provenance paths — evidence infrastructure**;
-- **372 football/match raw paths — football-capability subset**;
-- **249 team-match statistical raw paths — first industrialisation block**;
-- **123 additional football/match paths — events, lineups, managers, identity and match/team context**.
+The master raw-source hierarchy is:
 
 ```text
 553 MASTER SNAPSHOTTED RAW SOURCE PATHS
-├── 181 capture / provenance
-└── 372 football / match
-    ├── 249 team-match statistics
+├── 181 capture / provenance paths
+└── 372 football / match paths
+    ├── 249 team-match statistical paths
     └── 123 other football / match paths
 ```
 
-These are source-evidence paths, not 553 independently governed metrics.
+The **553-path universe is the master source/evidence universe**. The 372 football paths and 249 team-stat paths are subsets, not competing North Stars.
 
 Master objective:
 
 > **Understand, preserve and appropriately route the full 553-path source universe, while promoting legitimate football capabilities into governed analytical access and retaining provenance paths as evidence infrastructure.**
 
-Football-capability objective:
+## Team-match capability industrialisation — V1 through V4 verified
 
-> **Make every legitimate governed football variable research-accessible where evidence permits; let individual product surfaces select only the variables that answer their question well.**
+Initial reconciliation:
 
-## Team-match capability industrialisation — V1, V2 and V3 verified
+- 26 exposed;
+- 164 packaged/source-field uncatalogued;
+- 59 raw-snapshot-only.
 
-The initial 249-field reconciliation was:
+### V1
 
-- **26** exposed;
-- **164** packaged/source-field uncatalogued;
-- **59** raw-snapshot-only.
+V1 promoted 13 fields using semantic review, external corroboration and empirical invariants where appropriate. Post-V1 generic access passed **39/39**.
 
-### Promotion Batch V1
-
-V1 promoted 13 fields after semantic review, external corroboration where available, decade-wide packaged coverage, and zero-violation empirical invariants where relevant.
-
-Post-V1:
-
-- **39 exposed**;
-- **151 packaged-but-ungoverned**;
-- **59 raw-only**.
-
-Generic access passed **39/39**.
-
-This proved the industrialisation pattern:
+It established the reusable industrialisation route:
 
 ```text
 SOURCE FIELD
@@ -167,11 +142,11 @@ EXPLICIT GRAIN RESOLUTION
 GENERIC RESEARCH RETRIEVAL
 ```
 
-A family-collision bug exposed by `interceptionWon` was fixed during V1: explicit family context now takes precedence when the same field legitimately exists at multiple grains.
+It also exposed and fixed the family-collision rule: explicit family context is authoritative when the same source field genuinely exists at multiple grains.
 
-### Promotion Batch V2
+### V2
 
-V2 promoted:
+V2 promoted six fields:
 
 - `ballRecovery`;
 - `successfulFinalThirdPasses`;
@@ -180,85 +155,112 @@ V2 promoted:
 - `touches`;
 - `unsuccessfulTouch`.
 
-Evidence included complete **7,600/7,600** numeric coverage for all six, no negatives, strong Opta concept support, and zero-violation subset checks where asserted.
+The V2 evidence stack combined complete decade-wide numeric observation, no negatives, direct/strong Opta concept support and zero-violation subset checks where asserted. Generic access passed **45/45** after promotion.
 
-Local V2 gate:
+The proposed `penAreaEntries <= finalThirdEntries` nesting shortcut was falsified by **35 violations in 7,600 rows**. That falsifies the relationship assumption; it does not prove either source field invalid.
 
-- **24 passed in 1.71s**;
-- reconciliation **45 / 145 / 59**;
-- generic access **45 PASS / 0 FAIL**.
+### V3 — coverage-aware exposure
 
-### Sparse-zero audit and missingness decision
+V3 established an important governance separation:
 
-Four high-value fields were investigated because they were almost complete but contained occasional blanks and no observed numeric zeros:
+> **Semantic validity, missingness semantics and research accessibility are separate dimensions.**
 
-- `blockedPass` — 7,595/7,600 nonblank;
-- `touchesInOppBox` — 7,598/7,600;
-- `goalKicks` — 7,579/7,600;
-- `lostCorners` — 7,440/7,600.
-
-The standing contract remains:
-
-> **A source blank is missing by default. It may become a structural zero only when the football concept, source representation and audited period provide specific evidence that blank encodes zero occurrences.**
-
-The corroboration audit found **no exact player-match corroboration route** for any of the four fields, so no new structural-zero rule was approved.
-
-The corrected season+fixture `lostCorners` opponent comparison produced:
-
-- 7,438 observed pairs;
-- 7,293 exact matches;
-- 145 mismatches;
-- all 160 `lostCorners` blanks paired with blank opponent `cornerTaken`.
-
-Therefore `lostCorners` is **not** governed as equivalent to opponent corners and remains fail-closed.
-
-### Promotion Batch V3 — coverage-aware exposure
-
-V3 established a crucial separation:
-
-> **Reusable research exposure does not require complete historical coverage when the generic seam preserves genuine missingness.**
-
-V3 promoted:
+It promoted:
 
 - `blockedPass`;
 - `touchesInOppBox`;
 - `goalKicks`.
 
-For all three, blanks remain explicitly `BLANK_IS_MISSING`; no structural-zero interpretation was introduced.
+These fields can be safely queried even though occasional historical blanks remain genuine missing values. No new structural-zero rule was introduced.
 
-Local V3 gate on 5 September 2026:
+The standing missingness rule remains:
 
-- targeted regression suite: **25 passed in 0.61s**;
-- reconciliation: **48 exposed / 142 packaged-but-ungoverned / 59 raw-only**;
-- exposed-field generic-access audit: **48 PASS / 0 FAIL**;
+> **A source blank is missing by default. Structural zero requires specific evidence for that concept, representation and period.**
+
+### V4 — scaled evidence-backed promotion
+
+The post-V3 evidence matrix split the remaining packaged fields by semantic support, coverage shape, relationship opportunities and prior holds rather than treating full coverage as a promotion gate.
+
+The V4 evidence stack audited **18 child≤parent relationships across the decade**. All **18/18** were empirically consistent with zero violations and no negative-value violations.
+
+V4 promoted 16 fields:
+
+- `accurateChippedPass`;
+- `accurateCross`;
+- `accurateFlickOn`;
+- `accurateGoalKicks`;
+- `accurateKeeperThrows`;
+- `accurateLaunches`;
+- `accurateLayoffs`;
+- `accurateLongBalls`;
+- `blockedCross`;
+- `keeperThrows`;
+- `lostCorners`;
+- `totalFlickOn`;
+- `totalLaunches`;
+- `totalLayoffs`;
+- `totalLongBalls`;
+- `wonCorners`.
+
+Authoritative Opta / Premier League concept evidence supports the promoted families, including launches, flick-ons, lay-offs, long balls, goalkeeper throws, crosses, goal kicks, blocked crosses and corners.
+
+#### `lostCorners` semantic resolution
+
+The earlier comparison against opponent `cornerTaken` produced 145 mismatches. That comparison is **not** a valid equality invariant.
+
+Opta directly defines **Corner Lost** for the team conceding the corner and explicitly states that Corner Won/Lost and Corner Taken use different collection criteria, so their aggregate totals may differ.
+
+Therefore:
+
+- `lostCorners` is now governed as the source-native Corner Lost / corners-conceded concept;
+- it is **not** defined as opponent `cornerTaken`;
+- its 160 historical blanks remain missing;
+- the prior opponent-equality assumption is retired.
+
+#### V4 local verification
+
+On 5 September 2026:
+
+- targeted V4/V3/V2/resolver/generic-access regression suite: **28 passed** on two consecutive runs;
+- reconciliation: **64 exposed / 126 packaged-but-ungoverned / 59 raw-only**;
+- generic-access audit: **64 PASS / 0 FAIL**;
+- query audit: **64 PASS / 0 FAIL**;
 - `all_exposed_fields_pass_generic_access: true`.
 
-Therefore the current verified team-match baseline is:
+The current verified team-match state is therefore:
 
 ```text
 249 TEAM-MATCH STATISTICAL PATHS
-├── 48 governed + generic research access verified
-├── 142 packaged/source-field but not yet governed
+├── 64 governed + generic research access verified
+├── 126 packaged/source-field but not yet governed
 └── 59 raw-snapshot-only route-discovery/raw-routing work
 ```
 
-The V1/V2/V3 decisions are recorded in:
+Controlled promotion manifests:
 
 - `data/team_match_semantic_promotion_batch_v1.json`;
 - `data/team_match_semantic_promotion_batch_v2.json`;
-- `data/team_match_semantic_promotion_batch_v3.json`.
+- `data/team_match_semantic_promotion_batch_v3.json`;
+- `data/team_match_semantic_promotion_batch_v4.json`.
 
-Still held prominently:
+Current important holds include:
 
-- `lostCorners` — semantic/opponent-route conflicts;
-- `finalThirdEntries` — exact entry semantics unresolved;
-- `penAreaEntries` — exact semantics unresolved and the proposed `penAreaEntries <= finalThirdEntries` shortcut was falsified by **35 violations in 7,600 rows**.
+- `redCard` — reconcile against already-exposed `totalRedCard` and governed card events before exposing another aggregate;
+- `subsMade` — reconcile against governed substitution events;
+- `accurateBackZonePass` / `accurateFwdZonePass` — relationship evidence exists but zone semantics need direct corroboration;
+- `accurateCornersIntobox` — relationship evidence exists but exact corner-into-box semantics remain unresolved;
+- `accurateKeeperSweeper` — sparse coverage and exact keeper-sweeper semantics need direct definition review;
+- `accuratePullBack` / `accurateThroughBall` — relationship evidence alone is insufficient;
+- `successfulFiftyFifty` / `successfulPutThrough` — relationship evidence alone is insufficient;
+- `accurateThrows` — zero-violation relationship evidence exists but exact throw semantics are not yet governed;
+- `effectiveBlockedCross` — `effective` qualifier remains undefined;
+- `finalThirdEntries` / `penAreaEntries` — direct semantics remain unresolved, and their simple nested relationship is explicitly rejected.
 
-The 59 raw-only statistics remain a separate routing problem. Fuzzy name similarity is discovery evidence only and must not establish equivalence.
+The 59 raw-only team statistics remain a separate routing problem. Fuzzy name similarity is discovery evidence only and must not establish equivalence.
 
 ## Remaining 123 football/match paths — natural-grain industrialisation
 
-The 123 paths outside the team-statistical block were triaged as:
+The 123 football paths outside the team-statistical block were triaged as:
 
 - 58 Events;
 - 10 Managers;
@@ -269,19 +271,19 @@ The 123 paths outside the team-statistical block were triaged as:
 
 Priority split:
 
-- **46 P0**;
-- **49 P1**;
-- **28 P2**.
+- 46 P0;
+- 49 P1;
+- 28 P2.
 
-Key architectural decision:
+Key architectural rule:
 
-> **123 raw paths do not imply 123 independent variables.**
+> **123 raw paths do not imply 123 independent analytical variables.**
 
-For example, `goals[].playerId`, `.time`, `.assistPlayerId` and `.goalType` are attributes of one coherent goal-event observation. The same principle applies to cards, substitutions, lineups/roles, formations, managers and match context.
+Goal/card/substitution attributes form coherent event objects. Lineup identity, role, formation, manager and match context likewise belong at their natural grains.
 
 ## Fixture Event & Tactical Context — archive-wide proven
 
-FRL already contained source-native PulseLive normalisation in `pulselive_fixture_evidence.py`. `fixture_context_research.py` now connects that normalisation to verified fixture and player relationships:
+`fixture_context_research.py` connects preserved PulseLive evidence to verified fixture/team/player relationships and the existing source-native event/lineup normalisation.
 
 ```text
 CANONICAL FIXTURE
@@ -292,12 +294,12 @@ PRESERVED SNAPSHOT
       ↓
 NORMALISED EVENTS + LINEUP / FORMATION / MANAGER CONTEXT
       ↓
-EXPLICIT PULSELIVE → PLAYER-MATCH IDENTITY DECISIONS
+EXPLICIT PULSELIVE → PLAYER-MATCH SOURCE IDENTITY DECISIONS
       ↓
 FIXTURE-CONTEXT RESEARCH RESULT
 ```
 
-Archive-wide proof over all **3,800 preserved fixtures**:
+Archive-wide proof:
 
 - Event route: **3,800 PASS / 0 FAIL**;
 - Tactical-context route: **3,800 PASS / 0 FAIL**;
@@ -307,16 +309,16 @@ Archive-wide proof over all **3,800 preserved fixtures**:
   - 25,126 substitutions;
 - event primary-player bridge: 49,625 verified / 287 unresolved;
 - event secondary-player bridge: 32,443 verified / 101 unresolved;
-- lineup-player rows: **145,637**;
+- lineup-player rows: 145,637;
 - lineup-player bridge: 144,645 verified / 992 unresolved;
 - formation context: **7,600/7,600 team-sides**;
-- manager rows: **7,728**.
+- manager rows: 7,728.
 
-Unresolved identity evidence remains explicit and is never guessed.
-
-This is a major capability foundation for Matchday / Fixture Intelligence and Opposition Report: event chronology, player involvement, formation, role and manager context can be consumed through a governed fixture-level seam rather than rebuilt page by page.
+Unresolved identities remain explicit and are never guessed.
 
 Proof manifest: `data/fixture_context_research_capability_v1.json`.
+
+This seam is now infrastructure ready to be consumed by Matchday / Fixture Intelligence and Opposition Report rather than re-parsed page by page.
 
 ## Known capability implications
 
@@ -354,54 +356,53 @@ CONNECT / DERIVE / GOVERN IF ALREADY PRESENT
 ONLY THEN: SUPPLEMENTARY SOURCE EVALUATION
 ```
 
-Every apparent gap should first be classified as one of:
+Every apparent gap should first be classified as source-present-not-connected, connected-but-not-governed, semantics unresolved, identity unresolved, derivation not approved, insufficient coverage, current-season absent, historical absent, comparability unresolved or rights/operational block.
 
-- source present but not connected;
-- connected but not governed;
-- semantics unresolved;
-- identity unresolved;
-- derivation not approved;
-- insufficient coverage;
-- current-season absent;
-- historical absent;
-- comparability unresolved;
-- rights/operational block.
-
-Machine-readable product requirements: `data/frl_product_capability_requirements_v1.json`.
+Machine-readable requirements: `data/frl_product_capability_requirements_v1.json`.
 
 ## Immediate objective
 
-> **Preserve the verified 48/48 team-match generic-access baseline, scale semantic/aggregation governance across the remaining 142 packaged team-stat fields without weakening missingness rules, continue evidence-led routing for the 59 raw-only team-stat paths, and begin consuming the archive-wide proven fixture event/tactical-context seam in shared Matchday and Opposition analytical services.**
+> **Preserve the verified 64/64 team-match generic-access baseline, resolve high-value evidence/reconciliation tasks across the remaining 126 packaged team-stat fields, continue evidence-led routing for the 59 raw-only team-stat paths, and consume the archive-wide proven fixture event/tactical-context seam through shared Matchday and Opposition analytical services.**
 
 This deliberately precedes broad supplementary-provider acquisition.
 
 ## Immediate execution sequence
 
-### 1. Refresh and rank the remaining 142 packaged team-stat fields
+### 1. Reconcile aggregate fields against the event seam
 
-- rerun the team-match capability queue against the 48-field registry;
-- remove V1/V2/V3 fields from active promotion candidates;
-- preserve explicit holds such as `lostCorners`, `finalThirdEntries` and `penAreaEntries`;
-- rank remaining fields by semantic clarity, direct external support, empirical coverage, missingness, aggregation semantics and product value;
-- build the next evidence batch without auto-promotion.
+Prioritise concepts where FRL has two independent representations:
 
-### 2. Continue raw-only route discovery for the 59
+- reconcile `redCard` against already-exposed `totalRedCard` and card-event evidence;
+- reconcile `subsMade` against the governed 25,126 substitution events;
+- classify differences by source definition rather than forcing equality;
+- promote only where the exact aggregate concept is defensible.
+
+### 2. Refresh the remaining 126 packaged team-stat evidence matrix
+
+- regenerate the capability queue after V4;
+- remove V1–V4 promotions from active review;
+- preserve direct-definition and relationship-only holds;
+- prioritise authoritative-definition research for the largest remaining semantic families;
+- use empirical relationships as supporting evidence only;
+- continue coverage-aware exposure where semantics are strong and blanks can remain missing.
+
+### 3. Continue raw-only route discovery for the 59
 
 - distinguish identity aliases from statistics;
 - test exact/safe packaged equivalence only with direct evidence;
 - route genuinely raw-only evidence directly where appropriate;
 - retain semantically unresolved paths as unresolved;
-- do not weaken the semantic-conflict guard or rely on increasingly permissive fuzzy matching.
+- do not weaken semantic-conflict guards or use increasingly permissive fuzzy matching.
 
-### 3. Consume the fixture-context seam through shared analytical services
+### 4. Consume the fixture-context seam through shared analytical services
 
 - preserve coherent Goal/Card/Substitution objects;
 - preserve lineup/role, formation and manager context at natural grain;
 - quantify unresolved identity rather than guessing it;
-- expose the seam to Matchday / Opposition Report through shared services rather than page-specific parsing;
-- add higher-order game-state/tactical derivations only through explicit governed rules.
+- expose the seam to Matchday / Opposition Report through shared services;
+- add game-state/tactical derivations only through explicit governed rules.
 
-### 4. Prototype Player Scouting information hierarchy
+### 5. Prototype Player Scouting information hierarchy
 
 Using governed evidence only:
 
@@ -411,33 +412,27 @@ Using governed evidence only:
 - prove smooth drill-down;
 - expose unavailable capability honestly.
 
-### 5. Prototype Team Scouting and Opposition Report
+### 6. Prototype Team Scouting and Opposition Report
 
-- create the visual style/profile summary;
-- group rich historical team variables around analyst-relevant football questions;
-- integrate formation/event/personnel context from the shared fixture-context seam;
+- create visual style/profile summaries;
+- organise governed team variables around analyst-relevant football questions;
+- integrate formation/event/personnel context from the shared fixture seam;
 - prove curated summary → family → full evidence navigation;
 - keep Team Profile identity/story distinct.
 
-### 6. Refine Matchday into Fixture Intelligence
+### 7. Refine Matchday into Fixture Intelligence
 
 - preserve fixture-first navigation;
-- organise evidence around matchup questions rather than sportsbook markets;
+- organise evidence around matchup questions;
 - integrate event chronology and tactical context from the shared seam;
 - identify player/team evidence mapping naturally to common market phenomena without becoming odds-first;
 - retain sample context, provenance and uncertainty.
 
-### 7. Score capability gaps
+### 8. Score capability gaps and evaluate supplementary sources only after internal capability is classified
 
-Classify each requirement as:
+Use:
 
 `STRONG_NOW · PARTIAL_NOW · HISTORICAL_ONLY · CURRENT_ONLY · SOURCE_PRESENT_NOT_CONNECTED · DEMONSTRATED_GAP · NOT_YET_REQUIRED`
-
-Prioritise by experiences unlocked, research/modelling value, current-season importance, historical depth, grain, identity/semantic complexity, rights/operational cost and provider-lock-in risk.
-
-### 8. Begin requirement-led source evaluation
-
-Only after the above should exact missing capability bundles be used to evaluate supplementary providers/sources.
 
 ## Validation discipline
 
@@ -446,10 +441,10 @@ Do not use a historical fixed test count as a universal baseline.
 For current work:
 
 - protect source/identity/temporal/missingness contracts;
-- preserve the verified **48/48** exposed team-match generic-access gate;
+- preserve the verified **64/64** exposed team-match generic-access gate;
 - preserve the **3,800/3,800** fixture event/tactical-context archive-wide gate;
 - prefer generic analytical seams over page-specific extraction;
-- run targeted tests for any new capability route;
+- run targeted tests for new capability routes;
 - run affected query/API/data regressions;
 - run Next.js typecheck/build for frontend changes;
 - run `project-health.ps1` when canonical/query/data behaviour changes;
@@ -467,7 +462,7 @@ Before staging or integrating:
 - preserve unrelated local/untracked work;
 - target the intended development branch explicitly;
 - avoid `git clean`, destructive reset and casual broad staging;
-- do not rewrite source evidence merely to simplify a product state.
+- do not rewrite source evidence merely to simplify product state.
 
 ## Standing repository memory
 
