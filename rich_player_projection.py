@@ -37,9 +37,10 @@ RICH_PLAYER_METRICS = {
     "successful_crosses": "accurateCross",
     "key_passes_rich": "keyPass",
     "big_chances_created_rich": "bigChanceCreated",
-    # Possession / carrying
-    "successful_dribbles": "successfulDribbles",
-    "unsuccessful_dribbles": "unsuccessfulDribbles",
+    # Possession / carrying. Player-Match take-ons are represented by
+    # totalContest (attempted) and wonContest (successful).
+    "successful_dribbles": "wonContest",
+    "unsuccessful_dribbles": "totalContest",
     "ball_carries": "ballCarriesCount",
     "progressive_carries": "progressiveBallCarriesCount",
     "progressive_carry_distance": "totalProgressiveBallCarriesDistance",
@@ -112,6 +113,16 @@ def _aggregate_xgot(records: tuple[dict, ...], season_fields: set[str]) -> float
     return total if observed_any else None
 
 
+def _aggregate_unsuccessful_dribbles(records: tuple[dict, ...], season_fields: set[str]) -> float | None:
+    if not {"totalContest", "wonContest"} <= season_fields:
+        return None
+    attempted = _sum_observed(records, "totalContest")
+    successful = _sum_observed(records, "wonContest")
+    if attempted is None or successful is None or successful > attempted:
+        return None
+    return attempted - successful
+
+
 def aggregate_source_records(
     records: tuple[dict, ...],
     season_fields: set[str],
@@ -121,6 +132,9 @@ def aggregate_source_records(
     for metric, source_field in RICH_PLAYER_METRICS.items():
         if metric == "xgot":
             output[metric] = _aggregate_xgot(records, season_fields)
+            continue
+        if metric == "unsuccessful_dribbles":
+            output[metric] = _aggregate_unsuccessful_dribbles(records, season_fields)
             continue
         if source_field not in season_fields:
             output[metric] = None
