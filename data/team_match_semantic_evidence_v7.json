@@ -15,9 +15,9 @@
       "note": "Provides direct descriptions for attFreekickPost, attIboxOwnGoal, attLgCentre/Left/Right, attemptsIbox/Obox and points gained/dropped fields."
     },
     {
-      "source": "current Premier League API field inventory / compatible soccer-stat documentation",
-      "role": "current field-name corroboration",
-      "note": "Confirms attemptsIbox/Obox and the long-range/own-goal/game-state field family remain live football-stat concepts; winningGoal remains a current player statistic."
+      "source": "current football-stat field inventories",
+      "role": "field-family corroboration only",
+      "note": "Used only to confirm continued use of the directly defined field families; it is not used to manufacture semantics for unresolved fields."
     }
   ],
   "fields": {
@@ -29,8 +29,10 @@
     "attemptsIbox": "Total shots from inside the box; independently labelled as Shots inside box in FRL's governed match_stats boundary.",
     "attemptsObox": "Total shots from outside the box; independently labelled as Shots outside box in FRL's governed match_stats boundary.",
     "ptsDroppedWinningPos": "Points dropped from winning positions.",
-    "ptsGainedLosingPos": "Points gained from losing positions.",
-    "winningGoal": "Winning-goal flag/count; current football-stat documentation uses winning_goal for the game-winning goal indicator."
+    "ptsGainedLosingPos": "Points gained from losing positions."
+  },
+  "explicit_non_promotion": {
+    "winningGoal": "Compatible providers use winning_goal as a game-winning-goal indicator, but no direct enough definition for this PulseLive team-match representation has been established."
   },
   "governance_note": "These fields are promoted as source-native team-match concepts only. No new structural-zero rule, cross-provider equality or derived-rate approval is created."
 }
