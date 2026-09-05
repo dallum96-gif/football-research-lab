@@ -1,0 +1,126 @@
+{
+  "schema_version": "1.0.0",
+  "decision_date": "2026-09-05",
+  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE",
+  "family": "team_match",
+  "purpose": "Record the fifth controlled team-match promotion batch, using a bulk exact-field-reference pass to resolve legacy provider semantics family-by-family rather than one field at a time.",
+  "promotion_rule": "Promote packaged team-match fields when an exact legacy Opta F9 field key provides direct field-level semantics, existing FRL evidence shows no contradiction, and any historical blanks remain missing under the standing missingness contract. Existing zero-violation child<=parent checks are supporting consistency evidence, not substitutes for definitions.",
+  "promoted_fields": [
+    "accurateBackZonePass",
+    "accurateCornersIntobox",
+    "accurateFwdZonePass",
+    "accurateKeeperSweeper",
+    "accuratePullBack",
+    "accurateThroughBall",
+    "accurateThrows",
+    "attAssistOpenplay",
+    "attAssistSetplay",
+    "attemptsConcededIbox",
+    "attemptsConcededObox",
+    "bigChanceScored",
+    "challengeLost",
+    "crosses18yard",
+    "crosses18yardplus",
+    "divingSave",
+    "effectiveBlockedCross",
+    "effectiveHeadClearance",
+    "errorLeadToGoal",
+    "errorLeadToShot",
+    "finalThirdEntries",
+    "fouledFinalThird",
+    "freekickCross",
+    "hitWoodwork",
+    "interceptionsInBox",
+    "leftsidePass",
+    "outfielderBlock",
+    "overrun",
+    "passesLeft",
+    "passesRight",
+    "penAreaEntries",
+    "possLostAll",
+    "possWonAtt3rd",
+    "possWonDef3rd",
+    "possWonMid3rd",
+    "rightsidePass",
+    "savedIbox",
+    "savedObox",
+    "subsMade",
+    "totalBackZonePass",
+    "totalContest",
+    "totalCornersIntobox",
+    "totalFwdZonePass",
+    "totalHighClaim",
+    "totalKeeperSweeper",
+    "totalPullBack",
+    "totalThroughBall",
+    "totalThrows",
+    "wonContest"
+  ],
+  "promotion_count": 49,
+  "evidence_sources": {
+    "bulk_exact_field_evidence": "data/team_match_semantic_evidence_v5.json",
+    "v1_invariant_audit": "scripts/audit_team_match_candidate_invariants.py",
+    "v4_relationship_audit": "scripts/audit_team_match_v4_evidence_stack.py",
+    "source_registry": "source_field_registry.py",
+    "generic_access_audit": "scripts/audit_exposed_team_match_generic_access.py"
+  },
+  "superseded_historical_holds": {
+    "v1": [
+      "challengeLost",
+      "effectiveHeadClearance",
+      "totalContest",
+      "wonContest",
+      "leftsidePass",
+      "rightsidePass",
+      "passesLeft",
+      "passesRight"
+    ],
+    "v2": [
+      "finalThirdEntries",
+      "penAreaEntries"
+    ],
+    "v4": [
+      "accurateBackZonePass",
+      "accurateFwdZonePass",
+      "accurateCornersIntobox",
+      "accurateKeeperSweeper",
+      "accuratePullBack",
+      "accurateThroughBall",
+      "accurateThrows",
+      "effectiveBlockedCross",
+      "subsMade"
+    ]
+  },
+  "important_semantic_resolutions": {
+    "finalThirdEntries_penAreaEntries": "Both fields now have direct independent entry definitions. No parent/child nesting is assumed or required.",
+    "contest_family": "totalContest and wonContest now have direct attempt/success semantics; challengeLost is separately defined as a missed challenge where the defender is beaten.",
+    "directional_pass_families": "leftsidePass/rightsidePass and passesLeft/passesRight remain separate source-native concepts rather than aliases.",
+    "subsMade": "Exact field-level definition resolves the team-match aggregate as number of substitutions made. Event-object reconciliation remains useful as corroboration but is no longer required merely to understand the source field."
+  },
+  "coverage_and_missingness": {
+    "decision": "BLANK_REMAINS_MISSING_UNLESS_SEPARATELY_GOVERNED",
+    "governed_structural_zero_change": false
+  },
+  "explicitly_held_fields": {
+    "redCard": "FRL already exposes totalRedCard and the exact relationship between redCard and totalRedCard remains to be reconciled.",
+    "successfulFiftyFifty": "No exact legacy field definition established in the bulk V5 reference pass.",
+    "successfulPutThrough": "Legacy field documentation marks the concept as Bundesliga-specific, so numeric presence is insufficient for Premier League promotion.",
+    "attemptsIbox": "No exact legacy attempts_ibox field definition established in V5.",
+    "attemptsObox": "No exact legacy attempts_obox field definition established in V5."
+  },
+  "expected_post_gate": {
+    "reconciliation": {
+      "team_match_raw_paths": 249,
+      "EXISTING_EXPOSED": 113,
+      "EXISTING_SOURCE_FIELD_UNCATALOGUED": 77,
+      "RAW_SNAPSHOT_ONLY": 59
+    },
+    "generic_access": {
+      "exposed_team_match_stat_fields": 113,
+      "PASS": 113,
+      "FAIL": 0,
+      "all_exposed_fields_pass_generic_access": true
+    }
+  },
+  "governance_note": "V5 is intentionally a scale-up batch. Exact field-level semantics are applied across coherent families, while unresolved duplicates, unsupported competition-specific concepts and fields lacking exact reference definitions remain fail-closed."
+}
