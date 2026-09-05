@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-09-05",
-  "checkpoint_id": "TEAM_MATCH_V7_AND_FIXTURE_CONTEXT_PROVEN_V1",
+  "checkpoint_id": "SOURCE_UNIVERSE_TEAM_AND_PLAYER_PROVEN_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Preserve the verified 176/176 team-match generic-access baseline; treat the remaining 14 packaged fields as an exception set rather than a generic promotion backlog; retain the 59 raw-only team-stat paths for evidence-led routing when analytically required; consume the archive-wide proven fixture event/tactical-context seam through shared Team Scouting, Opposition, Matchday, Rankings and Research services; score genuine capability gaps before supplementary source acquisition",
+  "active_product_phase": "Preserve the proven full team/source routing and exhaustive Player-Match accounting; consume these capabilities through shared Team Scouting, Player Scouting, Opposition, Matchday, Rankings and Research services; promote retained/restricted/raw-native representations only when a concrete analytical need justifies deeper semantic governance",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -33,6 +33,7 @@
     "FRL_372_FOOTBALL_CAPABILITY_EXECUTION_PLAN_V1.md",
     "data/frl_product_capability_requirements_v1.json",
     "data/team_match_semantic_promotion_batch_v7.json",
+    "data/pulselive_team_stat_raw_field_index.json",
     "data/fixture_context_research_capability_v1.json",
     "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "FRL_DOCUMENTATION_SYNC_CONTRACT.md"
@@ -46,6 +47,9 @@
     "64/64 exposed team-match fields remain the current generic-access baseline",
     "167/167 team-match generic-access baseline",
     "23 packaged/source-field but deliberately unresolved",
+    "14 packaged/source-field exceptional residue",
+    "59 raw-only route-discovery/raw-routing work",
+    "Player-Match source universe has not been exhaustively audited",
     "Team-Match Promotion Batch V7 is still pending local verification",
     "lostCorners is equivalent to opponent cornerTaken",
     "372 football/match raw paths are the master snapshotted source universe",
@@ -56,19 +60,23 @@
     "FRL_553_SOURCE_CAPABILITY_UNIVERSE_V1.md",
     "FRL_372_FOOTBALL_CAPABILITY_EXECUTION_PLAN_V1.md",
     "data/team_match_semantic_promotion_batch_v7.json",
+    "data/pulselive_team_stat_raw_field_index.json",
     "source_field_registry.py",
     "research_access.py",
     "variable_resolver.py",
+    "raw_team_stat_research.py",
     "fixture_context_research.py",
+    "rich_player_projection.py",
     "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md",
+    "scripts/audit_player_match_source_universe.py",
+    "scripts/validate_source_universe_milestone.py",
     "scripts/reconcile_pulselive_team_stat_capability.py",
     "scripts/audit_exposed_team_match_generic_access.py",
     "scripts/validate_team_match_milestone.py"
   ],
   "checkpoint_files": [
     "CURRENT_WORK.md",
-    "data/team_match_semantic_promotion_batch_v7.json",
     "data/frl_documentation_state_v1.json"
   ]
 }
