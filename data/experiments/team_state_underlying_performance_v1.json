@@ -1,11 +1,12 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.1.0",
   "experiment_id": "TEAM_STATE_UNDERLYING_PERFORMANCE_V1",
-  "status": "DESIGN_REGISTERED_NOT_RUN",
+  "status": "ADAPTIVE_CONTROL_FROZEN_TEAM_STATE_NOT_RUN",
   "registered_date": "2026-09-05",
-  "question": "Does recent underlying attacking and defensive performance improve next-match probability forecasts beyond established team strength?",
-  "primary_hypothesis": "A small pre-specified block of recent underlying performance measurements contains incremental predictive information beyond the frozen Poisson V1 team-strength baseline.",
-  "null_hypothesis": "The pre-specified Team State performance block does not improve out-of-sample probability forecasts beyond the baseline on a matched fixture population.",
+  "last_revised_date": "2026-09-05",
+  "question": "Does recent underlying attacking and defensive performance improve next-match probability forecasts beyond established adaptive team strength?",
+  "primary_hypothesis": "A small pre-specified block of recent underlying performance measurements contains incremental predictive information beyond the frozen Adaptive Dixon-Coles V1 control.",
+  "null_hypothesis": "The pre-specified Team State performance block does not improve out-of-sample probability forecasts beyond the frozen adaptive-strength control on a matched fixture population.",
   "research_object": "team_state.py::fixture_team_states",
   "forecast_cutoff": "target fixture kickoff",
   "temporal_status": {
@@ -13,20 +14,31 @@
     "source_information_availability": "OPERATIONAL_ASSUMPTION_NOT_SOURCE_TIMESTAMP_PROVEN",
     "constraint": "Results remain experimental until the historical publication-time assumption is explicitly audited or replaced by timestamped evidence."
   },
-  "baseline": {
-    "model": "Poisson V1.0",
-    "rule": "Freeze the current baseline before challenger fitting; do not tune it using challenger evaluation results."
-  },
-  "challengers": [
-    {
-      "id": "ADAPTIVE_DIXON_COLES_V1",
-      "purpose": "Replace frozen prior-season strength with regularised time-aware attacking and defensive strength plus low-score dependence correction."
+  "stage_1_control_establishment": {
+    "original_control": "Poisson V1.0",
+    "challenger": "Adaptive Dixon-Coles V1.0",
+    "development_seasons": ["2017-18", "2018-19", "2019-20", "2020-21"],
+    "holdout_seasons": ["2021-22", "2022-23", "2023-24", "2024-25", "2025-26"],
+    "selected_config": "lr=0.04|half_life=365|l2=0.001|rho_lr=0.0005|global_lr=0.002",
+    "common_population_fixtures": 1360,
+    "paired_log_loss_improvement": 0.052411,
+    "paired_log_loss_bootstrap_95ci": [0.031951, 0.072532],
+    "season_log_loss_improvement": {
+      "2021-22": 0.0639,
+      "2022-23": 0.1074,
+      "2023-24": 0.0440,
+      "2024-25": 0.0266,
+      "2025-26": 0.0202
     },
-    {
-      "id": "ADAPTIVE_DIXON_COLES_PLUS_TEAM_STATE_V1",
-      "purpose": "Test incremental information from the pre-specified Team State feature block without unrestricted feature search."
-    }
-  ],
+    "full_slate_coverage": "1900/1900",
+    "robustness_status": "CONTROL_FREEZE_SUPPORTED_FOR_NEXT_EXPERIMENT",
+    "interpretation": "The adaptive-strength control is frozen for Stage 2. This is an experimental control, not a trusted production model or market-edge claim."
+  },
+  "stage_2_control": {
+    "model": "Adaptive Dixon-Coles V1.0",
+    "config": "lr=0.04|half_life=365|l2=0.001|rho_lr=0.0005|global_lr=0.002",
+    "rule": "Freeze model structure and selected configuration before Team State fitting. Do not retune the adaptive control using Stage 2 evaluation results."
+  },
   "primary_feature_block": [
     "recent_5.shot_share",
     "recent_5.xg_share",
@@ -46,8 +58,16 @@
     "recent_5.final_third_entries_against",
     "change_vs_prior_season"
   ],
+  "stage_2_split": {
+    "development_seasons": ["2022-23", "2023-24"],
+    "evaluation_seasons": ["2024-25", "2025-26"],
+    "eligibility_rule": "A fixture is eligible only when both teams have the complete pre-specified recent_5 primary feature block available before kickoff. Missing xG or another required feature fails closed; no zero imputation and no silent feature dropping.",
+    "reason": "The governed PLAYER_MATCH_DERIVED_TEAM_MATCH xG representation is materialised only from 2022-23 onward, so the originally registered pre-2021 development window cannot fit the complete primary feature block honestly.",
+    "evaluation_caveat": "The 2024-25 and 2025-26 seasons were previously observed only for evaluating the frozen Adaptive DC control, not for fitting or selecting Team State features. They are valid Stage 2 feature-evaluation seasons but are not philosophically virgin data for the overall modelling programme.",
+    "prospective_confirmation": "After Stage 2 is frozen, 2026-27 predictions must provide the stronger prospective confirmation before trusted-model promotion."
+  },
   "evaluation": {
-    "design": "chronological development and evaluation with identical eligible-fixture populations for paired comparisons",
+    "design": "chronological development and evaluation with identical eligible-fixture populations for paired Adaptive DC versus Adaptive DC + Team State comparisons",
     "primary_score": "multiclass_log_loss",
     "secondary_scores": [
       "multiclass_brier_score",
@@ -59,5 +79,13 @@
     "multiple_testing_rule": "All tried feature blocks, windows, transforms and thresholds must be retained in the experiment record."
   },
   "promotion_rule": "No challenger becomes a trusted FRL forecasting model because it looks plausible or wins one backtest. Promotion requires repeatable out-of-sample improvement, acceptable calibration, stable coverage and a clear temporal/provenance contract.",
+  "revision_history": [
+    {
+      "date": "2026-09-05",
+      "stage": "BEFORE_ANY_TEAM_STATE_FITTING",
+      "change": "Stage 2 development/evaluation periods were moved into the governed xG source era and the Adaptive Dixon-Coles control was frozen after its robustness closeout.",
+      "reason": "The complete pre-registered feature block contains xG features that do not exist in the governed runtime representation before 2022-23. The correction was made before observing any Team State challenger result."
+    }
+  ],
   "professional_benchmark_note": "Current professional/public systems commonly combine dynamic team strength with richer performance evidence. FRL should compare these ingredients empirically rather than inventing an unvalidated composite form score."
 }
