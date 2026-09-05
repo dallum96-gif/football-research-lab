@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { MatchdayWorkspaceV2 } from "./MatchdayWorkspaceV2";
@@ -34,6 +35,25 @@ export default async function MatchdayFixturePage({ params }: MatchdayPageProps)
   return (
     <AppShell>
       <div className="frl-matchday-colour">
+        <div style={{ display: "flex", justifyContent: "flex-end", margin: "0 0 .65rem" }}>
+          <Link
+            href={`/head-to-head/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              minHeight: "2.2rem",
+              padding: "0 .8rem",
+              borderRadius: "999px",
+              background: "var(--frl-text)",
+              color: "var(--frl-bg)",
+              textDecoration: "none",
+              fontSize: ".72rem",
+              fontWeight: 800,
+            }}
+          >
+            Head-to-Head + BetBuilder Pack →
+          </Link>
+        </div>
         <MatchdayWorkspaceV2
           pack={pack}
           fixtureOptions={fixtures?.fixtures ?? []}
