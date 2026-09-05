@@ -156,11 +156,14 @@ def _expected_goals(season: str, fixture_id: str, side: str) -> tuple[float | No
         observation = team_expected_metric_observation(season, fixture_id, side, EXPECTED_GOALS)
     except (FileNotFoundError, RuntimeError, ValueError):
         return None, None, "UNAVAILABLE"
-    return (
-        _number(observation.get("value")),
-        str(observation.get("representation") or "") or None,
-        str(observation.get("status") or "UNAVAILABLE"),
+    value = _number(observation.get("value"))
+    status = str(observation.get("status") or "UNAVAILABLE")
+    representation = (
+        str(observation.get("representation") or "") or None
+        if value is not None and status == "AVAILABLE"
+        else None
     )
+    return value, representation, status
 
 
 @lru_cache(maxsize=1)
