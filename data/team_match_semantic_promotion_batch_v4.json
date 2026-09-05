@@ -1,0 +1,81 @@
+{
+  "schema_version": "1.0.0",
+  "decision_date": "2026-09-05",
+  "status": "REGISTRY_PROMOTED_PENDING_LOCAL_REGRESSION_GATE",
+  "family": "team_match",
+  "purpose": "Record the fourth controlled semantic promotion batch from the September 2026 PulseLive capability industrialisation programme.",
+  "promotion_rule": "Promote source-native team-match fields only where authoritative Opta/Premier League concept evidence is sufficiently strong and, for accurate/successful child concepts, the proposed child<=parent relationship is decade-wide empirically consistent. Incomplete historical coverage is permitted only with blanks preserved as missing; it never implies structural zero.",
+  "promoted_fields": [
+    "accurateChippedPass",
+    "accurateCross",
+    "accurateFlickOn",
+    "accurateGoalKicks",
+    "accurateKeeperThrows",
+    "accurateLaunches",
+    "accurateLayoffs",
+    "accurateLongBalls",
+    "blockedCross",
+    "keeperThrows",
+    "lostCorners",
+    "totalFlickOn",
+    "totalLaunches",
+    "totalLayoffs",
+    "totalLongBalls",
+    "wonCorners"
+  ],
+  "evidence_sources": {
+    "external_semantics": "data/team_match_semantic_evidence_v4.json",
+    "evidence_stack_audit": "scripts/audit_team_match_v4_evidence_stack.py",
+    "post_v3_matrix": "scripts/build_team_match_post_v3_evidence_matrix.py",
+    "generic_access_audit": "scripts/audit_exposed_team_match_generic_access.py",
+    "source_registry": "source_field_registry.py"
+  },
+  "relationship_evidence": {
+    "audit_rule_count": 18,
+    "audit_result": "18/18 DECADE_EMPIRICALLY_CONSISTENT",
+    "promoted_child_rules": [
+      "accurateChippedPass_lte_totalChippedPass",
+      "accurateCross_lte_totalCross",
+      "accurateFlickOn_lte_totalFlickOn",
+      "accurateGoalKicks_lte_goalKicks",
+      "accurateKeeperThrows_lte_keeperThrows",
+      "accurateLaunches_lte_totalLaunches",
+      "accurateLayoffs_lte_totalLayoffs",
+      "accurateLongBalls_lte_totalLongBalls"
+    ],
+    "note": "The remaining zero-violation relationships are supporting review evidence only and are not promoted without adequate direct semantic support."
+  },
+  "coverage_and_missingness": {
+    "decision": "BLANK_REMAINS_MISSING_UNLESS_SEPARATELY_GOVERNED",
+    "governed_structural_zero_change": false,
+    "note": "V4 follows the coverage-aware principle proven by V3. Fields with incomplete observation remain reusable source-native variables only because the generic route preserves blanks as missing rather than converting them to zero.",
+    "notable_profiles": {
+      "accurateFlickOn": "5748 nonblank / 1852 blank",
+      "blockedCross": "5804 nonblank / 1796 blank",
+      "lostCorners": "7440 nonblank / 160 blank",
+      "wonCorners": "7440 nonblank / 160 blank",
+      "totalLaunches": "7594 nonblank / 6 blank",
+      "totalLongBalls": "7600 nonblank / 0 blank"
+    }
+  },
+  "lost_corners_semantic_resolution": {
+    "decision": "DIRECT_CORNER_LOST_DEFINITION_SUPERSEDES_PRIOR_OPPONENT_EQUALITY_ASSUMPTION",
+    "evidence": "Opta directly defines Corner Lost as collected for the team conceding the corner and explicitly states that Corner Won/Lost and Corner Taken use different collection criteria, so their aggregate totals may differ.",
+    "interpretation": "The 145 historical mismatches against opponent cornerTaken are therefore not evidence against the lostCorners concept. The 160 historical blanks remain missing."
+  },
+  "explicitly_held_fields": {
+    "redCard": "Red-card semantics are externally supported, but FRL already exposes totalRedCard. The exact source distinction should be reconciled against totalRedCard and the governed fixture-event card seam before any additional aggregate exposure.",
+    "subsMade": "Substitution semantics are externally supported, but the field should first be reconciled against the archive-wide governed substitution-event seam rather than promoted from naming alone.",
+    "accurateBackZonePass": "Zero-violation relationship evidence exists, but direct zone-specific source semantics are not yet sufficiently corroborated.",
+    "accurateFwdZonePass": "Zero-violation relationship evidence exists, but direct zone-specific source semantics are not yet sufficiently corroborated.",
+    "accurateCornersIntobox": "Zero-violation relationship evidence exists, but exact corner-into-box source semantics remain insufficiently defined.",
+    "accurateKeeperSweeper": "Zero-violation relationship evidence exists, but exact keeper-sweeper semantics and sparse coverage require direct definition review.",
+    "accuratePullBack": "Zero-violation relationship evidence exists, but the accurate outcome/source aggregation requires further direct review before promotion.",
+    "accurateThroughBall": "Zero-violation relationship evidence exists, but direct source-field semantic support remains incomplete for this batch.",
+    "successfulFiftyFifty": "Zero-violation relationship evidence exists, but the exact fifty-fifty contest source definition is not yet governed.",
+    "successfulPutThrough": "Zero-violation relationship evidence exists, but the exact put-through source definition is not yet governed.",
+    "accurateThrows": "Complete zero-violation relationship evidence exists, but throw-in/throw semantics have not yet been directly corroborated for this source field.",
+    "effectiveBlockedCross": "Zero-violation relationship evidence exists, but the effective qualifier remains undefined."
+  },
+  "governance_note": "Exposure means reusable source-native team_match research access. It does not imply complete historical coverage, structural-zero interpretation, GUI exposure, approved derived rates, current-season 2026/27 availability, or equivalence to differently named provider fields."
+}
