@@ -247,7 +247,6 @@ TEAM_PROMOTION_BATCH_V7_FIELDS = {
     "attemptsObox": "exposed",
     "ptsDroppedWinningPos": "exposed",
     "ptsGainedLosingPos": "exposed",
-    "winningGoal": "exposed",
 }
 
 COMMON_PLAYER_MATCH_FIELDS = {
