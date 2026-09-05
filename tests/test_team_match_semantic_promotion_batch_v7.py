@@ -55,7 +55,7 @@ def _team_statuses() -> dict[str, str]:
 
 def test_v7_manifest_records_exact_residue_batch_and_gate():
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    assert manifest["status"] == "REGISTRY_PROMOTED_PENDING_LOCAL_MILESTONE_GATE"
+    assert manifest["status"] == "VERIFIED_GENERIC_ACCESS"
     assert manifest["promotion_count"] == 9
     assert set(manifest["promoted_fields"]) == PROMOTED_V7
     assert set(manifest["explicitly_held_fields"]) == HELD_AFTER_V7
