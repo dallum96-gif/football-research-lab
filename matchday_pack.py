@@ -245,7 +245,9 @@ def _observed_player_metric(recent: list[dict], source_key: str) -> tuple[float 
 def _player_recent_side(fixture: dict, side: str) -> dict:
     season = str(fixture["season"])
     local_id = str(fixture[f"{side}_team_id"])
-    team_name = _identity(season, local_id)["display_name"]
+    team_identity = _identity(season, local_id)
+    team_name = team_identity["display_name"]
+    persistent_team_code = team_identity["persistent_team_code"]
     target_kickoff = _dt(fixture.get("kickoff_time"))
     if target_kickoff is None:
         raise ValueError("Matchday research requires a governed fixture kickoff time.")
@@ -261,7 +263,8 @@ def _player_recent_side(fixture: dict, side: str) -> dict:
     for row in _fpl_rows():
         if str(row.get("frl_season") or "") != season:
             continue
-        if str(row.get("frl_team_id") or "") != local_id:
+        # FPL evidence is keyed to the persistent FRL club code, not the season-local fixture id.
+        if str(row.get("frl_team_id") or "") != persistent_team_code:
             continue
         if str(row.get("frl_fixture_relationship_status") or "") != "VERIFIED":
             continue
