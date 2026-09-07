@@ -1,148 +1,92 @@
 .page {
   width: 100%;
-  max-width: 1180px;
+  max-width: 1120px;
   margin: 0 auto;
+  padding-bottom: 32px;
 }
 
 .header {
-  min-height: 92px;
   display: flex;
-  align-items: center;
+  align-items: end;
   justify-content: space-between;
   gap: 2rem;
-  padding: .6rem 0 .8rem;
-  border-bottom: 1px solid var(--frl-border-strong);
+  padding: 22px 0 14px;
 }
 
-.eyebrow,
-.kicker {
-  margin: 0;
-  color: var(--frl-accent);
-  font-size: .52rem;
-  font-weight: 850;
-  letter-spacing: .14em;
+.eyebrow {
+  margin: 0 0 5px;
+  color: var(--frl-muted);
+  font-size: .66rem;
+  font-weight: 760;
+  letter-spacing: .15em;
   text-transform: uppercase;
 }
 
 .header h1 {
-  margin: .12rem 0 0;
+  margin: 0;
   color: var(--frl-text);
-  font-size: clamp(1.55rem, 2.4vw, 2.05rem);
-  font-weight: 850;
-  letter-spacing: -.05em;
-  line-height: 1;
+  font-size: 1.85rem;
+  font-weight: 820;
+  letter-spacing: -.035em;
+  line-height: 1.05;
 }
 
 .context {
-  margin: .28rem 0 0;
+  margin: 6px 0 0;
   color: var(--frl-muted);
-  font-size: .61rem;
-  line-height: 1.35;
+  font-size: .78rem;
+  line-height: 1.4;
 }
 
 .seasonControl {
   display: grid;
-  gap: .24rem;
-  min-width: 124px;
+  gap: 5px;
+  min-width: 138px;
 }
 
 .seasonControl span {
-  color: var(--frl-muted-soft);
-  font-size: .46rem;
-  font-weight: 800;
-  letter-spacing: .09em;
-  text-transform: uppercase;
+  color: var(--frl-muted);
+  font-size: .65rem;
+  font-weight: 700;
 }
 
 .seasonControl select {
-  height: 32px;
+  height: 36px;
   border: 1px solid var(--frl-border);
-  border-radius: 8px;
+  border-radius: 7px;
   background: var(--frl-surface);
   color: var(--frl-text);
-  padding: 0 1.9rem 0 .65rem;
+  padding: 0 32px 0 10px;
   font: inherit;
-  font-size: .59rem;
-  font-weight: 720;
+  font-size: .76rem;
+  font-weight: 650;
 }
 
-.summary {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 10px;
-  overflow: hidden;
-  border: 1px solid var(--frl-border);
-  border-radius: 11px;
-  background: var(--frl-surface);
+.seasonControl select:hover,
+.seasonControl select:focus {
+  border-color: var(--frl-border-strong);
 }
 
-.summary > div {
-  min-width: 0;
-  padding: 9px 12px;
-}
-
-.summary > div + div {
-  border-left: 1px solid var(--frl-border);
-}
-
-.summary span {
-  display: block;
-  color: var(--frl-muted-soft);
-  font-size: .43rem;
-  font-weight: 790;
-  letter-spacing: .07em;
-  text-transform: uppercase;
-}
-
-.summary strong {
-  display: block;
-  margin-top: 3px;
-  color: var(--frl-text);
-  font-size: .82rem;
-  font-weight: 820;
-  letter-spacing: -.02em;
-  font-variant-numeric: tabular-nums;
-}
-
-.summary small {
-  display: block;
-  margin-top: 2px;
+.tableState {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 18px;
+  margin: 2px 0 10px;
   color: var(--frl-muted);
-  font-size: .43rem;
-  line-height: 1.35;
+  font-size: .7rem;
+}
+
+.tableState span + span::before {
+  content: "·";
+  margin-right: 18px;
+  color: var(--frl-muted-soft);
 }
 
 .tablePanel {
-  margin-top: 10px;
   overflow: hidden;
   border: 1px solid var(--frl-border);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--frl-surface);
-}
-
-.tableHeading {
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--frl-border);
-  background: var(--frl-surface-raised);
-}
-
-.tableHeading h2 {
-  margin: .12rem 0 0;
-  color: var(--frl-text);
-  font-size: .82rem;
-  font-weight: 820;
-  letter-spacing: -.025em;
-}
-
-.tableHeading > span {
-  color: var(--frl-muted-soft);
-  font-size: .43rem;
-  white-space: nowrap;
 }
 
 .tableScroll {
@@ -151,44 +95,45 @@
 
 .table {
   width: 100%;
-  min-width: 790px;
+  min-width: 820px;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
 }
 
 .table th,
 .table td {
-  height: 34px;
-  padding: 4px 8px;
+  height: 40px;
+  padding: 6px 10px;
   border-bottom: 1px solid var(--frl-border);
   text-align: right;
   white-space: nowrap;
 }
 
 .table th {
-  color: var(--frl-muted-soft);
-  background: var(--frl-surface);
-  font-size: .45rem;
-  font-weight: 820;
-  letter-spacing: .065em;
-  text-transform: uppercase;
+  height: 36px;
+  color: var(--frl-muted);
+  background: var(--frl-surface-raised);
+  font-size: .65rem;
+  font-weight: 760;
+  letter-spacing: .035em;
 }
 
 .table td {
   color: var(--frl-muted);
-  font-size: .57rem;
-  font-weight: 650;
+  font-size: .76rem;
+  font-weight: 580;
 }
 
 .table th:first-child,
 .table td:first-child {
-  width: 38px;
+  width: 52px;
+  padding-left: 14px;
   text-align: center;
 }
 
 .table th:nth-child(2),
 .table td:nth-child(2) {
-  min-width: 190px;
+  min-width: 225px;
   text-align: left;
 }
 
@@ -201,24 +146,17 @@
 }
 
 .position {
-  display: inline-grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  border-radius: 6px;
-  background: var(--frl-surface-raised);
-  color: var(--frl-text);
-  font-size: .52rem;
-  font-weight: 830;
+  color: var(--frl-muted-soft) !important;
+  font-weight: 700 !important;
 }
 
 .teamLink {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 9px;
   color: var(--frl-text);
-  font-size: .6rem;
-  font-weight: 780;
+  font-size: .8rem;
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -228,35 +166,34 @@
 
 .points {
   color: var(--frl-text) !important;
-  font-size: .62rem !important;
-  font-weight: 860 !important;
+  font-weight: 820 !important;
 }
 
 .positive {
   color: #657126 !important;
-  font-weight: 760 !important;
+  font-weight: 700 !important;
 }
 
 .negative {
   color: #b3442f !important;
-  font-weight: 760 !important;
+  font-weight: 700 !important;
 }
 
 .form {
   display: inline-flex;
   justify-content: flex-end;
-  gap: 3px;
-  min-width: 92px;
+  gap: 4px;
+  min-width: 120px;
 }
 
 .formMark {
   display: inline-grid;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   place-items: center;
-  border-radius: 50%;
-  font-size: .45rem;
-  font-weight: 850;
+  border-radius: 999px;
+  font-size: .6rem;
+  font-weight: 800;
 }
 
 .formMark[data-result="W"] {
@@ -274,68 +211,69 @@
   color: #913925;
 }
 
-.boundary {
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(220px, .8fr);
-  gap: 8px;
-  margin-top: 8px;
-  padding-bottom: 18px;
-}
-
-.boundary article {
-  border: 1px solid var(--frl-border);
-  border-radius: 10px;
-  background: var(--frl-surface);
-  padding: 10px 12px;
-}
-
-.boundary h3 {
-  margin: .12rem 0 0;
-  color: var(--frl-text);
-  font-size: .68rem;
-  font-weight: 800;
-  letter-spacing: -.015em;
-}
-
-.boundary p {
-  margin: 4px 0 0;
+.footer {
+  padding: 10px 2px 0;
   color: var(--frl-muted);
-  font-size: .46rem;
+  font-size: .68rem;
   line-height: 1.5;
 }
 
-.releaseCode {
+.footer > p {
+  margin: 0;
+}
+
+.evidence {
   margin-top: 5px;
+}
+
+.evidence summary {
+  width: fit-content;
+  cursor: pointer;
+  color: var(--frl-muted);
+  font-weight: 650;
+}
+
+.evidence[open] summary {
+  color: var(--frl-text);
+}
+
+.evidence > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 16px;
+  margin-top: 7px;
+  padding: 8px 0 2px;
+  border-top: 1px solid var(--frl-border);
   color: var(--frl-muted-soft);
+  font-size: .65rem;
+}
+
+.releaseCode {
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: .43rem;
   overflow-wrap: anywhere;
 }
 
 @media (max-width: 760px) {
+  .page {
+    padding-bottom: 20px;
+  }
+
   .header {
     align-items: stretch;
     flex-direction: column;
-    gap: .8rem;
-    padding: 1rem 0;
+    gap: 14px;
+    padding-top: 16px;
   }
 
-  .summary,
-  .boundary {
-    grid-template-columns: 1fr;
+  .seasonControl {
+    width: 150px;
   }
 
-  .summary > div + div {
-    border-left: 0;
-    border-top: 1px solid var(--frl-border);
+  .tableState {
+    gap: 4px 10px;
   }
 
-  .tableHeading {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .tableHeading > span {
-    white-space: normal;
+  .tableState span + span::before {
+    margin-right: 10px;
   }
 }
