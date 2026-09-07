@@ -1,8 +1,8 @@
+import query_api
 from api.league_table import get_league_table
 
 
 SEASON = "2026-27"
-RELEASE_SHA = "ffe99d25a5bd3a8f70c557748fead332f46ed14f"
 
 
 def _rows_by_team(result):
@@ -19,28 +19,55 @@ def test_current_league_table_uses_governed_completed_results() -> None:
     assert result.season == SEASON
     assert result.competition == "Premier League"
     assert result.total_fixtures == 380
-    assert result.completed_fixtures == 20
-    assert result.scheduled_fixtures == 360
+    assert 0 < result.completed_fixtures < result.total_fixtures
+    assert result.scheduled_fixtures == (
+        result.total_fixtures - result.completed_fixtures
+    )
     assert len(result.rows) == 20
-    assert sum(row.played for row in result.rows) == 40
-    assert result.source_release_sha == RELEASE_SHA
-    assert result.information_available_as_of is not None
+    assert sum(row.played for row in result.rows) == (
+        result.completed_fixtures * 2
+    )
     assert all(len(row.form) <= 5 for row in result.rows)
+    assert all(
+        row.played == row.wins + row.draws + row.losses
+        for row in result.rows
+    )
+
+    # Release metadata is optional for a living season. If the canonical
+    # fixture state has moved beyond the pinned release, the API must fail
+    # closed rather than attach a stale boundary to newer standings.
+    assert (result.information_available_as_of is None) == (
+        result.source_release_sha is None
+    )
 
 
 def test_current_league_table_preserves_team_identity_and_result_state() -> None:
     result = get_league_table(SEASON)
-    arsenal = next(row for row in result.rows if row.persistent_team_code == "3")
+    source = query_api.league_table(SEASON)
+
+    arsenal = next(
+        row
+        for row in result.rows
+        if row.persistent_team_code == "3"
+    )
+    source_arsenal = next(
+        row
+        for row in source["teams"]
+        if str(row.get("persistent_team_code") or "") == "3"
+    )
 
     assert arsenal.display_name == "Arsenal"
-    assert arsenal.played == 2
-    assert arsenal.wins == 2
-    assert arsenal.draws == 0
-    assert arsenal.losses == 0
-    assert arsenal.goals_for == 4
-    assert arsenal.goals_against == 0
-    assert arsenal.points == 6
-    assert arsenal.form == ["W", "W"]
+    assert arsenal.local_team_id == str(source_arsenal["team_id"])
+    assert arsenal.position == int(source_arsenal["position"])
+    assert arsenal.played == int(source_arsenal["played"])
+    assert arsenal.wins == int(source_arsenal["wins"])
+    assert arsenal.draws == int(source_arsenal["draws"])
+    assert arsenal.losses == int(source_arsenal["losses"])
+    assert arsenal.goals_for == int(source_arsenal["goals_for"])
+    assert arsenal.goals_against == int(source_arsenal["goals_against"])
+    assert arsenal.goal_difference == int(source_arsenal["goal_difference"])
+    assert arsenal.points == int(source_arsenal["points"])
+    assert len(arsenal.form) == min(5, arsenal.played)
 
 
 def test_home_and_away_tables_reconstruct_overall_team_records() -> None:
