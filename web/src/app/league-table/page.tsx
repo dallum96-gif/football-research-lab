@@ -143,12 +143,12 @@ export default async function LeagueTablePage({
                               className={styles.teamLink}
                               href={`/teams/${encodeURIComponent(table.season)}/${encodeURIComponent(row.persistent_team_code)}`}
                             >
-                              <ClubKit club={row.display_name} size="small" />
+                              <ClubKit club={row.display_name} size="tiny" />
                               <span>{row.display_name}</span>
                             </Link>
                           ) : (
                             <span className={styles.teamLink}>
-                              <ClubKit club={row.display_name} size="small" />
+                              <ClubKit club={row.display_name} size="tiny" />
                               <span>{row.display_name}</span>
                             </span>
                           )}
