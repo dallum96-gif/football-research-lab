@@ -44,7 +44,7 @@ export function MatchdayFixtureNavigator({
 }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<"gameweek" | "teams">("gameweek");
-  const [gameweek, setGameweek] = useState<number | null>(currentGameweek);
+  const [gameweek, setGameweek] = useState<number | null>(currentGameweek == null ? null : Number(currentGameweek));
   const [teamA, setTeamA] = useState(currentHome);
   const [teamB, setTeamB] = useState(currentAway);
 
@@ -91,7 +91,7 @@ export function MatchdayFixtureNavigator({
   }
 
   return (
-    <div className={styles.heroActions}>
+    <div className={styles.navigator}>
       <div className={styles.segmented} aria-label="Choose fixture navigation mode">
         <button type="button" data-active={mode === "gameweek" ? "true" : "false"} onClick={() => setMode("gameweek")}>
           By gameweek

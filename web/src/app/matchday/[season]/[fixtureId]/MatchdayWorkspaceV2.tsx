@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { TeamKit } from "@/app/teams/TeamKit";
+import { EvidenceDrawer, FormStrip } from "@/components/analyst/AnalystUI";
 import { MatchdayFixtureNavigator } from "./MatchdayFixtureNavigator";
 import styles from "./MatchdayWorkspace.module.css";
 
@@ -63,6 +64,9 @@ type PlayerSide = {
 type Prediction = {
   status: string;
   model?: string;
+  research_status?: string;
+  source_season?: string;
+  limitations?: string[];
   reason?: string;
   expected_goals?: { home: number; away: number };
   probabilities?: Record<string, number>;
@@ -161,15 +165,6 @@ function fixtureTime(value: string | null | undefined) {
   });
 }
 
-function FormStrip({ form }: { form: TeamSide["form"] }) {
-  if (!form.length) return <span className={styles.muted}>No prior league matches</span>;
-  return (
-    <div className={styles.formStrip} aria-label={`Form ${form.join(" ")}`}>
-      {form.map((result, index) => <span key={`${result}-${index}`} data-result={result}>{result}</span>)}
-    </div>
-  );
-}
-
 function TeamRecentCard({ side }: { side: TeamSide }) {
   return (
     <section className={styles.teamRecentCard}>
@@ -178,7 +173,14 @@ function TeamRecentCard({ side }: { side: TeamSide }) {
           <span className={styles.kicker}>Last {side.sample_size} · {side.current_season_sample_size} this season</span>
           <h3>{side.team_name}</h3>
         </div>
-        <FormStrip form={side.form} />
+        <FormStrip results={side.form} />
+      </div>
+      <div className={styles.recentMatches}>
+        {side.matches.slice(0, 3).map((match) => (
+          <Link href={`/fixtures/${match.season}/${match.fixture_id}`} className={styles.recentMatch} key={`${match.season}-${match.fixture_id}`}>
+            <span data-result={match.result}>{match.result}</span><strong>{match.opponent}</strong><small>{match.venue}</small><b>{match.goals_for}–{match.goals_against}</b>
+          </Link>
+        ))}
       </div>
       <div className={styles.miniMetricGrid}>
         {side.metrics.slice(0, 4).map((metric) => (
@@ -206,7 +208,7 @@ function TeamPanel({ side }: { side: TeamSide }) {
           <span>points from {side.sample_size}</span>
         </div>
       </div>
-      <FormStrip form={side.form} />
+      <FormStrip results={side.form} />
       <div className={styles.teamMetrics}>
         {side.metrics.map((metric) => (
           <article className={styles.metricTile} key={metric.key}>
@@ -286,6 +288,7 @@ export function MatchdayWorkspaceV2({ pack, fixtureOptions }: Props) {
   const [playerSide, setPlayerSide] = useState<"home" | "away">("home");
   const [playerMetrics, setPlayerMetrics] = useState<string[]>(DEFAULT_PLAYER_METRICS);
   const [odds, setOdds] = useState<Record<string, string>>({});
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
 
   const prediction = data.prediction;
   const probabilities = prediction.probabilities ?? {};
@@ -293,7 +296,7 @@ export function MatchdayWorkspaceV2({ pack, fixtureOptions }: Props) {
   const selectedPlayers = data.players[playerSide];
   const allPlayerMetrics = selectedPlayers.leaderboards;
   const visiblePlayerMetrics = allPlayerMetrics.filter((metric) => playerMetrics.includes(metric.key));
-  const fixtureLabel = `${data.fixture.home_team_name} v ${data.fixture.away_team_name}`;
+  const h2hHref = `/head-to-head/${encodeURIComponent(data.fixture.season)}/${encodeURIComponent(data.fixture.fixture_id)}`;
 
   function togglePlayerMetric(key: string) {
     setPlayerMetrics((current) => {
@@ -305,10 +308,26 @@ export function MatchdayWorkspaceV2({ pack, fixtureOptions }: Props) {
 
   return (
     <div className={styles.workspace}>
+      <div className={styles.toolbar}>
+        <div className={styles.workspaceTitle}><span className={styles.kicker}>Fixture intelligence</span><h1>Matchday</h1></div>
+        <details className={styles.fixtureChooser}>
+          <summary>Change fixture <span>⌄</span></summary>
+          <MatchdayFixtureNavigator
+            season={data.fixture.season}
+            currentFixtureId={data.fixture.fixture_id}
+            currentGameweek={data.fixture.gameweek}
+            currentHome={data.fixture.home_team_name}
+            currentAway={data.fixture.away_team_name}
+            fixtures={fixtures}
+          />
+        </details>
+        <Link className={styles.reportLink} href={`/fixtures/${data.fixture.season}/${data.fixture.fixture_id}`}>Match report ↗</Link>
+        <button type="button" className={styles.evidenceButton} onClick={() => setEvidenceOpen(true)}>Evidence & sources</button>
+      </div>
       <header className={styles.hero}>
         <div className={styles.heroMeta}>
-          <span className={styles.kicker}>Matchday Stat Pack · {data.pack_version}</span>
-          <strong>Premier League · {data.fixture.season}{data.fixture.gameweek ? ` · GW ${data.fixture.gameweek}` : ""}</strong>
+          <span className={styles.kicker}>Premier League · {data.fixture.season}</span>
+          <strong>{data.fixture.gameweek ? `Gameweek ${data.fixture.gameweek}` : "Fixture workspace"}</strong>
           <small>{fixtureDate(data.fixture.kickoff_time)} · {fixtureTime(data.fixture.kickoff_time)}</small>
         </div>
 
@@ -317,67 +336,57 @@ export function MatchdayWorkspaceV2({ pack, fixtureOptions }: Props) {
             <span className={styles.heroKit}><TeamKit teamName={data.fixture.home_team_name} /></span>
             <strong>{data.fixture.home_team_name}</strong>
           </div>
-          <div className={styles.vsBlock}><span>FRL</span><b>v</b><small>{prediction.status === "AVAILABLE" ? prediction.model : "Research pack"}</small></div>
+          <div className={styles.vsBlock}><span>Kickoff</span><b>{fixtureTime(data.fixture.kickoff_time)}</b><small>London time</small></div>
           <div className={`${styles.heroTeam} ${styles.heroTeamAway}`}>
             <span className={styles.heroKit}><TeamKit teamName={data.fixture.away_team_name} /></span>
             <strong>{data.fixture.away_team_name}</strong>
           </div>
         </div>
 
-        <MatchdayFixtureNavigator
-          season={data.fixture.season}
-          currentFixtureId={data.fixture.fixture_id}
-          currentGameweek={data.fixture.gameweek}
-          currentHome={data.fixture.home_team_name}
-          currentAway={data.fixture.away_team_name}
-          fixtures={fixtures}
-        />
-        <div className={styles.heroActions}>
-          <Link className={styles.reportLink} href={`/fixtures/${data.fixture.season}/${data.fixture.fixture_id}`}>Match report ↗</Link>
-        </div>
       </header>
+
+      <section className={styles.modelPulse} aria-label="Current fixture model probabilities">
+        <div className={styles.pulseLabel}><span className={styles.kicker}>Model pulse</span><strong>{prediction.model ?? "Model unavailable"}</strong><small>{prediction.status === "AVAILABLE" ? "Experimental forecast" : "No forecast for this fixture"}</small></div>
+        <div className={styles.pulseValue}><span>Home win</span><strong>{percent(probabilities.home_win)}</strong><small>fair {decimal(fairOdds.home_win)}</small></div>
+        <div className={styles.pulseValue}><span>Draw</span><strong>{percent(probabilities.draw)}</strong><small>fair {decimal(fairOdds.draw)}</small></div>
+        <div className={styles.pulseValue}><span>Away win</span><strong>{percent(probabilities.away_win)}</strong><small>fair {decimal(fairOdds.away_win)}</small></div>
+        <div className={styles.pulseValue}><span>Expected goals · home / away</span><strong>{decimal(prediction.expected_goals?.home)} <i>/</i> {decimal(prediction.expected_goals?.away)}</strong><small>Model goal rates</small></div>
+        <button type="button" className={styles.pulseAction} onClick={() => setTab("Model")}>Model detail ↗</button>
+      </section>
+
+      {prediction.status !== "AVAILABLE" && <div className={styles.notice} role="status">{prediction.reason ?? "Prediction unavailable for this fixture."}</div>}
 
       <nav className={styles.primaryTabs} aria-label="Matchday research sections">
         {PRIMARY_TABS.map((item) => (
-          <button type="button" key={item} data-active={tab === item ? "true" : "false"} onClick={() => setTab(item)}>{item}</button>
+          <button type="button" key={item} aria-pressed={tab === item} data-active={tab === item ? "true" : "false"} onClick={() => setTab(item)}>{item === "Markets" ? "Odds notebook" : item === "Model" ? "Model & info" : item === "Overview" ? "Fixture desk" : item}</button>
         ))}
       </nav>
 
       {data.data_maturity?.status === "EARLY_SEASON" && (
         <div className={styles.notice} role="status">
-          <strong>Early-season evidence.</strong> Current-season team matches before kickoff: {data.data_maturity.team_current_season_matches.home} / {data.data_maturity.team_current_season_matches.away}. Player-fixture evidence: {data.data_maturity.player_fixture_evidence_matches.home} / {data.data_maturity.player_fixture_evidence_matches.away}. {data.data_maturity.note}
+          <strong>Early-season sample</strong><span>Team matches: {data.data_maturity.team_current_season_matches.home} home / {data.data_maturity.team_current_season_matches.away} away · Player evidence: {data.data_maturity.player_fixture_evidence_matches.home} / {data.data_maturity.player_fixture_evidence_matches.away} fixtures</span><button type="button" onClick={() => setEvidenceOpen(true)}>Sample notes ↗</button>
         </div>
       )}
 
-      <main className={styles.panel}>
+      <section className={styles.panel} aria-label={`${tab} analysis`}>
         {tab === "Overview" && (
           <div className={styles.overviewGrid}>
-            <section className={`${styles.featureCard} ${styles.forecastCard}`}>
-              <div className={styles.sectionHeading}>
-                <div><span className={styles.kicker}>FRL forecast</span><h2>{fixtureLabel}</h2></div>
-                <small>Proof-of-concept model · research use</small>
-              </div>
-              {prediction.status === "AVAILABLE" ? (
-                <div className={styles.outcomeGrid}>
-                  <article><span>{data.fixture.home_team_name}</span><strong>{percent(probabilities.home_win)}</strong><small>fair {decimal(fairOdds.home_win)}</small></article>
-                  <article><span>Draw</span><strong>{percent(probabilities.draw)}</strong><small>fair {decimal(fairOdds.draw)}</small></article>
-                  <article><span>{data.fixture.away_team_name}</span><strong>{percent(probabilities.away_win)}</strong><small>fair {decimal(fairOdds.away_win)}</small></article>
-                </div>
-              ) : <div className={styles.notice}>{prediction.reason ?? "Prediction unavailable."}</div>}
-            </section>
-
-            <section className={styles.featureCard}>
-              <div className={styles.sectionHeading}><div><span className={styles.kicker}>Goal picture</span><h2>What the model expects</h2></div></div>
+            <TeamRecentCard side={data.teams.home} />
+            <section className={styles.matchupEntry}>
+              <span className={styles.kicker}>The matchup workspace</span>
+              <h2>Head-to-Head<br /><em>+ BetBuilder</em></h2>
+              <p>Put each team’s recent output alongside what their opponent allows.</p>
+              <div className={styles.entryCategories}><span>Goals</span><span>Shots</span><span>Corners</span><span>Cards</span></div>
+              <Link className={styles.primaryAction} href={h2hHref}>Open the stat pack <span>→</span></Link>
+              <small>Observed hit frequencies · coverage at every threshold</small>
+              <div className={styles.goalPictureHeading}>Separate model picture</div>
               <div className={styles.goalGrid}>
-                <article><span>Home λ</span><strong>{decimal(prediction.expected_goals?.home)}</strong></article>
-                <article><span>Away λ</span><strong>{decimal(prediction.expected_goals?.away)}</strong></article>
                 <article><span>Over 2.5</span><strong>{percent(probabilities.over_2_5)}</strong></article>
                 <article><span>BTTS</span><strong>{percent(probabilities.btts)}</strong></article>
               </div>
             </section>
-
-            <TeamRecentCard side={data.teams.home} />
             <TeamRecentCard side={data.teams.away} />
+            <div className={styles.deskFooter}><span>Recent team metrics are per observed match. Form reads oldest → newest.</span><button type="button" onClick={() => setTab("Teams")}>Compare all team evidence →</button></div>
           </div>
         )}
 
@@ -407,7 +416,7 @@ export function MatchdayWorkspaceV2({ pack, fixtureOptions }: Props) {
         {tab === "Matchups" && (
           <div className={styles.matchupGrid}>
             <section className={styles.featureCard}>
-              <span className={styles.kicker}>Cards watch · V1</span><h2>Card context we can defend now</h2>
+              <span className={styles.kicker}>Cards watch · V1</span><h2>Player card & tackle context</h2>
               <div className={styles.matchupColumns}>
                 {(["home", "away"] as const).map((side) => {
                   const cardBoard = data.players[side].leaderboards.find((item) => item.key === "cards");
@@ -424,16 +433,16 @@ export function MatchdayWorkspaceV2({ pack, fixtureOptions }: Props) {
               </div>
             </section>
             <section className={`${styles.featureCard} ${styles.researchBoundary}`}>
-              <span className={styles.kicker}>Research boundary</span><h2>Next matchup layer</h2><p>{data.matchups.cards.note}</p>
+              <span className={styles.kicker}>Availability</span><h2>Matchup coverage</h2><p>{data.matchups.cards.note}</p>
               <div>{data.matchups.cards.withheld.map((item) => <span key={item}>○ {item}</span>)}</div>
-              <small>We’ll add this when foul-drawn/foul-committed player-match evidence is packaged at runtime rather than inferred.</small>
+              <Link className={styles.reportLink} href={h2hHref}>Open team threshold evidence →</Link>
             </section>
           </div>
         )}
 
         {tab === "Markets" && (
           <div>
-            <div className={styles.sectionHeading}><div><span className={styles.kicker}>Private market notebook</span><h2>FRL price vs the price you can actually get</h2></div><small>Enter decimal odds manually · no bookmaker feed in V1</small></div>
+            <div className={styles.sectionHeading}><div><span className={styles.kicker}>Odds notebook</span><h2>Compare your price with the model</h2></div><small>Manual decimal odds · held on this page</small></div>
             <div className={styles.marketGrid}>
               <MarketCard label={data.fixture.home_team_name} probability={probabilities.home_win} fairOdds={fairOdds.home_win} value={odds.home_win ?? ""} onChange={(value) => setOdds((current) => ({ ...current, home_win: value }))} />
               <MarketCard label="Draw" probability={probabilities.draw} fairOdds={fairOdds.draw} value={odds.draw ?? ""} onChange={(value) => setOdds((current) => ({ ...current, draw: value }))} />
@@ -469,11 +478,19 @@ export function MatchdayWorkspaceV2({ pack, fixtureOptions }: Props) {
             </section>
           </div>
         )}
-      </main>
+      </section>
 
-      <footer className={styles.footerNote}>
-        <strong>As-of discipline:</strong> this pack only uses completed fixture evidence before the selected kickoff for recent-form views. {data.limitations[2]}
-      </footer>
+      <EvidenceDrawer open={evidenceOpen} onClose={() => setEvidenceOpen(false)} title="Matchday evidence & sources">
+        <div className={styles.evidenceContent}>
+          <h3>Fixture cutoff</h3><p>{fixtureDate(data.fixture.kickoff_time)} · {fixtureTime(data.fixture.kickoff_time)} London time. Recent-form views use completed fixtures before this kickoff.</p>
+          <h3>Sample & coverage</h3>{data.data_maturity && <p>{data.data_maturity.note}</p>}
+          <p>Home player sample: {data.players.home.sample_definition}. Away player sample: {data.players.away.sample_definition}.</p>
+          <h3>Model</h3><p>{prediction.model ?? "Unavailable"}{prediction.source_season ? ` · source season ${prediction.source_season}` : ""}. {prediction.research_status?.replaceAll("_", " ").toLowerCase()}</p>
+          {prediction.reason && <p>{prediction.reason}</p>}
+          <h3>Limitations</h3><ul>{[...data.limitations, ...(prediction.limitations ?? [])].map((note, index) => <li key={index}>{note}</li>)}</ul>
+          <p>Pack version: {data.pack_version}</p>
+        </div>
+      </EvidenceDrawer>
     </div>
   );
 }
