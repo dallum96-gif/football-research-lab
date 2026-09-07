@@ -11,6 +11,7 @@ from expected_metric_routing import (
     EXPECTED_GOALS,
     NO_GOVERNED_SEASON_ROUTE,
     PLAYER_MATCH_DERIVED_TEAM_MATCH,
+    ExpectedMetricRouteDecision,
     single_season_route,
 )
 
@@ -257,10 +258,91 @@ def _direct_xg(season: str, stats: dict) -> dict:
     }
 
 
-def expected_goals_observation(season: str, team_code: str, stats: dict | None = None) -> dict:
+def _live_direct_expected_goals_route(
+    season: str,
+    team_stats: dict[str, dict],
+) -> ExpectedMetricRouteDecision | None:
+    """Build a live direct-xG route from governed Team Match evidence.
+
+    The frozen expected_metric_routing ledger remains the authority for
+    historically audited seasons.  A current season is different: its eligible
+    population grows as completed fixtures are materialised.  Count fixture
+    coverage from the governed Team Match rows themselves and require both
+    team-side observations before calling one fixture observed.
+    """
+    fixture_sides: dict[str, int] = {}
+    fixture_xg_sides: dict[str, int] = {}
+
+    for team_code in team_stats:
+        for row in team_research_stats.team_match_stats(season, team_code):
+            fixture_id = str(row.get("fixture_id") or "").strip()
+            if not fixture_id:
+                continue
+
+            fixture_sides[fixture_id] = fixture_sides.get(fixture_id, 0) + 1
+
+            if row.get("Expected goals") is not None:
+                fixture_xg_sides[fixture_id] = (
+                    fixture_xg_sides.get(fixture_id, 0) + 1
+                )
+
+    # A governed fixture population must contain one row for each side.
+    malformed = {
+        fixture_id: count
+        for fixture_id, count in fixture_sides.items()
+        if count != 2
+    }
+    if malformed:
+        raise ValueError(
+            "Live direct expected-goals fixture population is not two-sided: "
+            f"{malformed}"
+        )
+
+    eligible = len(fixture_sides)
+    observed = sum(
+        1
+        for fixture_id in fixture_sides
+        if fixture_xg_sides.get(fixture_id, 0) == 2
+    )
+
+    if eligible <= 0 or observed <= 0:
+        return None
+
+    if observed == eligible:
+        status = "COMPLETE"
+    elif observed / eligible >= 0.95:
+        status = "NEAR_COMPLETE"
+    else:
+        status = "PARTIAL"
+
+    return ExpectedMetricRouteDecision(
+        metric=EXPECTED_GOALS,
+        purpose="SINGLE_SEASON_DESCRIPTIVE",
+        seasons=(season,),
+        representation=DIRECT_TEAM_MATCH,
+        observed_fixtures=observed,
+        eligible_fixtures=eligible,
+        coverage_status=status,
+        representation_mixing_allowed=False,
+        provenance_required=True,
+        note=(
+            "Live-season source-native direct Team Match expected-goals "
+            "representation derived only from preserved governed fixtures; "
+            "the eligible population grows as completed fixtures are "
+            "materialised."
+        ),
+    )
+
+
+def expected_goals_observation(
+    season: str,
+    team_code: str,
+    stats: dict | None = None,
+    route: ExpectedMetricRouteDecision | None = None,
+) -> dict:
     stats = stats or team_research_stats.team_season_stats(season, team_code)
     try:
-        route = single_season_route(EXPECTED_GOALS, season)
+        route = route or single_season_route(EXPECTED_GOALS, season)
     except ValueError:
         eligible = int(stats.get("matches", 0))
         return {
@@ -347,14 +429,28 @@ def season_overview_analysis(season: str) -> dict:
             "entries": entries,
         }
 
+    # Frozen audited seasons continue through expected_metric_routing.
+    # For a live unaudited season, derive one league-wide direct route from
+    # the currently governed completed Team Match population.
+    try:
+        xg_route = single_season_route(EXPECTED_GOALS, season)
+    except ValueError:
+        xg_route = _live_direct_expected_goals_route(season, team_stats)
+
     xg = {
         team["persistent_team_code"]: {
             **team,
-            **expected_goals_observation(season, team["persistent_team_code"], team_stats.get(team["persistent_team_code"])),
+            **expected_goals_observation(
+                season,
+                team["persistent_team_code"],
+                team_stats.get(team["persistent_team_code"]),
+                route=xg_route,
+            ),
         }
         for team in population
         if team["persistent_team_code"] in team_stats
     }
+
     return {
         "analysis_version": ANALYSIS_VERSION,
         "season": season,

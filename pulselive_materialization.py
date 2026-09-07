@@ -18,7 +18,7 @@ from typing import Any, Callable, Iterable
 from pulselive_fixture_evidence import archive_root as configured_archive_root
 from pulselive_fixture_evidence import normalise_events, normalise_lineups
 from pulselive_live import PulseLiveRequestError, snapshot
-from source_family_adapters import resolve_source_match
+from source_family_adapters import canonical_fixture, resolve_source_match
 
 ROOT = Path(__file__).resolve().parent
 CANONICAL_FIXTURES_PATH = ROOT / "fixtures_master_corrected.csv"
@@ -129,6 +129,55 @@ def _load_json(path: Path) -> Any:
         return json.load(handle)
 
 
+def _resolve_materialization_source_match(season: str, fixture_id: str) -> dict[str, Any]:
+    """Resolve source identity for PulseLive acquisition without widening global source semantics.
+
+    Historical and otherwise-supported fixtures continue through the established
+    governed source resolver.  For 2026/27 only, when that resolver is unavailable
+    because rich events_stats evidence has not yet been released, the canonical
+    fixture_code may supply the PulseLive match ID.
+
+    The captured snapshot is still required to validate that its source_match_id
+    and match payload matchId equal this identifier before anything is written.
+    """
+    try:
+        return resolve_source_match(season, fixture_id)
+    except ValueError as exc:
+        expected_error = f"No verified source match for {season}/{fixture_id}"
+        if str(exc) != expected_error or season != "2026-27":
+            raise
+
+        fixture = canonical_fixture(season, fixture_id)
+        if fixture is None:
+            raise ValueError(
+                f"Canonical fixture not found during PulseLive materialisation: "
+                f"{season}/{fixture_id}"
+            ) from exc
+
+        fixture_code = str(fixture.get("fixture_code") or "").strip()
+        if not fixture_code:
+            raise ValueError(
+                f"Canonical fixture has no fixture_code for PulseLive materialisation: "
+                f"{season}/{fixture_id}"
+            ) from exc
+
+        if not fixture_code.isdigit():
+            raise ValueError(
+                f"Canonical fixture_code is not a numeric PulseLive match ID for "
+                f"{season}/{fixture_id}: {fixture_code!r}"
+            ) from exc
+
+        return {
+            "season": season,
+            "fixture_id": str(fixture_id),
+            "source_match_id": fixture_code,
+            "relationship_contract": "canonical_fixture_to_source_match",
+            "relationship_status": "VERIFIED",
+            "resolution_basis": "CANONICAL_FIXTURE_CODE",
+            "fixture_correction": None,
+        }
+
+
 def materialize_fixture(
     season: str,
     fixture_id: str,
@@ -150,7 +199,7 @@ def materialize_fixture(
             "or pass an existing approved archive directory."
         )
 
-    relationship = resolved or resolve_source_match(season, fixture_id)
+    relationship = resolved or _resolve_materialization_source_match(season, fixture_id)
     source_match_id = str(relationship["source_match_id"])
     target = snapshot_target(archive, source_match_id)
     if target.exists() and not force:
@@ -282,7 +331,7 @@ def materialize_many(
         fixture_id = str(fixture["fixture_id"])
         key = _state_key(season, fixture_id)
         try:
-            relationship = resolve_source_match(season, fixture_id)
+            relationship = _resolve_materialization_source_match(season, fixture_id)
             result = materialize_fixture(
                 season,
                 fixture_id,

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 
 import team_research_stats
@@ -262,3 +264,106 @@ def test_packaged_historical_match_survives_missing_canonical_result():
     assert stats["result_coverage"]["missing_matches"] == 1
     assert stats["result_coverage"]["coverage_complete"] is False
     assert stats["result_coverage"]["coverage_status"] == "PARTIAL"
+
+def test_2026_27_team_side_row_consumes_pulselive_rich_evidence(monkeypatch):
+    import pulselive_fixture_evidence
+    import source_family_adapters
+
+    monkeypatch.setattr(team_research_stats, "_packaged_rows", lambda: {})
+    monkeypatch.setattr(
+        team_research_stats,
+        "_persistent_team",
+        lambda season, local_id, identity: {
+            "1": "3",
+            "7": "9",
+        }.get(str(local_id)),
+    )
+    monkeypatch.setattr(
+        pulselive_fixture_evidence,
+        "snapshot_path",
+        lambda source_match_id: Path("snapshot.json"),
+    )
+    monkeypatch.setattr(
+        source_family_adapters,
+        "team_match_source_rows",
+        lambda season, fixture_id: (
+            {
+                "team_id": "3",
+                "totalPass": 616,
+                "totalScoringAtt": 20,
+                "expectedGoals": 1.8822,
+                "possessionPercentage": 64.1,
+            },
+            {
+                "team_id": "9",
+                "totalPass": 347,
+                "totalScoringAtt": 8,
+                "expectedGoals": 0.4,
+                "possessionPercentage": 35.9,
+            },
+        ),
+    )
+
+    fixture = {
+        "season": "2026-27",
+        "fixture_id": "1",
+        "fixture_code": "2645195",
+        "home_team_id": "1",
+        "away_team_id": "7",
+        "home_score": "3",
+        "away_score": "0",
+    }
+
+    values, is_home = team_research_stats._team_side_row(
+        "2026-27",
+        "1",
+        "3",
+        (),
+        fixture,
+    )
+
+    assert is_home is True
+    assert values["Passes"] == 616
+    assert values["Shots"] == 20
+    assert values["Expected goals"] == pytest.approx(1.8822)
+    assert values["Possession"] == pytest.approx(64.1)
+    assert values["goals_for"] == 3
+    assert values["goals_against"] == 0
+
+
+def test_2026_27_future_fixture_without_snapshot_or_result_is_excluded(monkeypatch):
+    import pulselive_fixture_evidence
+
+    monkeypatch.setattr(team_research_stats, "_packaged_rows", lambda: {})
+    monkeypatch.setattr(
+        team_research_stats,
+        "_persistent_team",
+        lambda season, local_id, identity: {
+            "2": "91",
+            "4": "36",
+        }.get(str(local_id)),
+    )
+    monkeypatch.setattr(
+        pulselive_fixture_evidence,
+        "snapshot_path",
+        lambda source_match_id: None,
+    )
+
+    fixture = {
+        "season": "2026-27",
+        "fixture_id": "31",
+        "fixture_code": "2645226",
+        "home_team_id": "2",
+        "away_team_id": "4",
+        "home_score": "",
+        "away_score": "",
+    }
+
+    assert team_research_stats._team_side_row(
+        "2026-27",
+        "31",
+        "91",
+        (),
+        fixture,
+    ) is None
+

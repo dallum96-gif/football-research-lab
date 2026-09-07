@@ -75,6 +75,90 @@ def league_rankings_projection(season: str) -> TeamStatsLeagueRankingsResult:
             )
         )
 
+    # Expected goals deliberately remains outside the generic
+    # team_analysis_kernel.RANKING_METRICS registry because expected metrics
+    # have their own governed representation-routing contract.  Project that
+    # already-governed surface into the rankings API here.
+    xg_observations = list(
+        (analysis.get("expected_goals") or {}).values()
+    )
+
+    if any(
+        observation.get("value") is not None
+        for observation in xg_observations
+    ):
+        xg_entries = [
+            {
+                "persistent_team_code": str(
+                    observation["persistent_team_code"]
+                ),
+                "display_name": str(observation["display_name"]),
+                "local_team_id": str(observation["local_team_id"]),
+                "value": (
+                    float(observation["value"])
+                    if observation.get("value") is not None
+                    else None
+                ),
+                "coverage": {
+                    "eligible_matches": int(
+                        observation.get("eligible_matches", 0)
+                    ),
+                    "observed_matches": int(
+                        observation.get("observed_matches", 0)
+                    ),
+                    "missing_matches": int(
+                        observation.get("missing_matches", 0)
+                    ),
+                    "coverage_status": str(
+                        observation.get(
+                            "coverage_status",
+                            "UNAVAILABLE",
+                        )
+                    ),
+                    "coverage_complete": bool(
+                        observation.get("coverage_complete", False)
+                    ),
+                },
+            }
+            for observation in xg_observations
+        ]
+
+        team_analysis_kernel.rank_metric_entries(
+            xg_entries,
+            higher_is_better=True,
+        )
+
+        representations = {
+            str(observation.get("representation") or "").strip()
+            for observation in xg_observations
+            if str(observation.get("representation") or "").strip()
+        }
+
+        if len(representations) != 1:
+            raise ValueError(
+                "Expected one governed expected-goals representation "
+                f"for season {season}; found {sorted(representations)}"
+            )
+
+        metrics.append(
+            LeagueRankingMetric(
+                key="expected_goals_per_match",
+                label="Expected goals",
+                unit="xG / match",
+                higher_is_better=True,
+                representation=next(iter(representations)),
+                ranking_policy=str(analysis["ranking_policy"]),
+                percentile_policy=str(analysis["percentile_policy"]),
+                entries=[
+                    LeagueRankingEntry(**entry)
+                    for entry in sorted(
+                        xg_entries,
+                        key=_ranking_order,
+                    )
+                ],
+            )
+        )
+
     return TeamStatsLeagueRankingsResult(
         analysis_version=str(analysis["analysis_version"]),
         season=str(analysis["season"]),

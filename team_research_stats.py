@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from collections import defaultdict
 from functools import lru_cache
@@ -62,24 +62,65 @@ def _team_side_row(season, fixture_id, team_code, identity, fixture):
     if prefix is None:
         return None
 
-    # Canonical completed-result evidence is independently usable when the
-    # optional packaged team-match representation is absent. In that no-package
-    # case, scheduled fixtures remain outside completed-match aggregation.
-    # Historical packaged evidence must remain usable when a canonical result is
-    # intentionally missing, so the known missing-result limitation stays visible
-    # rather than silently shrinking the eligible historical population.
+    # The historical packaged representation remains authoritative for its
+    # existing seasons. 2026/27 can additionally consume preserved PulseLive
+    # team-match evidence through the governed source-family adapter.
+    pulselive_row = None
+    if season == "2026-27":
+        from pulselive_fixture_evidence import snapshot_path
+        from source_family_adapters import team_match_source_rows
+
+        source_match_id = str(fixture.get("fixture_code") or "").strip()
+        if source_match_id and snapshot_path(source_match_id) is not None:
+            source_home, source_away = team_match_source_rows(
+                season,
+                str(fixture_id),
+            )
+            pulselive_row = source_home if prefix == "home" else source_away
+
+            observed_team_id = str(
+                pulselive_row.get("team_id") or ""
+            ).strip()
+            if observed_team_id != str(team_code).strip():
+                raise ValueError(
+                    f"PulseLive team identity mismatch for "
+                    f"{season}/{fixture_id}/{prefix}: "
+                    f"expected {team_code}, got "
+                    f"{observed_team_id or '<blank>'}"
+                )
+
+    # Canonical completed-result evidence is independently usable when rich
+    # team-match evidence is absent. Scheduled fixtures remain outside the
+    # aggregation unless either packaged historical evidence or a preserved
+    # PulseLive snapshot exists.
+    #
+    # Rich evidence and result evidence intentionally remain separable: a
+    # current PulseLive snapshot may contribute team metrics even while the
+    # canonical result master is awaiting its score update.
     home_score = number(fixture.get("home_score"))
     away_score = number(fixture.get("away_score"))
-    if packaged is None and (home_score is None or away_score is None):
+    if (
+        packaged is None
+        and pulselive_row is None
+        and (home_score is None or away_score is None)
+    ):
         return None
 
     values = {}
-    for label in CORE_FIELDS:
-        key = f"{prefix}_core_{label.lower().replace(' ', '_')}"
-        values[label] = number(packaged.get(key)) if packaged else None
-    for label in OPTIONAL_FIELDS:
-        key = f"{prefix}_optional_{label.lower().replace(' ', '_')}"
-        values[label] = number(packaged.get(key)) if packaged else None
+
+    for label, source_field in CORE_FIELDS.items():
+        if pulselive_row is not None:
+            values[label] = number(pulselive_row.get(source_field))
+        else:
+            key = f"{prefix}_core_{label.lower().replace(' ', '_')}"
+            values[label] = number(packaged.get(key)) if packaged else None
+
+    for label, source_field in OPTIONAL_FIELDS.items():
+        if pulselive_row is not None:
+            values[label] = number(pulselive_row.get(source_field))
+        else:
+            key = f"{prefix}_optional_{label.lower().replace(' ', '_')}"
+            values[label] = number(packaged.get(key)) if packaged else None
 
     if prefix == "home":
         values["goals_for"] = home_score

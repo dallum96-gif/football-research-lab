@@ -27,7 +27,7 @@ def test_current_season_fixture_and_table_keep_completed_and_scheduled_states_di
     assert completed.stats is None
     assert completed.player_match_status == "UNAVAILABLE"
 
-    scheduled = get_fixture_detail(SEASON, "21")
+    scheduled = get_fixture_detail(SEASON, "31")
     assert scheduled.fixture.home_score is None
     assert scheduled.fixture.away_score is None
     assert scheduled.stats is None
@@ -35,7 +35,7 @@ def test_current_season_fixture_and_table_keep_completed_and_scheduled_states_di
 
     table = query_api.league_table(SEASON)
     assert len(table["teams"]) == 20
-    assert sum(int(row["played"]) for row in table["teams"]) == 40
+    assert sum(int(row["played"]) for row in table["teams"]) == 60
 
     with pytest.raises(HTTPException) as exc_info:
         get_fixture_detail(SEASON, "9999")
@@ -136,33 +136,56 @@ def test_current_player_identity_preserves_cross_source_and_source_native_states
     assert source_native["verified"] is True
 
 
-def test_team_stats_use_current_results_but_fail_closed_for_absent_team_match_metrics() -> None:
+def test_team_stats_use_current_results_and_pulselive_team_match_metrics() -> None:
     stats = team_research_stats.team_season_stats(SEASON, "3")
-    assert stats["matches"] == 2
-    assert stats["goals_for"] == 4.0
-    assert stats["goals_against"] == 0.0
+    assert stats["matches"] == 3
+    assert stats["goals_for"] == 6.0
+    assert stats["goals_against"] == 1.0
     assert stats["points_per_match"] == 3.0
-    assert stats["metric_coverage"]["Shots"]["observed_matches"] == 0
-    assert stats["metric_coverage"]["Shots"]["missing_matches"] == 2
-    assert stats["metric_coverage"]["Shots"]["coverage_status"] == "UNAVAILABLE"
+
+    assert stats["metric_coverage"]["Shots"]["observed_matches"] == 3
+    assert stats["metric_coverage"]["Shots"]["source_observed_matches"] == 3
+    assert stats["metric_coverage"]["Shots"]["coverage_status"] == "COMPLETE"
+
+    assert stats["metric_coverage"]["Expected goals"]["observed_matches"] == 3
+    assert stats["metric_coverage"]["Expected goals"]["coverage_status"] == "COMPLETE"
+
+    assert stats["shot_accuracy"] is not None
+    assert stats["goals_per_shot"] is not None
+    assert stats["pass_accuracy"] is not None
+    assert stats["xg_overperformance"] is not None
 
     analysis = team_analysis_kernel.team_overview_analysis(SEASON, "3")
     assert analysis is not None
-    assert analysis["expected_goals"]["value"] is None
-    assert analysis["expected_goals"]["representation"] == "NO_GOVERNED_SEASON_ROUTE"
-    assert "FPL" in analysis["expected_goals"]["note"]
+    assert analysis["expected_goals"]["value"] is not None
+    assert analysis["expected_goals"]["representation"] != "NO_GOVERNED_SEASON_ROUTE"
 
     overview = get_team_stats_overview(SEASON, "3")
     availability = {item.key: item for item in overview.availability}
     assert availability["points_per_match"].status == "AVAILABLE"
-    assert availability["Shots_per_match"].status == "UNAVAILABLE"
-    assert availability["expected_goals_per_match"].status == "UNAVAILABLE"
+    assert availability["Shots_per_match"].status == "AVAILABLE"
+    assert availability["expected_goals_per_match"].status == "AVAILABLE"
 
     rankings = get_team_stats_league_rankings(SEASON)
     by_metric = {metric.key: metric for metric in rankings.metrics}
+
     assert len(by_metric["points_per_match"].entries) == 20
-    assert all(row.value is not None for row in by_metric["points_per_match"].entries)
-    assert all(row.value is None for row in by_metric["Shots_per_match"].entries)
+    assert all(
+        row.value is not None
+        for row in by_metric["points_per_match"].entries
+    )
+
+    assert len(by_metric["Shots_per_match"].entries) == 20
+    assert all(
+        row.value is not None
+        for row in by_metric["Shots_per_match"].entries
+    )
+
+    assert len(by_metric["expected_goals_per_match"].entries) == 20
+    assert all(
+        row.value is not None
+        for row in by_metric["expected_goals_per_match"].entries
+    )
 
 
 def test_current_result_fallback_preserves_historical_packaged_missing_result_evidence() -> None:
@@ -201,4 +224,32 @@ def test_fixture_player_performance_uses_source_native_fpl_metrics_without_opta_
     for metric in response.home.metrics + response.away.metrics:
         assert metric.provenance["source_representation"] == "FPL_PLAYER_FIXTURE"
         assert metric.provenance["historical_opta_equivalence_asserted"] is False
+
+def test_current_team_match_source_adapter_exposes_preserved_pulselive_stats() -> None:
+    home, away = source_family_adapters.team_match_source_rows(SEASON, "1")
+
+    assert home["matchId"] == "2645195"
+    assert home["team_id"] == "3"
+    assert home["side"] == "Home"
+    assert home["totalPass"] == 616.0
+
+    assert away["matchId"] == "2645195"
+    assert away["team_id"] == "9"
+    assert away["side"] == "Away"
+    assert away["totalPass"] == 347.0
+
+
+def test_historical_team_match_source_adapter_remains_on_existing_source_route() -> None:
+    home, away = source_family_adapters.team_match_source_rows(
+        "2025-26",
+        "1",
+    )
+
+    assert home["matchId"] == "2561895"
+    assert home["team_id"] == "14"
+    assert home["totalPass"] == "489.0"
+
+    assert away["matchId"] == "2561895"
+    assert away["team_id"] == "91"
+    assert away["totalPass"] == "299.0"
 

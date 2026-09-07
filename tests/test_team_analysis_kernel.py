@@ -131,7 +131,7 @@ def test_fraction_rates_are_exposed_as_percentage_points():
         assert entry["value"] == expected
 
 
-def test_2026_27_direct_family_gaps_remain_unavailable_not_zero():
+def test_2026_27_direct_team_families_use_governed_pulselive_evidence():
     analysis = season_overview_analysis("2026-27")
 
     for key in (
@@ -157,22 +157,65 @@ def test_2026_27_direct_family_gaps_remain_unavailable_not_zero():
         "Red cards_per_match",
     ):
         result = analysis["metrics"][key]
-        assert result["definition"]["representation"] == DIRECT_TEAM_MATCH
+
+        assert (
+            result["definition"]["representation"]
+            == DIRECT_TEAM_MATCH
+        )
         assert len(result["entries"]) == 20
-        assert all(entry["value"] is None for entry in result["entries"])
-        assert all(entry["rank"] is None for entry in result["entries"])
-        assert all(entry["percentile"] is None for entry in result["entries"])
-        assert all(entry["coverage"]["observed_matches"] == 0 for entry in result["entries"])
+        assert all(
+            entry["value"] is not None
+            for entry in result["entries"]
+        )
+        assert all(
+            entry["rank"] is not None
+            for entry in result["entries"]
+        )
+        # Availability does not imply complete source coverage.
+        # Sparse PulseLive fields may be observed in only part of the
+        # completed-fixture population; preserve those gaps rather than
+        # manufacturing zeroes.
+        for entry in result["entries"]:
+            coverage = entry["coverage"]
+            observed = int(coverage["observed_matches"])
+            missing = int(coverage["missing_matches"])
+
+            assert 1 <= observed <= 3
+            assert observed + missing == 3
+
+            if observed == 3:
+                assert coverage["coverage_status"] == "COMPLETE"
+            else:
+                assert coverage["coverage_status"] == "PARTIAL"
 
 
-def test_2026_27_unavailable_derived_rich_metrics_stay_missing():
+def test_2026_27_derived_rich_metrics_follow_governed_source_coverage():
     analysis = season_overview_analysis("2026-27")
 
     for key in ("shot_accuracy", "goals_per_shot", "pass_accuracy"):
         result = analysis["metrics"][key]
-        assert result["definition"]["representation"] == DIRECT_TEAM_DERIVATION
-        assert all(entry["value"] is None for entry in result["entries"])
-        assert all(entry["rank"] is None for entry in result["entries"])
+
+        assert (
+            result["definition"]["representation"]
+            == DIRECT_TEAM_DERIVATION
+        )
+        assert len(result["entries"]) == 20
+
+        # Current governed evidence must produce genuine observations,
+        # while sparse source gaps must remain missing rather than being
+        # manufactured as zero.
+        assert any(
+            entry["value"] is not None
+            for entry in result["entries"]
+        )
+
+        for entry in result["entries"]:
+            if entry["value"] is None:
+                assert entry["rank"] is None
+                assert entry["percentile"] is None
+            else:
+                assert entry["rank"] is not None
+                assert entry["percentile"] is not None
 
 
 def test_2026_27_result_derived_metrics_remain_available_for_season_aware_gui():
@@ -310,3 +353,20 @@ def test_team_view_is_projection_of_the_same_season_analysis_result():
     assert metric["rank"] == sample["rank"]
     assert metric["out_of"] == sample["out_of"]
     assert metric["percentile"] == sample["percentile"]
+
+def test_current_season_live_xg_uses_complete_direct_governed_population():
+    analysis = season_overview_analysis("2026-27")
+
+    xg = list(analysis["expected_goals"].values())
+
+    assert len(xg) == 20
+    assert {row["representation"] for row in xg} == {DIRECT_TEAM_MATCH}
+    assert all(row["coverage_complete"] for row in xg)
+    assert all(row["observed_matches"] == 3 for row in xg)
+    assert all(row["eligible_matches"] == 3 for row in xg)
+    assert all(row["value"] is not None for row in xg)
+
+    # Expected-metric-family measures retain their dedicated governed
+    # surface rather than entering the generic RANKING_METRICS registry.
+    assert "expected_goals_per_match" not in analysis["metrics"]
+

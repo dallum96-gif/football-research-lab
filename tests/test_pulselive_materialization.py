@@ -173,3 +173,25 @@ def test_failed_atomic_replace_leaves_no_snapshot_or_temporary_file(monkeypatch,
     assert not target.exists()
     assert target.parent.is_dir()
     assert not list(target.parent.glob("*.tmp"))
+
+def test_current_season_materialization_uses_canonical_fixture_code_fallback() -> None:
+    resolved = materialization._resolve_materialization_source_match(
+        "2026-27",
+        "1",
+    )
+
+    assert str(resolved["source_match_id"]) == "2645195"
+    assert resolved["relationship_status"] == "VERIFIED"
+    assert resolved["resolution_basis"] == "CANONICAL_FIXTURE_CODE"
+
+
+def test_historical_materialization_resolution_does_not_use_current_season_fallback() -> None:
+    resolved = materialization._resolve_materialization_source_match(
+        "2016-17",
+        "8",
+    )
+
+    assert str(resolved["source_match_id"]) == "855173"
+    assert resolved["relationship_status"] == "VERIFIED"
+    assert resolved["resolution_basis"] != "CANONICAL_FIXTURE_CODE"
+
