@@ -67,7 +67,7 @@ function kitForClub(club: string) {
   return KITS.find(([pattern]) => pattern.test(club))?.[1] ?? FALLBACK;
 }
 
-export function ClubKit({ club, size = "medium" }: { club: string; size?: "small" | "medium" | "large" }) {
+export function ClubKit({ club, size = "medium" }: { club: string; size?: "tiny" | "small" | "medium" | "large" }) {
   const kit = kitForClub(club);
   const style = {
     "--kit-body": kit.body,
