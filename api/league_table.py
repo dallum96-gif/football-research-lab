@@ -47,12 +47,35 @@ class LeagueTableResult(BaseModel):
     limitations: list[str] = Field(default_factory=list)
 
 
-def _release_metadata(season: str) -> tuple[str | None, str | None]:
+def _release_metadata(
+    season: str,
+    completed_fixtures: int,
+    total_fixtures: int,
+) -> tuple[str | None, str | None]:
     register = SEASON_RELEASE_ROOT / season / "capability_gap_register.json"
     if not register.is_file():
         return None, None
 
     payload = json.loads(register.read_text(encoding="utf-8"))
+    results_capability = next(
+        (
+            item
+            for item in payload.get("capabilities", [])
+            if item.get("capability") == "results_scores"
+        ),
+        None,
+    )
+    expected_coverage = f"{completed_fixtures}/{total_fixtures} completed"
+
+    # A living-season fixture master can move beyond a previously pinned
+    # release. Never attach an older release boundary to newer standings.
+    if (
+        results_capability is None
+        or str(results_capability.get("coverage") or "").strip()
+        != expected_coverage
+    ):
+        return None, None
+
     return (
         str(payload.get("information_available_as_of") or "") or None,
         str(payload.get("source_release_sha") or "") or None,
@@ -221,7 +244,11 @@ def get_league_table(
     try:
         table = query_api.league_table(season)
         fixtures, completed, total, latest_completed_kickoff = _completed_fixture_context(season)
-        information_available_as_of, source_release_sha = _release_metadata(season)
+        information_available_as_of, source_release_sha = _release_metadata(
+            season,
+            completed,
+            total,
+        )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
