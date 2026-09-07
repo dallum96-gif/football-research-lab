@@ -6,6 +6,11 @@
   flex: 0 0 auto;
 }
 
+.kit[data-size="tiny"] {
+  width: 30px;
+  height: 28px;
+}
+
 .kit[data-size="small"] {
   width: 54px;
   height: 52px;
@@ -86,6 +91,21 @@
   letter-spacing: .04em;
   text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
   transform: translateX(-50%);
+}
+
+.kit[data-size="tiny"] .body {
+  border-radius: 5px 5px 6px 6px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .16);
+}
+
+.kit[data-size="tiny"] .collar {
+  top: -1px;
+  border-width: 2px;
+  border-top: 0;
+}
+
+.kit[data-size="tiny"] .mark {
+  display: none;
 }
 
 .kit[data-size="small"] .mark {
