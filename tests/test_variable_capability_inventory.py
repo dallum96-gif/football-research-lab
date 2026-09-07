@@ -118,10 +118,44 @@ def test_representative_context_league_model_and_market_limits_are_explicit():
     assert market["coverage"]["status"] == "NOT_PRESERVED"
     assert market["temporal_as_of"]["information_available_as_of"] == "NOT_PERSISTED"
 
-    review = rows["catalogue:fpl:bootstrap-static.json:sample_payload:chips"]
-    assert review["football_meaning"]["status"] == "REVIEW_REQUIRED"
+    config = rows["catalogue:fpl:bootstrap-static.json:sample_payload:chips"]
+    assert config["football_meaning"]["status"] == "ESTABLISHED"
+    assert config["capability_family"] == "context"
+    assert "rules/configuration/context" in config["football_meaning"]["text"]
     assert "review" in inventory_unknown_policy().casefold()
 
 
 def inventory_unknown_policy() -> str:
     return build_inventory()["schema"]["unknown_policy"]
+
+def test_semantic_governance_reconciliation_preserves_intentional_fail_closed_residue():
+    inventory = build_inventory()
+    variables = inventory["variables"]
+
+    def catalogue_row(surface: str, resource: str, field: str) -> dict:
+        return next(
+            row
+            for row in variables
+            if row["record_id"].startswith("catalogue:")
+            and row["source"]["surface"] == surface
+            and row["source"]["resource"] == resource
+            and row["canonical_name"] == field
+        )
+
+    exposed = catalogue_row("FRL_LOCAL_CSV", "player_season", "leftsidePasses")
+    assert exposed["governance"]["semantic_status"] == "exposed"
+    assert exposed["football_meaning"]["status"] == "ESTABLISHED"
+
+    retained = catalogue_row("FRL_LOCAL_CSV", "player_season", "blocks")
+    assert retained["governance"]["semantic_status"] == "retained"
+    assert retained["football_meaning"]["status"] == "REVIEW_REQUIRED"
+
+    restricted = catalogue_row("FRL_LOCAL_CSV", "player_season", "unsuccessfulDribbles")
+    assert restricted["governance"]["semantic_status"] == "restricted"
+    assert restricted["football_meaning"]["status"] == "REVIEW_REQUIRED"
+
+    pulselive_exception = catalogue_row(
+        "pulselive", "match", "resources.stats.payload[].stats.freekickTotal"
+    )
+    assert pulselive_exception["football_meaning"]["status"] == "REVIEW_REQUIRED"
+

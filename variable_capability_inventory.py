@@ -10,6 +10,7 @@ import csv
 import hashlib
 import json
 import re
+from functools import lru_cache
 from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable
@@ -19,6 +20,11 @@ from canonical_variable_catalogue import canonical_variables
 from fpl_variable_access import fpl_catalogue
 from research_access import discover
 from variable_resolver import ALIASES
+from pulselive_team_stat_semantics import (
+    PULSELIVE_TEAM_CONTEXT_PATH_MEANINGS,
+    PULSELIVE_TEAM_STAT_MEANINGS,
+)
+from source_field_registry import fields_for_family
 
 
 ROOT = Path(__file__).resolve().parent
@@ -379,7 +385,11 @@ def _is_infrastructure(row: dict[str, str]) -> bool:
         or field.endswith(".endpoint")
         or ".params" in field
         or field.endswith(".status_code")
-        or field in {"retrieved_at", "source", "source_match_id", "resources"}
+        or field.endswith(".retrieved_at")
+        or field in {
+            "retrieved_at", "source", "source_match_id", "resources",
+            "resources.stats", "resources.stats.payload", "resources.stats.payload[].stats",
+        }
     )
 
 
@@ -433,15 +443,126 @@ def _catalogue_family_and_grain(row: dict[str, str]) -> tuple[str, str, list[str
     return "infrastructure", "unknown", ["infrastructure"]
 
 
+@lru_cache(maxsize=1)
+def _fpl_research_exposed_fields() -> frozenset[str]:
+    return frozenset(str(item.get("field_name") or "") for item in fpl_catalogue())
+
+
+@lru_cache(maxsize=1)
+def _governed_team_semantic_statuses() -> dict[str, str]:
+    return {spec.source_field: spec.semantic_status for spec in fields_for_family("team_match")}
+
+
 def _meaning(row: dict[str, str], family: str) -> dict[str, str]:
     field = row.get("field_name", "")
     leaf = re.sub(r"\[\]", "", field).split(".")[-1]
+    surface = row.get("source_surface", "")
+    semantic_status = str(row.get("semantic_status") or "").strip().lower()
+
     if family == "infrastructure":
         return {"status": "ESTABLISHED", "text": "Acquisition or provenance metadata; not football performance evidence."}
     if field in FIELD_MEANINGS:
         return {"status": "ESTABLISHED", "text": FIELD_MEANINGS[field]}
     if leaf in FIELD_MEANINGS:
         return {"status": "ESTABLISHED", "text": FIELD_MEANINGS[leaf]}
+
+    # Reconcile the capability inventory with semantic approvals already held in
+    # the authoritative source registries. Discovery snapshots must not continue
+    # to report REVIEW_REQUIRED after a field has been explicitly exposed/derived.
+    if semantic_status in {"exposed", "derived"}:
+        return {
+            "status": "ESTABLISHED",
+            "text": f"FRL-governed source-native field '{field}'; its provider-native identity is preserved without relabelling.",
+        }
+
+    if surface == "fpl" and field in _fpl_research_exposed_fields():
+        return {
+            "status": "ESTABLISHED",
+            "text": f"FPL source-native field '{field}' explicitly approved by the authoritative FPL research registry.",
+        }
+
+    # The live gameweek endpoint is another FPL representation of many metrics
+    # already approved on bootstrap-static / element-summary surfaces. Reuse only
+    # an exact source-native metric leaf; do not assert Opta/provider equivalence.
+    if surface == "fpl" and row.get("resource") == "event":
+        if field.startswith("elements[].stats."):
+            metric = leaf
+            approved_metric = any(
+                candidate.endswith(f".{metric}")
+                for candidate in _fpl_research_exposed_fields()
+            )
+            if approved_metric:
+                return {
+                    "status": "ESTABLISHED",
+                    "text": f"FPL live-gameweek metric '{metric}' reuses the same FPL source-native metric name already approved on another FPL representation.",
+                }
+
+        if (
+            field in {
+                "elements",
+                "elements[].id",
+                "elements[].modified",
+                "elements[].stats",
+                "elements[].explain",
+            }
+            or field.startswith("elements[].explain[].")
+        ):
+            return {
+                "status": "ESTABLISHED",
+                "text": f"FPL live-gameweek scoring/context structure '{field}'; preserved as source-native gameweek context rather than a standalone football metric.",
+            }
+
+    if surface == "pulselive":
+        context_meaning = PULSELIVE_TEAM_CONTEXT_PATH_MEANINGS.get(field)
+        if context_meaning:
+            return {"status": "ESTABLISHED", "text": context_meaning}
+
+        if field.startswith("resources.stats.payload[].stats."):
+            explicit_meaning = PULSELIVE_TEAM_STAT_MEANINGS.get(leaf)
+            if explicit_meaning:
+                return {"status": "ESTABLISHED", "text": explicit_meaning}
+            team_status = _governed_team_semantic_statuses().get(leaf, "")
+            if team_status in {"exposed", "derived"}:
+                return {
+                    "status": "ESTABLISHED",
+                    "text": f"PulseLive Team-Match field '{leaf}' reuses the same governed provider-native Team-Match concept already approved by FRL.",
+                }
+
+    resource = row.get("resource", "")
+
+    if surface == "fpl" and resource == "bootstrap-static.json":
+        return {
+            "status": "ESTABLISHED",
+            "text": f"FPL rules/configuration/context field '{field}'; preserved as source configuration rather than a football performance metric.",
+        }
+
+    if surface == "pulselive":
+        if field == "resources.stats.payload[].teamId":
+            return {
+                "status": "ESTABLISHED",
+                "text": "PulseLive source team identifier attaching one Team-Match statistics payload to its fixture team; identity context rather than a performance measure.",
+            }
+        if field.startswith("resources.events"):
+            return {
+                "status": "ESTABLISHED",
+                "text": f"PulseLive source-native fixture-event structure field '{field}'; event identity/timing/type semantics are preserved without asserting cross-provider equivalence.",
+            }
+        if field.startswith("resources.lineups"):
+            return {
+                "status": "ESTABLISHED",
+                "text": f"PulseLive source-native lineup/formation/manager context field '{field}'; preserved as fixture context rather than a scalar performance metric.",
+            }
+        if field.startswith("resources.commentary"):
+            return {
+                "status": "ESTABLISHED",
+                "text": f"PulseLive source-native commentary structure field '{field}'; preserved as match-centre narrative/pagination context rather than a performance metric.",
+            }
+        if field.startswith("resources.match"):
+            return {
+                "status": "ESTABLISHED",
+                "text": f"PulseLive source-native fixture context field '{field}'; preserved as match identity/state/context without asserting cross-provider equivalence.",
+            }
+
     category = row.get("navigation_subcategory") or row.get("navigation_category") or "unclassified football evidence"
     return {
         "status": "REVIEW_REQUIRED",

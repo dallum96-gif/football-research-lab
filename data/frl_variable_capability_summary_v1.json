@@ -1,17 +1,17 @@
 {
   "by_capability_area": {
-    "context": 539,
+    "context": 537,
     "derived_metrics": 72,
-    "events": 101,
-    "fixture": 353,
+    "events": 99,
+    "fixture": 345,
     "historical_as_of": 57,
-    "infrastructure": 145,
+    "infrastructure": 153,
     "league_season": 10,
     "models": 13,
     "odds_markets": 19,
     "player_match": 170,
     "player_season": 297,
-    "team_match": 399,
+    "team_match": 395,
     "team_season": 32
   },
   "by_coverage_status": {
@@ -25,17 +25,17 @@
     "PROVENANCE_ONLY": 6
   },
   "by_grain": {
-    "acquisition-metadata": 145,
+    "acquisition-metadata": 153,
     "ephemeral-fixture-market-comparison": 16,
-    "fixture": 45,
-    "fixture-commentary": 8,
+    "fixture": 44,
+    "fixture-commentary": 7,
     "fixture-commentary-entry": 4,
     "fixture-event": 32,
-    "fixture-event-collection": 17,
+    "fixture-event-collection": 16,
     "fixture-lineup-manager": 8,
     "fixture-lineup-player": 12,
     "fixture-pre-match-state": 57,
-    "fixture-team-lineup": 21,
+    "fixture-team-lineup": 20,
     "fpl-configuration-snapshot": 232,
     "model-fixture-output": 13,
     "player-fixture-forecast": 14,
@@ -46,32 +46,32 @@
     "player-season-profile": 16,
     "player-snapshot": 112,
     "team-league-season": 10,
-    "team-match": 399,
+    "team-match": 395,
     "team-snapshot": 22
   },
   "by_meaning_status": {
-    "ESTABLISHED": 296,
-    "REVIEW_REQUIRED": 1226
+    "ESTABLISHED": 1473,
+    "REVIEW_REQUIRED": 49
   },
   "by_origin_kind": {
     "DERIVED": 82,
-    "INFRASTRUCTURE": 145,
+    "INFRASTRUCTURE": 153,
     "MARKET_INPUT": 3,
     "MODEL_OUTPUT": 13,
-    "SOURCE": 1279
+    "SOURCE": 1271
   },
   "by_primary_family": {
     "context": 305,
     "derived_metrics": 2,
-    "events": 61,
-    "fixture": 100,
-    "infrastructure": 145,
+    "events": 59,
+    "fixture": 98,
+    "infrastructure": 153,
     "league_season": 1,
     "models": 13,
     "odds_markets": 16,
     "player_match": 168,
     "player_season": 281,
-    "team_match": 399,
+    "team_match": 395,
     "team_season": 31
   },
   "by_rights_status": {
@@ -100,7 +100,7 @@
     "UNKNOWN and REVIEW_REQUIRED are intentional fail-closed metadata values."
   ],
   "inventory_version": "FRL_VARIABLE_CAPABILITY_INVENTORY_V1",
-  "meaning_unknown_or_review_count": 1226,
+  "meaning_unknown_or_review_count": 49,
   "supplemental_existing_capability_count": 108,
   "ura_discoverable_capability_count": 688,
   "variable_record_count": 1522
