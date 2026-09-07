@@ -154,7 +154,13 @@ export default async function LeagueTablePage({
             <div className={styles.tableState}>
               <span>{viewLabel}</span>
               <span>{table.completed_fixtures} fixtures completed</span>
-              <span>Updated {boundaryLabel(table.information_available_as_of)}</span>
+              <span>
+                {table.information_available_as_of
+                  ? `Updated ${boundaryLabel(table.information_available_as_of)}`
+                  : table.latest_completed_kickoff
+                    ? `Latest result ${boundaryLabel(table.latest_completed_kickoff)}`
+                    : "Update boundary unavailable"}
+              </span>
             </div>
 
             <section className={styles.tablePanel} aria-label={`${table.competition} ${table.season} ${viewLabel.toLowerCase()} league table`}>
