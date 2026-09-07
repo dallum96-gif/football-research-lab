@@ -52,7 +52,7 @@ async function getJson<T>(path: string): Promise<T | null> {
 }
 
 function boundaryLabel(value: string | null) {
-  if (!value) return "Release boundary unavailable";
+  if (!value) return "Boundary unavailable";
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return value;
   return new Intl.DateTimeFormat("en-GB", {
@@ -91,13 +91,12 @@ export default async function LeagueTablePage({
       <div className={styles.page}>
         <header className={styles.header}>
           <div>
-            <p className={styles.eyebrow}>Explore · League Table</p>
-            <h1>Premier League Table</h1>
+            <p className={styles.eyebrow}>Explore</p>
+            <h1>League Table</h1>
             <p className={styles.context}>
-              {season ?? "Season unavailable"}
               {table
-                ? ` · ${table.completed_fixtures} of ${table.total_fixtures} fixtures completed`
-                : " · governed table unavailable"}
+                ? `${table.competition} · ${table.season}`
+                : season ?? "Season unavailable"}
             </p>
           </div>
           {season && (
@@ -110,37 +109,13 @@ export default async function LeagueTablePage({
 
         {table ? (
           <>
-            <section className={styles.summary} aria-label="League table state">
-              <div>
-                <span>Completed</span>
-                <strong>{table.completed_fixtures} fixtures</strong>
-                <small>{table.rows.reduce((sum, row) => sum + row.played, 0)} team appearances</small>
-              </div>
-              <div>
-                <span>Still scheduled</span>
-                <strong>{table.scheduled_fixtures} fixtures</strong>
-                <small>Unplayed fixtures do not enter the table.</small>
-              </div>
-              <div>
-                <span>Information boundary</span>
-                <strong>{boundaryLabel(table.information_available_as_of)}</strong>
-                <small>
-                  {table.latest_completed_kickoff
-                    ? `Latest represented result: ${boundaryLabel(table.latest_completed_kickoff)}`
-                    : "No completed result boundary available."}
-                </small>
-              </div>
-            </section>
+            <div className={styles.tableState}>
+              <span>{table.completed_fixtures} played</span>
+              <span>{table.scheduled_fixtures} remaining</span>
+              <span>Updated {boundaryLabel(table.information_available_as_of)}</span>
+            </div>
 
-            <section className={styles.tablePanel}>
-              <header className={styles.tableHeading}>
-                <div>
-                  <p className={styles.kicker}>Current standings</p>
-                  <h2>{table.competition} · {table.season}</h2>
-                </div>
-                <span>P · W · D · L · GF · GA · GD · Pts · last five</span>
-              </header>
-
+            <section className={styles.tablePanel} aria-label={`${table.competition} ${table.season} league table`}>
               <div className={styles.tableScroll}>
                 <table className={styles.table}>
                   <thead>
@@ -161,7 +136,7 @@ export default async function LeagueTablePage({
                   <tbody>
                     {table.rows.map((row) => (
                       <tr key={row.persistent_team_code || row.local_team_id}>
-                        <td><span className={styles.position}>{row.position}</span></td>
+                        <td className={styles.position}>{row.position}</td>
                         <td>
                           {row.persistent_team_code ? (
                             <Link
@@ -184,7 +159,15 @@ export default async function LeagueTablePage({
                         <td>{row.losses}</td>
                         <td>{row.goals_for}</td>
                         <td>{row.goals_against}</td>
-                        <td className={row.goal_difference > 0 ? styles.positive : row.goal_difference < 0 ? styles.negative : undefined}>
+                        <td
+                          className={
+                            row.goal_difference > 0
+                              ? styles.positive
+                              : row.goal_difference < 0
+                                ? styles.negative
+                                : undefined
+                          }
+                        >
                           {goalDifference(row.goal_difference)}
                         </td>
                         <td className={styles.points}>{row.points}</td>
@@ -210,23 +193,24 @@ export default async function LeagueTablePage({
               </div>
             </section>
 
-            <section className={styles.boundary}>
-              <article>
-                <p className={styles.kicker}>Living-season interpretation</p>
-                <h3>Partial-season state, not a completed-season claim</h3>
-                <p>
-                  FRL derives this table only from completed canonical results. Scheduled fixtures remain outside points, goals and form until their completed result is represented.
-                </p>
-              </article>
-              <article>
-                <p className={styles.kicker}>Provenance</p>
-                <h3>Canonical fixtures + governed team identity</h3>
-                <p>Query version {table.query_version}</p>
-                {table.source_release_sha && (
-                  <div className={styles.releaseCode}>Release {table.source_release_sha}</div>
-                )}
-              </article>
-            </section>
+            <footer className={styles.footer}>
+              <p>
+                Reconstructed from completed canonical fixtures. Scheduled fixtures remain outside the table until a completed result is represented.
+              </p>
+              <details className={styles.evidence}>
+                <summary>Evidence & provenance</summary>
+                <div>
+                  <span>Canonical fixtures + governed team identity</span>
+                  <span>Query {table.query_version}</span>
+                  {table.latest_completed_kickoff && (
+                    <span>Latest result {boundaryLabel(table.latest_completed_kickoff)}</span>
+                  )}
+                  {table.source_release_sha && (
+                    <span className={styles.releaseCode}>Release {table.source_release_sha}</span>
+                  )}
+                </div>
+              </details>
+            </footer>
           </>
         ) : (
           <div className="frl-empty-state">
