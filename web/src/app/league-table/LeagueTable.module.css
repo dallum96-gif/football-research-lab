@@ -69,6 +69,44 @@
   border-color: var(--frl-border-strong);
 }
 
+.viewToggle {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 2px;
+  margin: 2px 0 10px;
+  padding: 3px;
+  overflow-x: auto;
+  border: 1px solid var(--frl-border);
+  border-radius: 6px;
+  background: var(--frl-surface);
+}
+
+.viewToggleItem {
+  min-width: 70px;
+  padding: 6px 11px;
+  border-radius: 4px;
+  color: var(--frl-muted);
+  font-size: .69rem;
+  font-weight: 760;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.viewToggleItem:hover {
+  background: rgba(255, 255, 255, .025);
+  color: var(--frl-text);
+}
+
+.viewToggleActive {
+  background: var(--frl-surface-raised);
+  box-shadow: inset 0 0 0 1px var(--frl-border-strong);
+  color: var(--frl-text);
+  font-weight: 840;
+}
+
 .tableState {
   display: flex;
   flex-wrap: wrap;
@@ -278,6 +316,10 @@
 
   .seasonControl {
     width: 150px;
+  }
+
+  .viewToggle {
+    width: max-content;
   }
 
   .tableState {
