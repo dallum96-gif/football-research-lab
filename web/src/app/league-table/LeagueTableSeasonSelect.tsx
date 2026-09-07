@@ -3,12 +3,16 @@
 import { useRouter } from "next/navigation";
 import styles from "./LeagueTable.module.css";
 
+type LeagueTableView = "overall" | "home" | "away" | "last5";
+
 export function LeagueTableSeasonSelect({
   seasons,
   currentSeason,
+  currentView,
 }: {
   seasons: string[];
   currentSeason: string;
+  currentView: LeagueTableView;
 }) {
   const router = useRouter();
 
@@ -18,7 +22,10 @@ export function LeagueTableSeasonSelect({
       <select
         value={currentSeason}
         onChange={(event) => {
-          const params = new URLSearchParams({ season: event.target.value });
+          const params = new URLSearchParams({
+            season: event.target.value,
+            view: currentView,
+          });
           router.push(`/league-table?${params.toString()}`);
         }}
       >
