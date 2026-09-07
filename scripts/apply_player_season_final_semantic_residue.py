@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sys
 from collections import Counter
 from pathlib import Path
@@ -35,13 +36,6 @@ RETAINED = {
 }
 
 
-def _replace_once(text: str, old: str, new: str, label: str) -> str:
-    count = text.count(old)
-    if count != 1:
-        raise RuntimeError(f"{label}: expected exactly one match, found {count}")
-    return text.replace(old, new, 1)
-
-
 def _update_registry() -> bool:
     text = REGISTRY.read_text(encoding="utf-8-sig")
     original = text
@@ -60,32 +54,27 @@ def _update_registry() -> bool:
         lines.extend(["}", "", ""])
         block = "\n".join(lines)
 
-        # Insert immediately before SQUAD_FIELDS; this remains safe regardless of
-        # which earlier local Player-Season promotion constants are already present.
         marker = "SQUAD_FIELDS = {"
         if marker not in text:
             raise RuntimeError("source_field_registry.py: SQUAD_FIELDS insertion marker not found")
         text = text.replace(marker, block + marker, 1)
 
-    # Locate the player_season family construction and add this batch to its union.
-    marker = '_build_family("player_season", '
-    start = text.find(marker)
-    if start < 0:
+    # Match the player_season builder structurally rather than relying on exact
+    # punctuation/line wrapping. Earlier local promotion batches may already have
+    # expanded the union across several lines.
+    pattern = re.compile(
+        r'_build_family\(\s*"player_season"\s*,\s*(?P<expr>.*?)\s*\)',
+        re.DOTALL,
+    )
+    match = pattern.search(text)
+    if not match:
         raise RuntimeError("source_field_registry.py: player_season family construction not found")
-    line_end = text.find("\n", start)
-    # Family construction may span multiple lines. Find closing '),' conservatively.
-    close = text.find("),", start)
-    if close < 0:
-        raise RuntimeError("source_field_registry.py: player_season family construction close not found")
-    segment = text[start:close + 2]
+
+    segment = match.group(0)
     if constant not in segment:
-        # Prefer adding to an existing union expression.
-        if " | " in segment or "|" in segment:
-            segment_new = segment[:-2].rstrip() + f" | {constant}),"
-        else:
-            # Baseline form: _build_family("player_season", PLAYER_SEASON_FIELDS),
-            segment_new = segment[:-2].rstrip() + f" | {constant}),"
-        text = text[:start] + segment_new + text[close + 2:]
+        expr = match.group("expr").rstrip()
+        replacement = f'_build_family("player_season", {expr} | {constant})'
+        text = text[:match.start()] + replacement + text[match.end():]
 
     if text != original:
         compile(text, str(REGISTRY), "exec")
