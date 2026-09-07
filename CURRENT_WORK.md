@@ -1,7 +1,7 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 5 September 2026  
-**Checkpoint:** `HEAD_TO_HEAD_BETBUILDER_V1`
+**Last updated:** 7 September 2026
+**Checkpoint:** `CURRENT_PLAYER_RICH_CAPABILITY_79_OF_83_V1`
 
 For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
 
@@ -121,6 +121,24 @@ Materialised state:
 - 626 player identities through explicit verified/source-native verified routes.
 
 FPL remains a distinct source family. FPL ICT Creativity must never be relabelled as detailed passing/key-pass evidence.
+### Current-season rich Player capability — GW1–3
+
+The governed 2026/27 Player pipeline now projects rich current-season Player evidence across the first three gameweeks.
+
+Validated runtime state:
+
+- **387 participating players** with minutes greater than zero;
+- **22 GKP / 136 DEF / 182 MID / 47 FWD**;
+- **387/387** participating players represented in the production rich Player projection;
+- **79/83 Player product capabilities runtime-supported**.
+
+Of the 50 previously identified Player capability gaps, **46 are now supported**. At the validated snapshot, 41 are fully available and five are partial or applicability-limited: xgot, pass_completion, rich_pass_accuracy, long_ball_accuracy and keeper_sweeper_accuracy.
+
+The only currently unavailable Player product capabilities are ball_carries, progressive_carries, progressive_carry_distance and total_progression.
+
+These remain explicit evidence gaps rather than being manufactured from adjacent variables.
+
+Validation passed capability inventory regeneration/checking, **4 inventory tests**, the Player module compile gate, **6 Player Analysis kernel tests**, and the runtime **79/83** capability audit.
 
 ## Team State and forecasting — first controlled model progression
 

@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
-  "checkpoint_date": "2026-09-05",
-  "checkpoint_id": "HEAD_TO_HEAD_BETBUILDER_V1",
+  "checkpoint_date": "2026-09-07",
+  "checkpoint_id": "CURRENT_PLAYER_RICH_CAPABILITY_79_OF_83_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Develop Analytical Profile and Head-to-Head as complementary projections of the governed evidence layer, keep the BetBuilder Stat Pack central to fixture-specific synthesis, deepen the profiles from the routed team/player universe, and run the frozen Adaptive DC plus Team State experiment without displacing scouting/opposition product work",
+  "active_product_phase": "Current-season rich Player capability is validated at 79/83 through GW1-3, with the carry/progression quartet explicitly unavailable. Continue developing Analytical Profile and Head-to-Head from the governed evidence layer without inventing unsupported Player semantics.",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",

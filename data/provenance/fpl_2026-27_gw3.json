@@ -1,0 +1,17 @@
+{
+  "season": "2026-27",
+  "gameweek": 3,
+  "retrieved_at": "2026-09-07T17:52:49.972752+00:00",
+  "source": "Official Fantasy Premier League API",
+  "endpoints": [
+    "bootstrap-static",
+    "fixtures",
+    "event/3/live"
+  ],
+  "finished": true,
+  "data_checked": true,
+  "provisional": false,
+  "fixture_coverage": 30,
+  "participant_identity": 387,
+  "policy": "Integrated immediately at user request; refresh after provider data_checked to absorb post-match corrections."
+}

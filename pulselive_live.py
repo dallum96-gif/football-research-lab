@@ -134,6 +134,19 @@ def commentary(match_id: str | int, limit: int = 20, **request_options) -> LiveR
     )
 
 
+
+def player_stats(
+    match_id: str | int,
+    player_id: str | int,
+    **request_options,
+) -> LiveResponse:
+    """Fetch one fixture-native PulseLive player-stat observation."""
+    return _get(
+        f"/api/v1/matches/{match_id}/players/{player_id}/stats",
+        **request_options,
+    )
+
+
 def snapshot(
     match_id: str | int,
     *,

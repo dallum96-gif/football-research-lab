@@ -34,11 +34,13 @@ RICH_PLAYER_METRICS = {
     "accurate_opposition_half_passes": "accurateOppositionHalfPasses",
     "long_balls": "totalLongBalls",
     "accurate_long_balls": "accurateLongBalls",
+    "crosses_rich": "totalCrossNocorner",
     "successful_crosses": "accurateCross",
     "key_passes_rich": "keyPass",
     "big_chances_created_rich": "bigChanceCreated",
     # Possession / carrying. Player-Match take-ons are represented by
     # totalContest (attempted) and wonContest (successful).
+    "dribbles_rich": "totalContest",
     "successful_dribbles": "wonContest",
     "unsuccessful_dribbles": "totalContest",
     "ball_carries": "ballCarriesCount",
@@ -75,6 +77,124 @@ RICH_PLAYER_METRICS = {
 }
 
 
+# Current PulseLive fixture-player payloads sparsely emit additive
+# event counts. This policy applies ONLY during governed season
+# aggregation. Raw fixture evidence and adapter rows remain sparse.
+#
+# A source field must also exist somewhere in the season-wide field
+# universe; otherwise it remains unavailable rather than becoming 0.
+_CURRENT_PULSELIVE_SPARSE_ZERO_FIELDS = frozenset({
+    # Shooting
+    "totalShots",
+    "onTargetScoringAttempt",
+    "shotOffTarget",
+    "blockedScoringAttempt",
+    "touches",
+    "hitWoodwork",
+
+    # Passing / creation
+    "totalPass",
+    "accuratePass",
+    "accurateOppositionHalfPasses",
+    "totalLongBalls",
+    "accurateLongBalls",
+    "totalCrossNocorner",
+    "accurateCross",
+    "keyPass",
+    "bigChanceCreated",
+
+    # Possession / dribbling
+    "totalContest",
+    "wonContest",
+    "possessionLostCtrl",
+
+    # Defending
+    "totalTackle",
+    "wonTackle",
+    "interceptionWon",
+    "totalClearance",
+    "aerialWon",
+    "aerialLost",
+    "duelWon",
+    "duelLost",
+    "outfielderBlock",
+    "ballRecovery",
+    "errorLeadToAShot",
+    "errorLeadToAGoal",
+
+    # Discipline
+    "fouls",
+    "wasFouled",
+    "penaltyWon",
+    "penaltyConceded",
+
+    # Goalkeeping
+    "saves",
+    "savedShotsFromInsideTheBox",
+    "goodHighClaim",
+    "totalKeeperSweeper",
+    "accurateKeeperSweeper",
+    "penaltyFaced",
+})
+
+
+def _current_pulselive_records(
+    records: tuple[dict, ...],
+) -> bool:
+    return any(
+        row.get("_pulselive_player_stats_path")
+        for row in records
+    )
+
+
+def _sum_current_sparse(
+    records: tuple[dict, ...],
+    source_field: str,
+) -> float | None:
+    """Sum current sparse counts; omitted values mean zero."""
+    total = 0.0
+
+    for row in records:
+        raw = row.get(source_field)
+
+        if raw in (None, ""):
+            continue
+
+        value = _number_or_none(raw)
+
+        # An explicitly present but non-numeric value is not zero.
+        if value is None:
+            return None
+
+        total += value
+
+    return total
+
+
+def _sum_governed(
+    records: tuple[dict, ...],
+    source_field: str,
+    season_fields: set[str],
+) -> float | None:
+    if source_field not in season_fields:
+        return None
+
+    if (
+        _current_pulselive_records(records)
+        and source_field
+        in _CURRENT_PULSELIVE_SPARSE_ZERO_FIELDS
+    ):
+        return _sum_current_sparse(
+            records,
+            source_field,
+        )
+
+    return _sum_observed(
+        records,
+        source_field,
+    )
+
+
 def _number_or_none(value: object) -> float | None:
     if value in (None, ""):
         return None
@@ -93,35 +213,82 @@ def _sum_observed(records: tuple[dict, ...], source_field: str) -> float | None:
     return sum(observed) if observed else None
 
 
-def _aggregate_xgot(records: tuple[dict, ...], season_fields: set[str]) -> float | None:
+def _aggregate_xgot(
+    records: tuple[dict, ...],
+    season_fields: set[str],
+) -> float | None:
     source_field = "expectedGoalsOnTarget"
     trigger_field = "onTargetScoringAttempt"
-    if source_field not in season_fields or trigger_field not in season_fields:
+
+    if (
+        source_field not in season_fields
+        or trigger_field not in season_fields
+    ):
         return None
+
+    current = _current_pulselive_records(
+        records
+    )
 
     total = 0.0
     observed_any = False
+
     for row in records:
-        value = _number_or_none(row.get(source_field))
+        value = _number_or_none(
+            row.get(source_field)
+        )
+
         if value is not None:
             total += value
             observed_any = True
             continue
-        trigger = _number_or_none(row.get(trigger_field))
+
+        trigger = _number_or_none(
+            row.get(trigger_field)
+        )
+
         if trigger is not None and trigger > 0:
             return None
-    return total if observed_any else None
 
+    if observed_any:
+        return total
 
-def _aggregate_unsuccessful_dribbles(records: tuple[dict, ...], season_fields: set[str]) -> float | None:
-    if not {"totalContest", "wonContest"} <= season_fields:
+    # Current provider omits zero-event fields.
+    if current:
+        return 0.0
+
+    return None
+
+def _aggregate_unsuccessful_dribbles(
+    records: tuple[dict, ...],
+    season_fields: set[str],
+) -> float | None:
+    if not {
+        "totalContest",
+        "wonContest",
+    } <= season_fields:
         return None
-    attempted = _sum_observed(records, "totalContest")
-    successful = _sum_observed(records, "wonContest")
-    if attempted is None or successful is None or successful > attempted:
+
+    attempted = _sum_governed(
+        records,
+        "totalContest",
+        season_fields,
+    )
+
+    successful = _sum_governed(
+        records,
+        "wonContest",
+        season_fields,
+    )
+
+    if (
+        attempted is None
+        or successful is None
+        or successful > attempted
+    ):
         return None
+
     return attempted - successful
-
 
 def aggregate_source_records(
     records: tuple[dict, ...],
@@ -136,10 +303,11 @@ def aggregate_source_records(
         if metric == "unsuccessful_dribbles":
             output[metric] = _aggregate_unsuccessful_dribbles(records, season_fields)
             continue
-        if source_field not in season_fields:
-            output[metric] = None
-            continue
-        output[metric] = _sum_observed(records, source_field)
+        output[metric] = _sum_governed(
+            records,
+            source_field,
+            season_fields,
+        )
     return output
 
 
@@ -180,6 +348,39 @@ def enrich_player(player: dict, season: str) -> dict:
         return enriched
 
     enriched.update(rich)
+
+    if season == "2026-27":
+        current_fallbacks = {
+            "key_passes":
+                "key_passes_rich",
+            "big_chances_created":
+                "big_chances_created_rich",
+            "crosses":
+                "crosses_rich",
+            "attempted_passes":
+                "passes",
+            "completed_passes":
+                "accurate_passes",
+            "dribbles":
+                "dribbles_rich",
+            "tackles":
+                "tackles_rich",
+            "recoveries":
+                "recoveries_rich",
+            "saves":
+                "saves_rich",
+        }
+
+        for canonical_key, rich_key in (
+            current_fallbacks.items()
+        ):
+            if enriched.get(
+                canonical_key
+            ) in (None, ""):
+                enriched[canonical_key] = (
+                    rich.get(rich_key)
+                )
+
     enriched["_rich_player_projection"] = "RICH_PLAYER_SEASON_STATS_V1"
     return enriched
 

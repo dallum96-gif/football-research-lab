@@ -20,6 +20,11 @@ from match_stats import (
     verified_fixture_correction,
 )
 from query_lab import load_identity_registry
+from pulselive_fixture_evidence import (
+    load_player_stats_packages,
+    load_snapshot,
+    resource_payload,
+)
 from player_match_stats import (
     fixture_player_match_rows,
     source_player_id,
@@ -151,8 +156,105 @@ def fixture_metadata(season: str, fixture_id: str) -> dict:
     return metadata
 
 
+def _verified_source_team_id(season: str, local_team_id: str) -> str:
+    """Resolve one season-local FRL team id to its verified persistent source club id."""
+    candidates = {
+        str(row.get("club_id") or row.get("persistent_team_code") or "").strip()
+        for row in _identity_rows()
+        if row.get("season") == season
+        and str(row.get("local_team_id", "")).strip() == str(local_team_id).strip()
+        and str(row.get("mapping_status", "")).upper() == "VERIFIED"
+        and str(row.get("club_id") or row.get("persistent_team_code") or "").strip()
+    }
+    if len(candidates) != 1:
+        raise ValueError(
+            f"Expected one verified source team identity for {season}/local_team_id={local_team_id}; "
+            f"found {sorted(candidates)}"
+        )
+    return next(iter(candidates))
+
+
+def _pulselive_team_match_source_rows(season: str, fixture_id: str) -> tuple[dict, dict]:
+    """Adapt preserved PulseLive stats rows to the established team-match source-row contract."""
+    fixture = canonical_fixture(season, fixture_id)
+    if fixture is None:
+        raise ValueError(f"Canonical fixture not found: {season}/{fixture_id}")
+
+    source_match_id = str(fixture.get("fixture_code") or "").strip()
+    if not source_match_id or not source_match_id.isdigit():
+        raise ValueError(f"Canonical fixture has no verified numeric fixture_code: {season}/{fixture_id}")
+
+    snapshot, snapshot_file = load_snapshot(source_match_id)
+    if snapshot is None or snapshot_file is None:
+        raise ValueError(f"No preserved PulseLive snapshot for {season}/{fixture_id} ({source_match_id})")
+
+    match_payload = resource_payload(snapshot, "match")
+    if not isinstance(match_payload, dict):
+        raise ValueError(f"PulseLive match payload is unavailable for {season}/{fixture_id}")
+
+    payload_match_id = str(match_payload.get("matchId") or "").strip()
+    if payload_match_id != source_match_id:
+        raise ValueError(
+            f"PulseLive matchId mismatch for {season}/{fixture_id}: "
+            f"expected {source_match_id}, got {payload_match_id or '<blank>'}"
+        )
+
+    stats_payload = resource_payload(snapshot, "stats")
+    if not isinstance(stats_payload, list):
+        raise ValueError(f"PulseLive stats payload is not a list for {season}/{fixture_id}")
+
+    by_side: dict[str, dict] = {}
+    for item in stats_payload:
+        if not isinstance(item, dict):
+            continue
+        side = str(item.get("side") or "").strip().lower()
+        if side in {"home", "away"}:
+            if side in by_side:
+                raise ValueError(f"Duplicate PulseLive {side} stats row for {season}/{fixture_id}")
+            by_side[side] = item
+
+    if set(by_side) != {"home", "away"}:
+        raise ValueError(
+            f"PulseLive stats must contain exactly Home and Away rows for {season}/{fixture_id}; "
+            f"found {sorted(by_side)}"
+        )
+
+    expected_ids = {
+        "home": _verified_source_team_id(season, fixture.get("home_team_id", "")),
+        "away": _verified_source_team_id(season, fixture.get("away_team_id", "")),
+    }
+
+    adapted: dict[str, dict] = {}
+    for side in ("home", "away"):
+        item = by_side[side]
+        source_team_id = str(item.get("teamId") or "").strip()
+
+        if source_team_id != expected_ids[side]:
+            raise ValueError(
+                f"PulseLive {side} team identity mismatch for {season}/{fixture_id}: "
+                f"expected source team {expected_ids[side]}, got {source_team_id or '<blank>'}"
+            )
+
+        stats = item.get("stats")
+        if not isinstance(stats, dict):
+            raise ValueError(f"PulseLive {side} stats object is unavailable for {season}/{fixture_id}")
+
+        row = dict(stats)
+        row["matchId"] = source_match_id
+        row["team_id"] = source_team_id
+        row["source_team_id"] = source_team_id
+        row["side"] = item.get("side")
+        row["venue"] = side
+        adapted[side] = row
+
+    return adapted["home"], adapted["away"]
+
+
 def team_match_source_rows(season: str, fixture_id: str) -> tuple[dict, dict]:
-    """Return the complete native events_stats rows for both fixture sides."""
+    """Return complete native team-match rows for both fixture sides."""
+    if season == "2026-27":
+        return _pulselive_team_match_source_rows(season, fixture_id)
+
     resolved = resolve_source_match(season, fixture_id)
     return resolved["home"], resolved["away"]
 
@@ -179,6 +281,30 @@ def team_match_source_rows_for_season(season: str) -> tuple[dict, ...]:
 @lru_cache(maxsize=16)
 def team_match_source_fields(season: str) -> tuple[str, ...]:
     fields: set[str] = set()
+
+    if season == "2026-27":
+        for fixture in season_fixtures(season):
+            source_match_id = str(fixture.get("fixture_code") or "").strip()
+            if not source_match_id:
+                continue
+
+            snapshot, _ = load_snapshot(source_match_id)
+            if snapshot is None:
+                continue
+
+            stats_payload = resource_payload(snapshot, "stats")
+            if not isinstance(stats_payload, list):
+                continue
+
+            for item in stats_payload:
+                if not isinstance(item, dict):
+                    continue
+                stats = item.get("stats")
+                if isinstance(stats, dict):
+                    fields.update(str(field) for field in stats.keys())
+
+        return tuple(sorted(fields))
+
     root = Path(PL_ROOT)
     expected = f"{season}_events_stats.csv"
     if not root.is_dir():
@@ -195,8 +321,223 @@ def team_match_source_fields(season: str) -> tuple[str, ...]:
     return tuple(sorted(fields))
 
 
+
+_PULSELIVE_PLAYER_MATCH_COMPATIBILITY_ALIASES = {
+    # Governed current PulseLive -> historical FRL compatibility.
+    # Native current fields remain preserved.
+    #
+    # FRL shots means TOTAL SHOT ATTEMPTS.
+    # Blocked attempts are a subset of those attempts.
+    "totalShots": "totalScoringAtt",
+    "onTargetScoringAttempt": "ontargetScoringAtt",
+    "blockedScoringAttempt": "blockedScoringAtt",
+
+    # Same-player reconciliation:
+    # 375/377 exact against successfulPassesOppositionHalf.
+    "accurateOppositionHalfPasses": "accurateFwdZonePass",
+
+    "possessionLostCtrl": "possLostCtrl",
+    "errorLeadToAShot": "errorLeadToShot",
+    "errorLeadToAGoal": "errorLeadToGoal",
+    "savedShotsFromInsideTheBox": "savedIbox",
+    "goodHighClaim": "totalHighClaim",
+}
+
+
+def _pulselive_player_match_source_rows(
+    season: str,
+    fixture_id: str,
+) -> tuple[dict, ...]:
+    """Return preserved 2026/27 fixture-native PulseLive player rows.
+
+    This function never performs network acquisition. It reads only companion
+    raw evidence already materialised beside the five-resource snapshot.
+    """
+    fixture = canonical_fixture(season, fixture_id)
+    if fixture is None:
+        raise ValueError(
+            f"Canonical fixture not found: {season}/{fixture_id}"
+        )
+
+    source_match_id = str(fixture.get("fixture_code") or "").strip()
+    if not source_match_id:
+        raise ValueError(
+            f"Canonical fixture has no source match id: "
+            f"{season}/{fixture_id}"
+        )
+
+    snapshot, _ = load_snapshot(source_match_id)
+    if snapshot is None:
+        raise ValueError(
+            f"No PulseLive snapshot for {season}/{fixture_id}."
+        )
+
+    lineups = resource_payload(snapshot, "lineups")
+    match_payload = resource_payload(snapshot, "match")
+
+    player_context: dict[str, dict] = {}
+
+    if isinstance(lineups, dict):
+        for side_key, venue in (
+            ("home_team", "home"),
+            ("away_team", "away"),
+        ):
+            side = lineups.get(side_key)
+            if not isinstance(side, dict):
+                continue
+
+            for player in side.get("players", []):
+                if not isinstance(player, dict):
+                    continue
+
+                pid = str(player.get("id") or "").strip()
+                if not pid:
+                    continue
+
+                listed_position = str(
+                    player.get("position") or ""
+                ).strip()
+
+                actual_position = (
+                    str(player.get("subPosition") or "").strip()
+                    if listed_position == "Substitute"
+                    else listed_position
+                )
+
+                name = str(
+                    player.get("knownName")
+                    or " ".join(
+                        part
+                        for part in (
+                            str(player.get("firstName") or "").strip(),
+                            str(player.get("lastName") or "").strip(),
+                        )
+                        if part
+                    )
+                    or ""
+                ).strip()
+
+                player_context[pid] = {
+                    "playerName": name,
+                    "position": actual_position,
+                    "substitute": (
+                        "1" if listed_position == "Substitute" else "0"
+                    ),
+                    "venue": venue,
+                }
+
+    teams = {}
+
+    if isinstance(match_payload, dict):
+        for venue, key in (
+            ("home", "homeTeam"),
+            ("away", "awayTeam"),
+        ):
+            team = match_payload.get(key)
+            if isinstance(team, dict):
+                teams[venue] = {
+                    "team": str(team.get("name") or "").strip(),
+                    "team_id": str(team.get("id") or "").strip(),
+                }
+
+    rows: list[dict] = []
+
+    for package, path in load_player_stats_packages(source_match_id):
+        pid = str(package.get("source_player_id") or "").strip()
+
+        resource = package.get("resource")
+        payload = (
+            resource.get("payload")
+            if isinstance(resource, dict)
+            else None
+        )
+
+        if not isinstance(payload, dict):
+            continue
+
+        stats = payload.get("stats")
+        if not isinstance(stats, dict):
+            continue
+
+        row = dict(stats)
+
+        # Preserve provider-native identity plus the compatibility identity
+        # expected by the established Player-Match seam.
+        row["matchId"] = source_match_id
+        row["playerId"] = pid
+        row["pl_code"] = pid
+        row["season"] = season
+        row["gameweek"] = str(
+            fixture.get("gameweek")
+            or fixture.get("event")
+            or ""
+        )
+
+        context = player_context.get(pid, {})
+        row.update(context)
+
+        venue = str(context.get("venue") or "")
+        row.update(teams.get(venue, {}))
+
+        # The historical rich source calls this minutesPlayed.
+        if (
+            "minutesPlayed" not in row
+            and row.get("minsPlayed") not in (None, "")
+        ):
+            row["minutesPlayed"] = row.get("minsPlayed")
+
+        # Add only aliases already proven semantically equivalent.
+        # Never erase or rename the native current field.
+        for historical_name, current_name in (
+            _PULSELIVE_PLAYER_MATCH_COMPATIBILITY_ALIASES.items()
+        ):
+            if (
+                historical_name not in row
+                and row.get(current_name) not in (None, "")
+            ):
+                row[historical_name] = row[current_name]
+
+        # Governed key-pass compatibility.
+        #
+        # Same-player fixture -> season reconciliation strongly favours:
+        #
+        #   keyPass = totalAttAssist - goalAssist
+        #
+        # Derive only when totalAttAssist was actually emitted.
+        # No general missing-value zero-fill is performed here.
+        if (
+            row.get("keyPass") in (None, "")
+            and row.get("totalAttAssist") not in (None, "")
+        ):
+            try:
+                attempted_assists = float(row["totalAttAssist"])
+                goal_assists = float(row.get("goalAssist") or 0.0)
+            except (TypeError, ValueError):
+                pass
+            else:
+                row["keyPass"] = max(
+                    0.0,
+                    attempted_assists - goal_assists,
+                )
+
+        row["_pulselive_player_stats_path"] = str(path)
+        row["_pulselive_player_stats_endpoint"] = str(
+            resource.get("endpoint") or ""
+        ) if isinstance(resource, dict) else ""
+        row["_pulselive_player_stats_retrieved_at"] = str(
+            resource.get("retrieved_at") or ""
+        ) if isinstance(resource, dict) else ""
+
+        rows.append(row)
+
+    return tuple(rows)
+
+
 def player_match_source_rows(season: str, fixture_id: str) -> tuple[dict, ...]:
     """Return complete native player-match rows for one canonical fixture."""
+    if season == "2026-27":
+        return _pulselive_player_match_source_rows(season, fixture_id)
+
     fixture = canonical_fixture(season, fixture_id)
     if fixture is None:
         raise ValueError(f"Canonical fixture not found: {season}/{fixture_id}")
@@ -316,6 +657,26 @@ def player_match_source_rows_for_season(season: str) -> tuple[dict, ...]:
 @lru_cache(maxsize=16)
 def player_match_source_fields(season: str) -> tuple[str, ...]:
     fields: set[str] = set()
+
+    if season == "2026-27":
+        for fixture in season_fixtures(season):
+            try:
+                rows = player_match_source_rows(
+                    season,
+                    fixture["fixture_id"],
+                )
+            except ValueError:
+                continue
+
+            for row in rows:
+                fields.update(
+                    key
+                    for key in row
+                    if not key.startswith("_")
+                )
+
+        return tuple(sorted(fields))
+
     root = Path(PL_ROOT)
     expected = f"{season}_players_match_stats.csv"
     if not root.is_dir():

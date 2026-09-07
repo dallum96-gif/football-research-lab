@@ -318,7 +318,7 @@
       },
       {
         "path": "fixtures_master_corrected.csv",
-        "sha256": "2e48b7ab6f9147d335f7b3f32f5c56dfdb9a429dff0370969dad58fbae3197e6"
+        "sha256": "c2b87bdd933f4987396e73ec16bd85bc0122cc74add69b88305b90e643dcbf5b"
       },
       {
         "path": "features/historical_match_state_v2.csv",
@@ -326,7 +326,7 @@
       },
       {
         "path": "canonical_variable_catalogue.py",
-        "sha256": "8b1d5cc70519a55e053a6acd15938c7cb5ca64e2bd9226a1b05d5d12fcd4c4f5"
+        "sha256": "ec06ea3ad08d2c66f1e4f98e97856e08df0881d675b6e0d35e5e5ba1bb49a5bc"
       },
       {
         "path": "canonical_route_registry.py",
@@ -334,19 +334,19 @@
       },
       {
         "path": "fpl_variable_access.py",
-        "sha256": "6b05d0c80541f2c264200d02c90fef60222c4a30c36d8e273e0d6d94d77d9d8b"
+        "sha256": "cd014b168511483a5e278c5439771a8d79dc4644512f06bc62a46ab1b18a161a"
       },
       {
         "path": "research_access.py",
-        "sha256": "b551e5acdd9160f0eed637a5ae38162eb204c074135379206c8f6736b90564bd"
+        "sha256": "49da5d473e0bdf6883e5d8330bb8c15b5dc794c85e2f743807ff4c41fc5318be"
       },
       {
         "path": "variable_resolver.py",
-        "sha256": "def7c94dd26f049a24b77ee89d1877b84b70045d8661f6c40b7406af289ebe62"
+        "sha256": "9646ad4583a1d6eb7d4a40839f7906ca5f1f9edb4faf96353d08239d1c1fe5d3"
       },
       {
         "path": "source_field_registry.py",
-        "sha256": "ad18875a51a8f779f055795697e761b73a9f1a415b4fb67421a1da6a2857e58b"
+        "sha256": "23cac5f63730bd9c84fd563e7b12eaca3d696a7ac5d1db0ad3efabcef3f42017"
       },
       {
         "path": "query_lab.py",
@@ -354,7 +354,7 @@
       },
       {
         "path": "poisson_model.py",
-        "sha256": "6bb2dbda0a6a944932bc1bb9e25ace7946f764f861269d4904ddbdcba223bf54"
+        "sha256": "6c017430b8b3f32851a6e4b9b17583bdea4cf913ed08ca85b35ed3b5c936de02"
       },
       {
         "path": "kelly_analysis.py",
@@ -1390,7 +1390,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -1485,7 +1485,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -2233,7 +2233,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -2423,7 +2423,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -2518,7 +2518,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -2613,7 +2613,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -2708,7 +2708,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -2803,7 +2803,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -2898,7 +2898,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -3183,7 +3183,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -3278,7 +3278,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -3623,7 +3623,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -3989,7 +3989,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -4084,7 +4084,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -4179,7 +4179,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -4275,7 +4275,7 @@
         "relationship_kind": "OBSERVATION",
         "resolver_definition": "Interceptions credited to the player in the fixture.",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_RUNTIME_EXPOSED"
       },
@@ -4466,7 +4466,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -4645,7 +4645,7 @@
         "navigation_subcategory": "Physical / tracking",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -4729,7 +4729,7 @@
         "navigation_subcategory": "Physical / tracking",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -4813,7 +4813,7 @@
         "navigation_subcategory": "Physical / tracking",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -4897,7 +4897,7 @@
         "navigation_subcategory": "Physical / tracking",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -4981,7 +4981,7 @@
         "navigation_subcategory": "Physical / tracking",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -5171,7 +5171,7 @@
         "relationship_kind": "OBSERVATION",
         "resolver_definition": "Player scoring attempts recorded as on target.",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_RUNTIME_EXPOSED"
       },
@@ -5266,7 +5266,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -5456,7 +5456,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -5551,7 +5551,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -5646,7 +5646,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -5741,7 +5741,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -5836,7 +5836,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -6310,7 +6310,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -6489,7 +6489,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -6679,7 +6679,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -6774,7 +6774,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -6869,7 +6869,7 @@
         "navigation_subcategory": "Identity / context",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -6963,7 +6963,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -7058,7 +7058,7 @@
         "navigation_subcategory": "Identity / context",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -7248,7 +7248,7 @@
         "navigation_subcategory": "Participation / availability",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "restricted",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -7522,7 +7522,7 @@
         "navigation_subcategory": "Physical / tracking",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -7617,7 +7617,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -7712,7 +7712,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -7807,7 +7807,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -7902,7 +7902,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -8092,7 +8092,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -8187,7 +8187,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -8282,7 +8282,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -8639,7 +8639,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -8734,7 +8734,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -8924,7 +8924,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -9114,7 +9114,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -23894,7 +23894,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -23990,7 +23990,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24086,7 +24086,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24182,7 +24182,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24278,7 +24278,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24374,7 +24374,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24470,7 +24470,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24566,7 +24566,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24662,7 +24662,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24758,7 +24758,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24854,7 +24854,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -24950,7 +24950,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25046,7 +25046,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25142,7 +25142,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25333,7 +25333,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25429,7 +25429,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25525,7 +25525,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25621,7 +25621,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25717,7 +25717,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25813,7 +25813,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -25909,7 +25909,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26005,7 +26005,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26101,7 +26101,7 @@
         "navigation_subcategory": "Team attacking context",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26197,7 +26197,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26293,7 +26293,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26389,7 +26389,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26485,7 +26485,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26581,7 +26581,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26677,7 +26677,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26773,7 +26773,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26858,7 +26858,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -26943,7 +26943,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27028,7 +27028,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27124,7 +27124,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27220,7 +27220,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27316,7 +27316,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27412,7 +27412,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27508,7 +27508,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27593,7 +27593,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27678,7 +27678,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27774,7 +27774,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27870,7 +27870,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -27966,7 +27966,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28062,7 +28062,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28158,7 +28158,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28254,7 +28254,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28350,7 +28350,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28446,7 +28446,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28542,7 +28542,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28638,7 +28638,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28830,7 +28830,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -28926,7 +28926,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -29214,7 +29214,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -29310,7 +29310,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -29406,7 +29406,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -29598,7 +29598,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -29694,7 +29694,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -29790,7 +29790,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -29982,7 +29982,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30078,7 +30078,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30174,7 +30174,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30270,7 +30270,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30366,7 +30366,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30462,7 +30462,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30558,7 +30558,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30654,7 +30654,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30846,7 +30846,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -30942,7 +30942,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -31038,7 +31038,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -31291,7 +31291,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "restricted",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -31461,7 +31461,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "restricted",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -31546,7 +31546,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -31642,7 +31642,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -31930,7 +31930,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32026,7 +32026,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32122,7 +32122,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32218,7 +32218,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32314,7 +32314,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32410,7 +32410,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32601,7 +32601,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32696,7 +32696,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32792,7 +32792,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32888,7 +32888,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -32984,7 +32984,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -33080,7 +33080,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -33176,7 +33176,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -33464,7 +33464,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -33560,7 +33560,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -33944,7 +33944,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -34040,7 +34040,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -34136,7 +34136,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -34424,7 +34424,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -34509,7 +34509,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -34605,7 +34605,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -34797,7 +34797,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -34893,7 +34893,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -34989,7 +34989,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -35085,7 +35085,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -35277,7 +35277,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -35373,7 +35373,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -35469,7 +35469,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -35660,7 +35660,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -35948,7 +35948,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36044,7 +36044,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36140,7 +36140,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36236,7 +36236,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36332,7 +36332,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36428,7 +36428,7 @@
         "navigation_subcategory": "Team attacking context",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36524,7 +36524,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36620,7 +36620,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36716,7 +36716,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36812,7 +36812,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -36908,7 +36908,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37004,7 +37004,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37100,7 +37100,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37196,7 +37196,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37292,7 +37292,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37388,7 +37388,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37579,7 +37579,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37675,7 +37675,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37771,7 +37771,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37867,7 +37867,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -37963,7 +37963,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "restricted",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -38059,7 +38059,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "restricted",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -38336,7 +38336,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -38528,7 +38528,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -38624,7 +38624,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -38720,7 +38720,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -38912,7 +38912,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39008,7 +39008,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39104,7 +39104,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39296,7 +39296,7 @@
         "navigation_subcategory": "Defensive actions",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39381,7 +39381,7 @@
         "navigation_subcategory": "Participation / availability",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39477,7 +39477,7 @@
         "navigation_subcategory": "Participation / availability",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39562,7 +39562,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39658,7 +39658,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39754,7 +39754,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -39850,7 +39850,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "restricted",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -40138,7 +40138,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -40234,7 +40234,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -40330,7 +40330,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -40522,7 +40522,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -40618,7 +40618,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -40810,7 +40810,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -40895,7 +40895,7 @@
         "navigation_subcategory": "Physical / tracking",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -40991,7 +40991,7 @@
         "navigation_subcategory": "Team attacking context",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -41087,7 +41087,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -41183,7 +41183,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -41279,7 +41279,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -41375,7 +41375,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -41471,7 +41471,7 @@
         "navigation_subcategory": "Goalkeeping",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -41567,7 +41567,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -41663,7 +41663,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -41759,7 +41759,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -42046,7 +42046,7 @@
         "navigation_subcategory": "Needs manual navigation review",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -42429,7 +42429,7 @@
         "navigation_subcategory": "Creation / chance generation",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -42525,7 +42525,7 @@
         "navigation_subcategory": "Passing / distribution",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -42717,7 +42717,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -42813,7 +42813,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -42909,7 +42909,7 @@
         "navigation_subcategory": "Possession / security",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -43090,7 +43090,7 @@
         "navigation_subcategory": "Shooting / finishing",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "retained",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -43186,7 +43186,7 @@
         "navigation_subcategory": "Duels / aerial play",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -43282,7 +43282,7 @@
         "navigation_subcategory": "Crossing / set pieces",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "exposed",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },
@@ -43474,7 +43474,7 @@
         "navigation_subcategory": "Cards / fouls",
         "relationship_kind": "OBSERVATION",
         "route_status": "EXPLICIT_SOURCE_GRAIN_ROUTE",
-        "semantic_status": "UNCATALOGUED",
+        "semantic_status": "restricted",
         "source_identity_required": true,
         "ura_exposure": "URA_DISCOVERABLE"
       },

@@ -45,31 +45,95 @@ def test_current_player_profile_and_stats_use_the_same_governed_identity() -> No
 
     assert profile.player_code == RAYA_CODE
     assert stats.player.player_code == RAYA_CODE
-    assert profile.player_name == stats.player.player_name == "David Raya Martín"
+    assert profile.player_name == stats.player.player_name == "David Raya Mart\u00edn"
     assert profile.position == stats.player.position == "GKP"
-    assert profile.appearances == stats.player.appearances == 1
-    assert profile.starts == stats.player.starts == 1
-    assert profile.minutes == stats.player.minutes == 90
+
+    # Current-season expectations must follow the governed
+    # materialised snapshot rather than a frozen GW1 total.
+    assert profile.appearances == stats.player.appearances
+    assert profile.starts == stats.player.starts
+    assert profile.minutes == stats.player.minutes
+
+    assert profile.appearances > 0
+    assert profile.starts > 0
+    assert profile.minutes > 0
+
     assert stats.cohort.position == "GKP"
     assert stats.cohort.minimum_minutes == 1
 
 
+
 def test_per_90_values_are_derived_from_pooled_player_season_totals() -> None:
     stats = get_player_stats(CURRENT_SEASON, RAYA_CODE)
-    saves = next(metric for metric in stats.metrics if metric.key == "saves_per_90")
 
-    assert saves.representation == player_analysis_kernel.PLAYER_SEASON_DERIVATION
-    assert saves.value == 1.0
-    assert saves.rank is not None
-    assert saves.out_of == stats.cohort.minimum_minutes * 0 + saves.eligible_players
+    saves = next(
+        metric
+        for metric in stats.metrics
+        if metric.key == "saves"
+    )
+
+    saves_per_90 = next(
+        metric
+        for metric in stats.metrics
+        if metric.key == "saves_per_90"
+    )
+
+    assert (
+        saves_per_90.representation
+        == player_analysis_kernel.PLAYER_SEASON_DERIVATION
+    )
+
+    assert saves.value is not None
+    assert saves_per_90.value is not None
+    assert stats.player.minutes > 0
+
+    expected = (
+        saves.value
+        / stats.player.minutes
+        * 90.0
+    )
+
+    assert abs(
+        saves_per_90.value - expected
+    ) < 1e-9
+
+    assert saves_per_90.rank is not None
+    assert saves_per_90.out_of == saves_per_90.eligible_players
 
 
-def test_current_season_does_not_invent_absent_rich_passing_metrics() -> None:
-    analysis = player_analysis_kernel.season_position_analysis(CURRENT_SEASON, "MID")
 
-    assert analysis["metrics"]["attempted_passes"]["availability"] == "UNAVAILABLE"
-    assert analysis["metrics"]["completed_passes"]["availability"] == "UNAVAILABLE"
-    assert analysis["metrics"]["pass_completion"]["availability"] == "UNAVAILABLE"
+def test_current_season_surfaces_governed_current_rich_metrics_without_inventing_unsupported_carries() -> None:
+    analysis = player_analysis_kernel.season_position_analysis(
+        CURRENT_SEASON,
+        "MID",
+    )
+
+    assert (
+        analysis["metrics"]["attempted_passes"]["availability"]
+        == "AVAILABLE"
+    )
+
+    assert (
+        analysis["metrics"]["completed_passes"]["availability"]
+        == "AVAILABLE"
+    )
+
+    assert (
+        analysis["metrics"]["pass_completion"]["availability"]
+        in {"AVAILABLE", "PARTIAL"}
+    )
+
+    for key in (
+        "ball_carries",
+        "progressive_carries",
+        "progressive_carry_distance",
+        "total_progression",
+    ):
+        assert (
+            analysis["metrics"][key]["availability"]
+            == "UNAVAILABLE"
+        )
+
 
 
 def test_richer_player_metrics_can_surface_when_source_fields_are_present() -> None:

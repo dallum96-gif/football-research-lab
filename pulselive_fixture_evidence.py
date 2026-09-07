@@ -316,6 +316,44 @@ def normalise_lineups(payload: Any) -> dict[str, Any]:
     }
 
 
+def player_stats_directory(source_match_id: str) -> Path | None:
+    """Return the companion raw player-stat directory when materialised."""
+    root = archive_root()
+    if root is None:
+        return None
+    path = root / f"match-{source_match_id}" / "player-stats"
+    return path if path.is_dir() else None
+
+
+def load_player_stats_packages(
+    source_match_id: str,
+) -> tuple[tuple[dict[str, Any], Path], ...]:
+    """Load preserved fixture-player packages without making network calls."""
+    directory = player_stats_directory(str(source_match_id))
+    if directory is None:
+        return tuple()
+
+    records: list[tuple[dict[str, Any], Path]] = []
+
+    for path in sorted(directory.glob("*.json")):
+        with path.open("r", encoding="utf-8") as handle:
+            package = json.load(handle)
+
+        if not isinstance(package, dict):
+            raise ValueError(
+                f"PulseLive player-stat package must be an object: {path}"
+            )
+
+        if str(package.get("source_match_id") or "") != str(source_match_id):
+            raise ValueError(
+                f"PulseLive player-stat package belongs to another match: {path}"
+            )
+
+        records.append((package, path))
+
+    return tuple(records)
+
+
 __all__ = [
     "ARCHIVE_ENV",
     "archive_root",
@@ -324,5 +362,7 @@ __all__ = [
     "normalise_lineups",
     "resource_meta",
     "resource_payload",
+    "player_stats_directory",
+    "load_player_stats_packages",
     "snapshot_path",
 ]
