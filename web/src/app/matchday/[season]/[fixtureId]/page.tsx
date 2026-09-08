@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
-import { MatchdayStatPackV4 } from "./MatchdayStatPackV4";
+import { MatchdayDeskV5 } from "./MatchdayDeskV5";
 
 const API_BASE = (process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
@@ -32,7 +32,7 @@ export default async function MatchdayFixturePage({ params }: MatchdayPageProps)
 
   return (
     <AppShell>
-      <MatchdayStatPackV4
+      <MatchdayDeskV5
         key={`${season}-${fixtureId}`}
         pack={pack}
         fixtureOptions={fixtures?.fixtures ?? []}
