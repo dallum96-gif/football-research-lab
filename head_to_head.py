@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import datetime, timezone
 from functools import lru_cache
 
@@ -7,6 +8,7 @@ import adaptive_dixon_coles as adc
 import matchday_pack
 import poisson_model
 import query_api
+import source_family_adapters
 import team_research_stats
 
 
@@ -64,6 +66,77 @@ BETBUILDER_THRESHOLDS = (
         "unit": "cards",
     },
 )
+
+# Matchday player questions are deliberately limited to betting-relevant event
+# counts. Recoveries and defensive contribution remain valid research metrics,
+# but they are not promoted into this consumer-facing fixture cheat sheet.
+PLAYER_MARKET_SPECS = (
+    {
+        "key": "player_shots_2_plus",
+        "family": "Shots",
+        "label": "2+ shots",
+        "source": "player_match",
+        "source_key": "totalShots",
+        "threshold": 2.0,
+        "unit": "shots",
+    },
+    {
+        "key": "player_sot_1_plus",
+        "family": "SOT",
+        "label": "1+ shot on target",
+        "source": "player_match",
+        "source_key": "onTargetScoringAttempt",
+        "threshold": 1.0,
+        "unit": "shots",
+    },
+    {
+        "key": "player_fouls_won_1_plus",
+        "family": "Fouls won",
+        "label": "1+ foul won",
+        "source": "player_match",
+        "source_key": "wasFouled",
+        "threshold": 1.0,
+        "unit": "fouls",
+    },
+    {
+        "key": "player_fouls_committed_1_plus",
+        "family": "Fouls committed",
+        "label": "1+ foul committed",
+        "source": "player_match",
+        "source_key": "fouls",
+        "threshold": 1.0,
+        "unit": "fouls",
+    },
+    {
+        "key": "player_goal_1_plus",
+        "family": "Goals",
+        "label": "1+ goal",
+        "source": "fpl",
+        "source_key": "source_goals_scored",
+        "threshold": 1.0,
+        "unit": "goals",
+    },
+    {
+        "key": "player_card_1_plus",
+        "family": "Cards",
+        "label": "1+ card",
+        "source": "fpl",
+        "source_key": "__cards__",
+        "threshold": 1.0,
+        "unit": "cards",
+    },
+)
+
+# These four current PulseLive fields have already passed FRL's sparse-zero
+# audit in rich_player_projection.py. Applying zero here is limited to a player
+# who actually participated in the fixture and only to these audited additive
+# event counts. Historical source blanks remain unavailable.
+_CURRENT_SAFE_PLAYER_ZERO_FIELDS = frozenset({
+    "totalShots",
+    "onTargetScoringAttempt",
+    "wasFouled",
+    "fouls",
+})
 
 
 def _dt(value: object) -> datetime | None:
@@ -312,6 +385,232 @@ def _market_lanes(entries: list[dict]) -> list[dict]:
     return lanes
 
 
+def _player_row_name(row: dict) -> str:
+    direct = str(
+        row.get("playerName")
+        or row.get("knownName")
+        or row.get("name")
+        or ""
+    ).strip()
+    if direct:
+        return direct
+    parts = [
+        str(row.get("firstName") or row.get("first_name") or "").strip(),
+        str(row.get("lastName") or row.get("last_name") or "").strip(),
+    ]
+    return " ".join(part for part in parts if part) or str(row.get("pl_code") or row.get("playerId") or "Player")
+
+
+def _participated(row: dict) -> bool:
+    minutes = _number(row.get("minutesPlayed"))
+    if minutes is None:
+        minutes = _number(row.get("minsPlayed"))
+    return minutes is not None and minutes > 0
+
+
+def _recent_current_matches(team: dict, season: str) -> list[dict]:
+    return [
+        match
+        for match in list(team.get("matches") or [])
+        if str(match.get("season") or "") == season
+    ][:matchday_pack.RECENT_MATCH_LIMIT]
+
+
+def _rich_player_observations(team: dict, season: str, source_key: str, threshold: float) -> dict[str, dict]:
+    matches = _recent_current_matches(team, season)
+    by_player: dict[str, dict] = {}
+    field_universe: set[str] = set()
+    try:
+        field_universe = set(source_family_adapters.player_match_source_fields(season))
+    except (FileNotFoundError, ValueError):
+        field_universe = set()
+    field_available = source_key in field_universe
+
+    for order, match in enumerate(matches):
+        fixture_id = str(match.get("fixture_id") or "")
+        try:
+            rows = source_family_adapters.player_match_source_rows(season, fixture_id)
+        except (FileNotFoundError, ValueError):
+            continue
+        expected_venue = str(match.get("venue") or "").strip().casefold()
+        for row in rows:
+            if str(row.get("venue") or "").strip().casefold() != expected_venue:
+                continue
+            if not _participated(row):
+                continue
+            player_code = str(row.get("pl_code") or row.get("playerId") or "").strip()
+            if not player_code:
+                continue
+            value = _number(row.get(source_key))
+            if (
+                value is None
+                and season == "2026-27"
+                and field_available
+                and source_key in _CURRENT_SAFE_PLAYER_ZERO_FIELDS
+            ):
+                value = 0.0
+            if value is None:
+                continue
+            player = by_player.setdefault(
+                player_code,
+                {
+                    "player_code": player_code,
+                    "player_name": _player_row_name(row),
+                    "position": str(row.get("position") or ""),
+                    "observations": [],
+                },
+            )
+            player["observations"].append(
+                {
+                    "season": season,
+                    "fixture_id": fixture_id,
+                    "kickoff_time": match.get("kickoff_time"),
+                    "opponent": str(match.get("opponent") or ""),
+                    "value": value,
+                    "hit": value >= threshold,
+                    "order": order,
+                }
+            )
+
+    return by_player
+
+
+def _fpl_player_observations(team: dict, season: str, source_key: str, threshold: float) -> dict[str, dict]:
+    matches = _recent_current_matches(team, season)
+    fixture_order = {
+        str(match.get("fixture_id") or ""): (order, match)
+        for order, match in enumerate(matches)
+    }
+    team_code = str(team.get("persistent_team_code") or "")
+    by_player: dict[str, dict] = {}
+
+    for row in matchday_pack._fpl_rows():
+        if str(row.get("frl_season") or "") != season:
+            continue
+        if str(row.get("frl_team_id") or "") != team_code:
+            continue
+        if str(row.get("frl_fixture_relationship_status") or "") != "VERIFIED":
+            continue
+        minutes = _number(row.get("source_minutes")) or 0.0
+        if minutes <= 0:
+            continue
+        fixture_id = str(row.get("frl_fixture_id") or "")
+        context = fixture_order.get(fixture_id)
+        if context is None:
+            continue
+        order, match = context
+        if source_key == "__cards__":
+            yellow = _number(row.get("source_yellow_cards"))
+            red = _number(row.get("source_red_cards"))
+            if yellow is None or red is None:
+                continue
+            value = yellow + red
+        else:
+            value = _number(row.get(source_key))
+            if value is None:
+                continue
+        player_code = str(row.get("source_player_code") or row.get("frl_player_identity_key") or "").strip()
+        if not player_code:
+            continue
+        player = by_player.setdefault(
+            player_code,
+            {
+                "player_code": player_code,
+                "player_name": matchday_pack._player_display_name(row),
+                "position": str(row.get("source_position") or ""),
+                "observations": [],
+            },
+        )
+        player["observations"].append(
+            {
+                "season": season,
+                "fixture_id": fixture_id,
+                "kickoff_time": match.get("kickoff_time"),
+                "opponent": str(match.get("opponent") or ""),
+                "value": value,
+                "hit": value >= threshold,
+                "order": order,
+            }
+        )
+
+    return by_player
+
+
+def _rank_player_market_players(by_player: dict[str, dict], eligible_matches: int) -> list[dict]:
+    players: list[dict] = []
+    for player in by_player.values():
+        observations = sorted(player["observations"], key=lambda observation: observation["order"])
+        hits = sum(1 for observation in observations if observation["hit"])
+        total = sum(float(observation["value"]) for observation in observations)
+        players.append(
+            {
+                "player_code": player["player_code"],
+                "player_name": player["player_name"],
+                "position": player["position"],
+                "hits": hits,
+                "observed_appearances": len(observations),
+                "eligible_team_matches": eligible_matches,
+                "total": total,
+                "observations": [
+                    {key: value for key, value in observation.items() if key != "order"}
+                    for observation in observations[:matchday_pack.RECENT_MATCH_LIMIT]
+                ],
+            }
+        )
+    players.sort(
+        key=lambda player: (
+            -int(player["hits"]),
+            -float(player["total"]),
+            -int(player["observed_appearances"]),
+            str(player["player_name"]).casefold(),
+        )
+    )
+    return players[:4]
+
+
+def _player_markets(base: dict, fixture: dict) -> list[dict]:
+    season = str(fixture.get("season") or "")
+    markets: list[dict] = []
+    for spec in PLAYER_MARKET_SPECS:
+        side_payloads: dict[str, dict] = {}
+        for side in ("home", "away"):
+            team = base["teams"][side]
+            matches = _recent_current_matches(team, season)
+            if spec["source"] == "player_match":
+                by_player = _rich_player_observations(
+                    team,
+                    season,
+                    str(spec["source_key"]),
+                    float(spec["threshold"]),
+                )
+            else:
+                by_player = _fpl_player_observations(
+                    team,
+                    season,
+                    str(spec["source_key"]),
+                    float(spec["threshold"]),
+                )
+            side_payloads[side] = {
+                "team_name": team["team_name"],
+                "eligible_team_matches": len(matches),
+                "players": _rank_player_market_players(by_player, len(matches)),
+            }
+        markets.append(
+            {
+                "key": spec["key"],
+                "family": spec["family"],
+                "label": spec["label"],
+                "threshold": spec["threshold"],
+                "unit": spec["unit"],
+                "source": spec["source"],
+                "home": side_payloads["home"],
+                "away": side_payloads["away"],
+                "sample_definition": "up to five most recent current-season team fixtures before kickoff; player denominators count only observed appearances",
+            }
+        )
+    return markets
+
+
 def _adaptive_prediction(fixture: dict) -> dict:
     target_kickoff = _dt(fixture.get("kickoff_time"))
     if target_kickoff is None:
@@ -430,6 +729,7 @@ def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
         "players": base["players"],
         "market_lanes": _market_lanes(entries),
         "fixture_markets": {"btts": btts},
+        "player_markets": _player_markets(base, fixture),
         "betbuilder": {
             "status": "EVIDENCE_PACK_NOT_BETTING_ADVICE",
             "threshold_policy": "Fixed common thresholds; no threshold was selected or tuned after seeing target-match results.",
@@ -442,12 +742,18 @@ def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
             "Opponent allowance is reconstructed from the same governed fixture/team representations rather than assumed from team labels.",
             "Last-five threshold sequences include only observed values; the observed/eligible denominator remains visible when coverage is partial.",
             "BTTS recent evidence is reconstructed from each team's governed pre-kickoff scorelines and is descriptive rather than a calibrated probability.",
+            "Player betting-market evidence is current-season only and uses up to five recent team fixtures before kickoff; each player's denominator counts only appearances with observed evidence.",
+            "Current PulseLive sparse-zero handling is restricted to previously audited additive event-count fields and only when the player participated.",
             "The evidence index is descriptive and must not be presented as an estimated betting probability.",
-            "Player watchlists remain current-season FPL evidence and can be thin early in the season.",
-            "Foul-drawn/foul-committed and referee-adjusted card matchup modelling remains withheld until its semantics and coverage are governed.",
-            "The Head-to-Head route deliberately avoids the legacy external Player-Match filesystem dependency used by full fixture-detail enrichment.",
+            "Foul-drawn/foul-committed player evidence is descriptive recent evidence; no referee adjustment or calibrated player-prop model is claimed.",
+            "The Head-to-Head route deliberately avoids the legacy external Player-Match filesystem dependency used by full fixture-detail enrichment for current 2026/27 PulseLive evidence.",
         ],
     }
 
 
-__all__ = ["MODEL_VERSION", "BETBUILDER_THRESHOLDS", "build_head_to_head_pack"]
+__all__ = [
+    "MODEL_VERSION",
+    "BETBUILDER_THRESHOLDS",
+    "PLAYER_MARKET_SPECS",
+    "build_head_to_head_pack",
+]
