@@ -13,27 +13,10 @@ type TeamSide = {
   form: Array<"W" | "D" | "L">;
 };
 
-type LeaderPlayer = {
-  rank: number;
-  player_code: string;
-  player_name: string;
-  position: string;
-  appearances: number;
-  value: number;
-};
-
-type PlayerLeaderboard = {
-  key: string;
-  label: string;
-  unit: string;
-  players: LeaderPlayer[];
-};
-
 type PlayerSide = {
   team_name: string;
   sample_definition: string;
   fixture_evidence_count: number;
-  leaderboards: PlayerLeaderboard[];
 };
 
 type MatchdayPack = {
@@ -92,9 +75,79 @@ type MarketLane = {
   away_lane: MarketLaneSide;
 };
 
+type BttsObservation = {
+  season: string;
+  fixture_id: string;
+  kickoff_time: string | null;
+  opponent: string;
+  venue: "Home" | "Away" | null;
+  goals_for: number;
+  goals_against: number;
+  hit: boolean;
+};
+
+type BttsSummary = {
+  hits: number;
+  observed_matches: number;
+  eligible_matches: number;
+  hit_rate: number | null;
+  coverage_status: "COMPLETE" | "PARTIAL" | "UNAVAILABLE";
+  observations: BttsObservation[];
+};
+
+type BttsMarket = {
+  key: string;
+  family: "BTTS";
+  label: string;
+  home_team_name: string;
+  away_team_name: string;
+  home_recent: BttsSummary;
+  away_recent: BttsSummary;
+};
+
+type PlayerMarketObservation = {
+  season: string;
+  fixture_id: string;
+  kickoff_time: string | null;
+  opponent: string;
+  value: number;
+  hit: boolean;
+};
+
+type PlayerMarketPlayer = {
+  player_code: string;
+  player_name: string;
+  position: string;
+  hits: number;
+  observed_appearances: number;
+  eligible_team_matches: number;
+  total: number;
+  observations: PlayerMarketObservation[];
+};
+
+type PlayerMarketSide = {
+  team_name: string;
+  eligible_team_matches: number;
+  players: PlayerMarketPlayer[];
+};
+
+type PlayerMarket = {
+  key: string;
+  family: string;
+  label: string;
+  threshold: number;
+  unit: string;
+  source: string;
+  home: PlayerMarketSide;
+  away: PlayerMarketSide;
+  sample_definition: string;
+};
+
 type HeadToHeadPack = {
   pack_version: string;
   market_lanes: MarketLane[];
+  fixture_markets?: { btts?: BttsMarket };
+  player_markets?: PlayerMarket[];
   limitations: string[];
   betbuilder?: {
     threshold_policy?: string;
@@ -120,7 +173,7 @@ type Props = {
 type DeskView = "markets" | "players" | "fouls";
 
 const MARKET_ORDER = ["Goals", "Corners", "Shots", "SOT", "Cards"];
-const PLAYER_KEYS = ["goals", "cards", "tackles", "recoveries"];
+const PLAYER_MARKET_ORDER = ["Shots", "SOT", "Fouls won", "Fouls committed", "Goals", "Cards"];
 
 function fixtureDate(value: string | null | undefined) {
   if (!value) return "Date TBC";
@@ -165,10 +218,11 @@ function supportText(label: MarketLaneSide["evidence_label"]) {
 
 function familyTone(family: string) {
   if (family === "Goals") return "coral";
-  if (family === "Corners") return "gold";
+  if (family === "Corners" || family === "Fouls won") return "gold";
   if (family === "Shots") return "blue";
   if (family === "SOT") return "teal";
-  if (family === "Cards") return "violet";
+  if (family === "Cards" || family === "Fouls committed") return "violet";
+  if (family === "BTTS") return "olive";
   return "coral";
 }
 
@@ -230,7 +284,48 @@ function MarketFamily({ lane }: { lane: MarketLane }) {
   );
 }
 
-function MarketsDesk({ lanes }: { lanes: MarketLane[] }) {
+function BttsCells({ summary }: { summary: BttsSummary }) {
+  const cells: Array<BttsObservation | null> = summary.observations.slice(0, 5);
+  while (cells.length < 5) cells.push(null);
+  return (
+    <div className={styles.cells}>
+      {cells.map((observation, index) => observation ? (
+        <span key={`${observation.season}-${observation.fixture_id}`} data-hit={observation.hit ? "true" : "false"} title={`${observation.opponent}: ${whole(observation.goals_for)}-${whole(observation.goals_against)}`}>
+          <b>{whole(observation.goals_for)}-{whole(observation.goals_against)}</b>
+          <small>{shortOpponent(observation.opponent)}</small>
+        </span>
+      ) : <span key={`btts-empty-${index}`} data-empty="true"><b>—</b><small>—</small></span>)}
+    </div>
+  );
+}
+
+function BttsSide({ teamName, summary }: { teamName: string; summary: BttsSummary }) {
+  return (
+    <section className={`${styles.sideMarket} ${styles.bttsSide}`}>
+      <header><strong>{teamName}</strong><span>{summary.hits}/{summary.observed_matches || "—"} BTTS</span></header>
+      <div className={styles.evidenceLine}>
+        <strong>Both scored</strong>
+        <BttsCells summary={summary} />
+        <b className={styles.hitRate}>{summary.hits}/{summary.observed_matches || "—"}</b>
+      </div>
+    </section>
+  );
+}
+
+function BttsFamily({ market }: { market: BttsMarket }) {
+  return (
+    <article className={`${styles.marketFamily} ${styles.bttsFamily}`} data-tone="olive">
+      <header className={styles.familyHeader}>
+        <div><span>BTTS</span><strong>Both teams to score</strong></div>
+        <small>SCORELINES · NEWEST FIRST</small>
+      </header>
+      <BttsSide teamName={market.home_team_name} summary={market.home_recent} />
+      <BttsSide teamName={market.away_team_name} summary={market.away_recent} />
+    </article>
+  );
+}
+
+function MarketsDesk({ lanes, btts }: { lanes: MarketLane[]; btts?: BttsMarket }) {
   const byFamily = new Map(lanes.map((lane) => [lane.family, lane]));
   const ordered = MARKET_ORDER.map((family) => byFamily.get(family)).filter((lane): lane is MarketLane => Boolean(lane));
 
@@ -242,46 +337,69 @@ function MarketsDesk({ lanes }: { lanes: MarketLane[] }) {
       </div>
       <div className={styles.marketGrid}>
         {ordered.map((lane) => <MarketFamily key={lane.key} lane={lane} />)}
-        {!ordered.length && <div className={styles.empty}>No governed team-market evidence is available for this fixture.</div>}
+        {btts && <BttsFamily market={btts} />}
+        {!ordered.length && !btts && <div className={styles.empty}>No governed team-market evidence is available for this fixture.</div>}
       </div>
     </section>
   );
 }
 
-function PlayerDesk({ home, away }: { home: PlayerSide; away: PlayerSide }) {
-  const pairs = PLAYER_KEYS.map((key) => ({
-    home: home.leaderboards.find((board) => board.key === key),
-    away: away.leaderboards.find((board) => board.key === key),
-  })).filter((pair): pair is { home: PlayerLeaderboard; away: PlayerLeaderboard } => Boolean(pair.home && pair.away));
+function PlayerCells({ player }: { player: PlayerMarketPlayer }) {
+  const cells: Array<PlayerMarketObservation | null> = player.observations.slice(0, 5);
+  while (cells.length < 5) cells.push(null);
+  return (
+    <div className={styles.playerCells}>
+      {cells.map((observation, index) => observation ? (
+        <span key={`${player.player_code}-${observation.season}-${observation.fixture_id}`} data-hit={observation.hit ? "true" : "false"} title={`${observation.opponent}: ${whole(observation.value)}`}>
+          <b>{whole(observation.value)}</b>
+          <small>{shortOpponent(observation.opponent)}</small>
+        </span>
+      ) : <span key={`${player.player_code}-empty-${index}`} data-empty="true"><b>—</b><small>—</small></span>)}
+    </div>
+  );
+}
 
+function PlayerMarketTeam({ side }: { side: PlayerMarketSide }) {
+  return (
+    <section className={styles.playerMarketTeam}>
+      <header><strong>{side.team_name}</strong><span>last {side.eligible_team_matches} team games</span></header>
+      {side.players.slice(0, 3).map((player) => (
+        <div className={styles.playerPropRow} key={player.player_code}>
+          <span className={styles.playerPropName}><b>{player.player_name}</b><small>{player.position || "—"}</small></span>
+          <PlayerCells player={player} />
+          <strong className={styles.playerHitRate}>{player.hits}/{player.observed_appearances || "—"}</strong>
+        </div>
+      ))}
+      {!side.players.length && <span className={styles.playerNoData}>No observed player evidence</span>}
+    </section>
+  );
+}
+
+function PlayerMarketFamily({ market }: { market: PlayerMarket }) {
+  return (
+    <article className={styles.playerMarketFamily} data-tone={familyTone(market.family)}>
+      <header className={styles.familyHeader}>
+        <div><span>{market.family}</span><strong>{market.label}</strong></div>
+        <small>PLAYER LAST FIVE</small>
+      </header>
+      <PlayerMarketTeam side={market.home} />
+      <PlayerMarketTeam side={market.away} />
+    </article>
+  );
+}
+
+function PlayerDesk({ markets }: { markets: PlayerMarket[] }) {
+  const byFamily = new Map(markets.map((market) => [market.family, market]));
+  const ordered = PLAYER_MARKET_ORDER.map((family) => byFamily.get(family)).filter((market): market is PlayerMarket => Boolean(market));
   return (
     <section className={styles.playerDesk}>
       <div className={styles.cheatSheetHeading}>
-        <div><span>PLAYER WATCH</span><strong>Who is producing the numbers?</strong></div>
-        <p>Recent player totals only. These are evidence prompts, not player-prop probabilities.</p>
+        <div><span>PLAYER BETTING CHEAT SHEET</span><strong>Recent prop-line evidence</strong></div>
+        <p>Actual values from current-season appearances before kickoff. Green means the player cleared the displayed line.</p>
       </div>
-      <div className={styles.playerGrid}>
-        {pairs.map(({ home: homeBoard, away: awayBoard }) => (
-          <article className={styles.playerBoard} key={homeBoard.key}>
-            <header><strong>{homeBoard.label}</strong><span>{homeBoard.unit}</span></header>
-            <div className={styles.playerColumns}>
-              <div>
-                {homeBoard.players.slice(0, 4).map((player) => (
-                  <div className={styles.playerRow} key={`${homeBoard.key}-${player.player_code}`}>
-                    <span><b>{player.player_name}</b><small>{player.position || "—"}</small></span><strong>{whole(player.value)}</strong>
-                  </div>
-                ))}
-              </div>
-              <div className={styles.playerAway}>
-                {awayBoard.players.slice(0, 4).map((player) => (
-                  <div className={styles.playerRow} key={`${awayBoard.key}-${player.player_code}`}>
-                    <strong>{whole(player.value)}</strong><span><b>{player.player_name}</b><small>{player.position || "—"}</small></span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </article>
-        ))}
+      <div className={styles.playerMarketGrid}>
+        {ordered.map((market) => <PlayerMarketFamily key={market.key} market={market} />)}
+        {!ordered.length && <div className={styles.empty}>No governed player-market evidence is available for this fixture.</div>}
       </div>
     </section>
   );
@@ -290,9 +408,9 @@ function PlayerDesk({ home, away }: { home: PlayerSide; away: PlayerSide }) {
 function FoulsDesk() {
   return (
     <section className={styles.boundaryDesk}>
-      <span>FOULS</span>
-      <h2>Useful betting question. Not promoted yet.</h2>
-      <p>FRL is withholding foul-won against foul-committed matchup evidence until that pairing has passed the required semantic and coverage checks.</p>
+      <span>TEAM FOULS</span>
+      <h2>Player fouls are now in the Players cheat sheet.</h2>
+      <p>The separate team-level foul-won against foul-committed matchup lane remains withheld until that pairing has passed the required semantic and coverage checks.</p>
     </section>
   );
 }
@@ -335,13 +453,13 @@ export function MatchdayDeskV7({ pack, marketPack, fixtureOptions }: Props) {
 
       <nav className={styles.viewNav}>
         <button type="button" data-active={view === "markets"} onClick={() => setView("markets")}>Team markets</button>
-        <button type="button" data-active={view === "players"} onClick={() => setView("players")}>Players</button>
-        <button type="button" data-active={view === "fouls"} onClick={() => setView("fouls")}>Fouls</button>
+        <button type="button" data-active={view === "players"} onClick={() => setView("players")}>Player markets</button>
+        <button type="button" data-active={view === "fouls"} onClick={() => setView("fouls")}>Team fouls</button>
       </nav>
 
       <main className={styles.desk}>
-        {view === "markets" && <MarketsDesk lanes={marketData?.market_lanes ?? []} />}
-        {view === "players" && <PlayerDesk home={data.players.home} away={data.players.away} />}
+        {view === "markets" && <MarketsDesk lanes={marketData?.market_lanes ?? []} btts={marketData?.fixture_markets?.btts} />}
+        {view === "players" && <PlayerDesk markets={marketData?.player_markets ?? []} />}
         {view === "fouls" && <FoulsDesk />}
       </main>
 
@@ -349,7 +467,7 @@ export function MatchdayDeskV7({ pack, marketPack, fixtureOptions }: Props) {
         <div className={styles.evidenceDrawerContent}>
           <h3>How to read the cheat sheet</h3>
           <p>For each team market, FRL pairs the team’s recent threshold results with how often the upcoming opponent allowed the same threshold in its own recent fixtures.</p>
-          <p>Hit frequencies are descriptive evidence, not calibrated betting probabilities.</p>
+          <p>Player markets use current-season pre-kickoff appearances and fixed common prop-like lines. Hit frequencies are descriptive evidence, not calibrated betting probabilities.</p>
           {data.data_maturity && <><h3>Sample</h3><p>{data.data_maturity.note}</p></>}
           <h3>Threshold policy</h3><p>{marketData?.betbuilder?.threshold_policy ?? "No market threshold pack is available."}</p>
           <h3>Player evidence</h3><p>{data.players.home.sample_definition}. {data.players.away.sample_definition}.</p>
