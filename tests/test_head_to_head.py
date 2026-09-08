@@ -42,6 +42,30 @@ def test_head_to_head_v1_builds_fixed_two_sided_betbuilder_pack():
             summary = entry[key]
             assert summary["hits"] <= summary["observed_matches"] <= summary["eligible_matches"]
             assert summary["coverage_status"] in {"COMPLETE", "PARTIAL", "UNAVAILABLE"}
+            assert summary["sequence_order"] == "MOST_RECENT_FIRST"
+            assert len(summary["observations"]) == summary["observed_matches"]
+            if summary["observations"]:
+                assert summary["average"] is not None
+            for observation in summary["observations"]:
+                assert observation["hit"] is (float(observation["value"]) >= float(entry["threshold"]))
+
+
+def test_head_to_head_exposes_market_lanes_for_matchday_consumers():
+    pack = head_to_head.build_head_to_head_pack("2026-27", "29")
+    lanes = pack["market_lanes"]
+
+    assert [lane["family"] for lane in lanes] == ["Goals", "Shots", "SOT", "Corners", "Cards"]
+    assert len(lanes) == 5
+
+    for lane in lanes:
+        assert lane["market_line"]["threshold"] > 0
+        assert lane["home_lane"]["team_name"] == pack["fixture"]["home_team_name"]
+        assert lane["away_lane"]["team_name"] == pack["fixture"]["away_team_name"]
+        assert lane["home_lane"]["opponent_name"] == pack["fixture"]["away_team_name"]
+        assert lane["away_lane"]["opponent_name"] == pack["fixture"]["home_team_name"]
+        for direction in ("home_lane", "away_lane"):
+            assert lane[direction]["attack"]["observed_matches"] <= 5
+            assert lane[direction]["defence_allowance"]["observed_matches"] <= 5
 
 
 def test_head_to_head_uses_frozen_adaptive_dc_control_without_future_results():
@@ -69,3 +93,9 @@ def test_head_to_head_recent_profile_evidence_is_strictly_pre_fixture():
     for side in ("home", "away"):
         for match in pack["profiles"][side]["matches"]:
             assert _dt(match["kickoff_time"]) < cutoff
+
+    for lane in pack["market_lanes"]:
+        for direction in ("home_lane", "away_lane"):
+            for evidence_kind in ("attack", "defence_allowance"):
+                for observation in lane[direction][evidence_kind]["observations"]:
+                    assert _dt(observation["kickoff_time"]) < cutoff
