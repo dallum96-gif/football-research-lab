@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
-import { MatchdayDeskV5 } from "./MatchdayDeskV5";
+import { MatchdayDeskV6 } from "./MatchdayDeskV6";
 
 const API_BASE = (process.env.NEXT_PUBLIC_FRL_API_URL ?? "http://127.0.0.1:8000").replace(/\/$/, "");
 
@@ -23,18 +23,22 @@ async function getJson<T>(path: string): Promise<T | null> {
 
 export default async function MatchdayFixturePage({ params }: MatchdayPageProps) {
   const { season, fixtureId } = await params;
-  const [pack, fixtures] = await Promise.all([
-    getJson<Record<string, unknown>>(`/api/v1/matchday/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}`),
-    getJson<{ fixtures: Array<Record<string, unknown>> }>(`/api/v1/matchday/fixtures/${encodeURIComponent(season)}`),
+  const encodedSeason = encodeURIComponent(season);
+  const encodedFixture = encodeURIComponent(fixtureId);
+  const [pack, marketPack, fixtures] = await Promise.all([
+    getJson<Record<string, unknown>>(`/api/v1/matchday/${encodedSeason}/${encodedFixture}`),
+    getJson<Record<string, unknown>>(`/api/v1/head-to-head/${encodedSeason}/${encodedFixture}`),
+    getJson<{ fixtures: Array<Record<string, unknown>> }>(`/api/v1/matchday/fixtures/${encodedSeason}`),
   ]);
 
   if (!pack) notFound();
 
   return (
     <AppShell>
-      <MatchdayDeskV5
+      <MatchdayDeskV6
         key={`${season}-${fixtureId}`}
         pack={pack}
+        marketPack={marketPack}
         fixtureOptions={fixtures?.fixtures ?? []}
       />
     </AppShell>
