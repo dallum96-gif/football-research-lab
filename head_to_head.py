@@ -23,11 +23,46 @@ FROZEN_ADAPTIVE_DC_CONFIG = adc.AdaptiveDCConfig(
 # thresholds for evidence summarisation, not optimised cut-points and not model
 # probabilities.
 BETBUILDER_THRESHOLDS = (
-    {"key": "goal_1_plus", "label": "1+ goal", "source_key": "goals_for", "threshold": 1.0, "unit": "goals"},
-    {"key": "shots_10_plus", "label": "10+ shots", "source_key": "Shots", "threshold": 10.0, "unit": "shots"},
-    {"key": "sot_4_plus", "label": "4+ shots on target", "source_key": "Shots on target", "threshold": 4.0, "unit": "shots"},
-    {"key": "corners_4_plus", "label": "4+ corners", "source_key": "Corners", "threshold": 4.0, "unit": "corners"},
-    {"key": "cards_2_plus", "label": "2+ yellow cards", "source_key": "Yellow cards", "threshold": 2.0, "unit": "cards"},
+    {
+        "key": "goal_1_plus",
+        "family": "Goals",
+        "label": "1+ goal",
+        "source_key": "goals_for",
+        "threshold": 1.0,
+        "unit": "goals",
+    },
+    {
+        "key": "shots_10_plus",
+        "family": "Shots",
+        "label": "10+ shots",
+        "source_key": "Shots",
+        "threshold": 10.0,
+        "unit": "shots",
+    },
+    {
+        "key": "sot_4_plus",
+        "family": "SOT",
+        "label": "4+ shots on target",
+        "source_key": "Shots on target",
+        "threshold": 4.0,
+        "unit": "shots",
+    },
+    {
+        "key": "corners_4_plus",
+        "family": "Corners",
+        "label": "4+ corners",
+        "source_key": "Corners",
+        "threshold": 4.0,
+        "unit": "corners",
+    },
+    {
+        "key": "cards_2_plus",
+        "family": "Cards",
+        "label": "2+ yellow cards",
+        "source_key": "Yellow cards",
+        "threshold": 2.0,
+        "unit": "cards",
+    },
 )
 
 
@@ -102,23 +137,39 @@ def _opponent_metric(match: dict, source_key: str) -> float | None:
 
 
 def _threshold_summary(matches: list[dict], source_key: str, threshold: float, *, opponent: bool) -> dict:
-    values: list[float] = []
+    observations: list[dict] = []
     extractor = _opponent_metric if opponent else _own_metric
     for match in matches:
         value = extractor(match, source_key)
-        if value is not None:
-            values.append(value)
-    hits = sum(1 for value in values if value >= threshold)
+        if value is None:
+            continue
+        observations.append(
+            {
+                "season": str(match.get("season") or ""),
+                "fixture_id": str(match.get("fixture_id") or ""),
+                "kickoff_time": match.get("kickoff_time"),
+                "opponent": str(match.get("opponent") or ""),
+                "venue": match.get("venue"),
+                "value": value,
+                "hit": value >= threshold,
+            }
+        )
+
+    hits = sum(1 for observation in observations if observation["hit"])
+    values = [float(observation["value"]) for observation in observations]
     return {
         "hits": hits,
-        "observed_matches": len(values),
+        "observed_matches": len(observations),
         "eligible_matches": len(matches),
-        "hit_rate": (hits / len(values)) if values else None,
+        "hit_rate": (hits / len(observations)) if observations else None,
+        "average": (sum(values) / len(values)) if values else None,
         "coverage_status": (
-            "COMPLETE" if values and len(values) == len(matches)
-            else "PARTIAL" if values
+            "COMPLETE" if observations and len(observations) == len(matches)
+            else "PARTIAL" if observations
             else "UNAVAILABLE"
         ),
+        "sequence_order": "MOST_RECENT_FIRST",
+        "observations": observations,
     }
 
 
@@ -161,6 +212,7 @@ def _betbuilder_entries(pack: dict) -> list[dict]:
                 {
                     "id": f"{side}_{spec['key']}",
                     "side": side,
+                    "family": spec["family"],
                     "team_name": team["team_name"],
                     "opponent_name": opponent["team_name"],
                     "market_label": f"{team['team_name']} {spec['label']}",
@@ -179,6 +231,49 @@ def _betbuilder_entries(pack: dict) -> list[dict]:
                 }
             )
     return entries
+
+
+def _market_lanes(entries: list[dict]) -> list[dict]:
+    by_side_and_key = {
+        (str(entry["side"]), str(entry["source_key"])): entry
+        for entry in entries
+    }
+    lanes: list[dict] = []
+    for spec in BETBUILDER_THRESHOLDS:
+        source_key = str(spec["source_key"])
+        home = by_side_and_key.get(("home", source_key))
+        away = by_side_and_key.get(("away", source_key))
+        if home is None or away is None:
+            continue
+        lanes.append(
+            {
+                "key": spec["key"],
+                "family": spec["family"],
+                "market_line": {
+                    "label": spec["label"],
+                    "threshold": spec["threshold"],
+                    "unit": spec["unit"],
+                    "source_key": spec["source_key"],
+                },
+                "home_lane": {
+                    "team_name": home["team_name"],
+                    "opponent_name": home["opponent_name"],
+                    "attack": home["team_recent"],
+                    "defence_allowance": home["opponent_allowance"],
+                    "evidence_label": home["evidence_label"],
+                    "evidence_index": home["evidence_index"],
+                },
+                "away_lane": {
+                    "team_name": away["team_name"],
+                    "opponent_name": away["opponent_name"],
+                    "attack": away["team_recent"],
+                    "defence_allowance": away["opponent_allowance"],
+                    "evidence_label": away["evidence_label"],
+                    "evidence_index": away["evidence_index"],
+                },
+            }
+        )
+    return lanes
 
 
 def _adaptive_prediction(fixture: dict) -> dict:
@@ -287,6 +382,7 @@ def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
         "forecast": forecast,
         "profiles": base["teams"],
         "players": base["players"],
+        "market_lanes": _market_lanes(entries),
         "betbuilder": {
             "status": "EVIDENCE_PACK_NOT_BETTING_ADVICE",
             "threshold_policy": "Fixed common thresholds; no threshold was selected or tuned after seeing target-match results.",
@@ -297,6 +393,7 @@ def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
         "limitations": [
             "V1 uses up to five completed fixtures strictly before kickoff for team evidence.",
             "Opponent allowance is reconstructed from the same governed fixture/team representations rather than assumed from team labels.",
+            "Last-five threshold sequences include only observed values; the observed/eligible denominator remains visible when coverage is partial.",
             "The evidence index is descriptive and must not be presented as an estimated betting probability.",
             "Player watchlists remain current-season FPL evidence and can be thin early in the season.",
             "Foul-drawn/foul-committed and referee-adjusted card matchup modelling remains withheld until its semantics and coverage are governed.",
