@@ -337,6 +337,158 @@
   font-size: .48rem;
 }
 
+.builderDesk {
+  min-height: 0;
+  display: grid;
+  align-content: start;
+  gap: .5rem;
+}
+.builderLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(260px, .65fr);
+  gap: .55rem;
+  align-items: stretch;
+}
+.builderLegs {
+  display: grid;
+  gap: .45rem;
+}
+.builderLeg {
+  --tone: var(--frl-accent);
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 90px;
+  align-items: center;
+  gap: .6rem;
+  padding: .62rem .72rem .62rem .5rem;
+  border: 1px solid var(--frl-border-strong);
+  border-left: 5px solid var(--tone);
+  background: var(--frl-surface);
+}
+.builderLeg[data-tone="gold"] { --tone: var(--gold); }
+.builderLeg[data-tone="blue"] { --tone: var(--blue); }
+.builderLeg[data-tone="teal"] { --tone: var(--teal); }
+.builderLeg[data-tone="violet"] { --tone: var(--violet); }
+.builderLeg[data-tone="olive"] { --tone: var(--olive); }
+.builderLegNumber {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--tone) 14%, var(--frl-surface));
+  color: var(--tone);
+  font-size: .68rem;
+  font-weight: 950;
+}
+.builderLegCopy {
+  min-width: 0;
+  display: grid;
+  gap: .12rem;
+}
+.builderLegCopy > span {
+  color: var(--tone);
+  font-size: .43rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.builderLegCopy > strong {
+  overflow: hidden;
+  font-size: .84rem;
+  font-weight: 930;
+  line-height: 1.05;
+  letter-spacing: -.02em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.builderLegCopy p {
+  margin: 0;
+  color: var(--frl-muted);
+  font-size: .5rem;
+  line-height: 1.35;
+}
+.builderLegEstimate {
+  display: grid;
+  justify-items: end;
+  gap: .05rem;
+  text-align: right;
+}
+.builderLegEstimate strong {
+  font-size: 1.28rem;
+  font-weight: 950;
+  line-height: .9;
+  letter-spacing: -.05em;
+}
+.builderLegEstimate small {
+  color: var(--frl-muted-soft);
+  font-size: .38rem;
+  font-weight: 760;
+}
+.builderSummary {
+  min-height: 100%;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: .28rem;
+  padding: 1rem 1.05rem;
+  background: var(--frl-text);
+  color: #fffaf0;
+  border: 1px solid var(--frl-text);
+}
+.builderSummary > span {
+  color: #f2b7a8;
+  font-size: .46rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.builderSummary > strong {
+  margin-top: .08rem;
+  font-size: clamp(3rem, 5.8vw, 5.4rem);
+  font-weight: 950;
+  line-height: .82;
+  letter-spacing: -.075em;
+}
+.builderSummary > b {
+  font-size: .75rem;
+  font-weight: 900;
+}
+.builderSummary > p {
+  margin: .15rem 0 .25rem;
+  color: #cfc8bb;
+  font-size: .54rem;
+  line-height: 1.45;
+}
+.builderSummary > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
+}
+.builderSummary > div span {
+  padding: .2rem .32rem;
+  border: 1px solid rgba(255,250,240,.22);
+  color: #eee6d9;
+  font-size: .39rem;
+  font-weight: 780;
+}
+.builderCaveat {
+  margin: 0;
+  padding: .5rem .62rem;
+  border: 1px solid var(--frl-border);
+  background: #faf7f0;
+  color: var(--frl-muted);
+  font-size: .49rem;
+  line-height: 1.42;
+}
+.builderEmpty {
+  display: grid;
+  gap: .2rem;
+  padding: 1.25rem;
+  border: 1px solid var(--frl-border-strong);
+  background: var(--frl-surface);
+}
+.builderEmpty strong { font-size: .85rem; font-weight: 920; }
+.builderEmpty p { margin: 0; color: var(--frl-muted); font-size: .58rem; }
+
 .boundaryDesk {
   min-height: 100%;
   display: grid;
@@ -364,6 +516,8 @@
   .desk { overflow: visible; }
   .marketGrid,
   .playerMarketGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .builderLayout { grid-template-columns: 1fr; }
+  .builderSummary { min-height: 250px; }
 }
 
 @media (max-width: 760px) {
@@ -379,4 +533,9 @@
   .cheatSheetHeading p { text-align: left; }
   .evidenceLine { grid-template-columns: 74px minmax(140px, 1fr) 30px; }
   .playerPropRow { grid-template-columns: 78px minmax(135px, 1fr) 30px; }
+  .builderLeg { grid-template-columns: 28px minmax(0, 1fr) 68px; gap: .4rem; padding: .55rem .5rem .55rem .38rem; }
+  .builderLegCopy > strong { font-size: .7rem; }
+  .builderLegCopy p { font-size: .44rem; }
+  .builderLegEstimate strong { font-size: 1rem; }
+  .builderSummary { min-height: 220px; }
 }
