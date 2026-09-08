@@ -148,7 +148,7 @@
 }
 
 .marketsDesk,
-.playerDesk { min-height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+.playerDesk { min-height: 0; display: grid; grid-template-rows: auto auto; align-content: start; }
 
 .cheatSheetHeading {
   display: flex;
@@ -167,7 +167,8 @@
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-auto-rows: minmax(150px, 1fr);
+  grid-auto-rows: auto;
+  align-content: start;
   gap: .55rem;
 }
 
@@ -265,6 +266,7 @@
   min-height: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
   gap: .55rem;
 }
 .playerBoard { overflow: hidden; border: 1px solid var(--frl-border-strong); background: var(--frl-surface); }
@@ -320,15 +322,10 @@
 .evidenceDrawerContent li { color: var(--frl-muted); font-size: .65rem; line-height: 1.45; }
 .evidenceDrawerContent ul { margin: 0; padding-left: 1.05rem; }
 
-@media (min-width: 1180px) {
-  .marketFamily:nth-child(4),
-  .marketFamily:nth-child(5) { min-height: 150px; }
-}
-
 @media (max-width: 1180px) {
   .workspace { height: auto; min-height: 0; overflow: visible; }
   .desk { overflow: visible; }
-  .marketGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: auto; }
+  .marketGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
