@@ -88,6 +88,40 @@ def test_head_to_head_exposes_recent_btts_scoreline_evidence():
             assert observation["hit"] is expected
 
 
+def test_head_to_head_player_markets_are_betting_relevant_and_recent():
+    pack = head_to_head.build_head_to_head_pack("2026-27", "29")
+    markets = pack["player_markets"]
+
+    assert [market["family"] for market in markets] == [
+        "Shots",
+        "SOT",
+        "Fouls won",
+        "Fouls committed",
+        "Goals",
+        "Cards",
+    ]
+    assert {market["family"] for market in markets}.isdisjoint({"Recoveries", "Defensive contribution"})
+    assert {market["label"] for market in markets} == {
+        "2+ shots",
+        "1+ shot on target",
+        "1+ foul won",
+        "1+ foul committed",
+        "1+ goal",
+        "1+ card",
+    }
+
+    for market in markets:
+        assert float(market["threshold"]) >= 1.0
+        for side in ("home", "away"):
+            payload = market[side]
+            assert payload["eligible_team_matches"] <= 5
+            for player in payload["players"]:
+                assert player["hits"] <= player["observed_appearances"] <= player["eligible_team_matches"] <= 5
+                assert len(player["observations"]) == player["observed_appearances"]
+                for observation in player["observations"]:
+                    assert observation["hit"] is (float(observation["value"]) >= float(market["threshold"]))
+
+
 def test_head_to_head_uses_frozen_adaptive_dc_control_without_future_results():
     pack = head_to_head.build_head_to_head_pack("2026-27", "29")
     forecast = pack["forecast"]
@@ -123,3 +157,9 @@ def test_head_to_head_recent_profile_evidence_is_strictly_pre_fixture():
     for key in ("home_recent", "away_recent"):
         for observation in pack["fixture_markets"]["btts"][key]["observations"]:
             assert _dt(observation["kickoff_time"]) < cutoff
+
+    for market in pack["player_markets"]:
+        for side in ("home", "away"):
+            for player in market[side]["players"]:
+                for observation in player["observations"]:
+                    assert _dt(observation["kickoff_time"]) < cutoff
