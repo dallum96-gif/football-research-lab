@@ -173,6 +173,42 @@ def _threshold_summary(matches: list[dict], source_key: str, threshold: float, *
     }
 
 
+def _btts_summary(matches: list[dict]) -> dict:
+    observations: list[dict] = []
+    for match in matches:
+        goals_for = _number(match.get("goals_for"))
+        goals_against = _number(match.get("goals_against"))
+        if goals_for is None or goals_against is None:
+            continue
+        observations.append(
+            {
+                "season": str(match.get("season") or ""),
+                "fixture_id": str(match.get("fixture_id") or ""),
+                "kickoff_time": match.get("kickoff_time"),
+                "opponent": str(match.get("opponent") or ""),
+                "venue": match.get("venue"),
+                "goals_for": goals_for,
+                "goals_against": goals_against,
+                "hit": goals_for >= 1.0 and goals_against >= 1.0,
+            }
+        )
+
+    hits = sum(1 for observation in observations if observation["hit"])
+    return {
+        "hits": hits,
+        "observed_matches": len(observations),
+        "eligible_matches": len(matches),
+        "hit_rate": (hits / len(observations)) if observations else None,
+        "coverage_status": (
+            "COMPLETE" if observations and len(observations) == len(matches)
+            else "PARTIAL" if observations
+            else "UNAVAILABLE"
+        ),
+        "sequence_order": "MOST_RECENT_FIRST",
+        "observations": observations,
+    }
+
+
 def _evidence_label(team_rate: float | None, allowance_rate: float | None) -> tuple[str, float | None]:
     available = [value for value in (team_rate, allowance_rate) if value is not None]
     if not available:
@@ -375,6 +411,16 @@ def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
     fixture = dict(base["fixture"])
     forecast = _adaptive_prediction(fixture)
     entries = _betbuilder_entries(base)
+    btts = {
+        "key": "btts",
+        "family": "BTTS",
+        "label": "Both teams to score",
+        "home_team_name": base["teams"]["home"]["team_name"],
+        "away_team_name": base["teams"]["away"]["team_name"],
+        "home_recent": _btts_summary(list(base["teams"]["home"].get("matches") or [])),
+        "away_recent": _btts_summary(list(base["teams"]["away"].get("matches") or [])),
+        "interpretation": "How often both teams scored in each club's own recent pre-match fixtures. This is descriptive recent scoreline evidence, not a calibrated BTTS probability.",
+    }
     return {
         "pack_version": MODEL_VERSION,
         "fixture": fixture,
@@ -383,6 +429,7 @@ def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
         "profiles": base["teams"],
         "players": base["players"],
         "market_lanes": _market_lanes(entries),
+        "fixture_markets": {"btts": btts},
         "betbuilder": {
             "status": "EVIDENCE_PACK_NOT_BETTING_ADVICE",
             "threshold_policy": "Fixed common thresholds; no threshold was selected or tuned after seeing target-match results.",
@@ -394,6 +441,7 @@ def build_head_to_head_pack(season: str, fixture_id: str) -> dict:
             "V1 uses up to five completed fixtures strictly before kickoff for team evidence.",
             "Opponent allowance is reconstructed from the same governed fixture/team representations rather than assumed from team labels.",
             "Last-five threshold sequences include only observed values; the observed/eligible denominator remains visible when coverage is partial.",
+            "BTTS recent evidence is reconstructed from each team's governed pre-kickoff scorelines and is descriptive rather than a calibrated probability.",
             "The evidence index is descriptive and must not be presented as an estimated betting probability.",
             "Player watchlists remain current-season FPL evidence and can be thin early in the season.",
             "Foul-drawn/foul-committed and referee-adjusted card matchup modelling remains withheld until its semantics and coverage are governed.",
