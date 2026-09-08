@@ -154,8 +154,43 @@ type FoulMatchup = {
   combinedRate: number;
 };
 
+type BetBuilderEntry = {
+  id: string;
+  side: "home" | "away";
+  family: string;
+  team_name: string;
+  opponent_name: string;
+  market_label: string;
+  metric_label: string;
+  source_key: string;
+  threshold: number;
+  unit: string;
+  team_recent: ThresholdSummary;
+  opponent_allowance: ThresholdSummary;
+  evidence_label: MarketLaneSide["evidence_label"];
+  evidence_index: number | null;
+};
+
+type BuilderCandidate = {
+  id: string;
+  label: string;
+  family: string;
+  estimate: number;
+  observations: number;
+  evidence: string;
+  sourceLabel: string;
+  estimateLabel: string;
+  teamName?: string;
+  playerCode?: string;
+  foulMatchup?: boolean;
+};
+
 type HeadToHeadPack = {
   pack_version: string;
+  forecast?: {
+    status: string;
+    probabilities?: { btts?: number };
+  };
   market_lanes: MarketLane[];
   fixture_markets?: { btts?: BttsMarket };
   player_markets?: PlayerMarket[];
@@ -163,6 +198,7 @@ type HeadToHeadPack = {
   betbuilder?: {
     threshold_policy?: string;
     index_definition?: string;
+    entries?: BetBuilderEntry[];
   };
 };
 
@@ -181,7 +217,7 @@ type Props = {
   fixtureOptions: Array<Record<string, unknown>>;
 };
 
-type DeskView = "markets" | "players" | "fouls";
+type DeskView = "markets" | "players" | "fouls" | "builder";
 
 const MARKET_ORDER = ["Goals", "Corners", "Shots", "SOT", "Cards"];
 const PLAYER_MARKET_ORDER = ["Shots", "SOT", "Fouls won", "Fouls committed", "Goals", "Cards"];
@@ -212,6 +248,11 @@ function fixtureTime(value: string | null | undefined) {
 function whole(value: number | null | undefined) {
   if (value == null || Number.isNaN(value)) return "—";
   return Math.round(value).toLocaleString("en-GB");
+}
+
+function percentage(value: number | null | undefined) {
+  if (value == null || Number.isNaN(value)) return "—";
+  return `${Math.round(value * 100)}%`;
 }
 
 function shortOpponent(name: string) {
@@ -574,6 +615,167 @@ function FoulsDesk({ markets }: { markets: PlayerMarket[] }) {
   );
 }
 
+function smoothedRate(hits: number, observations: number) {
+  if (observations <= 0) return 0;
+  return (hits + 1) / (observations + 2);
+}
+
+function builderConflict(a: BuilderCandidate, b: BuilderCandidate) {
+  if (a.playerCode && b.playerCode && a.playerCode === b.playerCode) return true;
+
+  const scoring = new Set(["Goals", "BTTS"]);
+  if (scoring.has(a.family) && scoring.has(b.family)) return true;
+
+  const shooting = new Set(["Shots", "SOT"]);
+  if (a.teamName && b.teamName && a.teamName === b.teamName && shooting.has(a.family) && shooting.has(b.family)) return true;
+
+  if (a.teamName && b.teamName && a.teamName === b.teamName && a.family === b.family) return true;
+  return false;
+}
+
+function buildRecommendedBetBuilder(marketData: HeadToHeadPack | null) {
+  if (!marketData) return { legs: [] as BuilderCandidate[], combined: null as number | null };
+
+  const candidates: BuilderCandidate[] = [];
+  const playerMarkets = marketData.player_markets ?? [];
+  const foulMatchups = buildFoulMatchups(playerMarkets);
+  const foulSupport = new Set<string>();
+  for (const matchup of foulMatchups) {
+    foulSupport.add(`Fouls won:${matchup.drawer.player_code}`);
+    foulSupport.add(`Fouls committed:${matchup.committer.player_code}`);
+  }
+
+  for (const entry of marketData.betbuilder?.entries ?? []) {
+    const observations = entry.team_recent.observed_matches + entry.opponent_allowance.observed_matches;
+    const hits = entry.team_recent.hits + entry.opponent_allowance.hits;
+    if (entry.team_recent.observed_matches === 0 || entry.opponent_allowance.observed_matches === 0 || observations < 4) continue;
+    const estimate = smoothedRate(hits, observations);
+    if (estimate < 0.58) continue;
+    candidates.push({
+      id: `team:${entry.id}`,
+      label: entry.market_label,
+      family: entry.family,
+      estimate,
+      observations,
+      evidence: `${entry.team_recent.hits}/${entry.team_recent.observed_matches} ${entry.team_name} hits · ${entry.opponent_allowance.hits}/${entry.opponent_allowance.observed_matches} ${entry.opponent_name} allowed`,
+      sourceLabel: "TEAM × OPPONENT",
+      estimateLabel: "small-sample estimate",
+      teamName: entry.team_name,
+    });
+  }
+
+  for (const market of playerMarkets) {
+    for (const side of [market.home, market.away]) {
+      for (const player of side.players.slice(0, 3)) {
+        if (player.observed_appearances < 2 || player.hits < 2) continue;
+        const estimate = smoothedRate(player.hits, player.observed_appearances);
+        if (estimate < 0.58) continue;
+        const matchupSupported = foulSupport.has(`${market.family}:${player.player_code}`);
+        candidates.push({
+          id: `player:${market.key}:${side.team_name}:${player.player_code}`,
+          label: `${player.player_name} ${market.label}`,
+          family: market.family,
+          estimate,
+          observations: player.observed_appearances,
+          evidence: `${player.hits}/${player.observed_appearances} recent appearances${matchupSupported ? " · positional foul matchup also aligns" : ""}`,
+          sourceLabel: matchupSupported ? "PLAYER + MATCHUP" : "PLAYER RECENT",
+          estimateLabel: "small-sample estimate",
+          teamName: side.team_name,
+          playerCode: player.player_code,
+          foulMatchup: matchupSupported,
+        });
+      }
+    }
+  }
+
+  const btts = marketData.fixture_markets?.btts;
+  const bttsProbability = marketData.forecast?.status === "AVAILABLE" ? marketData.forecast.probabilities?.btts : undefined;
+  if (btts && bttsProbability != null && bttsProbability >= 0.55) {
+    const recentObservations = btts.home_recent.observed_matches + btts.away_recent.observed_matches;
+    candidates.push({
+      id: "model:btts",
+      label: "Both teams to score",
+      family: "BTTS",
+      estimate: bttsProbability,
+      observations: recentObservations,
+      evidence: `${btts.home_recent.hits}/${btts.home_recent.observed_matches || "—"} ${btts.home_team_name} recent · ${btts.away_recent.hits}/${btts.away_recent.observed_matches || "—"} ${btts.away_team_name} recent`,
+      sourceLabel: "MATCH MODEL + RECENT",
+      estimateLabel: "model estimate",
+    });
+  }
+
+  candidates.sort((a, b) =>
+    b.estimate - a.estimate
+    || Number(Boolean(b.foulMatchup)) - Number(Boolean(a.foulMatchup))
+    || b.observations - a.observations
+    || a.label.localeCompare(b.label)
+  );
+
+  const legs: BuilderCandidate[] = [];
+  for (const candidate of candidates) {
+    if (legs.some((selected) => builderConflict(selected, candidate))) continue;
+    legs.push(candidate);
+    if (legs.length === 3) break;
+  }
+
+  if (legs.length < 2) return { legs, combined: null as number | null };
+  const combined = legs.reduce((probability, leg) => probability * leg.estimate, 1);
+  return { legs, combined };
+}
+
+function BetBuilderDesk({ marketData }: { marketData: HeadToHeadPack | null }) {
+  const recommendation = buildRecommendedBetBuilder(marketData);
+
+  return (
+    <section className={styles.builderDesk}>
+      <div className={styles.cheatSheetHeading}>
+        <div><span>FRL BET BUILDER</span><strong>Best-supported combination from this fixture</strong></div>
+        <p>FRL ranks the evidence already shown across Team markets, Player markets and Foul matchups, then screens obvious dependency clashes before combining legs.</p>
+      </div>
+
+      {recommendation.legs.length >= 2 && recommendation.combined != null ? (
+        <div className={styles.builderLayout}>
+          <div className={styles.builderLegs}>
+            {recommendation.legs.map((leg, index) => (
+              <article className={styles.builderLeg} data-tone={familyTone(leg.family)} key={leg.id}>
+                <span className={styles.builderLegNumber}>{index + 1}</span>
+                <div className={styles.builderLegCopy}>
+                  <span>{leg.sourceLabel} · {leg.family}</span>
+                  <strong>{leg.label}</strong>
+                  <p>{leg.evidence}</p>
+                </div>
+                <div className={styles.builderLegEstimate}>
+                  <strong>{percentage(leg.estimate)}</strong>
+                  <small>{leg.estimateLabel}</small>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <aside className={styles.builderSummary}>
+            <span>INDICATIVE COMBINED LIKELIHOOD</span>
+            <strong>{percentage(recommendation.combined)}</strong>
+            <b>{recommendation.legs.length}-leg FRL suggestion</b>
+            <p>Obvious same-player and tightly linked market combinations are excluded before the leg estimates are multiplied.</p>
+            <div>
+              <span>Evidence-selected</span>
+              <span>Dependency-screened</span>
+              <span>Pre-kickoff only</span>
+            </div>
+          </aside>
+        </div>
+      ) : (
+        <div className={styles.builderEmpty}>
+          <strong>No builder forced.</strong>
+          <p>FRL does not currently have at least two sufficiently supported, dependency-compatible legs for this fixture.</p>
+        </div>
+      )}
+
+      <p className={styles.builderCaveat}>The combined percentage is experimental rather than a calibrated same-game-multiple probability. Team and player evidence estimates use a small-sample adjustment; residual correlation can still remain after the dependency screen.</p>
+    </section>
+  );
+}
+
 export function MatchdayDeskV7({ pack, marketPack, fixtureOptions }: Props) {
   const data = pack as unknown as MatchdayPack;
   const marketData = marketPack as unknown as HeadToHeadPack | null;
@@ -614,12 +816,14 @@ export function MatchdayDeskV7({ pack, marketPack, fixtureOptions }: Props) {
         <button type="button" data-active={view === "markets"} onClick={() => setView("markets")}>Team markets</button>
         <button type="button" data-active={view === "players"} onClick={() => setView("players")}>Player markets</button>
         <button type="button" data-active={view === "fouls"} onClick={() => setView("fouls")}>Foul matchups</button>
+        <button type="button" data-active={view === "builder"} onClick={() => setView("builder")}>Bet builder</button>
       </nav>
 
       <main className={styles.desk}>
         {view === "markets" && <MarketsDesk lanes={marketData?.market_lanes ?? []} btts={marketData?.fixture_markets?.btts} />}
         {view === "players" && <PlayerDesk markets={marketData?.player_markets ?? []} />}
         {view === "fouls" && <FoulsDesk markets={marketData?.player_markets ?? []} />}
+        {view === "builder" && <BetBuilderDesk marketData={marketData} />}
       </main>
 
       <EvidenceDrawer open={evidenceOpen} onClose={() => setEvidenceOpen(false)} title="Matchday evidence & method">
@@ -628,6 +832,7 @@ export function MatchdayDeskV7({ pack, marketPack, fixtureOptions }: Props) {
           <p>For each team market, FRL pairs the team’s recent threshold results with how often the upcoming opponent allowed the same threshold in its own recent fixtures.</p>
           <p>Player markets use current-season pre-kickoff appearances and fixed common prop-like lines. Hit frequencies are descriptive evidence, not calibrated betting probabilities.</p>
           <p>Foul matchups pair a recent foul-winner with an opposing recent foul-committer only when their stored specific positions form a plausible on-pitch duel. The pairing is descriptive positional alignment, not evidence that one player directly fouled the other.</p>
+          <p>The Bet Builder tab pools team-hit and opponent-allowance observations for team legs and uses observed appearances for player legs, applying a simple (hits + 1) / (observations + 2) small-sample adjustment. Obvious dependency conflicts are excluded before multiplying the selected leg estimates. Residual correlation remains, so the combined percentage is indicative rather than a calibrated same-game-multiple probability.</p>
           {data.data_maturity && <><h3>Sample</h3><p>{data.data_maturity.note}</p></>}
           <h3>Threshold policy</h3><p>{marketData?.betbuilder?.threshold_policy ?? "No market threshold pack is available."}</p>
           <h3>Player evidence</h3><p>{data.players.home.sample_definition}. {data.players.away.sample_definition}.</p>
