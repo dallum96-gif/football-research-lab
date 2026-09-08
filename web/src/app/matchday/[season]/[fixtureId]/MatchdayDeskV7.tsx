@@ -143,6 +143,17 @@ type PlayerMarket = {
   sample_definition: string;
 };
 
+type FoulMatchup = {
+  drawer: PlayerMarketPlayer;
+  committer: PlayerMarketPlayer;
+  drawerTeam: string;
+  committerTeam: string;
+  drawerRole: string;
+  committerRole: string;
+  floorRate: number;
+  combinedRate: number;
+};
+
 type HeadToHeadPack = {
   pack_version: string;
   market_lanes: MarketLane[];
@@ -405,12 +416,160 @@ function PlayerDesk({ markets }: { markets: PlayerMarket[] }) {
   );
 }
 
-function FoulsDesk() {
+function normaliseFoulRole(position: string) {
+  const value = position.trim().toLowerCase().replace(/[_-]+/g, " ");
+  if (!value) return null;
+
+  const has = (...terms: string[]) => terms.some((term) => value.includes(term));
+  const exact = (...terms: string[]) => terms.includes(value);
+
+  if (has("right wing back", "right wingback") || exact("rwb")) return "RWB";
+  if (has("left wing back", "left wingback") || exact("lwb")) return "LWB";
+  if (has("right full back", "right fullback", "right back") || exact("rb")) return "RB";
+  if (has("left full back", "left fullback", "left back") || exact("lb")) return "LB";
+  if (has("central defender", "centre back", "center back", "central back") || exact("cb")) return "CB";
+  if (has("defensive midfield", "holding midfield") || exact("dm", "cdm")) return "DM";
+  if (has("attacking midfield", "advanced midfield") || exact("am", "cam")) return "AM";
+  if (has("central midfield", "centre midfield", "center midfield") || exact("cm")) return "CM";
+  if (has("right midfield") || exact("rm")) return "RM";
+  if (has("left midfield") || exact("lm")) return "LM";
+  if (has("right winger", "right wing", "right forward") || exact("rw", "rwf")) return "RW";
+  if (has("left winger", "left wing", "left forward") || exact("lw", "lwf")) return "LW";
+  if (has("centre forward", "center forward", "central forward") || exact("cf")) return "CF";
+  if (has("striker", "centre striker", "center striker") || exact("st")) return "ST";
+
+  // Broad source labels such as Forward / Midfielder / Defender deliberately
+  // remain unresolved: they are not enough evidence for a specific duel.
+  return null;
+}
+
+function rolesCanMeet(drawerRole: string, committerRole: string) {
+  const compatible: Record<string, string[]> = {
+    RW: ["LB", "LWB"],
+    RM: ["LB", "LWB"],
+    LW: ["RB", "RWB"],
+    LM: ["RB", "RWB"],
+    ST: ["CB"],
+    CF: ["CB"],
+    CB: ["ST", "CF"],
+    LB: ["RW", "RM"],
+    LWB: ["RW", "RM"],
+    RB: ["LW", "LM"],
+    RWB: ["LW", "LM"],
+    CM: ["CM", "DM", "AM"],
+    DM: ["CM", "AM", "DM"],
+    AM: ["CM", "DM", "AM"],
+  };
+  return compatible[drawerRole]?.includes(committerRole) ?? false;
+}
+
+function observedHitRate(player: PlayerMarketPlayer) {
+  return player.observed_appearances > 0 ? player.hits / player.observed_appearances : 0;
+}
+
+function buildFoulMatchups(markets: PlayerMarket[]) {
+  const won = markets.find((market) => market.family === "Fouls won");
+  const committed = markets.find((market) => market.family === "Fouls committed");
+  if (!won || !committed) return [] as FoulMatchup[];
+
+  const directions = [
+    { drawer: won.home, committer: committed.away },
+    { drawer: won.away, committer: committed.home },
+  ];
+  const candidates: FoulMatchup[] = [];
+
+  for (const direction of directions) {
+    for (const drawer of direction.drawer.players) {
+      const drawerRole = normaliseFoulRole(drawer.position);
+      if (!drawerRole || drawer.hits === 0) continue;
+      for (const committer of direction.committer.players) {
+        const committerRole = normaliseFoulRole(committer.position);
+        if (!committerRole || committer.hits === 0 || !rolesCanMeet(drawerRole, committerRole)) continue;
+        const drawerRate = observedHitRate(drawer);
+        const committerRate = observedHitRate(committer);
+        candidates.push({
+          drawer,
+          committer,
+          drawerTeam: direction.drawer.team_name,
+          committerTeam: direction.committer.team_name,
+          drawerRole,
+          committerRole,
+          floorRate: Math.min(drawerRate, committerRate),
+          combinedRate: drawerRate + committerRate,
+        });
+      }
+    }
+  }
+
+  candidates.sort((a, b) =>
+    b.floorRate - a.floorRate
+    || b.combinedRate - a.combinedRate
+    || (b.drawer.hits + b.committer.hits) - (a.drawer.hits + a.committer.hits)
+    || (b.drawer.observed_appearances + b.committer.observed_appearances) - (a.drawer.observed_appearances + a.committer.observed_appearances)
+  );
+
+  const selected: FoulMatchup[] = [];
+  const usedPairs = new Set<string>();
+  for (const candidate of candidates) {
+    const pairKey = [candidate.drawer.player_code, candidate.committer.player_code].sort().join("::");
+    if (usedPairs.has(pairKey)) continue;
+    usedPairs.add(pairKey);
+    selected.push(candidate);
+    if (selected.length === 4) break;
+  }
+  return selected;
+}
+
+function FoulMatchupCard({ matchup }: { matchup: FoulMatchup }) {
   return (
-    <section className={styles.boundaryDesk}>
-      <span>TEAM FOULS</span>
-      <h2>Player fouls are now in the Players cheat sheet.</h2>
-      <p>The separate team-level foul-won against foul-committed matchup lane remains withheld until that pairing has passed the required semantic and coverage checks.</p>
+    <article className={styles.playerMarketFamily} data-tone="gold">
+      <header className={styles.familyHeader}>
+        <div><span>{matchup.drawerRole} ↔ {matchup.committerRole}</span><strong>Potential foul matchup</strong></div>
+        <small>POSITIONAL ALIGNMENT</small>
+      </header>
+      <section className={styles.playerMarketTeam}>
+        <header><strong>{matchup.drawerTeam}</strong><span>wins 1+ foul</span></header>
+        <div className={styles.playerPropRow}>
+          <span className={styles.playerPropName}><b>{matchup.drawer.player_name}</b><small>{matchup.drawerRole} · fouls won</small></span>
+          <PlayerCells player={matchup.drawer} />
+          <strong className={styles.playerHitRate}>{matchup.drawer.hits}/{matchup.drawer.observed_appearances || "—"}</strong>
+        </div>
+      </section>
+      <section className={styles.playerMarketTeam}>
+        <header><strong>{matchup.committerTeam}</strong><span>commits 1+ foul</span></header>
+        <div className={styles.playerPropRow}>
+          <span className={styles.playerPropName}><b>{matchup.committer.player_name}</b><small>{matchup.committerRole} · fouls committed</small></span>
+          <PlayerCells player={matchup.committer} />
+          <strong className={styles.playerHitRate}>{matchup.committer.hits}/{matchup.committer.observed_appearances || "—"}</strong>
+        </div>
+      </section>
+    </article>
+  );
+}
+
+function FoulsDesk({ markets }: { markets: PlayerMarket[] }) {
+  const foulMarkets = markets.filter((market) => market.family === "Fouls won" || market.family === "Fouls committed");
+  const matchups = buildFoulMatchups(markets);
+
+  return (
+    <section className={styles.playerDesk}>
+      <div className={styles.cheatSheetHeading}>
+        <div><span>FOULS · LAST FIVE</span><strong>Who draws them and who gives them away</strong></div>
+        <p>Actual player values before kickoff. Green means 1+ foul won or committed in that appearance.</p>
+      </div>
+      <div className={styles.playerMarketGrid}>
+        {foulMarkets.map((market) => <PlayerMarketFamily key={market.key} market={market} />)}
+        {!foulMarkets.length && <div className={styles.empty}>No governed player-foul evidence is available for this fixture.</div>}
+      </div>
+
+      <div className={styles.cheatSheetHeading}>
+        <div><span>POSITIONAL FOUL MATCHUPS</span><strong>Recent tendencies that could meet in this fixture</strong></div>
+        <p>Specific pairings appear only when FRL has a granular role it can support. This is positional tendency alignment — not evidence that one player historically fouled the other.</p>
+      </div>
+      <div className={styles.playerMarketGrid}>
+        {matchups.map((matchup) => <FoulMatchupCard key={`${matchup.drawer.player_code}-${matchup.committer.player_code}`} matchup={matchup} />)}
+        {!matchups.length && <div className={styles.empty}>No specific positional duel is supported by the current role evidence. The last-five foul histories above remain valid.</div>}
+      </div>
     </section>
   );
 }
@@ -454,13 +613,13 @@ export function MatchdayDeskV7({ pack, marketPack, fixtureOptions }: Props) {
       <nav className={styles.viewNav}>
         <button type="button" data-active={view === "markets"} onClick={() => setView("markets")}>Team markets</button>
         <button type="button" data-active={view === "players"} onClick={() => setView("players")}>Player markets</button>
-        <button type="button" data-active={view === "fouls"} onClick={() => setView("fouls")}>Team fouls</button>
+        <button type="button" data-active={view === "fouls"} onClick={() => setView("fouls")}>Foul matchups</button>
       </nav>
 
       <main className={styles.desk}>
         {view === "markets" && <MarketsDesk lanes={marketData?.market_lanes ?? []} btts={marketData?.fixture_markets?.btts} />}
         {view === "players" && <PlayerDesk markets={marketData?.player_markets ?? []} />}
-        {view === "fouls" && <FoulsDesk />}
+        {view === "fouls" && <FoulsDesk markets={marketData?.player_markets ?? []} />}
       </main>
 
       <EvidenceDrawer open={evidenceOpen} onClose={() => setEvidenceOpen(false)} title="Matchday evidence & method">
@@ -468,6 +627,7 @@ export function MatchdayDeskV7({ pack, marketPack, fixtureOptions }: Props) {
           <h3>How to read the cheat sheet</h3>
           <p>For each team market, FRL pairs the team’s recent threshold results with how often the upcoming opponent allowed the same threshold in its own recent fixtures.</p>
           <p>Player markets use current-season pre-kickoff appearances and fixed common prop-like lines. Hit frequencies are descriptive evidence, not calibrated betting probabilities.</p>
+          <p>Foul matchups pair a recent foul-winner with an opposing recent foul-committer only when their stored specific positions form a plausible on-pitch duel. The pairing is descriptive positional alignment, not evidence that one player directly fouled the other.</p>
           {data.data_maturity && <><h3>Sample</h3><p>{data.data_maturity.note}</p></>}
           <h3>Threshold policy</h3><p>{marketData?.betbuilder?.threshold_policy ?? "No market threshold pack is available."}</p>
           <h3>Player evidence</h3><p>{data.players.home.sample_definition}. {data.players.away.sample_definition}.</p>
