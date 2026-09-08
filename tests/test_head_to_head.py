@@ -68,6 +68,26 @@ def test_head_to_head_exposes_market_lanes_for_matchday_consumers():
             assert lane[direction]["defence_allowance"]["observed_matches"] <= 5
 
 
+def test_head_to_head_exposes_recent_btts_scoreline_evidence():
+    pack = head_to_head.build_head_to_head_pack("2026-27", "29")
+    btts = pack["fixture_markets"]["btts"]
+
+    assert btts["family"] == "BTTS"
+    assert btts["label"] == "Both teams to score"
+    assert btts["home_team_name"] == pack["fixture"]["home_team_name"]
+    assert btts["away_team_name"] == pack["fixture"]["away_team_name"]
+
+    for key in ("home_recent", "away_recent"):
+        summary = btts[key]
+        assert summary["hits"] <= summary["observed_matches"] <= summary["eligible_matches"] <= 5
+        assert summary["sequence_order"] == "MOST_RECENT_FIRST"
+        assert summary["coverage_status"] in {"COMPLETE", "PARTIAL", "UNAVAILABLE"}
+        assert len(summary["observations"]) == summary["observed_matches"]
+        for observation in summary["observations"]:
+            expected = float(observation["goals_for"]) >= 1.0 and float(observation["goals_against"]) >= 1.0
+            assert observation["hit"] is expected
+
+
 def test_head_to_head_uses_frozen_adaptive_dc_control_without_future_results():
     pack = head_to_head.build_head_to_head_pack("2026-27", "29")
     forecast = pack["forecast"]
@@ -99,3 +119,7 @@ def test_head_to_head_recent_profile_evidence_is_strictly_pre_fixture():
             for evidence_kind in ("attack", "defence_allowance"):
                 for observation in lane[direction][evidence_kind]["observations"]:
                     assert _dt(observation["kickoff_time"]) < cutoff
+
+    for key in ("home_recent", "away_recent"):
+        for observation in pack["fixture_markets"]["btts"][key]["observations"]:
+            assert _dt(observation["kickoff_time"]) < cutoff
