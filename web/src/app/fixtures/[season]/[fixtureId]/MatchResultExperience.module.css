@@ -225,40 +225,47 @@
 
 .overviewView {
   display: grid;
-  grid-template-rows: 4.35rem minmax(0, 1fr);
-  gap: .62rem;
+  grid-template-columns: minmax(0, 1fr) 11.25rem minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: .72rem;
+  overflow: hidden;
 }
 
 .overviewMetrics {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
   min-height: 0;
-  border-top: 1px solid rgba(245, 241, 232, .11);
-  border-bottom: 1px solid rgba(245, 241, 232, .11);
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+  border-left: 1px solid rgba(245, 241, 232, .09);
+  border-right: 1px solid rgba(245, 241, 232, .09);
 }
 
 .overviewMetric {
   min-width: 0;
+  min-height: 0;
   display: grid;
   align-content: center;
-  padding: .52rem .8rem .48rem;
-  border-right: 1px solid rgba(245, 241, 232, .07);
+  padding: .34rem .68rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .08);
 }
 
 .overviewMetric:last-child {
-  border-right: 0;
+  border-bottom: 0;
 }
 
 .overviewMetricValues {
   display: grid;
-  grid-template-columns: minmax(2.7rem, 1fr) auto minmax(2.7rem, 1fr);
+  grid-template-columns: 2.55rem minmax(0, 1fr) 2.55rem;
   align-items: baseline;
-  gap: .42rem;
+  gap: .32rem;
 }
 
 .overviewMetricValues strong {
   color: #f5f1e8;
-  font-size: 1.02rem;
+  font-size: .94rem;
   font-weight: 625;
   font-variant-numeric: tabular-nums;
   letter-spacing: -.035em;
@@ -270,9 +277,9 @@
 
 .overviewMetricValues span {
   color: #716c64;
-  font-size: .39rem;
+  font-size: .36rem;
   font-weight: 760;
-  letter-spacing: .1em;
+  letter-spacing: .09em;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
@@ -282,7 +289,7 @@
   display: flex;
   gap: 2px;
   height: 1px;
-  margin-top: .42rem;
+  margin-top: .38rem;
   overflow: hidden;
   background: rgba(245, 241, 232, .05);
 }
@@ -302,34 +309,28 @@
 }
 
 .overviewLineups {
-  position: relative;
-  min-height: 0;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  overflow: hidden;
-  border-top: 1px solid rgba(245, 241, 232, .08);
-  border-bottom: 1px solid rgba(245, 241, 232, .08);
-}
-
-.overviewLineups::after {
-  content: "";
-  position: absolute;
-  z-index: 5;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  width: 1px;
-  background: rgba(245, 241, 232, .11);
-  pointer-events: none;
+  display: contents;
 }
 
 .lineupPanel {
   min-width: 0;
   min-height: 0;
+  grid-row: 1;
   display: grid;
   grid-template-rows: 2.55rem minmax(0, 1fr);
-  padding: 0 .9rem .15rem;
+  padding: 0 .25rem .15rem;
+  overflow: hidden;
   background: #10100f;
+  border-top: 1px solid rgba(245, 241, 232, .08);
+  border-bottom: 1px solid rgba(245, 241, 232, .08);
+}
+
+.lineupPanel[data-side="home"] {
+  grid-column: 1;
+}
+
+.lineupPanel[data-side="away"] {
+  grid-column: 3;
 }
 
 .lineupHeader {
@@ -737,10 +738,11 @@
   }
 
   .club strong { font-size: clamp(1.45rem, 2.7vw, 2rem); }
-  .overviewMetric { padding-inline: .5rem; }
-  .overviewMetricValues { grid-template-columns: minmax(2.2rem, 1fr) auto minmax(2.2rem, 1fr); gap: .26rem; }
-  .overviewMetricValues strong { font-size: .88rem; }
-  .overviewMetricValues span { font-size: .34rem; }
+  .overviewView { grid-template-columns: minmax(0, 1fr) 9.5rem minmax(0, 1fr); gap: .48rem; }
+  .overviewMetric { padding-inline: .48rem; }
+  .overviewMetricValues { grid-template-columns: 2.15rem minmax(0, 1fr) 2.15rem; gap: .22rem; }
+  .overviewMetricValues strong { font-size: .82rem; }
+  .overviewMetricValues span { font-size: .32rem; }
   .recordFooter > div { padding-inline: .5rem; }
 }
 
@@ -766,14 +768,14 @@
   .workspace { padding: .55rem .8rem; }
   .viewRail { padding-inline: .8rem; gap: 1.2rem; }
 
-  .overviewView { grid-template-rows: 5.2rem minmax(0, 1fr); }
-  .overviewMetricValues { grid-template-columns: 1fr; justify-items: center; gap: .06rem; }
+  .overviewView { grid-template-columns: minmax(0, 1fr) 6.4rem minmax(0, 1fr); gap: .3rem; }
+  .overviewMetric { padding-inline: .28rem; }
+  .overviewMetricValues { grid-template-columns: 1fr; justify-items: center; gap: .04rem; }
   .overviewMetricValues strong:last-child { text-align: center; }
   .overviewMetricValues span { order: -1; }
   .overviewMetricScale { display: none; }
-  .overviewMetric { padding-inline: .22rem; }
 
-  .lineupPanel { padding-inline: .4rem; }
+  .lineupPanel { padding-inline: .18rem; }
   .lineupContext span { display: none; }
   .playerNode { width: 3.9rem; }
   .playerNode strong { font-size: .4rem; }
