@@ -221,6 +221,15 @@ type DeskView = "markets" | "players" | "fouls" | "builder";
 
 const MARKET_ORDER = ["Goals", "Corners", "Shots", "SOT", "Cards"];
 const PLAYER_MARKET_ORDER = ["Shots", "SOT", "Fouls won", "Fouls committed", "Goals", "Cards"];
+const COMMON_FRACTIONAL_ODDS: Array<readonly [number, number]> = [
+  [1, 100], [1, 66], [1, 50], [1, 40], [1, 33], [1, 25], [1, 20], [1, 16], [1, 14], [1, 12],
+  [1, 10], [1, 9], [1, 8], [1, 7], [1, 6], [1, 5], [2, 9], [1, 4], [2, 7], [3, 10], [1, 3],
+  [4, 11], [2, 5], [4, 9], [1, 2], [8, 15], [4, 7], [8, 13], [2, 3], [8, 11], [4, 5], [5, 6],
+  [8, 9], [10, 11], [1, 1], [11, 10], [6, 5], [5, 4], [11, 8], [6, 4], [13, 8], [7, 4], [15, 8],
+  [2, 1], [9, 4], [5, 2], [11, 4], [3, 1], [10, 3], [7, 2], [4, 1], [9, 2], [5, 1], [6, 1],
+  [7, 1], [8, 1], [9, 1], [10, 1], [12, 1], [14, 1], [16, 1], [20, 1], [25, 1], [33, 1], [40, 1],
+  [50, 1], [66, 1], [100, 1],
+];
 
 function fixtureDate(value: string | null | undefined) {
   if (!value) return "Date TBC";
@@ -253,6 +262,23 @@ function whole(value: number | null | undefined) {
 function percentage(value: number | null | undefined) {
   if (value == null || Number.isNaN(value)) return "—";
   return `${Math.round(value * 100)}%`;
+}
+
+function fairFractionalOdds(probability: number | null | undefined) {
+  if (probability == null || !Number.isFinite(probability) || probability <= 0 || probability >= 1) return "—";
+  const fractionalTarget = (1 - probability) / probability;
+  let best = COMMON_FRACTIONAL_ODDS[0];
+  let bestDistance = Math.abs(best[0] / best[1] - fractionalTarget);
+
+  for (const candidate of COMMON_FRACTIONAL_ODDS.slice(1)) {
+    const distance = Math.abs(candidate[0] / candidate[1] - fractionalTarget);
+    if (distance < bestDistance) {
+      best = candidate;
+      bestDistance = distance;
+    }
+  }
+
+  return best[0] === best[1] ? "EVS" : `${best[0]}/${best[1]}`;
 }
 
 function shortOpponent(name: string) {
@@ -634,7 +660,14 @@ function builderConflict(a: BuilderCandidate, b: BuilderCandidate) {
 }
 
 function buildRecommendedBetBuilder(marketData: HeadToHeadPack | null) {
-  if (!marketData) return { legs: [] as BuilderCandidate[], combined: null as number | null };
+  if (!marketData) {
+    return {
+      legs: [] as BuilderCandidate[],
+      combined: null as number | null,
+      candidates: [] as BuilderCandidate[],
+      alternatives: [] as BuilderCandidate[],
+    };
+  }
 
   const candidates: BuilderCandidate[] = [];
   const playerMarkets = marketData.player_markets ?? [];
@@ -718,52 +751,111 @@ function buildRecommendedBetBuilder(marketData: HeadToHeadPack | null) {
     if (legs.length === 3) break;
   }
 
-  if (legs.length < 2) return { legs, combined: null as number | null };
+  const selectedIds = new Set(legs.map((leg) => leg.id));
+  const alternatives = candidates.filter((candidate) => !selectedIds.has(candidate.id)).slice(0, 4);
+  if (legs.length < 2) return { legs, combined: null as number | null, candidates, alternatives };
   const combined = legs.reduce((probability, leg) => probability * leg.estimate, 1);
-  return { legs, combined };
+  return { legs, combined, candidates, alternatives };
+}
+
+function BuilderInsightCard({ title, tone, items }: { title: string; tone: "support" | "risk"; items: string[] }) {
+  return (
+    <article className={styles.builderInsightCard} data-tone={tone}>
+      <header><span>{tone === "support" ? "✓" : "!"}</span><strong>{title}</strong></header>
+      <ul>{items.map((item, index) => <li key={`${tone}-${index}`}>{item}</li>)}</ul>
+    </article>
+  );
 }
 
 function BetBuilderDesk({ marketData }: { marketData: HeadToHeadPack | null }) {
   const recommendation = buildRecommendedBetBuilder(marketData);
+  const bestSingle = recommendation.candidates[0];
+  const supportItems = recommendation.legs.map((leg) => `${leg.label} · ${leg.evidence}`);
+  const riskItems = [
+    ...(recommendation.legs.some((leg) => leg.playerCode) ? ["Player involvement and minutes"] : []),
+    ...(recommendation.legs.some((leg) => leg.observations <= 5) ? ["Small samples around one or more legs"] : []),
+    ...(recommendation.legs.some((leg) => !leg.playerCode) ? ["Match state can move team-volume markets"] : []),
+    "Residual correlation between same-game legs",
+  ].slice(0, 4);
 
   return (
     <section className={styles.builderDesk}>
       <div className={styles.cheatSheetHeading}>
         <div><span>FRL BET BUILDER</span><strong>Best-supported combination from this fixture</strong></div>
-        <p>FRL ranks the evidence already shown across Team markets, Player markets and Foul matchups, then screens obvious dependency clashes before combining legs.</p>
+        <p>Evidence-selected, dependency-screened, pre-kickoff.</p>
       </div>
 
       {recommendation.legs.length >= 2 && recommendation.combined != null ? (
-        <div className={styles.builderLayout}>
-          <div className={styles.builderLegs}>
-            {recommendation.legs.map((leg, index) => (
-              <article className={styles.builderLeg} data-tone={familyTone(leg.family)} key={leg.id}>
-                <span className={styles.builderLegNumber}>{index + 1}</span>
-                <div className={styles.builderLegCopy}>
-                  <span>{leg.sourceLabel} · {leg.family}</span>
-                  <strong>{leg.label}</strong>
-                  <p>{leg.evidence}</p>
-                </div>
-                <div className={styles.builderLegEstimate}>
-                  <strong>{percentage(leg.estimate)}</strong>
-                  <small>{leg.estimateLabel}</small>
-                </div>
-              </article>
-            ))}
+        <>
+          <div className={styles.builderLayout}>
+            <div className={styles.builderLegs}>
+              {recommendation.legs.map((leg, index) => (
+                <article className={styles.builderLeg} data-tone={familyTone(leg.family)} key={leg.id}>
+                  <span className={styles.builderLegNumber}>{index + 1}</span>
+                  <div className={styles.builderLegCopy}>
+                    <span>{leg.sourceLabel} · {leg.family}</span>
+                    <strong>{leg.label}</strong>
+                    <p>{leg.evidence}</p>
+                  </div>
+                  <div className={styles.builderLegEstimate}>
+                    <strong>{percentage(leg.estimate)}</strong>
+                    <em>≈ {fairFractionalOdds(leg.estimate)}</em>
+                    <small>fair odds</small>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <aside className={styles.builderSummary}>
+              <span>INDICATIVE COMBINED LIKELIHOOD</span>
+              <strong>{percentage(recommendation.combined)}</strong>
+              <b className={styles.builderSummaryOdds}>Fair odds ≈ {fairFractionalOdds(recommendation.combined)}</b>
+              <b>{recommendation.legs.length}-leg FRL suggestion</b>
+              <p>Indicative only: residual same-game correlation can remain.</p>
+              <div>
+                <span>Evidence-selected</span>
+                <span>Dependency-screened</span>
+                <span>Pre-kickoff only</span>
+              </div>
+            </aside>
           </div>
 
-          <aside className={styles.builderSummary}>
-            <span>INDICATIVE COMBINED LIKELIHOOD</span>
-            <strong>{percentage(recommendation.combined)}</strong>
-            <b>{recommendation.legs.length}-leg FRL suggestion</b>
-            <p>Obvious same-player and tightly linked market combinations are excluded before the leg estimates are multiplied.</p>
-            <div>
-              <span>Evidence-selected</span>
-              <span>Dependency-screened</span>
-              <span>Pre-kickoff only</span>
-            </div>
-          </aside>
-        </div>
+          <div className={styles.builderInsightGrid}>
+            <BuilderInsightCard title="Why FRL likes it" tone="support" items={supportItems} />
+            <BuilderInsightCard title="Key risks" tone="risk" items={riskItems} />
+            {bestSingle && (
+              <article className={styles.builderSingleCard}>
+                <header><span>▥</span><strong>Best single selection</strong></header>
+                <div className={styles.builderSingleBody}>
+                  <div>
+                    <span>{bestSingle.sourceLabel} · {bestSingle.family}</span>
+                    <strong>{bestSingle.label}</strong>
+                    <small>{bestSingle.evidence}</small>
+                  </div>
+                  <div className={styles.builderSinglePrice}>
+                    <strong>{percentage(bestSingle.estimate)}</strong>
+                    <b>≈ {fairFractionalOdds(bestSingle.estimate)}</b>
+                  </div>
+                </div>
+              </article>
+            )}
+          </div>
+
+          {recommendation.alternatives.length > 0 && (
+            <section className={styles.builderAlternatives}>
+              <header><span>OTHER OPTIONS CONSIDERED</span><strong>Next-best supported candidates</strong></header>
+              <div>
+                {recommendation.alternatives.map((candidate) => (
+                  <article key={candidate.id}>
+                    <span>{candidate.sourceLabel} · {candidate.family}</span>
+                    <strong>{candidate.label}</strong>
+                    <div><b>{percentage(candidate.estimate)}</b><em>≈ {fairFractionalOdds(candidate.estimate)}</em></div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
       ) : (
         <div className={styles.builderEmpty}>
           <strong>No builder forced.</strong>
@@ -771,7 +863,7 @@ function BetBuilderDesk({ marketData }: { marketData: HeadToHeadPack | null }) {
         </div>
       )}
 
-      <p className={styles.builderCaveat}>The combined percentage is experimental rather than a calibrated same-game-multiple probability. Team and player evidence estimates use a small-sample adjustment; residual correlation can still remain after the dependency screen.</p>
+      <p className={styles.builderCaveat}>Percentages use the current experimental evidence estimates; displayed fractional odds are fair-price translations of those estimates, not bookmaker recommendations.</p>
     </section>
   );
 }
