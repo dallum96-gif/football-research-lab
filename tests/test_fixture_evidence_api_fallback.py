@@ -22,8 +22,14 @@ def test_optional_participation_enrichment_cannot_suppress_fixture_events(monkey
         "limitations": [],
         "provenance": {"source_family": "pulselive_match"},
     }
+    enriched_metadata = {
+        "ground": "Example Ground",
+        "attendance": 42000,
+        "referee": "Example Referee",
+    }
 
     monkeypatch.setattr(route, "source_fixture_evidence", lambda season, fixture_id: base)
+    monkeypatch.setattr(route, "fixture_metadata_result", lambda season, fixture_id: enriched_metadata)
 
     def fail_enrichment(season: str, fixture_id: str) -> dict:
         raise RuntimeError("optional Player-Match enrichment unavailable")
@@ -34,7 +40,7 @@ def test_optional_participation_enrichment_cannot_suppress_fixture_events(monkey
 
     assert result["status"] == "AVAILABLE"
     assert result["events"] == base["events"]
-    assert result["metadata"] == base["metadata"]
+    assert result["metadata"] == enriched_metadata
     assert result["provenance"]["participation_enrichment"]["status"] == "UNAVAILABLE"
     assert result["provenance"]["participation_enrichment"]["optional"] is True
     assert any("participation enrichment" in note for note in result["limitations"])
