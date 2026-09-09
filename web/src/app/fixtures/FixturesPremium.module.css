@@ -1,0 +1,616 @@
+.frame {
+  width: min(100%, 1260px);
+  margin: 0 auto;
+  padding: 2.8rem 0 4.5rem;
+  color: #171714;
+}
+
+.frame :global(.frl-page-heading) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 3rem;
+  padding: 1.2rem 0 2.4rem;
+}
+
+.frame :global(.frl-heading-copy) {
+  min-width: 0;
+}
+
+.frame :global(.frl-eyebrow) {
+  margin: 0 0 1rem;
+  color: #746f66;
+  font-size: .61rem;
+  font-weight: 700;
+  letter-spacing: .19em;
+  text-transform: uppercase;
+}
+
+.frame :global(.frl-heading-row) {
+  display: block;
+}
+
+.frame :global(.frl-team-title-control) {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.frame :global(.frl-team-title-button) {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .8rem;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #171714;
+  cursor: pointer;
+  text-align: left;
+}
+
+.frame :global(.frl-team-title-button:disabled) {
+  cursor: default;
+  opacity: .55;
+}
+
+.frame :global(.frl-title) {
+  margin: 0;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  font-size: clamp(3.5rem, 7vw, 6.7rem);
+  font-weight: 400;
+  line-height: .9;
+  letter-spacing: -.055em;
+}
+
+.frame :global(.frl-team-title-chevron) {
+  position: relative;
+  top: -.25rem;
+  color: #8a857c;
+  font-size: .92rem;
+  transition: transform 160ms ease, color 160ms ease;
+}
+
+.frame :global(.frl-team-title-button:hover .frl-team-title-chevron) {
+  color: #171714;
+}
+
+.frame :global(.frl-team-title-button.is-open .frl-team-title-chevron) {
+  transform: rotate(180deg);
+}
+
+.frame :global(.frl-team-menu) {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + .8rem);
+  left: 0;
+  width: min(24rem, 88vw);
+  max-height: 24rem;
+  overflow: auto;
+  padding: .6rem 0;
+  border: 1px solid rgba(23, 23, 20, .14);
+  background: #fffefb;
+  box-shadow: 0 18px 48px rgba(23, 23, 20, .12);
+}
+
+.frame :global(.frl-team-menu button) {
+  display: block;
+  width: 100%;
+  padding: .72rem 1rem;
+  border: 0;
+  background: transparent;
+  color: #45413b;
+  cursor: pointer;
+  text-align: left;
+  font-size: .82rem;
+}
+
+.frame :global(.frl-team-menu button:hover),
+.frame :global(.frl-team-menu button.is-active) {
+  background: #f5f1e8;
+  color: #171714;
+}
+
+.frame :global(.frl-team-menu button.is-active) {
+  font-weight: 700;
+}
+
+.frame :global(.frl-context) {
+  margin-top: 1.15rem;
+  color: #6f6a62;
+  font-size: .77rem;
+  letter-spacing: .035em;
+}
+
+.frame :global(.frl-context-actions) {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 2.1rem;
+  padding-bottom: .3rem;
+}
+
+.frame :global(.frl-context-control) {
+  position: relative;
+  display: grid;
+  gap: .4rem;
+  min-height: 0;
+  padding: 0 1.35rem .45rem 0;
+  border-bottom: 1px solid rgba(23, 23, 20, .28);
+}
+
+.frame :global(.frl-context-control > span:first-child) {
+  color: #99938a;
+  font-size: .53rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.frame :global(.frl-context-control select) {
+  min-width: 7.6rem;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  appearance: none;
+  background: transparent;
+  color: #171714;
+  cursor: pointer;
+  font-size: .78rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.frame :global(.frl-context-control select:disabled) {
+  cursor: wait;
+  opacity: .48;
+}
+
+.frame :global(.frl-context-chevron) {
+  position: absolute;
+  right: .02rem;
+  bottom: .47rem;
+  color: #8f8a81;
+  font-size: .63rem;
+  pointer-events: none;
+}
+
+.frame :global(.frl-record-chip) {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto;
+  align-items: baseline;
+  gap: .65rem;
+  min-height: 0;
+  padding: 0 0 .35rem;
+  color: #817c73;
+  font-size: .64rem;
+  white-space: nowrap;
+}
+
+.frame :global(.frl-record-chip strong) {
+  color: #171714;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  font-size: 1.65rem;
+  font-weight: 400;
+  letter-spacing: -.04em;
+}
+
+.frame :global(.frl-record-positive),
+.frame :global(.frl-record-negative) {
+  color: #171714;
+  font-weight: 650;
+}
+
+.frame :global(.frl-rule) {
+  height: 1px;
+  margin: 0;
+  background: #171714;
+  opacity: 1;
+}
+
+.frame :global(.frl-filter-bar) {
+  display: flex;
+  align-items: end;
+  gap: 1.5rem 2rem;
+  flex-wrap: wrap;
+  padding: 1.25rem 0 1.35rem;
+  border-bottom: 1px solid rgba(23, 23, 20, .13);
+}
+
+.frame :global(.frl-filter-heading) {
+  display: grid;
+  flex: 0 0 9rem;
+  gap: .28rem;
+  padding: 0;
+}
+
+.frame :global(.frl-filter-heading span) {
+  color: #171714;
+  font-size: .55rem;
+  font-weight: 750;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.frame :global(.frl-filter-heading strong) {
+  color: #918c83;
+  font-size: .65rem;
+  font-weight: 500;
+}
+
+.frame :global(.frl-filter-bar .frl-context-control) {
+  flex: 1 1 8.8rem;
+  max-width: 12.8rem;
+}
+
+.frame :global(.frl-filter-summary) {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .85rem;
+  min-height: 0;
+  margin-left: auto;
+  padding-bottom: .4rem;
+  color: #8b867d;
+  font-size: .63rem;
+  white-space: nowrap;
+}
+
+.frame :global(.frl-filter-summary button),
+.frame :global(.frl-empty-state button) {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #171714;
+  cursor: pointer;
+  font-size: .63rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: rgba(23, 23, 20, .28);
+  text-underline-offset: .2rem;
+}
+
+.frame :global(.frl-fixture-list) {
+  margin-top: 3.5rem;
+}
+
+.frame :global(.frl-fixture-month) {
+  position: relative;
+}
+
+.frame :global(.frl-fixture-month + .frl-fixture-month) {
+  margin-top: 4.5rem;
+}
+
+.frame :global(.frl-month-heading) {
+  display: flex;
+  align-items: baseline;
+  gap: .8rem;
+  margin: 0 0 1rem;
+  color: #171714;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  font-size: clamp(1.75rem, 2.6vw, 2.65rem);
+  font-weight: 400;
+  letter-spacing: -.035em;
+  text-transform: none;
+}
+
+.frame :global(.frl-month-heading span) {
+  display: none;
+}
+
+.frame :global(.frl-fixture-header),
+.frame :global(.frl-fixture-row) {
+  display: grid;
+  grid-template-columns: 1.25fr minmax(15rem, 3.2fr) .8fr .85fr .72fr;
+  column-gap: 1.5rem;
+  align-items: center;
+}
+
+.frame :global(.frl-fixture-header) {
+  padding: .55rem .35rem .7rem;
+  border-top: 1px solid #171714;
+  border-bottom: 1px solid rgba(23, 23, 20, .18);
+  color: #9b958c;
+  font-size: .5rem;
+  font-weight: 700;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.frame :global(.frl-fixture-header span:nth-child(n+3)) {
+  text-align: center;
+}
+
+.frame :global(.frl-fixture-row) {
+  position: relative;
+  min-height: 4.9rem;
+  padding: .75rem .35rem;
+  border-bottom: 1px solid rgba(23, 23, 20, .11);
+  color: #171714;
+  text-decoration: none;
+  transition: background-color 140ms ease, padding-left 140ms ease;
+}
+
+.frame :global(.frl-fixture-row::before) {
+  display: none;
+}
+
+.frame :global(.frl-fixture-row:hover) {
+  padding-left: .65rem;
+  background: #faf8f2;
+  box-shadow: none;
+}
+
+.frame :global(.frl-fixture-date) {
+  display: grid;
+  gap: .32rem;
+  color: #706b63;
+  font-size: .72rem;
+  font-weight: 520;
+  letter-spacing: .015em;
+}
+
+.frame :global(.frl-fixture-date small) {
+  color: #a19c93;
+  font-size: .49rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.frame :global(.frl-fixture-opponent) {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+  min-width: 0;
+  font-size: .98rem;
+  font-weight: 500;
+  letter-spacing: -.012em;
+}
+
+.frame :global(.frl-fixture-opponent strong) {
+  overflow: hidden;
+  font-weight: 540;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.frame :global(.frl-fixture-opponent-kit) {
+  display: inline-flex;
+  flex: 0 0 2rem;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+}
+
+.frame :global(.frl-fixture-opponent-kit svg) {
+  width: 1.85rem;
+  height: 1.85rem;
+}
+
+.frame :global(.frl-fixture-venue) {
+  color: #8f8a81;
+  font-size: .55rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.frame :global(.frl-fixture-score) {
+  color: #171714;
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  font-size: 1.45rem;
+  font-weight: 400;
+  letter-spacing: -.05em;
+  text-align: center;
+}
+
+.frame :global(.frl-fixture-result) {
+  display: inline-flex;
+  justify-content: center;
+  color: #171714;
+  font-size: .56rem;
+  font-weight: 760;
+  letter-spacing: .15em;
+  text-align: center;
+}
+
+.frame :global(.frl-result-w) {
+  color: #506030;
+}
+
+.frame :global(.frl-result-d) {
+  color: #6f6a62;
+}
+
+.frame :global(.frl-result-l) {
+  color: #a04938;
+}
+
+.frame :global(.frl-result-unplayed) {
+  color: #9a958c;
+  font-size: 0;
+}
+
+.frame :global(.frl-result-unplayed::after) {
+  content: "UPCOMING";
+  font-size: .49rem;
+  font-weight: 700;
+  letter-spacing: .13em;
+}
+
+.frame :global(.frl-research-note) {
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(23, 23, 20, .14);
+  color: #8b867d;
+  font-size: .63rem;
+  line-height: 1.75;
+}
+
+.frame :global(.frl-research-note strong) {
+  color: #4d4943;
+  font-weight: 700;
+}
+
+.frame :global(.frl-empty-state) {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  margin-top: 2.5rem;
+  padding: 1.4rem 0;
+  border-top: 1px solid rgba(23, 23, 20, .17);
+  border-bottom: 1px solid rgba(23, 23, 20, .17);
+  color: #7d786f;
+  font-size: .74rem;
+}
+
+.frame :global(.frl-empty-state strong) {
+  color: #171714;
+}
+
+@media (max-width: 980px) {
+  .frame {
+    padding-top: 1.7rem;
+  }
+
+  .frame :global(.frl-page-heading) {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: 1.7rem;
+  }
+
+  .frame :global(.frl-context-actions) {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .frame :global(.frl-title) {
+    font-size: clamp(3.6rem, 11vw, 6rem);
+  }
+
+  .frame :global(.frl-fixture-header),
+  .frame :global(.frl-fixture-row) {
+    grid-template-columns: 1.2fr minmax(12rem, 2.7fr) .7fr .8fr .7fr;
+    column-gap: 1rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .frame {
+    padding: 1.1rem 0 3rem;
+  }
+
+  .frame :global(.frl-page-heading) {
+    padding-bottom: 1.7rem;
+  }
+
+  .frame :global(.frl-title) {
+    font-size: clamp(3rem, 15vw, 4.9rem);
+  }
+
+  .frame :global(.frl-context-actions) {
+    align-items: start;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+
+  .frame :global(.frl-record-chip) {
+    width: 100%;
+  }
+
+  .frame :global(.frl-filter-bar) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.2rem 1.4rem;
+  }
+
+  .frame :global(.frl-filter-heading),
+  .frame :global(.frl-filter-summary) {
+    grid-column: 1 / -1;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .frame :global(.frl-filter-bar .frl-context-control) {
+    max-width: none;
+  }
+
+  .frame :global(.frl-fixture-list) {
+    margin-top: 2.7rem;
+  }
+
+  .frame :global(.frl-fixture-month + .frl-fixture-month) {
+    margin-top: 3.3rem;
+  }
+
+  .frame :global(.frl-fixture-header) {
+    display: none;
+  }
+
+  .frame :global(.frl-fixture-row) {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "opponent score"
+      "date result";
+    gap: .5rem 1rem;
+    min-height: 5.4rem;
+    padding: .85rem .15rem;
+  }
+
+  .frame :global(.frl-fixture-row:hover) {
+    padding-left: .45rem;
+  }
+
+  .frame :global(.frl-fixture-opponent) {
+    grid-area: opponent;
+    font-size: .9rem;
+  }
+
+  .frame :global(.frl-fixture-date) {
+    grid-area: date;
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+  }
+
+  .frame :global(.frl-fixture-score) {
+    grid-area: score;
+    align-self: center;
+    font-size: 1.35rem;
+  }
+
+  .frame :global(.frl-fixture-result) {
+    grid-area: result;
+    align-self: center;
+    justify-content: flex-end;
+  }
+
+  .frame :global(.frl-fixture-venue) {
+    display: none;
+  }
+}
+
+@media (max-width: 460px) {
+  .frame :global(.frl-filter-bar) {
+    grid-template-columns: 1fr;
+  }
+
+  .frame :global(.frl-filter-heading),
+  .frame :global(.frl-filter-summary) {
+    grid-column: auto;
+  }
+
+  .frame :global(.frl-record-chip) {
+    gap: .48rem;
+  }
+
+  .frame :global(.frl-record-chip strong) {
+    font-size: 1.4rem;
+  }
+}
