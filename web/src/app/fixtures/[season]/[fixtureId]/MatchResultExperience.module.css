@@ -456,10 +456,10 @@
 .playerNode {
   position: absolute;
   z-index: 3;
-  width: 5.15rem;
+  width: 6.4rem;
   display: grid;
   justify-items: center;
-  gap: .07rem;
+  gap: .09rem;
   text-align: center;
   transform: translate(-50%, -50%);
 }
@@ -468,13 +468,13 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.28rem;
-  height: 1.28rem;
+  width: 1.46rem;
+  height: 1.46rem;
   border: 1px solid #e85d3f;
   border-radius: 50%;
   background: #171715;
   color: #e85d3f;
-  font-size: .37rem;
+  font-size: .42rem;
   font-weight: 820;
 }
 
@@ -486,17 +486,18 @@
 .playerNode strong {
   max-width: 100%;
   overflow: hidden;
-  color: #f5f1e8;
-  font-size: .47rem;
-  font-weight: 650;
-  line-height: 1.05;
+  color: #fffaf1;
+  font-size: .62rem;
+  font-weight: 680;
+  line-height: 1.08;
+  letter-spacing: -.015em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .playerNode small {
-  color: #625e57;
-  font-size: .34rem;
+  color: #716c64;
+  font-size: .35rem;
   font-weight: 700;
   letter-spacing: .06em;
   text-transform: uppercase;
@@ -743,6 +744,8 @@
   .overviewMetricValues { grid-template-columns: 2.15rem minmax(0, 1fr) 2.15rem; gap: .22rem; }
   .overviewMetricValues strong { font-size: .82rem; }
   .overviewMetricValues span { font-size: .32rem; }
+  .playerNode { width: 5.7rem; }
+  .playerNode strong { font-size: .56rem; }
   .recordFooter > div { padding-inline: .5rem; }
 }
 
@@ -777,8 +780,8 @@
 
   .lineupPanel { padding-inline: .18rem; }
   .lineupContext span { display: none; }
-  .playerNode { width: 3.9rem; }
-  .playerNode strong { font-size: .4rem; }
+  .playerNode { width: 4.4rem; }
+  .playerNode strong { font-size: .45rem; }
   .playerNode small { display: none; }
 
   .flowEvent { width: 6.8rem; }
