@@ -1,0 +1,442 @@
+/*
+ * Match result experience — luxury digital composition.
+ *
+ * The score hero and FRL shell remain the fixed frame. Only the analytical
+ * surface below the dossier rail scrolls on desktop. The underlying fixture
+ * evidence and governed data contracts are unchanged.
+ */
+
+@media (min-width: 701px) {
+  [data-frl-fixture-dossier] {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  [data-frl-fixture-dossier] > [data-frl-fixture-hero],
+  [data-frl-fixture-dossier] > [data-frl-dossier-nav] {
+    flex: 0 0 auto;
+  }
+
+  [data-frl-fixture-dossier] > div:last-child {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 241, 232, .18) transparent;
+    padding: 0 .55rem 4.5rem 0;
+  }
+
+  [data-frl-fixture-dossier] > div:last-child::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  [data-frl-fixture-dossier] > div:last-child::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  [data-frl-fixture-dossier] > div:last-child::-webkit-scrollbar-thumb {
+    background: rgba(245, 241, 232, .18);
+    border-radius: 999px;
+  }
+}
+
+/* The dossier rail is part of the frame, not another floating navigation bar. */
+[data-frl-dossier-nav] {
+  position: relative !important;
+  top: auto !important;
+  flex: 0 0 auto;
+  min-height: 2.45rem;
+  gap: 1.7rem !important;
+  padding-top: .76rem !important;
+  padding-bottom: .76rem !important;
+  background: #0c0c0b !important;
+  backdrop-filter: none !important;
+  border-top: 0 !important;
+  border-bottom: 1px solid rgba(245, 241, 232, .105) !important;
+}
+
+[data-frl-dossier-nav] a {
+  color: #68635c !important;
+  font-size: .49rem !important;
+  font-weight: 760 !important;
+  letter-spacing: .15em !important;
+}
+
+/* Overview is the archival close, so present it as Details at the end. */
+[data-frl-dossier-nav] a:first-child {
+  order: 5;
+  font-size: 0 !important;
+}
+
+[data-frl-dossier-nav] a:first-child::before {
+  content: "Details";
+  font-size: .49rem;
+}
+
+[data-frl-dossier-nav] a:nth-child(2) { order: 1; }
+[data-frl-dossier-nav] a:nth-child(3) { order: 2; }
+[data-frl-dossier-nav] a:nth-child(4) { order: 3; }
+[data-frl-dossier-nav] a:nth-child(5) { order: 4; }
+
+[data-frl-dossier-nav] a:first-child::after {
+  display: none !important;
+}
+
+[data-frl-dossier-nav] a:nth-child(2) {
+  color: #f5f1e8 !important;
+}
+
+[data-frl-dossier-nav] a:nth-child(2)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -.77rem;
+  height: 1px;
+  background: #e85d3f;
+}
+
+/* One continuous reading surface; section spacing creates chapters, not cards. */
+[data-frl-fixture-dossier] > div:last-child {
+  display: flex !important;
+  flex-direction: column;
+  gap: 0 !important;
+}
+
+#timeline { order: 1; }
+#lineups { order: 2; }
+#players { order: 3; }
+#statistics { order: 4; }
+#overview { order: 5; }
+[data-frl-fixture-dossier] > div:last-child > details { order: 6; }
+
+#timeline,
+#lineups,
+#players,
+#statistics,
+#overview {
+  scroll-margin-top: 1rem !important;
+  padding: 2.55rem 0 2.8rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .085);
+}
+
+#timeline {
+  padding-top: 2rem;
+}
+
+#lineups {
+  padding-top: 2.8rem;
+}
+
+#players,
+#statistics {
+  padding-top: 3.25rem;
+}
+
+/* Editorial chapter headings: quiet label, confident title, no component chrome. */
+#timeline > div:first-child,
+#lineups > div:first-child,
+#players > div:first-child,
+#statistics > div:first-child {
+  align-items: flex-end !important;
+  margin-bottom: 1.55rem !important;
+  padding-bottom: .72rem !important;
+  border-bottom: 1px solid rgba(245, 241, 232, .095) !important;
+}
+
+#timeline > div:first-child h2,
+#lineups > div:first-child h2,
+#players > div:first-child h2,
+#statistics > div:first-child h2 {
+  margin-top: .3rem !important;
+  font-size: clamp(1.42rem, 1.9vw, 1.85rem) !important;
+  font-weight: 590 !important;
+  letter-spacing: -.05em !important;
+}
+
+#timeline > div:first-child > div > span,
+#lineups > div:first-child > div > span,
+#players > div:first-child > div > span,
+#statistics > div:first-child > div > span {
+  font-size: .45rem !important;
+  letter-spacing: .18em !important;
+}
+
+#timeline > div:first-child small,
+#lineups > div:first-child small,
+#players > div:first-child small,
+#statistics > div:first-child small {
+  color: #645f58 !important;
+  font-size: .47rem !important;
+}
+
+/* Signature chronology: one 90-minute instrument line. */
+#timeline > div:last-child {
+  position: relative !important;
+  display: flex !important;
+  align-items: stretch;
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 8.6rem;
+  margin: 0 !important;
+  padding: .3rem 1rem !important;
+  row-gap: 0 !important;
+}
+
+#timeline > div:last-child::before {
+  top: 50% !important;
+  bottom: auto !important;
+  left: 1rem !important;
+  right: 1rem !important;
+  width: auto !important;
+  height: 1px !important;
+  background: rgba(245, 241, 232, .18) !important;
+  transform: none !important;
+}
+
+#timeline > div:last-child::after {
+  content: "0′                                                        45′                                                        90′";
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  top: calc(50% + .72rem);
+  display: flex;
+  justify-content: space-between;
+  color: #4f4b45;
+  font-size: .4rem;
+  font-weight: 760;
+  letter-spacing: .08em;
+  white-space: pre;
+  pointer-events: none;
+}
+
+#timeline > div:last-child > div {
+  position: relative;
+  z-index: 2;
+  flex: 1 1 0;
+  min-width: 0;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  grid-template-rows: minmax(3rem, auto) 1.45rem minmax(3rem, auto);
+  align-items: center;
+  justify-items: center;
+}
+
+#timeline > div:last-child > div > :first-child {
+  grid-row: 1;
+}
+
+#timeline > div:last-child > div > :nth-child(2) {
+  grid-row: 2;
+  align-self: center;
+  min-width: 1.75rem !important;
+  padding: .18rem .25rem !important;
+  background: #10100f !important;
+  color: #b9b2a8 !important;
+  font-size: .48rem !important;
+  font-weight: 780 !important;
+  border: 1px solid rgba(245, 241, 232, .1);
+}
+
+#timeline > div:last-child > div > :last-child {
+  grid-row: 3;
+}
+
+#timeline > div:last-child > div > div:first-child,
+#timeline > div:last-child > div > div:last-child {
+  justify-content: center !important;
+  width: 100%;
+  min-height: 0 !important;
+  padding: 0 .55rem !important;
+  color: #ddd7ce !important;
+  font-size: .56rem !important;
+  line-height: 1.22;
+  text-align: center !important;
+}
+
+#timeline > div:last-child > div > div:first-child > span:last-child,
+#timeline > div:last-child > div > div:last-child > span:last-child {
+  max-width: 11rem;
+}
+
+/* Tactical view is the visual centrepiece: two halves, one material. */
+#lineups > div:last-child {
+  min-height: 31rem !important;
+  background: #121210 !important;
+  border-top: 1px solid rgba(245, 241, 232, .11) !important;
+  border-bottom: 1px solid rgba(245, 241, 232, .11) !important;
+}
+
+#lineups > div:last-child > div {
+  padding: 1.05rem 1.15rem 1.2rem !important;
+}
+
+#lineups > div:last-child > div:first-child {
+  border-right: 1px solid rgba(245, 241, 232, .115) !important;
+}
+
+#lineups > div:last-child > div > div:first-child {
+  margin-bottom: .65rem !important;
+  padding-bottom: .6rem !important;
+  border-bottom: 1px solid rgba(245, 241, 232, .075) !important;
+}
+
+#lineups > div:last-child > div > div:last-child {
+  min-height: 26.5rem !important;
+  background-size: 4rem 4rem !important;
+}
+
+/* Player and team analysis remain dense; rules and typography do the work. */
+#players > div:last-child,
+#statistics > div:last-child {
+  width: min(100%, 68rem) !important;
+  margin-inline: auto !important;
+}
+
+#statistics > div:last-child > div {
+  min-height: 3.35rem !important;
+  border-bottom-color: rgba(245, 241, 232, .065) !important;
+}
+
+/* Match metadata returns to the archival close. */
+#overview {
+  position: relative;
+  padding-top: 3.35rem;
+  padding-bottom: 2.2rem;
+}
+
+#overview::before {
+  content: "MATCH RECORD";
+  display: block;
+  margin-bottom: .45rem;
+  color: #e85d3f;
+  font-size: .45rem;
+  font-weight: 820;
+  letter-spacing: .18em;
+}
+
+#overview::after {
+  content: "Verified fixture metadata";
+  position: absolute;
+  top: 3.95rem;
+  left: 0;
+  color: #f5f1e8;
+  font-size: 1.45rem;
+  font-weight: 590;
+  letter-spacing: -.045em;
+}
+
+#overview > div:first-child {
+  display: none !important;
+}
+
+#overview > div[role="status"] {
+  margin-top: 3.2rem;
+  margin-bottom: .8rem;
+}
+
+#overview > div:last-child {
+  display: grid !important;
+  grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+  margin-top: 3.15rem;
+  border-top: 1px solid rgba(245, 241, 232, .12) !important;
+  border-bottom: 1px solid rgba(245, 241, 232, .12) !important;
+}
+
+#overview > div:last-child > div {
+  padding: .9rem .8rem .85rem 0 !important;
+  border-right: 1px solid rgba(245, 241, 232, .07);
+  border-bottom: 0 !important;
+}
+
+#overview > div:last-child > div:last-child {
+  border-right: 0;
+}
+
+[data-frl-fixture-dossier] > div:last-child > details {
+  margin: 0 !important;
+  padding: 1.15rem 0 0 !important;
+  border-top: 0 !important;
+  color: #5e5952 !important;
+}
+
+[data-frl-fixture-dossier] > div:last-child > details summary {
+  color: #777168 !important;
+  font-size: .48rem !important;
+  letter-spacing: .12em !important;
+}
+
+@media (max-width: 980px) {
+  #overview > div:last-child {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
+  #overview > div:last-child > div {
+    border-bottom: 1px solid rgba(245, 241, 232, .07) !important;
+  }
+
+  #timeline > div:last-child > div > div:first-child,
+  #timeline > div:last-child > div > div:last-child {
+    font-size: .5rem !important;
+  }
+}
+
+@media (max-width: 700px) {
+  [data-frl-fixture-dossier] {
+    overflow: visible;
+  }
+
+  [data-frl-dossier-nav] a:first-child::before {
+    font-size: .47rem;
+  }
+
+  #timeline,
+  #lineups,
+  #players,
+  #statistics,
+  #overview {
+    padding: 2.2rem 0;
+  }
+
+  #timeline > div:last-child {
+    display: grid !important;
+    min-height: 0;
+    padding: .4rem 0 !important;
+  }
+
+  #timeline > div:last-child::before,
+  #timeline > div:last-child::after {
+    display: none;
+  }
+
+  #timeline > div:last-child > div {
+    grid-template-columns: minmax(0, 1fr) 2.8rem minmax(0, 1fr) !important;
+    grid-template-rows: 1fr;
+    min-height: 2.5rem;
+  }
+
+  #timeline > div:last-child > div > :first-child,
+  #timeline > div:last-child > div > :nth-child(2),
+  #timeline > div:last-child > div > :last-child {
+    grid-row: 1;
+  }
+
+  #timeline > div:last-child > div > :first-child { grid-column: 1; }
+  #timeline > div:last-child > div > :nth-child(2) { grid-column: 2; }
+  #timeline > div:last-child > div > :last-child { grid-column: 3; }
+
+  #overview::after {
+    font-size: 1.25rem;
+  }
+
+  #overview > div:last-child {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
