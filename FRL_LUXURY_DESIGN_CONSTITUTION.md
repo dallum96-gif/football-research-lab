@@ -1,17 +1,39 @@
 # Football Research Laboratory — Luxury Design Constitution
 
 **Status:** active product-design standard
-**First reference implementation:** Fixtures premium pass
+**Primary visual anchor:** the `FRL.` wordmark and top navigation shell
 
 ## Intent
 
 FRL should feel beautiful, expensive, calm and deliberate.
 
-The visual reference is not a generic SaaS dashboard, AI product, sportsbook or game HUD. The closer mental model is a high-end editorial product: fashion house, architectural publication, private members' club, premium financial journal or beautifully typeset sporting almanac.
+The visual reference is not a generic SaaS dashboard, AI product, sportsbook or game HUD. The closer mental model is a high-end digital product shaped by luxury design principles: precision, restraint, confidence, proportion and material quality.
 
 Luxury should come from restraint, proportion, typography, whitespace, rhythm and confidence — not decoration.
 
 > **FRL should look expensive even in black and white.**
+
+## Brand mark — `FRL.`
+
+The primary FRL logo is the compact typographic wordmark **`FRL.`** as used in the top-left navigation.
+
+- The full stop is part of the mark.
+- The mark should remain compact, bold and tightly tracked.
+- The full phrase **Football Research Laboratory** is supporting descriptor copy, not part of the core logo.
+- Do not embellish the mark with icons, crests, gradients or decorative symbols.
+- The wordmark is the clearest current example of the desired FRL character: digital, intelligent, restrained and premium.
+
+## Digital × luxury
+
+FRL should blend two qualities rather than imitate either one literally.
+
+**Digital** contributes speed, clarity, responsiveness, precision, data density, interaction and analytical capability.
+
+**Luxury** contributes restraint, composition, typography, proportion, scarcity of visual signals, confidence and attention to detail.
+
+The goal is not a fashion-house pastiche. It is a serious digital research product with the finish and discipline of a luxury brand.
+
+The shell, sub-navigation and page body should feel like one continuous composition. Shared content rails matter: primary navigation, contextual navigation and the main page should align naturally instead of creating nested or drifting margins.
 
 ## Hard rejection rules
 
@@ -85,7 +107,7 @@ FRL remains a research product. Evidence quality, missingness, limitations and p
 FRL should feel:
 
 - assured rather than flashy;
-- editorial rather than dashboard-like;
+- digitally precise rather than tech-demo futuristic;
 - analytical rather than gamified;
 - warm rather than sterile;
 - crafted rather than generated;
@@ -94,16 +116,17 @@ FRL should feel:
 
 ## Fixtures reference
 
-The Fixtures page should behave like a premium football ledger or almanac:
+The Fixtures page should behave like a premium football archive:
 
-- strong club identity;
+- strong but restrained club identity;
 - elegant season control;
 - restrained record summary;
 - filtering integrated into the page rather than placed in a dashboard box;
-- month headings with generous rhythm;
-- fixture rows that read like editorial records;
+- month headings with deliberate rhythm;
+- fixture rows that read naturally as football matches;
 - score and result typography carrying the main emphasis;
 - team kits used sparingly as football context;
-- provenance and coverage retained at the bottom as research metadata.
+- provenance and coverage retained at the bottom as research metadata;
+- page content aligned to the same global rail as the shell and contextual navigation.
 
-This page is the first concrete reference for applying the constitution across Teams, Players, Rankings, Matchday and betting surfaces.
+Fixtures remains an experimental reference surface, not a licence to force the same layout onto every page. The reusable standard is the design discipline: **digital precision × luxury restraint**.
