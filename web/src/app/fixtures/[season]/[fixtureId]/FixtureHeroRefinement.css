@@ -1,0 +1,98 @@
+[data-frl-fixture-dossier] [data-frl-fixture-hero] {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 1.35rem;
+  padding-right: 1.35rem;
+}
+
+[data-frl-fixture-dossier] [data-frl-dossier-nav] {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 1.35rem;
+  padding-right: 1.35rem;
+}
+
+[data-frl-hero-scorers] {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9.5rem minmax(0, 1fr);
+  gap: 3rem;
+  width: min(100%, 72rem);
+  min-height: 1.15rem;
+  margin: -.12rem auto .85rem;
+}
+
+[data-frl-goal-side] {
+  display: grid;
+  gap: .24rem;
+  align-content: start;
+  color: #d8d2c9;
+  font-size: .61rem;
+  font-weight: 570;
+  line-height: 1.2;
+}
+
+[data-frl-goal-side="home"] {
+  grid-column: 1;
+  justify-items: end;
+  text-align: right;
+}
+
+[data-frl-goal-side="away"] {
+  grid-column: 3;
+  justify-items: start;
+  text-align: left;
+}
+
+[data-frl-goal-line] {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .4rem;
+  min-width: 0;
+}
+
+[data-frl-goal-line] strong {
+  color: #f5f1e8;
+  font-size: .64rem;
+  font-weight: 620;
+  letter-spacing: -.012em;
+}
+
+[data-frl-goal-line] span {
+  color: #e85d3f;
+  font-size: .52rem;
+  font-weight: 760;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .02em;
+}
+
+@media (max-width: 900px) {
+  [data-frl-hero-scorers] {
+    grid-template-columns: minmax(0, 1fr) 6.5rem minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 650px) {
+  [data-frl-fixture-dossier] [data-frl-fixture-hero],
+  [data-frl-fixture-dossier] [data-frl-dossier-nav] {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  [data-frl-hero-scorers] {
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    width: 100%;
+    margin-top: .45rem;
+  }
+
+  [data-frl-goal-side="home"] {
+    grid-column: 1;
+  }
+
+  [data-frl-goal-side="away"] {
+    grid-column: 2;
+  }
+}
