@@ -213,7 +213,7 @@
 .workspace {
   min-height: 0;
   overflow: hidden;
-  padding: 1rem 1.3rem .9rem;
+  padding: .72rem 1.3rem .68rem;
   background: #10100f;
 }
 
@@ -221,6 +221,297 @@
   width: 100%;
   height: 100%;
   min-height: 0;
+}
+
+.overviewView {
+  display: grid;
+  grid-template-rows: 4.35rem minmax(0, 1fr);
+  gap: .62rem;
+}
+
+.overviewMetrics {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  min-height: 0;
+  border-top: 1px solid rgba(245, 241, 232, .11);
+  border-bottom: 1px solid rgba(245, 241, 232, .11);
+}
+
+.overviewMetric {
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  padding: .52rem .8rem .48rem;
+  border-right: 1px solid rgba(245, 241, 232, .07);
+}
+
+.overviewMetric:last-child {
+  border-right: 0;
+}
+
+.overviewMetricValues {
+  display: grid;
+  grid-template-columns: minmax(2.7rem, 1fr) auto minmax(2.7rem, 1fr);
+  align-items: baseline;
+  gap: .42rem;
+}
+
+.overviewMetricValues strong {
+  color: #f5f1e8;
+  font-size: 1.02rem;
+  font-weight: 625;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.035em;
+}
+
+.overviewMetricValues strong:last-child {
+  text-align: right;
+}
+
+.overviewMetricValues span {
+  color: #716c64;
+  font-size: .39rem;
+  font-weight: 760;
+  letter-spacing: .1em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.overviewMetricScale {
+  display: flex;
+  gap: 2px;
+  height: 1px;
+  margin-top: .42rem;
+  overflow: hidden;
+  background: rgba(245, 241, 232, .05);
+}
+
+.overviewMetricHome,
+.overviewMetricAway {
+  display: block;
+  height: 1px;
+}
+
+.overviewMetricHome {
+  background: #f5f1e8;
+}
+
+.overviewMetricAway {
+  background: #69645d;
+}
+
+.overviewLineups {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+  border-top: 1px solid rgba(245, 241, 232, .08);
+  border-bottom: 1px solid rgba(245, 241, 232, .08);
+}
+
+.overviewLineups::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(245, 241, 232, .11);
+  pointer-events: none;
+}
+
+.lineupPanel {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: 2.55rem minmax(0, 1fr);
+  padding: 0 .9rem .15rem;
+  background: #10100f;
+}
+
+.lineupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .08);
+}
+
+.lineupIdentity {
+  min-width: 0;
+  display: grid;
+  gap: .05rem;
+}
+
+.lineupIdentity span,
+.lineupContext span {
+  color: #67625b;
+  font-size: .38rem;
+  font-weight: 760;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.lineupIdentity strong {
+  color: #f5f1e8;
+  font-size: .72rem;
+  font-weight: 650;
+  letter-spacing: -.018em;
+}
+
+.lineupContext {
+  display: grid;
+  justify-items: end;
+  gap: .06rem;
+  text-align: right;
+}
+
+.lineupContext strong {
+  color: #e85d3f;
+  font-size: .69rem;
+  font-weight: 720;
+}
+
+.lineupPanel[data-side="away"] .lineupContext strong {
+  color: #d8d2c8;
+}
+
+.lineupContext span {
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: none;
+  letter-spacing: .02em;
+}
+
+.pitch {
+  position: relative;
+  min-height: 0;
+  margin-top: .45rem;
+  overflow: hidden;
+  border: 1px solid rgba(245, 241, 232, .11);
+  background: #131311;
+}
+
+.pitch::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(245, 241, 232, .012) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 241, 232, .012) 1px, transparent 1px);
+  background-size: 3.5rem 3.5rem;
+}
+
+.pitchHalf {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(245, 241, 232, .11);
+}
+
+.pitchCircle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4.6rem;
+  height: 4.6rem;
+  border: 1px solid rgba(245, 241, 232, .11);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.penaltyArea,
+.goalBox {
+  position: absolute;
+  left: 50%;
+  border: 1px solid rgba(245, 241, 232, .11);
+  transform: translateX(-50%);
+}
+
+.penaltyArea {
+  width: 42%;
+  height: 17%;
+}
+
+.penaltyTop { top: -1px; }
+.penaltyBottom { bottom: -1px; }
+
+.goalBox {
+  width: 18%;
+  height: 7%;
+}
+
+.goalTop { top: -1px; }
+.goalBottom { bottom: -1px; }
+
+.playerNode {
+  position: absolute;
+  z-index: 3;
+  width: 5.15rem;
+  display: grid;
+  justify-items: center;
+  gap: .07rem;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.playerNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.28rem;
+  height: 1.28rem;
+  border: 1px solid #e85d3f;
+  border-radius: 50%;
+  background: #171715;
+  color: #e85d3f;
+  font-size: .37rem;
+  font-weight: 820;
+}
+
+.lineupPanel[data-side="away"] .playerNumber {
+  border-color: #d8d2c8;
+  color: #d8d2c8;
+}
+
+.playerNode strong {
+  max-width: 100%;
+  overflow: hidden;
+  color: #f5f1e8;
+  font-size: .47rem;
+  font-weight: 650;
+  line-height: 1.05;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playerNode small {
+  color: #625e57;
+  font-size: .34rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.lineupUnavailable {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  color: #716c64;
+  font-size: .5rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
 }
 
 .viewHeading {
@@ -239,8 +530,7 @@
   gap: .7rem;
 }
 
-.viewHeading span,
-.profileHeading span {
+.viewHeading span {
   color: #e85d3f;
   font-size: .45rem;
   font-weight: 820;
@@ -262,47 +552,16 @@
   letter-spacing: .04em;
 }
 
-.matchView {
-  display: grid;
-  grid-template-columns: minmax(0, 1.9fr) minmax(18rem, .74fr);
-  gap: 2rem;
-}
-
-.flowPanel,
-.profilePanel {
-  min-width: 0;
-  min-height: 0;
-}
-
-.flowPanel {
+.playersView,
+.eventsView {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
 }
 
-.profilePanel {
-  padding-left: 1.55rem;
-  border-left: 1px solid rgba(245, 241, 232, .11);
-}
-
-.profileHeading {
-  display: grid;
-  gap: .24rem;
-  padding-bottom: .7rem;
-  border-bottom: 1px solid rgba(245, 241, 232, .1);
-}
-
-.profileHeading strong {
-  color: #fffaf1;
-  font-size: 1.28rem;
-  font-weight: 590;
-  line-height: 1;
-  letter-spacing: -.04em;
-}
-
-.profileHeading small {
-  color: #716c64;
-  font-size: .48rem;
-  font-weight: 620;
+.playersSurface {
+  min-height: 0;
+  padding-top: .7rem;
+  overflow: hidden;
 }
 
 .flowCanvas {
@@ -379,7 +638,6 @@
 
 .flowHome::after { top: calc(100% + .18rem); }
 .flowAway::after { bottom: calc(100% + .18rem); }
-
 .flowEvent[data-align="left"]::after { left: 0; }
 .flowEvent[data-align="right"]::after { left: 100%; }
 
@@ -435,313 +693,6 @@
   text-transform: uppercase;
 }
 
-.metricList {
-  display: grid;
-}
-
-.metricRow {
-  padding: .64rem 0 .6rem;
-  border-bottom: 1px solid rgba(245, 241, 232, .07);
-}
-
-.metricValues {
-  display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr) 3rem;
-  align-items: baseline;
-  gap: .55rem;
-}
-
-.metricValues strong {
-  color: #f5f1e8;
-  font-size: .76rem;
-  font-weight: 640;
-  font-variant-numeric: tabular-nums;
-}
-
-.metricValues strong:last-child { text-align: right; }
-
-.metricValues span {
-  color: #777168;
-  font-size: .44rem;
-  font-weight: 700;
-  letter-spacing: .07em;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.metricScale {
-  display: flex;
-  gap: 2px;
-  height: 1px;
-  margin-top: .38rem;
-  background: rgba(245, 241, 232, .07);
-}
-
-.metricHomeScale,
-.metricAwayScale {
-  display: block;
-  height: 1px;
-}
-
-.metricHomeScale { background: #f5f1e8; }
-.metricAwayScale { background: #68635c; }
-
-.lineupsView {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: rgba(245, 241, 232, .11);
-}
-
-.lineupPanel {
-  min-width: 0;
-  min-height: 0;
-  display: grid;
-  grid-template-rows: 2.85rem minmax(0, 1fr);
-  padding: 0 .95rem .2rem;
-  background: #10100f;
-}
-
-.lineupHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px solid rgba(245, 241, 232, .09);
-}
-
-.lineupIdentity {
-  display: flex;
-  align-items: center;
-  gap: .55rem;
-  min-width: 0;
-}
-
-.lineupIdentity > div {
-  display: grid;
-  gap: .08rem;
-}
-
-.lineupIdentity span,
-.lineupContext span {
-  color: #6f6a63;
-  font-size: .4rem;
-  font-weight: 760;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-
-.lineupIdentity strong {
-  color: #f5f1e8;
-  font-size: .72rem;
-  font-weight: 650;
-}
-
-.lineupContext {
-  display: grid;
-  justify-items: end;
-  gap: .07rem;
-  text-align: right;
-}
-
-.lineupContext strong {
-  color: #e85d3f;
-  font-size: .7rem;
-  font-weight: 720;
-}
-
-.lineupContext span {
-  max-width: 11rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-transform: none;
-  letter-spacing: .02em;
-}
-
-.pitch {
-  position: relative;
-  min-height: 0;
-  margin-top: .65rem;
-  overflow: hidden;
-  border: 1px solid rgba(245, 241, 232, .12);
-  background: #131311;
-}
-
-.pitchHalf {
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: rgba(245, 241, 232, .11);
-}
-
-.pitchCircle {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 4.8rem;
-  height: 4.8rem;
-  border: 1px solid rgba(245, 241, 232, .11);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.penaltyArea,
-.goalBox {
-  position: absolute;
-  left: 50%;
-  border: 1px solid rgba(245, 241, 232, .11);
-  transform: translateX(-50%);
-}
-
-.penaltyArea {
-  width: 42%;
-  height: 17%;
-}
-
-.penaltyTop { top: -1px; }
-.penaltyBottom { bottom: -1px; }
-
-.goalBox {
-  width: 18%;
-  height: 7%;
-}
-
-.goalTop { top: -1px; }
-.goalBottom { bottom: -1px; }
-
-.playerNode {
-  position: absolute;
-  z-index: 3;
-  width: 5.3rem;
-  display: grid;
-  justify-items: center;
-  gap: .08rem;
-  text-align: center;
-  transform: translate(-50%, -50%);
-}
-
-.playerNumber {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.34rem;
-  height: 1.34rem;
-  border: 1px solid #e85d3f;
-  border-radius: 50%;
-  background: #171715;
-  color: #e85d3f;
-  font-size: .38rem;
-  font-weight: 820;
-}
-
-.lineupPanel:nth-child(2) .playerNumber {
-  border-color: #d8d2c8;
-  color: #d8d2c8;
-}
-
-.playerNode strong {
-  max-width: 100%;
-  overflow: hidden;
-  color: #f5f1e8;
-  font-size: .48rem;
-  font-weight: 650;
-  line-height: 1.05;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.playerNode small {
-  color: #656059;
-  font-size: .35rem;
-  font-weight: 700;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-}
-
-.lineupUnavailable {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  color: #716c64;
-  font-size: .5rem;
-  font-weight: 700;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
-}
-
-.playersView {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-}
-
-.playersSurface {
-  min-height: 0;
-  padding-top: .7rem;
-  overflow: hidden;
-}
-
-.statisticsView {
-  display: grid;
-  grid-template-rows: 2.9rem minmax(0, 1fr);
-  width: min(100%, 70rem);
-  margin: 0 auto;
-}
-
-.statsTeams {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 1rem;
-  padding-bottom: .55rem;
-  border-bottom: 1px solid rgba(245, 241, 232, .11);
-}
-
-.statsTeams > div {
-  display: flex;
-  align-items: center;
-  gap: .55rem;
-}
-
-.statsTeams > div:last-child { justify-content: flex-end; }
-
-.statsTeams strong {
-  color: #f5f1e8;
-  font-size: .78rem;
-  font-weight: 650;
-}
-
-.statsTeams > span {
-  color: #706b63;
-  font-size: .45rem;
-  font-weight: 760;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-
-.fullStats {
-  align-self: center;
-  display: grid;
-  width: min(100%, 58rem);
-  margin: 0 auto;
-}
-
-.fullStats .metricRow {
-  padding: .88rem 0 .82rem;
-}
-
-.fullStats .metricValues {
-  grid-template-columns: 4rem minmax(0, 1fr) 4rem;
-}
-
-.fullStats .metricValues strong {
-  font-size: 1rem;
-}
-
 .recordFooter {
   display: grid;
   grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -786,8 +737,10 @@
   }
 
   .club strong { font-size: clamp(1.45rem, 2.7vw, 2rem); }
-  .matchView { grid-template-columns: minmax(0, 1.65fr) minmax(16rem, .8fr); gap: 1.25rem; }
-  .flowEvent { width: 8.6rem; }
+  .overviewMetric { padding-inline: .5rem; }
+  .overviewMetricValues { grid-template-columns: minmax(2.2rem, 1fr) auto minmax(2.2rem, 1fr); gap: .26rem; }
+  .overviewMetricValues strong { font-size: .88rem; }
+  .overviewMetricValues span { font-size: .34rem; }
   .recordFooter > div { padding-inline: .5rem; }
 }
 
@@ -797,6 +750,7 @@
   }
 
   .hero { padding-inline: .8rem; }
+
   .heroStage,
   .scorers {
     grid-template-columns: 1fr 5.7rem 1fr;
@@ -809,23 +763,25 @@
   .scorers strong { font-size: .47rem; }
   .scorers span { font-size: .4rem; }
 
-  .workspace { padding: .7rem .8rem; }
+  .workspace { padding: .55rem .8rem; }
   .viewRail { padding-inline: .8rem; gap: 1.2rem; }
 
-  .matchView {
-    grid-template-columns: minmax(0, 1fr) 14rem;
-    gap: .8rem;
-  }
+  .overviewView { grid-template-rows: 5.2rem minmax(0, 1fr); }
+  .overviewMetricValues { grid-template-columns: 1fr; justify-items: center; gap: .06rem; }
+  .overviewMetricValues strong:last-child { text-align: center; }
+  .overviewMetricValues span { order: -1; }
+  .overviewMetricScale { display: none; }
+  .overviewMetric { padding-inline: .22rem; }
 
-  .profilePanel { padding-left: .8rem; }
-  .flowEvent { width: 6.8rem; }
-  .flowEvent strong { font-size: .47rem; }
-  .flowEvent small { display: none; }
-
-  .lineupPanel { padding-inline: .45rem; }
+  .lineupPanel { padding-inline: .4rem; }
+  .lineupContext span { display: none; }
   .playerNode { width: 3.9rem; }
   .playerNode strong { font-size: .4rem; }
   .playerNode small { display: none; }
+
+  .flowEvent { width: 6.8rem; }
+  .flowEvent strong { font-size: .47rem; }
+  .flowEvent small { display: none; }
 
   .recordFooter {
     grid-template-columns: repeat(4, minmax(0, 1fr));
