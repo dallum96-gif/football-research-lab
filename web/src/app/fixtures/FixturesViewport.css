@@ -1,0 +1,53 @@
+@media (min-width: 701px) {
+  [data-tone="dark"] > main > div {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: 0 !important;
+  }
+
+  [data-tone="dark"] > main > div > header,
+  [data-tone="dark"] > main > div > nav,
+  [data-tone="dark"] > main > div > p,
+  [data-tone="dark"] > main > div > details {
+    flex: 0 0 auto;
+  }
+
+  [data-tone="dark"] > main > div > main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(245, 241, 232, .22) transparent;
+    margin-top: .65rem;
+    padding-right: .45rem;
+  }
+
+  [data-tone="dark"] > main > div > main::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  [data-tone="dark"] > main > div > main::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  [data-tone="dark"] > main > div > main::-webkit-scrollbar-thumb {
+    background: rgba(245, 241, 232, .2);
+    border-radius: 999px;
+  }
+
+  [data-tone="dark"] > main > div > main::-webkit-scrollbar-thumb:hover {
+    background: rgba(245, 241, 232, .34);
+  }
+
+  [data-tone="dark"] > main > div > details {
+    margin-top: .45rem !important;
+    padding-top: .45rem !important;
+  }
+}
