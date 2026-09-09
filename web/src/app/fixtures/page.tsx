@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { AppShell } from "@/components/AppShell";
 import { FixturesExperience } from "./FixturesExperience";
+import "./FixturesViewport.css";
 
 export default function FixturesPage() {
   return (
