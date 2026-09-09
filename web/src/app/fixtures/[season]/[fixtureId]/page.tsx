@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
+import { TeamCrest } from "@/components/TeamCrest";
 import { FixturePlayerPerformance } from "./FixturePlayerPerformance";
 import styles from "./FixtureOverview.module.css";
 
@@ -136,9 +137,7 @@ type ApiResult<T> =
 
 async function getJson<T>(path: string): Promise<ApiResult<T>> {
   const response = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
-  if (!response.ok) {
-    return { ok: false, status: response.status };
-  }
+  if (!response.ok) return { ok: false, status: response.status };
   return { ok: true, data: await response.json() as T };
 }
 
@@ -206,48 +205,35 @@ function LineupSide({
   emptyLabel: string;
 }) {
   const placedPlayers = players.filter((player) => player.x != null && player.y != null);
-  const managerStyle: CSSProperties = {
-    position: "absolute",
-    top: "-.35rem",
-    [team === "home" ? "right" : "left"]: "15%",
-    color: "var(--frl-muted-soft)",
-    fontSize: ".5rem",
-    fontWeight: 700,
-    letterSpacing: ".1em",
-    lineHeight: 1,
-    textTransform: "uppercase",
-    whiteSpace: "nowrap",
-    zIndex: 2,
-    textAlign: team === "home" ? "right" : "left",
-  };
 
   return (
     <div className={`${styles.lineupSide} ${team === "home" ? styles.lineupHome : styles.lineupAway}`}>
       <div className={styles.lineupSideHeader}>
-        <span>{title}</span>
-        <span>{formation ?? "—"}</span>
+        <div>
+          <span>{team === "home" ? "Home XI" : "Away XI"}</span>
+          <strong>{title}</strong>
+        </div>
+        <div className={styles.lineupMeta}>
+          <strong>{formation ?? "—"}</strong>
+          <span>{manager}</span>
+        </div>
       </div>
       <div className={styles.tacticalBoard}>
+        <div className={styles.boardBox} />
         <div className={styles.boardHalfLine} />
-        <div className={styles.boardCenterLine} />
-        <span style={managerStyle}>
-          {manager}
-          {formation ? ` · ${formation}` : ""}
-        </span>
-        {placedPlayers.length ? placedPlayers.map((player) => {
-          return (
-            <div
-              className={styles.playerNode}
-              key={`${player.name}-${player.number ?? ""}`}
-              style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}
-              title={`${player.name} · ${player.role}`}
-            >
-              <span className={styles.playerDot} />
-              <span className={styles.playerRole}>{player.role}</span>
-              <span className={styles.playerName}>{player.name}</span>
-            </div>
-          );
-        }) : <span className={styles.lineupUnavailable}>{emptyLabel}</span>}
+        <div className={styles.boardCircle} />
+        {placedPlayers.length ? placedPlayers.map((player) => (
+          <div
+            className={styles.playerNode}
+            key={`${player.name}-${player.number ?? ""}`}
+            style={{ left: `${player.x}%`, top: `${player.y}%` } as CSSProperties}
+            title={`${player.name} · ${player.role}`}
+          >
+            <span className={styles.playerDot}>{player.number ?? ""}</span>
+            <span className={styles.playerName}>{player.name}</span>
+            <span className={styles.playerRole}>{player.role}</span>
+          </div>
+        )) : <span className={styles.lineupUnavailable}>{emptyLabel}</span>}
       </div>
     </div>
   );
@@ -256,7 +242,7 @@ function LineupSide({
 function eventLabel(event: FixtureEvent): string {
   const primary = event.primary_player.name || "Player unavailable";
   if (event.type === "goal") {
-    return event.assist?.name ? `${primary} — ${event.assist.name} assist` : primary;
+    return event.assist?.name ? `${primary} · assist ${event.assist.name}` : primary;
   }
   return primary;
 }
@@ -264,32 +250,12 @@ function eventLabel(event: FixtureEvent): string {
 function EventCell({ event }: { event: FixtureEvent }) {
   const isGoal = event.type === "goal";
   const isRed = event.detail.card_type?.toUpperCase() === "RED";
-  const icon = isGoal ? "⚽" : "■";
   const className = isGoal ? styles.eventGoal : isRed ? styles.eventRed : styles.eventCard;
 
   return (
     <div className={`${styles.event} ${event.side === "home" ? styles.eventHome : styles.eventAway} ${className}`}>
-      <span className={styles.icon}>{icon}</span>
+      <span className={styles.eventSymbol} aria-hidden="true">{isGoal ? "●" : "■"}</span>
       <span>{eventLabel(event)}</span>
-    </div>
-  );
-}
-
-function FrlBrand() {
-  return (
-    <div className={styles.frlBrand} aria-label="Football Research Laboratory">
-      <svg className={styles.frlMascot} viewBox="0 0 84 52" role="img" aria-hidden="true">
-        <circle cx="42" cy="29" r="22" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="3" />
-        <path d="M25 16 31 11M59 16 53 11M20 34 11 39M64 34 73 39" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-        <path d="M32 23 38 19 42 22 46 18 52 23 47 30 42 33 36 30Z" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" opacity=".38" />
-        <circle cx="31.5" cy="25" r="4.2" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="1.9" />
-        <circle cx="31.5" cy="25" r="1.55" fill="currentColor" />
-        <circle cx="52.5" cy="25" r="4.2" fill="var(--frl-surface)" stroke="currentColor" strokeWidth="1.9" />
-        <circle cx="52.5" cy="25" r="1.55" fill="currentColor" />
-        <path d="M35.7 25H48.3" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
-        <path d="M34 38Q42 44 50 38" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-      </svg>
-      <div className={styles.frlWordmark}>FRL</div>
     </div>
   );
 }
@@ -298,9 +264,9 @@ export const dynamic = "force-dynamic";
 
 export default async function FixtureDetailPage({ params }: FixtureDetailProps) {
   const { season, fixtureId } = await params;
-
   const fixturePath = `/api/v1/fixtures/${encodeURIComponent(season)}/${encodeURIComponent(fixtureId)}`;
   const detailResult = await getJson<FixtureDetailResponse>(fixturePath);
+
   if (!detailResult.ok) {
     if (detailResult.status === 404) notFound();
     throw new Error(`FRL fixture detail request failed: ${detailResult.status}`);
@@ -308,10 +274,10 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
 
   const detail = detailResult.data;
   const evidence = await getOptionalJson<FixtureEvidenceResponse>(`${fixturePath}/evidence`);
-
   const fixture = detail.fixture;
   const stats = detail.stats;
   const { date, time } = dateParts(fixture.kickoff_time);
+  const completed = fixture.home_score != null && fixture.away_score != null;
 
   const events = evidence?.events ?? [];
   const timelineEvents = events.filter((event) => event.type === "goal" || event.type === "card");
@@ -338,10 +304,6 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
           detail: "Events, lineups, formations and managers could not be verified for this fixture.",
         };
 
-  const [possessionHome, possessionAway] = stats
-    ? [stats.home_possession, stats.away_possession]
-    : [null, null];
-
   const statRows = [
     [stats?.home_possession, "Possession", stats?.away_possession, stats?.home_possession, stats?.away_possession, true],
     [stats?.home_shots_on_target, "Shots on target", stats?.away_shots_on_target, ...share(stats?.home_shots_on_target ?? null, stats?.away_shots_on_target ?? null), false],
@@ -353,7 +315,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
 
   const metadata = [
     ["Competition", "Premier League"],
-    ["Matchweek", fixture.gameweek == null ? "Unavailable" : String(fixture.gameweek)],
+    ["Matchweek", fixture.gameweek == null ? "Unavailable" : `GW ${fixture.gameweek}`],
     ["Date", date],
     ["Kick-off", time],
     ["Venue", evidence?.metadata?.ground || "Unavailable"],
@@ -363,53 +325,92 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
 
   return (
     <AppShell>
-      <div className={styles.overview}>
-        <header className={styles.pageHeader}>
-          <div className={styles.pageHeaderCompetition}>Premier League</div>
-          <div className={styles.pageHeaderDate}>{date}</div>
-          <FrlBrand />
-        </header>
+      <article className={styles.dossier}>
+        <header className={styles.fixtureHero}>
+          <div className={styles.heroEyebrow}>
+            <span>Premier League</span>
+            <span>{fixture.gameweek == null ? season : `GW ${fixture.gameweek}`}</span>
+            <span>{date}</span>
+          </div>
 
-        <section className={styles.matchHeader} aria-label="Match result">
-          <div className={styles.teams}>
-            <div className={`${styles.team} ${styles.teamHome}`}>
-              <span className={styles.teamName}>{fixture.home_team_name}</span>
-              <span className={styles.kit} aria-hidden="true">
-                <span className={styles.kitSleeve} />
-                <span className={styles.kitSleeveRight} />
-                <span className={styles.kitBody} />
-              </span>
+          <h1 className={styles.visuallyHidden}>
+            {fixture.home_team_name} {fixture.home_score ?? ""} {fixture.away_team_name} {fixture.away_score ?? ""}
+          </h1>
+
+          <div className={styles.fixtureStage}>
+            <div className={`${styles.clubIdentity} ${styles.clubHome}`}>
+              <TeamCrest teamName={fixture.home_team_name} size={72} />
+              <div>
+                <span>Home</span>
+                <strong>{fixture.home_team_name}</strong>
+              </div>
             </div>
 
             <div className={styles.scoreBlock}>
               <div className={styles.score} aria-label={`${fixture.home_team_name} ${fixture.home_score ?? ""} ${fixture.away_team_name} ${fixture.away_score ?? ""}`}>
-                <span className={styles.scoreNumber}>{fixture.home_score ?? "—"}</span>
-                <span className={styles.scoreDash}>–</span>
-                <span className={styles.scoreNumber}>{fixture.away_score ?? "—"}</span>
+                <span>{fixture.home_score ?? "—"}</span>
+                <i>–</i>
+                <span>{fixture.away_score ?? "—"}</span>
               </div>
-              <div className={styles.status}>
-                {fixture.home_score != null && fixture.away_score != null ? "Full time" : "Fixture status unavailable"}
-              </div>
+              <small>{completed ? "Full time" : "Status unavailable"}</small>
             </div>
 
-            <div className={`${styles.team} ${styles.teamAway}`}>
-              <span className={styles.kit} aria-hidden="true">
-                <span className={styles.kitSleeve} />
-                <span className={styles.kitSleeveRight} />
-                <span className={styles.kitBody} />
-              </span>
-              <span className={styles.teamName}>{fixture.away_team_name}</span>
+            <div className={`${styles.clubIdentity} ${styles.clubAway}`}>
+              <TeamCrest teamName={fixture.away_team_name} size={72} />
+              <div>
+                <span>Away</span>
+                <strong>{fixture.away_team_name}</strong>
+              </div>
             </div>
           </div>
 
-          {evidenceNotice ? (
-            <div className={styles.evidenceNotice} role="status">
-              <span className={styles.evidenceNoticeTitle}>{evidenceNotice.title}</span>
-              <span>{evidenceNotice.detail}</span>
-            </div>
-          ) : null}
+          <div className={styles.heroContext}>
+            <span>{evidence?.metadata?.ground || "Venue unavailable"}</span>
+            <i aria-hidden="true" />
+            <span>{time}</span>
+            {evidence?.metadata?.attendance != null ? <><i aria-hidden="true" /><span>{evidence.metadata.attendance.toLocaleString("en-GB")} attendance</span></> : null}
+          </div>
+        </header>
 
-          <div className={styles.timelineWrap}>
+        <nav className={styles.dossierNav} aria-label="Match dossier sections">
+          <a href="#overview">Overview</a>
+          <a href="#timeline">Timeline</a>
+          <a href="#lineups">Lineups</a>
+          <a href="#players">Players</a>
+          <a href="#statistics">Statistics</a>
+        </nav>
+
+        <div className={styles.dossierBody}>
+          <section className={styles.overviewSection} id="overview">
+            <div className={styles.sectionIntro}>
+              <span>Match dossier</span>
+              <h2>Verified fixture context</h2>
+              <p>Match identity and available source evidence, presented without filling missing fields.</p>
+            </div>
+
+            {evidenceNotice ? (
+              <div className={styles.evidenceNotice} role="status">
+                <strong>{evidenceNotice.title}</strong>
+                <span>{evidenceNotice.detail}</span>
+              </div>
+            ) : null}
+
+            <div className={styles.metadata} aria-label="Match metadata">
+              {metadata.map(([label, value]) => (
+                <div className={styles.metadataItem} key={label}>
+                  <span>{label}</span>
+                  <strong>{value}</strong>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className={styles.timelineSection} id="timeline">
+            <div className={styles.sectionHeading}>
+              <div><span>Chronology</span><h2>Goals & cards</h2></div>
+              <small>{timelineEvents.length ? `${timelineEvents.length} verified events` : "No verified event sequence"}</small>
+            </div>
+
             <div className={styles.timeline} aria-label="Goals and cards timeline">
               {timelineEvents.length ? timelineEvents.map((event) => (
                 <div key={`${event.event_id ?? "event"}-${event.minute ?? ""}-${event.primary_player.source_player_id ?? ""}`} className={styles.timelineRow}>
@@ -420,67 +421,77 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
               )) : (
                 <div className={styles.timelineRow}>
                   <span className={styles.eventEmpty} />
-                  <div className={styles.minute}>Events unavailable</div>
+                  <div className={styles.minute}>Unavailable</div>
                   <span className={styles.eventEmpty} />
                 </div>
               )}
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className={styles.lineupSection} aria-label="Starting lineups">
-          <LineupSide
-            title={fixture.home_team_name}
-            formation={evidence?.formation.home.status === "AVAILABLE" ? evidence.formation.home.value : null}
-            manager={managerName(evidence, "home")}
-            players={startingPlayers("home")}
-            team="home"
-            emptyLabel={(evidence?.lineup ?? []).some((row) => row.side === "home") ? "Formation & placement unavailable" : "Lineup & formation unavailable"}
-          />
-          <LineupSide
-            title={fixture.away_team_name}
-            formation={evidence?.formation.away.status === "AVAILABLE" ? evidence.formation.away.value : null}
-            manager={managerName(evidence, "away")}
-            players={startingPlayers("away")}
-            team="away"
-            emptyLabel={(evidence?.lineup ?? []).some((row) => row.side === "away") ? "Formation & placement unavailable" : "Lineup & formation unavailable"}
-          />
-        </section>
-
-        <FixturePlayerPerformance season={season} fixtureId={fixtureId} />
-
-        <section className={styles.statsSection}>
-          <div className={styles.sectionTitle}>
-            <span className={styles.sectionArrow} aria-hidden="true">←</span>
-            <h2>Match statistics</h2>
-            <span className={styles.sectionArrow} aria-hidden="true">→</span>
-          </div>
-          <div className={styles.stats}>
-            {statRows.map(([home, label, away, homeShare, awayShare, possession]) => (
-              <div className={styles.statRow} key={label}>
-                <div className={`${styles.statValue} ${styles.statHome}`}>
-                  <span>{possession ? formatStat(home, "%") : formatStat(home)}</span>
-                  <span className={styles.statTrack} style={{ "--home-share": `${possession ? Number(home ?? 0) : homeShare}%` } as CSSProperties} />
-                </div>
-                <div className={styles.statLabel}>{label}</div>
-                <div className={`${styles.statValue} ${styles.statAway}`}>
-                  <span className={styles.statTrack} style={{ "--away-share": `${possession ? Number(away ?? 0) : awayShare}%` } as CSSProperties} />
-                  <span>{possession ? formatStat(away, "%") : formatStat(away)}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className={styles.metadata} aria-label="Match metadata">
-          {metadata.map(([label, value]) => (
-            <div className={styles.metadataItem} key={label}>
-              <span className={styles.metadataLabel}>{label}</span>
-              <span className={styles.metadataValue}>{value}</span>
+          <section className={styles.lineupsSection} id="lineups" aria-label="Starting lineups">
+            <div className={styles.sectionHeading}>
+              <div><span>Tactical view</span><h2>Starting lineups</h2></div>
+              <small>Source placement where available · derived layout remains presentation-only</small>
             </div>
-          ))}
-        </section>
-      </div>
+            <div className={styles.lineupBoard}>
+              <LineupSide
+                title={fixture.home_team_name}
+                formation={evidence?.formation.home.status === "AVAILABLE" ? evidence.formation.home.value : null}
+                manager={managerName(evidence, "home")}
+                players={startingPlayers("home")}
+                team="home"
+                emptyLabel={(evidence?.lineup ?? []).some((row) => row.side === "home") ? "Formation & placement unavailable" : "Lineup & formation unavailable"}
+              />
+              <LineupSide
+                title={fixture.away_team_name}
+                formation={evidence?.formation.away.status === "AVAILABLE" ? evidence.formation.away.value : null}
+                manager={managerName(evidence, "away")}
+                players={startingPlayers("away")}
+                team="away"
+                emptyLabel={(evidence?.lineup ?? []).some((row) => row.side === "away") ? "Formation & placement unavailable" : "Lineup & formation unavailable"}
+              />
+            </div>
+          </section>
+
+          <section className={styles.playersSection} id="players">
+            <div className={styles.sectionHeading}>
+              <div><span>Individual output</span><h2>Player performance</h2></div>
+              <small>Verified fixture leaders only</small>
+            </div>
+            <FixturePlayerPerformance season={season} fixtureId={fixtureId} />
+          </section>
+
+          <section className={styles.statsSection} id="statistics">
+            <div className={styles.sectionHeading}>
+              <div><span>Team comparison</span><h2>Match statistics</h2></div>
+              <small>{fixture.home_team_name} · {fixture.away_team_name}</small>
+            </div>
+            <div className={styles.stats}>
+              {statRows.map(([home, label, away, homeShare, awayShare, possession]) => (
+                <div className={styles.statRow} key={label}>
+                  <div className={`${styles.statValue} ${styles.statHome}`}>
+                    <strong>{possession ? formatStat(home, "%") : formatStat(home)}</strong>
+                    <span className={styles.statTrack} style={{ "--home-share": `${possession ? Number(home ?? 0) : homeShare}%` } as CSSProperties} />
+                  </div>
+                  <div className={styles.statLabel}>{label}</div>
+                  <div className={`${styles.statValue} ${styles.statAway}`}>
+                    <span className={styles.statTrack} style={{ "--away-share": `${possession ? Number(away ?? 0) : awayShare}%` } as CSSProperties} />
+                    <strong>{possession ? formatStat(away, "%") : formatStat(away)}</strong>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <details className={styles.provenance}>
+            <summary>Evidence & limitations</summary>
+            <div>
+              <p>Fixture ID {fixture.fixture_id} · season {fixture.season}</p>
+              {evidence?.limitations?.length ? <ul>{evidence.limitations.map((note, index) => <li key={`${index}-${note}`}>{note}</li>)}</ul> : <p>No additional fixture-evidence limitations were returned.</p>}
+            </div>
+          </details>
+        </div>
+      </article>
     </AppShell>
   );
 }
