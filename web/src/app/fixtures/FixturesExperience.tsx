@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { TeamKit } from "@/app/teams/TeamKit";
+import { TeamCrest } from "@/components/TeamCrest";
 import {
   fetchFixtureResearchResult,
   fetchSeasons,
@@ -307,7 +307,7 @@ export function FixturesExperience() {
         <div className={styles.kicker}>Fixture archive <span /> Premier League</div>
         <div className={styles.headerGrid}>
           <div className={styles.identity}>
-            <div className={styles.teamMark} aria-hidden="true"><TeamKit teamName={team} /></div>
+            <div className={styles.teamMark} style={{ width: "3.9rem", height: "3.9rem" }} aria-hidden="true"><TeamCrest teamName={team} size={58} /></div>
             <div>
               <h1>{team}</h1>
               <p>{view === "multi" ? `${fromSeason} — ${toSeason}` : season}</p>
@@ -368,13 +368,13 @@ export function FixturesExperience() {
 
                     <div className={styles.matchup}>
                       <div className={`${styles.side} ${homeTeam === team ? styles.selectedTeam : ""}`}>
-                        <span className={styles.kit}><TeamKit teamName={homeTeam} /></span>
+                        <span className={styles.kit}><TeamCrest teamName={homeTeam} size={20} /></span>
                         <span>{homeTeam}</span>
                       </div>
                       <strong className={styles.score}>{row.score}</strong>
                       <div className={`${styles.side} ${styles.awaySide} ${awayTeam === team ? styles.selectedTeam : ""}`}>
                         <span>{awayTeam}</span>
-                        <span className={styles.kit}><TeamKit teamName={awayTeam} /></span>
+                        <span className={styles.kit}><TeamCrest teamName={awayTeam} size={20} /></span>
                       </div>
                     </div>
 
