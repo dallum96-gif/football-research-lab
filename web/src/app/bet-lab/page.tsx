@@ -10,7 +10,32 @@ type CommonFraction = {
   decimal: number;
 };
 
-const COMMON_FRACTIONS: CommonFraction[] = [
+type ReadyResult = {
+  status: "ready";
+  error: null;
+  probabilityNumber: number;
+  haircutNumber: number;
+  minimumEdgeNumber: number;
+  conservativeProbability: number;
+  fairDecimal: number;
+  conservativeFairDecimal: number;
+  minimumDecimal: number;
+  fairPrice: CommonFraction;
+  thresholdPrice: CommonFraction | null;
+  offeredDecimal: number | null;
+  impliedProbability: number | null;
+  conservativeExpectedReturn: number | null;
+  decision: "BET" | "PASS" | "ENTER PRICE";
+};
+
+type ErrorResult = {
+  status: "error";
+  error: string;
+};
+
+type BetLabResult = ReadyResult | ErrorResult;
+
+const COMMON_FRACTION_PAIRS: Array<readonly [number, number]> = [
   [1, 100], [1, 66], [1, 50], [1, 40], [1, 33], [1, 25], [1, 20], [1, 16], [1, 14], [1, 12],
   [1, 10], [1, 9], [1, 8], [1, 7], [1, 6], [1, 5], [2, 9], [1, 4], [2, 7], [3, 10], [1, 3],
   [4, 11], [2, 5], [4, 9], [1, 2], [8, 15], [4, 7], [8, 13], [2, 3], [8, 11], [4, 5], [5, 6],
@@ -18,15 +43,20 @@ const COMMON_FRACTIONS: CommonFraction[] = [
   [9, 4], [5, 2], [11, 4], [3, 1], [10, 3], [7, 2], [4, 1], [9, 2], [5, 1], [6, 1], [7, 1],
   [8, 1], [9, 1], [10, 1], [12, 1], [14, 1], [16, 1], [20, 1], [25, 1], [33, 1], [40, 1],
   [50, 1], [66, 1], [100, 1],
-].map(([numerator, denominator]) => ({
-  numerator,
-  denominator,
-  label: numerator === denominator ? "EVS" : `${numerator}/${denominator}`,
-  decimal: 1 + numerator / denominator,
-})).sort((a, b) => a.decimal - b.decimal);
+];
+
+const COMMON_FRACTIONS: CommonFraction[] = COMMON_FRACTION_PAIRS
+  .map(([numerator, denominator]) => ({
+    numerator,
+    denominator,
+    label: numerator === denominator ? "EVS" : `${numerator}/${denominator}`,
+    decimal: 1 + numerator / denominator,
+  }))
+  .sort((a, b) => a.decimal - b.decimal);
 
 function parseFractionalOdds(value: string) {
   const cleaned = value.trim().toUpperCase().replace(/\s+/g, "");
+  if (!cleaned) return null;
   if (["EVS", "EVENS", "EVEN", "1/1"].includes(cleaned)) return 2;
 
   const match = cleaned.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
@@ -62,20 +92,23 @@ export default function BetLabPage() {
   const [haircut, setHaircut] = useState("3");
   const [minimumEdge, setMinimumEdge] = useState("5");
 
-  const result = useMemo(() => {
+  const result = useMemo<BetLabResult>(() => {
     const probabilityNumber = Number(probability);
     const haircutNumber = Number(haircut);
     const minimumEdgeNumber = Number(minimumEdge);
     const offeredDecimal = parseFractionalOdds(offeredOdds);
 
     if (!Number.isFinite(probabilityNumber) || probabilityNumber <= 0 || probabilityNumber >= 100) {
-      return { error: "Enter an FRL probability between 0% and 100%." } as const;
+      return { status: "error", error: "Enter an FRL probability between 0% and 100%." };
     }
     if (!Number.isFinite(haircutNumber) || haircutNumber < 0 || haircutNumber >= probabilityNumber) {
-      return { error: "The safety haircut must be zero or more, and smaller than the FRL probability." } as const;
+      return { status: "error", error: "The safety haircut must be zero or more, and smaller than the FRL probability." };
     }
     if (!Number.isFinite(minimumEdgeNumber) || minimumEdgeNumber < 0 || minimumEdgeNumber > 50) {
-      return { error: "Enter a minimum edge between 0% and 50%." } as const;
+      return { status: "error", error: "Enter a minimum edge between 0% and 50%." };
+    }
+    if (offeredOdds.trim() && offeredDecimal == null) {
+      return { status: "error", error: "Use UK fractional odds such as 1/2, 4/5, 5/4, 2/1 or EVS." };
     }
 
     const rawProbability = probabilityNumber / 100;
@@ -85,31 +118,16 @@ export default function BetLabPage() {
     const minimumDecimal = (1 + minimumEdgeNumber / 100) / conservativeProbability;
     const fairPrice = nearestCommonPrice(fairDecimal);
     const thresholdPrice = minimumCommonPrice(minimumDecimal);
-
-    if (offeredOdds.trim() && offeredDecimal == null) {
-      return {
-        error: "Use UK fractional odds such as 1/2, 4/5, 5/4, 2/1 or EVS.",
-        probabilityNumber,
-        haircutNumber,
-        minimumEdgeNumber,
-        conservativeProbability,
-        fairDecimal,
-        conservativeFairDecimal,
-        minimumDecimal,
-        fairPrice,
-        thresholdPrice,
-      } as const;
-    }
-
-    const impliedProbability = offeredDecimal ? 1 / offeredDecimal : null;
-    const conservativeExpectedReturn = offeredDecimal
+    const impliedProbability = offeredDecimal != null ? 1 / offeredDecimal : null;
+    const conservativeExpectedReturn = offeredDecimal != null
       ? conservativeProbability * offeredDecimal - 1
       : null;
-    const decision = offeredDecimal
+    const decision: ReadyResult["decision"] = offeredDecimal != null
       ? (offeredDecimal + 1e-9 >= minimumDecimal ? "BET" : "PASS")
       : "ENTER PRICE";
 
     return {
+      status: "ready",
       error: null,
       probabilityNumber,
       haircutNumber,
@@ -124,13 +142,13 @@ export default function BetLabPage() {
       impliedProbability,
       conservativeExpectedReturn,
       decision,
-    } as const;
+    };
   }, [probability, offeredOdds, haircut, minimumEdge]);
 
-  const hasCoreResult = "fairDecimal" in result;
-  const decision = "decision" in result ? result.decision : "CHECK INPUT";
-  const thresholdLabel = hasCoreResult
-    ? result.thresholdPrice?.label ?? `≥ ${formatDecimal(result.minimumDecimal)} decimal`
+  const ready = result.status === "ready" ? result : null;
+  const decision = ready?.decision ?? "CHECK INPUT";
+  const thresholdLabel = ready
+    ? ready.thresholdPrice?.label ?? `≥ ${formatDecimal(ready.minimumDecimal)} decimal`
     : "—";
 
   return (
@@ -228,19 +246,19 @@ export default function BetLabPage() {
             </div>
           </details>
 
-          {result.error && <p className={styles.error} role="alert">{result.error}</p>}
+          {result.status === "error" && <p className={styles.error} role="alert">{result.error}</p>}
         </div>
 
         <aside className={styles.decisionPanel} data-decision={decision.toLowerCase().replace(" ", "-")} aria-live="polite">
           <span>FRL VERDICT</span>
           <strong>{decision}</strong>
-          {hasCoreResult ? (
+          {ready ? (
             <>
               <b>Minimum acceptable price: {thresholdLabel}</b>
               <p>
-                {result.thresholdPrice
-                  ? `${result.thresholdPrice.label} (${formatDecimal(result.thresholdPrice.decimal)} decimal) or better clears the FRL threshold.`
-                  : `We need at least ${formatDecimal(result.minimumDecimal)} decimal odds.`}
+                {ready.thresholdPrice
+                  ? `${ready.thresholdPrice.label} (${formatDecimal(ready.thresholdPrice.decimal)} decimal) or better clears the FRL threshold.`
+                  : `We need at least ${formatDecimal(ready.minimumDecimal)} decimal odds.`}
               </p>
             </>
           ) : <p>Fix the inputs to calculate a price.</p>}
@@ -250,31 +268,31 @@ export default function BetLabPage() {
       <section className={styles.outputs} aria-live="polite">
         <article>
           <span>FAIR PRICE</span>
-          <strong>{hasCoreResult ? result.fairPrice.label : "—"}</strong>
-          <small>{hasCoreResult ? `${formatDecimal(result.fairDecimal)} decimal · ${formatPercent(result.probabilityNumber)} raw probability` : "From the probability you entered"}</small>
+          <strong>{ready ? ready.fairPrice.label : "—"}</strong>
+          <small>{ready ? `${formatDecimal(ready.fairDecimal)} decimal · ${formatPercent(ready.probabilityNumber)} raw probability` : "From the probability you entered"}</small>
         </article>
 
         <article>
           <span>PRICE IT AS</span>
-          <strong>{hasCoreResult ? formatPercent(result.conservativeProbability * 100) : "—"}</strong>
-          <small>{hasCoreResult ? `${formatPercent(result.probabilityNumber)} minus ${result.haircutNumber}pt safety haircut` : "Our conservative working probability"}</small>
+          <strong>{ready ? formatPercent(ready.conservativeProbability * 100) : "—"}</strong>
+          <small>{ready ? `${formatPercent(ready.probabilityNumber)} minus ${ready.haircutNumber}pt safety haircut` : "Our conservative working probability"}</small>
         </article>
 
         <article className={styles.thresholdCard}>
           <span>FRL MINIMUM</span>
           <strong>{thresholdLabel}</strong>
-          <small>{hasCoreResult ? `${formatDecimal(result.minimumDecimal)} exact decimal threshold · includes ${result.minimumEdgeNumber}% target edge` : "The price we refuse to go below"}</small>
+          <small>{ready ? `${formatDecimal(ready.minimumDecimal)} exact decimal threshold · includes ${ready.minimumEdgeNumber}% target edge` : "The price we refuse to go below"}</small>
         </article>
 
         <article>
           <span>BOOKMAKER IMPLIES</span>
-          <strong>{"impliedProbability" in result && result.impliedProbability != null ? formatPercent(result.impliedProbability * 100) : "—"}</strong>
-          <small>{"offeredDecimal" in result && result.offeredDecimal ? `${offeredOdds.toUpperCase()} = ${formatDecimal(result.offeredDecimal)} decimal` : "Enter a valid bookmaker price"}</small>
+          <strong>{ready?.impliedProbability != null ? formatPercent(ready.impliedProbability * 100) : "—"}</strong>
+          <small>{ready?.offeredDecimal != null ? `${offeredOdds.toUpperCase()} = ${formatDecimal(ready.offeredDecimal)} decimal` : "Enter a valid bookmaker price"}</small>
         </article>
 
         <article>
           <span>CONSERVATIVE EDGE</span>
-          <strong>{"conservativeExpectedReturn" in result && result.conservativeExpectedReturn != null ? formatPercent(result.conservativeExpectedReturn * 100) : "—"}</strong>
+          <strong>{ready?.conservativeExpectedReturn != null ? formatPercent(ready.conservativeExpectedReturn * 100) : "—"}</strong>
           <small>Expected return per unit staked using the haircut probability and offered price.</small>
         </article>
       </section>
@@ -285,13 +303,13 @@ export default function BetLabPage() {
           <strong>Why the minimum is higher than fair odds</strong>
         </div>
         <div className={styles.mathStrip}>
-          <div><span>FRL estimate</span><strong>{hasCoreResult ? formatPercent(result.probabilityNumber) : "—"}</strong></div>
+          <div><span>FRL estimate</span><strong>{ready ? formatPercent(ready.probabilityNumber) : "—"}</strong></div>
           <i>→</i>
-          <div><span>Safety haircut</span><strong>{hasCoreResult ? `−${result.haircutNumber} pts` : "—"}</strong></div>
+          <div><span>Safety haircut</span><strong>{ready ? `−${ready.haircutNumber} pts` : "—"}</strong></div>
           <i>→</i>
-          <div><span>Price as</span><strong>{hasCoreResult ? formatPercent(result.conservativeProbability * 100) : "—"}</strong></div>
+          <div><span>Price as</span><strong>{ready ? formatPercent(ready.conservativeProbability * 100) : "—"}</strong></div>
           <i>→</i>
-          <div><span>Demand edge</span><strong>{hasCoreResult ? `${result.minimumEdgeNumber}%` : "—"}</strong></div>
+          <div><span>Demand edge</span><strong>{ready ? `${ready.minimumEdgeNumber}%` : "—"}</strong></div>
           <i>→</i>
           <div><span>Only bet at</span><strong>{thresholdLabel}+</strong></div>
         </div>
