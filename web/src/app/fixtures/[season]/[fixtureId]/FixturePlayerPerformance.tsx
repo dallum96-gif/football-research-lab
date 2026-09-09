@@ -67,8 +67,10 @@ function metricUnit(metric: PlayerMetric): string {
       return "won";
     case "key_passes":
       return "created";
-    case "dribbles":
-      return "dribbles";
+    case "fouls":
+      return "committed";
+    case "yellow_cards":
+      return "cards";
     case "shots_on_target":
       return "on target";
     default:
