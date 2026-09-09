@@ -169,7 +169,7 @@ def _leader(
     )
 
 
-def _fpl_dribbles_leader(values: dict[str, dict], *, home: bool) -> PlayerLeader | None:
+def _fpl_fixture_leader(values: dict[str, dict], *, home: bool) -> PlayerLeader | None:
     candidates: list[tuple[float, str, str, dict]] = []
     for player_id, item in values.items():
         raw_home = str(item.get("was_home", "")).strip().lower()
@@ -294,8 +294,9 @@ def _side(
     tackles = _leader(resolved["totalTackle"], team_source_id=team_source_id, identity_by_player=identity_by_player)
     interceptions = _leader(resolved["interceptionWon"], team_source_id=team_source_id, identity_by_player=identity_by_player)
     key_passes = _leader(resolved["keyPass"], team_source_id=team_source_id, identity_by_player=identity_by_player)
+    fouls = _leader(resolved["fouls"], team_source_id=team_source_id, identity_by_player=identity_by_player)
+    yellow_cards = _fpl_fixture_leader(resolved["yellow_cards"], home=side == "home")
     shots = _leader(resolved["onTargetScoringAttempt"], team_source_id=team_source_id, identity_by_player=identity_by_player)
-    dribbles = _fpl_dribbles_leader(resolved["dribbles"], home=side == "home")
 
     if passes and passes.player_id:
         accurate_passes = resolved["accuratePass"].get(passes.player_id)
@@ -311,7 +312,8 @@ def _side(
         ("tackles_won", "Tackles", "Tackle won", tackles),
         ("interceptions_won", "Interceptions", None, interceptions),
         ("key_passes", "Key passes", None, key_passes),
-        ("dribbles", "Dribbles", None, dribbles),
+        ("fouls", "Fouls", None, fouls),
+        ("yellow_cards", "Yellow cards", None, yellow_cards),
         ("shots_on_target", "Shots on target", None, shots),
     )
 
@@ -328,7 +330,7 @@ def _side(
                 status="AVAILABLE" if player else "UNAVAILABLE",
                 provenance={
                     "resolver": "variable_resolver.resolve_variable",
-                    "family": "fpl" if key == "dribbles" else "player_match",
+                    "family": "fpl" if key == "yellow_cards" else "player_match",
                 },
             )
         )
@@ -341,7 +343,7 @@ def _side(
         limitations=[
             "Values are retrieved through the Universal Variable Resolver; missing source observations remain unavailable.",
             "Player display identity is taken from the fixture's verified Player–Fixture evidence for PL player-match metrics.",
-            "Dribbles are retrieved from the historical FPL player-fixture evidence through the FPL Universal Variable Access seam.",
+            "Yellow cards are retrieved from the historical FPL player-fixture evidence through the FPL Universal Variable Access seam.",
             "When multiple players share the highest value, the metric reports the tie count rather than selecting a unique leader.",
         ],
     )
@@ -392,10 +394,11 @@ def fixture_player_performance(season: str, fixture_id: str) -> FixturePlayerPer
         "wonTackle",
         "interceptionWon",
         "keyPass",
+        "fouls",
         "onTargetScoringAttempt",
     ):
         resolved[variable_name] = _resolved_values(variable_name, season, fixture_id)
-    resolved["dribbles"] = _resolved_values("dribbles", season, fixture_id, family="fpl")
+    resolved["yellow_cards"] = _resolved_values("history[].yellow_cards", season, fixture_id, family="fpl")
 
     home_source_id = str(resolved_match["home"].get("team_id", "")).strip()
     away_source_id = str(resolved_match["away"].get("team_id", "")).strip()
