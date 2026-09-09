@@ -303,42 +303,35 @@ export function FixturesExperience() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.hero}>
-        <div className={styles.heroScrim} aria-hidden="true" />
-        <div className={styles.heroContent}>
-          <div className={styles.heroKicker}>Premier League <span /> Fixture archive</div>
-
-          <div className={styles.heroGrid}>
-            <div className={styles.identity}>
-              <div className={styles.teamMark} aria-hidden="true"><TeamKit teamName={team} /></div>
-              <div>
-                <span className={styles.identityLabel}>Club</span>
-                <h1>{team}</h1>
-                <p>{view === "multi" ? `${fromSeason} — ${toSeason}` : season}</p>
-              </div>
-            </div>
-
-            <div className={styles.summary} aria-label="Fixture record">
-              <div><strong>{filtered.length}</strong><span>Played</span></div>
-              <div><strong>{record.wins}</strong><span>W</span></div>
-              <div><strong>{record.draws}</strong><span>D</span></div>
-              <div><strong>{record.losses}</strong><span>L</span></div>
+      <header className={styles.header}>
+        <div className={styles.kicker}>Fixture archive <span /> Premier League</div>
+        <div className={styles.headerGrid}>
+          <div className={styles.identity}>
+            <div className={styles.teamMark} aria-hidden="true"><TeamKit teamName={team} /></div>
+            <div>
+              <h1>{team}</h1>
+              <p>{view === "multi" ? `${fromSeason} — ${toSeason}` : season}</p>
             </div>
           </div>
 
-          <div className={styles.heroFooter}>
-            {grouped.length > 1 ? (
-              <nav className={styles.monthNav} aria-label="Fixture months">
-                {grouped.map(([group], index) => <a className={index === 0 ? styles.monthCurrent : ""} key={group} href={`#${groupId(group)}`}>{monthNavLabel(group)}</a>)}
-              </nav>
-            ) : <span />}
-
-            <button className={styles.refineButton} type="button" onClick={() => setRefineOpen(true)}>
-              Refine <span>↗</span>{hasFilters ? <i aria-hidden="true" /> : null}
-            </button>
+          <div className={styles.summary}>
+            <div><strong>{filtered.length}</strong><span>fixtures</span></div>
+            <div><strong>{record.wins}</strong><span>wins</span></div>
+            <div><strong>{record.draws}</strong><span>draws</span></div>
+            <div><strong>{record.losses}</strong><span>losses</span></div>
           </div>
+
+          <button className={styles.refineButton} type="button" onClick={() => setRefineOpen(true)}>
+            Refine <span>↗</span>{hasFilters ? <i aria-hidden="true" /> : null}
+          </button>
         </div>
       </header>
+
+      {grouped.length > 1 ? (
+        <nav className={styles.monthNav} aria-label="Fixture months">
+          {grouped.map(([group]) => <a key={group} href={`#${groupId(group)}`}>{monthNavLabel(group)}</a>)}
+        </nav>
+      ) : null}
 
       {excludedSeasons.length > 0 && !loading ? (
         <p className={styles.coverage}>Coverage excludes {excludedSeasons.length} season{excludedSeasons.length === 1 ? "" : "s"} without a verified team identity.</p>
@@ -352,61 +345,48 @@ export function FixturesExperience() {
         <div className={styles.state}><strong>No fixtures match this view.</strong><button type="button" onClick={clearFilters}>Clear filters</button></div>
       ) : (
         <main className={styles.archive}>
-          {grouped.map(([group, groupRows], groupIndex) => (
+          {grouped.map(([group, groupRows]) => (
             <section className={styles.month} id={groupId(group)} key={group}>
               <div className={styles.monthHeading}>
-                <span className={styles.monthNumber}>{(groupIndex + 1).toString().padStart(2, "0")}</span>
                 <h2>{group}</h2>
-                <span className={styles.monthCount}>{groupRows.length} fixture{groupRows.length === 1 ? "" : "s"}</span>
+                <span>{groupRows.length.toString().padStart(2, "0")}</span>
               </div>
 
-              <div className={styles.fixtureList}>
-                {groupRows.map((row) => {
-                  const homeTeam = row.venue === "Home" ? team : row.opponent;
-                  const awayTeam = row.venue === "Home" ? row.opponent : team;
-                  const [day, monthName, year] = row.date.split(" ");
-                  return (
-                    <Link
-                      className={styles.fixture}
-                      data-result={row.result}
-                      href={`/fixtures/${row.season}/${row.fixtureId}`}
-                      key={`${row.season}-${row.fixtureId}`}
-                    >
-                      <div className={styles.dateStamp}>
-                        <strong>{day}</strong>
-                        <span>{monthName}</span>
-                        <small>{year}</small>
-                      </div>
-
-                      <div className={styles.fixtureBody}>
-                        <div className={styles.matchup}>
-                          <div className={`${styles.side} ${homeTeam === team ? styles.selectedTeam : ""}`}>
-                            <span className={styles.kit}><TeamKit teamName={homeTeam} /></span>
-                            <span>{homeTeam}</span>
-                          </div>
-                          <strong className={styles.score}>{row.score}</strong>
-                          <div className={`${styles.side} ${styles.awaySide} ${awayTeam === team ? styles.selectedTeam : ""}`}>
-                            <span>{awayTeam}</span>
-                            <span className={styles.kit}><TeamKit teamName={awayTeam} /></span>
-                          </div>
-                        </div>
-
-                        <div className={styles.fixtureMeta}>
-                          <span>{row.gameweek ? `Gameweek ${row.gameweek}` : row.season}</span>
-                          <span aria-hidden="true">·</span>
-                          <span>{row.venue === "Home" ? `${team} at home` : `${team} away`}</span>
-                          {row.result === "UNPLAYED" ? <><span aria-hidden="true">·</span><span>Upcoming</span></> : null}
-                        </div>
-
-                        <div className={styles.fixtureReveal}>
-                          <span>Open full fixture analysis</span>
-                          <span aria-hidden="true">↗</span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                })}
+              <div className={styles.columnHead} aria-hidden="true">
+                <span>Date</span><span>Match</span><span>Context</span><span />
               </div>
+
+              {groupRows.map((row) => {
+                const homeTeam = row.venue === "Home" ? team : row.opponent;
+                const awayTeam = row.venue === "Home" ? row.opponent : team;
+                return (
+                  <Link className={styles.fixture} href={`/fixtures/${row.season}/${row.fixtureId}`} key={`${row.season}-${row.fixtureId}`}>
+                    <div className={styles.date}>
+                      <strong>{row.date}</strong>
+                      <span>{row.gameweek ? `GW ${row.gameweek}` : row.season}</span>
+                    </div>
+
+                    <div className={styles.matchup}>
+                      <div className={`${styles.side} ${homeTeam === team ? styles.selectedTeam : ""}`}>
+                        <span className={styles.kit}><TeamKit teamName={homeTeam} /></span>
+                        <span>{homeTeam}</span>
+                      </div>
+                      <strong className={styles.score}>{row.score}</strong>
+                      <div className={`${styles.side} ${styles.awaySide} ${awayTeam === team ? styles.selectedTeam : ""}`}>
+                        <span>{awayTeam}</span>
+                        <span className={styles.kit}><TeamKit teamName={awayTeam} /></span>
+                      </div>
+                    </div>
+
+                    <div className={styles.contextMeta}>
+                      <span>{row.venue === "Home" ? "Home" : "Away"}</span>
+                      <span>{row.result === "UNPLAYED" ? "Upcoming" : row.result === "W" ? "Win" : row.result === "D" ? "Draw" : "Loss"}</span>
+                    </div>
+
+                    <span className={styles.arrow} aria-hidden="true">↗</span>
+                  </Link>
+                );
+              })}
             </section>
           ))}
         </main>
