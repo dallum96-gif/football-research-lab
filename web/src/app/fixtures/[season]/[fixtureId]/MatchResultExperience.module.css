@@ -102,15 +102,15 @@
 }
 
 .score span {
-  font-size: clamp(3.35rem, 5vw, 4.85rem);
+  font-size: clamp(2.95rem, 4.25vw, 4.1rem);
   font-weight: 610;
-  line-height: .78;
-  letter-spacing: -.075em;
+  line-height: .8;
+  letter-spacing: -.07em;
 }
 
 .score i {
   color: #67625b;
-  font-size: .9rem;
+  font-size: .84rem;
   font-style: normal;
   font-weight: 500;
 }
@@ -456,10 +456,10 @@
 .playerNode {
   position: absolute;
   z-index: 3;
-  width: 6.4rem;
+  width: 6.9rem;
   display: grid;
   justify-items: center;
-  gap: .09rem;
+  gap: 0;
   text-align: center;
   transform: translate(-50%, -50%);
 }
@@ -468,8 +468,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.46rem;
-  height: 1.46rem;
+  width: 1.44rem;
+  height: 1.44rem;
+  margin-bottom: .17rem;
   border: 1px solid #e85d3f;
   border-radius: 50%;
   background: #171715;
@@ -487,19 +488,20 @@
   max-width: 100%;
   overflow: hidden;
   color: #fffaf1;
-  font-size: .62rem;
-  font-weight: 680;
-  line-height: 1.08;
+  font-size: .64rem;
+  font-weight: 700;
+  line-height: 1.12;
   letter-spacing: -.015em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-wrap: balance;
 }
 
 .playerNode small {
-  color: #716c64;
-  font-size: .35rem;
+  margin-top: .1rem;
+  color: #817b73;
+  font-size: .36rem;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: .065em;
+  line-height: 1;
   text-transform: uppercase;
 }
 
@@ -744,8 +746,10 @@
   .overviewMetricValues { grid-template-columns: 2.15rem minmax(0, 1fr) 2.15rem; gap: .22rem; }
   .overviewMetricValues strong { font-size: .82rem; }
   .overviewMetricValues span { font-size: .32rem; }
-  .playerNode { width: 5.7rem; }
-  .playerNode strong { font-size: .56rem; }
+  .playerNode { width: 6rem; }
+  .playerNode strong { font-size: .57rem; }
+  .playerNumber { margin-bottom: .13rem; }
+  .playerNode small { margin-top: .07rem; }
   .recordFooter > div { padding-inline: .5rem; }
 }
 
@@ -764,7 +768,7 @@
 
   .club { gap: .45rem; }
   .club strong { font-size: .95rem; letter-spacing: -.025em; }
-  .score span { font-size: 2.7rem; }
+  .score span { font-size: 2.35rem; }
   .scorers strong { font-size: .47rem; }
   .scorers span { font-size: .4rem; }
 
@@ -780,9 +784,10 @@
 
   .lineupPanel { padding-inline: .18rem; }
   .lineupContext span { display: none; }
-  .playerNode { width: 4.4rem; }
-  .playerNode strong { font-size: .45rem; }
+  .playerNode { width: 4.6rem; }
+  .playerNode strong { font-size: .47rem; }
   .playerNode small { display: none; }
+  .playerNumber { width: 1.32rem; height: 1.32rem; margin-bottom: .1rem; }
 
   .flowEvent { width: 6.8rem; }
   .flowEvent strong { font-size: .47rem; }
