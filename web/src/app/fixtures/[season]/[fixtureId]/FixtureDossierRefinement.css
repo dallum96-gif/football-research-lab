@@ -1,0 +1,192 @@
+/* Second-pass composition for the fixture dossier.
+   The hero is intentionally left alone: this file starts below the dossier rail. */
+
+[data-frl-fixture-dossier] [data-frl-dossier-nav] + div {
+  gap: 2.2rem;
+  padding-top: 1.15rem;
+}
+
+/* Overview is a factual instrument strip, not an introductory article. */
+[data-frl-fixture-dossier] #overview {
+  display: block;
+  padding: 0;
+}
+
+[data-frl-fixture-dossier] #overview > div:first-child {
+  display: none;
+}
+
+[data-frl-fixture-dossier] #overview > div:last-child {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  width: 100%;
+  border-top: 1px solid rgba(245, 241, 232, .13);
+  border-bottom: 1px solid rgba(245, 241, 232, .13);
+}
+
+[data-frl-fixture-dossier] #overview > div:last-child > div {
+  min-width: 0;
+  padding: .78rem .9rem .8rem 0;
+  border-bottom: 0;
+}
+
+[data-frl-fixture-dossier] #overview > div:last-child > div + div {
+  padding-left: .9rem;
+  border-left: 1px solid rgba(245, 241, 232, .075);
+}
+
+[data-frl-fixture-dossier] #overview > div:last-child > div > span {
+  margin-bottom: .28rem;
+  color: #6f6a63;
+  font-size: .42rem;
+  font-weight: 780;
+  letter-spacing: .14em;
+}
+
+[data-frl-fixture-dossier] #overview > div:last-child > div > strong {
+  color: #eee9df;
+  font-size: .66rem;
+  font-weight: 590;
+}
+
+/* If evidence is genuinely partial, keep the notice compact and subordinate. */
+[data-frl-fixture-dossier] #overview > div[role="status"] {
+  margin-bottom: .7rem;
+  padding: .5rem 0;
+  border-top: 0;
+  border-bottom: 1px solid rgba(245, 241, 232, .1);
+}
+
+/* Section chapters share a tighter editorial rhythm. */
+[data-frl-fixture-dossier] #timeline,
+[data-frl-fixture-dossier] #lineups,
+[data-frl-fixture-dossier] #players,
+[data-frl-fixture-dossier] #statistics {
+  padding-top: .2rem;
+}
+
+[data-frl-fixture-dossier] #timeline > div:first-child,
+[data-frl-fixture-dossier] #lineups > div:first-child,
+[data-frl-fixture-dossier] #players > div:first-child,
+[data-frl-fixture-dossier] #statistics > div:first-child {
+  margin-bottom: .5rem;
+  padding-bottom: .55rem;
+}
+
+[data-frl-fixture-dossier] #timeline > div:first-child h2,
+[data-frl-fixture-dossier] #lineups > div:first-child h2,
+[data-frl-fixture-dossier] #players > div:first-child h2,
+[data-frl-fixture-dossier] #statistics > div:first-child h2 {
+  font-size: 1.35rem;
+}
+
+/* Chronology becomes a compact ledger instead of a large empty diagram. */
+[data-frl-fixture-dossier] #timeline > div:last-child {
+  width: min(100%, 66rem);
+  margin: 0 auto;
+  padding: .15rem 0;
+  row-gap: 0;
+}
+
+[data-frl-fixture-dossier] #timeline > div:last-child::before {
+  opacity: .75;
+}
+
+[data-frl-fixture-dossier] #timeline > div:last-child > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 3.1rem minmax(0, 1fr);
+  align-items: center;
+  min-height: 2.35rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .055);
+}
+
+[data-frl-fixture-dossier] #timeline > div:last-child > div:last-child {
+  border-bottom: 0;
+}
+
+[data-frl-fixture-dossier] #timeline > div:last-child > div > div,
+[data-frl-fixture-dossier] #timeline > div:last-child > div > span {
+  min-height: 0;
+}
+
+[data-frl-fixture-dossier] #timeline > div:last-child > div > div:first-child,
+[data-frl-fixture-dossier] #timeline > div:last-child > div > span:first-child {
+  padding-right: .85rem;
+}
+
+[data-frl-fixture-dossier] #timeline > div:last-child > div > div:last-child,
+[data-frl-fixture-dossier] #timeline > div:last-child > div > span:last-child {
+  padding-left: .85rem;
+}
+
+[data-frl-fixture-dossier] #timeline > div:last-child > div > div:nth-child(2) {
+  min-width: 0;
+  padding: .18rem 0;
+  background: #10100f;
+  color: #958f86;
+  font-size: .5rem;
+  font-weight: 760;
+}
+
+/* Tactical chapter should read as one major object rather than two cards. */
+[data-frl-fixture-dossier] #lineups > div:last-child {
+  min-height: 29rem;
+  background: #121210;
+  border-color: rgba(245, 241, 232, .11);
+}
+
+/* Statistics are denser and sit closer to the same instrument language. */
+[data-frl-fixture-dossier] #statistics > div:last-child {
+  width: min(100%, 66rem);
+}
+
+[data-frl-fixture-dossier] #statistics > div:last-child > div {
+  min-height: 2.75rem;
+}
+
+/* Evidence belongs at the very end and should almost disappear until requested. */
+[data-frl-fixture-dossier] details {
+  margin-top: -.25rem;
+  opacity: .72;
+}
+
+@media (max-width: 1050px) {
+  [data-frl-fixture-dossier] #overview > div:last-child {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  [data-frl-fixture-dossier] #overview > div:last-child > div:nth-child(5) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  [data-frl-fixture-dossier] #overview > div:last-child > div:nth-child(n+5) {
+    border-top: 1px solid rgba(245, 241, 232, .075);
+  }
+}
+
+@media (max-width: 700px) {
+  [data-frl-fixture-dossier] [data-frl-dossier-nav] + div {
+    gap: 1.75rem;
+    padding-top: .9rem;
+  }
+
+  [data-frl-fixture-dossier] #overview > div:last-child {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  [data-frl-fixture-dossier] #overview > div:last-child > div {
+    padding: .65rem .65rem .68rem 0;
+    border-top: 1px solid rgba(245, 241, 232, .07);
+  }
+
+  [data-frl-fixture-dossier] #overview > div:last-child > div:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  [data-frl-fixture-dossier] #timeline > div:last-child > div {
+    grid-template-columns: minmax(0, 1fr) 2.6rem minmax(0, 1fr);
+    min-height: 2.6rem;
+  }
+}
