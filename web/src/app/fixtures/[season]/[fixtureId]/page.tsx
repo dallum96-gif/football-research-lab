@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { TeamCrest } from "@/components/TeamCrest";
 import { FixturePlayerPerformance } from "./FixturePlayerPerformance";
 import styles from "./FixtureOverview.module.css";
+import "./FixtureHeroRefinement.css";
 
 type FixtureDetailProps = {
   params: Promise<{
@@ -280,6 +281,9 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
   const completed = fixture.home_score != null && fixture.away_score != null;
 
   const events = evidence?.events ?? [];
+  const goalEvents = events.filter((event) => event.type === "goal");
+  const homeGoals = goalEvents.filter((event) => event.side === "home");
+  const awayGoals = goalEvents.filter((event) => event.side === "away");
   const timelineEvents = events.filter((event) => event.type === "goal" || event.type === "card");
   const startingPlayers = (side: "home" | "away"): Player[] =>
     (evidence?.lineup ?? [])
@@ -325,8 +329,8 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
 
   return (
     <AppShell>
-      <article className={styles.dossier}>
-        <header className={styles.fixtureHero}>
+      <article className={styles.dossier} data-frl-fixture-dossier>
+        <header className={styles.fixtureHero} data-frl-fixture-hero>
           <div className={styles.heroEyebrow}>
             <span>Premier League</span>
             <span>{fixture.gameweek == null ? season : `GW ${fixture.gameweek}`}</span>
@@ -364,6 +368,27 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
             </div>
           </div>
 
+          {goalEvents.length ? (
+            <div data-frl-hero-scorers aria-label="Goalscorers">
+              <div data-frl-goal-side="home">
+                {homeGoals.map((event, index) => (
+                  <div data-frl-goal-line key={`${event.event_id ?? "home-goal"}-${event.minute ?? index}-${index}`}>
+                    <strong>{event.primary_player.name || "Scorer unavailable"}</strong>
+                    <span>{event.minute ?? "—"}</span>
+                  </div>
+                ))}
+              </div>
+              <div data-frl-goal-side="away">
+                {awayGoals.map((event, index) => (
+                  <div data-frl-goal-line key={`${event.event_id ?? "away-goal"}-${event.minute ?? index}-${index}`}>
+                    <strong>{event.primary_player.name || "Scorer unavailable"}</strong>
+                    <span>{event.minute ?? "—"}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           <div className={styles.heroContext}>
             <span>{evidence?.metadata?.ground || "Venue unavailable"}</span>
             <i aria-hidden="true" />
@@ -372,7 +397,7 @@ export default async function FixtureDetailPage({ params }: FixtureDetailProps) 
           </div>
         </header>
 
-        <nav className={styles.dossierNav} aria-label="Match dossier sections">
+        <nav className={styles.dossierNav} data-frl-dossier-nav aria-label="Match dossier sections">
           <a href="#overview">Overview</a>
           <a href="#timeline">Timeline</a>
           <a href="#lineups">Lineups</a>
