@@ -130,6 +130,7 @@
 .contextBar {
   background: var(--frl-bg);
   border-top: 1px solid var(--frl-border);
+  border-bottom: 1px solid rgba(23, 23, 20, 0.08);
 }
 
 .contextInner {
@@ -207,28 +208,6 @@
 
 .shell[data-tone="dark"] {
   background: #10100f;
-}
-
-.shell[data-tone="dark"] .contextBar {
-  background: #10100f;
-  border-top-color: rgba(245, 241, 232, 0.08);
-}
-
-.shell[data-tone="dark"] .contextLabel {
-  color: #77736d;
-}
-
-.shell[data-tone="dark"] .contextRule {
-  background: rgba(245, 241, 232, 0.18);
-}
-
-.shell[data-tone="dark"] .contextLink {
-  color: #8f8a82;
-}
-
-.shell[data-tone="dark"] .contextLink:hover,
-.shell[data-tone="dark"] .contextLink[data-active="true"] {
-  color: #f5f1e8;
 }
 
 .shell[data-tone="dark"] .main {
