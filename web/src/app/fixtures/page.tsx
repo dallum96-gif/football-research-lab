@@ -1,16 +1,13 @@
 import { Suspense } from "react";
 import { AppShell } from "@/components/AppShell";
-import { FixtureExplorer } from "@/components/FixtureExplorer";
-import { FixturesPremiumFrame } from "./FixturesPremiumFrame";
+import { FixturesExperience } from "./FixturesExperience";
 
 export default function FixturesPage() {
   return (
     <AppShell>
-      <FixturesPremiumFrame>
-        <Suspense fallback={<div className="frl-empty-state">Loading fixtures…</div>}>
-          <FixtureExplorer />
-        </Suspense>
-      </FixturesPremiumFrame>
+      <Suspense fallback={<div className="frl-empty-state">Loading fixtures…</div>}>
+        <FixturesExperience />
+      </Suspense>
     </AppShell>
   );
 }
