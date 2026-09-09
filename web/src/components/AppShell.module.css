@@ -205,6 +205,36 @@
   padding: 0.9rem 2rem 4rem;
 }
 
+.shell[data-tone="dark"] {
+  background: #10100f;
+}
+
+.shell[data-tone="dark"] .contextBar {
+  background: #10100f;
+  border-top-color: rgba(245, 241, 232, 0.08);
+}
+
+.shell[data-tone="dark"] .contextLabel {
+  color: #77736d;
+}
+
+.shell[data-tone="dark"] .contextRule {
+  background: rgba(245, 241, 232, 0.18);
+}
+
+.shell[data-tone="dark"] .contextLink {
+  color: #8f8a82;
+}
+
+.shell[data-tone="dark"] .contextLink:hover,
+.shell[data-tone="dark"] .contextLink[data-active="true"] {
+  color: #f5f1e8;
+}
+
+.shell[data-tone="dark"] .main {
+  background: #10100f;
+}
+
 @media (max-width: 980px) {
   .topRow {
     min-height: 64px;
