@@ -1,3 +1,5 @@
+"use client";
+
 const FOOTBALL_DATA_TEAM_IDS: Record<string, number> = {
   "Arsenal": 57,
   "Aston Villa": 58,
