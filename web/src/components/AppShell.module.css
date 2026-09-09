@@ -214,6 +214,30 @@
   background: #10100f;
 }
 
+@media (min-width: 651px) {
+  .shell[data-tone="dark"] {
+    height: 100dvh;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .shell[data-tone="dark"] .header {
+    position: relative;
+    flex: 0 0 auto;
+  }
+
+  .shell[data-tone="dark"] .main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+    padding-bottom: .8rem;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 980px) {
   .topRow {
     min-height: 64px;
