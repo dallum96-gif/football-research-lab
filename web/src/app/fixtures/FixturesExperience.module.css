@@ -1,21 +1,21 @@
 .page {
   width: 100%;
   margin: 0;
-  padding: 1.6rem 0 5.5rem;
-  color: #171714;
+  padding: 1.15rem 0 5.5rem;
+  color: #f5f1e8;
 }
 
 .header {
-  padding-bottom: 1.55rem;
-  border-bottom: 1px solid #171714;
+  padding-bottom: 1.15rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .2);
 }
 
 .kicker {
   display: flex;
   align-items: center;
   gap: .65rem;
-  margin-bottom: 1.65rem;
-  color: #777168;
+  margin-bottom: 1.05rem;
+  color: #817c74;
   font-size: .58rem;
   font-weight: 700;
   letter-spacing: .17em;
@@ -62,7 +62,7 @@
 
 .identity h1 {
   margin: 0;
-  font-size: clamp(2.4rem, 4vw, 3.35rem);
+  font-size: clamp(2.45rem, 4vw, 3.45rem);
   font-weight: 650;
   line-height: .92;
   letter-spacing: -.06em;
@@ -70,7 +70,7 @@
 
 .identity p {
   margin: .62rem 0 0;
-  color: #777168;
+  color: #918b82;
   font-size: .7rem;
   font-weight: 550;
   letter-spacing: .04em;
@@ -89,6 +89,7 @@
 }
 
 .summary strong {
+  color: #f5f1e8;
   font-size: 1.35rem;
   font-weight: 620;
   line-height: 1;
@@ -96,7 +97,7 @@
 }
 
 .summary span {
-  color: #938d84;
+  color: #777168;
   font-size: .48rem;
   font-weight: 700;
   letter-spacing: .14em;
@@ -110,10 +111,10 @@
   gap: .55rem;
   padding: 0 0 .35rem;
   border: 0;
-  border-bottom: 1px solid rgba(23, 23, 20, .55);
+  border-bottom: 1px solid rgba(245, 241, 232, .42);
   border-radius: 0;
   background: transparent;
-  color: #171714;
+  color: #f5f1e8;
   cursor: pointer;
   font-size: .64rem;
   font-weight: 720;
@@ -141,8 +142,8 @@
   align-items: center;
   gap: 1.45rem;
   overflow-x: auto;
-  padding: 1rem 0 1.15rem;
-  border-bottom: 1px solid rgba(23, 23, 20, .11);
+  padding: .82rem 0 .88rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .1);
   scrollbar-width: none;
 }
 
@@ -150,25 +151,30 @@
 
 .monthNav a {
   flex: 0 0 auto;
-  color: #938d84;
+  color: #777168;
   font-size: .52rem;
   font-weight: 700;
   letter-spacing: .15em;
   text-decoration: none;
+  transition: color 120ms ease;
+}
+
+.monthNav a:first-child {
+  color: #e6e1d8;
 }
 
 .monthNav a:hover {
-  color: #171714;
+  color: #f5f1e8;
 }
 
 .coverage {
-  margin: 1rem 0 0;
-  color: #8c867d;
+  margin: .85rem 0 0;
+  color: #817c74;
   font-size: .66rem;
 }
 
 .archive {
-  margin-top: 3.8rem;
+  margin-top: 1.45rem;
 }
 
 .month {
@@ -176,7 +182,7 @@
 }
 
 .month + .month {
-  margin-top: 5rem;
+  margin-top: 3.4rem;
 }
 
 .monthHeading {
@@ -184,20 +190,21 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: .9rem;
+  margin-bottom: .55rem;
 }
 
 .monthHeading h2 {
   margin: 0;
-  font-size: clamp(1.7rem, 2.7vw, 2.45rem);
-  font-weight: 610;
+  color: #d8d2c8;
+  font-size: clamp(1.05rem, 1.35vw, 1.35rem);
+  font-weight: 620;
   line-height: 1;
-  letter-spacing: -.055em;
+  letter-spacing: -.025em;
 }
 
 .monthHeading span {
-  color: #aaa49b;
-  font-size: .58rem;
+  color: #68635c;
+  font-size: .54rem;
   font-weight: 700;
   letter-spacing: .12em;
 }
@@ -211,11 +218,11 @@
 }
 
 .columnHead {
-  min-height: 2rem;
-  border-top: 1px solid #171714;
-  border-bottom: 1px solid rgba(23, 23, 20, .16);
-  color: #9b958c;
-  font-size: .46rem;
+  min-height: 1.8rem;
+  border-top: 1px solid rgba(245, 241, 232, .24);
+  border-bottom: 1px solid rgba(245, 241, 232, .1);
+  color: #68635c;
+  font-size: .45rem;
   font-weight: 700;
   letter-spacing: .15em;
   text-transform: uppercase;
@@ -223,9 +230,9 @@
 
 .fixture {
   position: relative;
-  min-height: 5.75rem;
-  border-bottom: 1px solid rgba(23, 23, 20, .12);
-  color: #171714;
+  min-height: 5.25rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .09);
+  color: #eee9df;
   text-decoration: none;
   transition: background-color 160ms ease, color 160ms ease, padding 160ms ease;
 }
@@ -233,8 +240,8 @@
 .fixture:hover {
   margin-inline: -.8rem;
   padding-inline: .8rem;
-  background: #171714;
-  color: #fffdf8;
+  background: #f1ece2;
+  color: #11110f;
 }
 
 .date {
@@ -248,7 +255,7 @@
 }
 
 .date span {
-  color: #aaa49b;
+  color: #706b63;
   font-size: .47rem;
   font-weight: 700;
   letter-spacing: .13em;
@@ -258,7 +265,7 @@
 .fixture:hover .date span,
 .fixture:hover .contextMeta,
 .fixture:hover .contextMeta span + span {
-  color: #a8a39b;
+  color: #6f6961;
 }
 
 .matchup {
@@ -275,7 +282,7 @@
   gap: .75rem;
   min-width: 0;
   color: inherit;
-  font-size: .86rem;
+  font-size: .88rem;
   font-weight: 510;
 }
 
@@ -306,7 +313,7 @@
 
 .score {
   text-align: center;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 650;
   letter-spacing: -.045em;
   white-space: nowrap;
@@ -316,7 +323,7 @@
   display: grid;
   justify-items: end;
   gap: .28rem;
-  color: #767168;
+  color: #8f8980;
   font-size: .49rem;
   font-weight: 700;
   letter-spacing: .13em;
@@ -324,7 +331,7 @@
 }
 
 .contextMeta span + span {
-  color: #a19b92;
+  color: #69645d;
 }
 
 .arrow {
@@ -344,37 +351,37 @@
   display: flex;
   align-items: center;
   gap: .7rem;
-  margin-top: 3rem;
+  margin-top: 2rem;
   padding: 1.25rem 0;
-  border-top: 1px solid rgba(23, 23, 20, .16);
-  border-bottom: 1px solid rgba(23, 23, 20, .16);
-  color: #787269;
+  border-top: 1px solid rgba(245, 241, 232, .14);
+  border-bottom: 1px solid rgba(245, 241, 232, .14);
+  color: #8f8980;
   font-size: .74rem;
 }
 
-.state strong { color: #171714; }
+.state strong { color: #f5f1e8; }
 .state button {
   padding: 0;
   border: 0;
   background: transparent;
-  color: #171714;
+  color: #f5f1e8;
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 3px;
 }
 
 .provenance {
-  margin-top: 5rem;
+  margin-top: 4rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(23, 23, 20, .15);
-  color: #8b857c;
+  border-top: 1px solid rgba(245, 241, 232, .12);
+  color: #777168;
   font-size: .61rem;
 }
 
 .provenance summary {
   width: fit-content;
   cursor: pointer;
-  color: #5f5a53;
+  color: #a39d94;
   font-weight: 680;
   letter-spacing: .08em;
   text-transform: uppercase;
@@ -401,7 +408,7 @@
   height: 100%;
   padding: 0;
   border: 0;
-  background: rgba(23, 23, 20, .42);
+  background: rgba(0, 0, 0, .62);
   cursor: default;
 }
 
@@ -415,7 +422,7 @@
   padding: 2.3rem 2.2rem;
   background: #171714;
   color: #fffdf8;
-  box-shadow: -24px 0 70px rgba(0, 0, 0, .12);
+  box-shadow: -24px 0 70px rgba(0, 0, 0, .18);
 }
 
 .drawerHead {
@@ -510,7 +517,7 @@
 .drawerFoot button { color: #e85d3f; }
 
 @media (max-width: 980px) {
-  .page { padding-top: 1.4rem; }
+  .page { padding-top: 1.1rem; }
   .headerGrid { grid-template-columns: 1fr auto; gap: 2rem; }
   .summary { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
   .refineButton { grid-column: 2; grid-row: 1; }
@@ -519,15 +526,16 @@
 }
 
 @media (max-width: 700px) {
-  .page { padding: 1.2rem 0 3.5rem; }
-  .kicker { margin-bottom: 1.25rem; }
+  .page { padding: 1rem 0 3.5rem; }
+  .kicker { margin-bottom: 1rem; }
   .headerGrid { grid-template-columns: 1fr auto; gap: 1.5rem 1rem; }
   .teamMark { display: none; }
   .identity h1 { font-size: 2.4rem; }
   .summary { gap: 1.2rem; overflow-x: auto; }
   .summary strong { font-size: 1.1rem; }
-  .archive { margin-top: 2.8rem; }
-  .month + .month { margin-top: 3.7rem; }
+  .archive { margin-top: 1.25rem; }
+  .month + .month { margin-top: 3rem; }
+  .monthHeading h2 { font-size: 1.05rem; }
   .columnHead { display: none; }
   .fixture {
     grid-template-columns: 4.7rem minmax(0, 1fr) 1.2rem;
@@ -542,7 +550,7 @@
   .side { gap: .35rem; font-size: .7rem; }
   .kit { width: 1.25rem; height: 1.25rem; }
   .kit :global(svg) { width: 1.2rem; height: 1.2rem; }
-  .score { font-size: .92rem; }
+  .score { font-size: .98rem; }
   .contextMeta { grid-area: meta; display: flex; justify-content: flex-end; gap: .65rem; }
   .arrow { grid-area: arrow; align-self: center; }
   .drawer { padding: 1.8rem 1.4rem; }
