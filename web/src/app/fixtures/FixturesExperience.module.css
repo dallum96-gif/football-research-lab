@@ -205,92 +205,115 @@
 }
 
 .archive {
-  margin-top: .95rem;
+  margin-top: 1.1rem;
 }
 
 .month {
+  display: grid;
+  grid-template-columns: 9rem minmax(0, 1fr);
+  column-gap: 1.35rem;
+  align-items: start;
   scroll-margin-top: 2rem;
 }
 
 .month + .month {
-  margin-top: 3.1rem;
+  margin-top: 2.7rem;
 }
 
 .monthHeading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0 -2rem;
-  padding: .58rem 2rem .6rem;
-  background: #eee8de;
+  grid-column: 1;
+  grid-row: 1 / span 99;
+  align-self: start;
+  display: grid;
+  align-content: start;
+  gap: .45rem;
+  min-height: 6.15rem;
+  margin: 0;
+  padding: .92rem .9rem 1rem;
+  background: #f1ece2;
+  color: #11110f;
+}
+
+.monthHeading::before {
+  content: "Archive month";
+  color: #817a70;
+  font-size: .42rem;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
 }
 
 .monthHeading h2 {
   margin: 0;
-  color: #171714;
-  font-size: .66rem;
-  font-weight: 780;
-  line-height: 1;
-  letter-spacing: .14em;
-  text-transform: uppercase;
+  color: #11110f;
+  font-size: 1.02rem;
+  font-weight: 680;
+  line-height: 1.02;
+  letter-spacing: -.03em;
 }
 
 .monthHeading span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: .25rem;
+  margin-top: .28rem;
   color: #e85d3f;
-  font-size: .52rem;
-  font-weight: 760;
-  letter-spacing: .14em;
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .12em;
 }
 
-.columnHead,
-.fixture {
-  display: grid;
-  grid-template-columns: 8.5rem minmax(0, 1fr) 7.5rem 1.75rem;
-  column-gap: 1.5rem;
-  align-items: center;
-}
-
-.columnHead {
-  min-height: 1.8rem;
-  border-bottom: 1px solid rgba(245, 241, 232, .1);
-  color: #68635c;
-  font-size: .45rem;
-  font-weight: 700;
-  letter-spacing: .15em;
+.monthHeading span::after {
+  content: "fixtures";
+  color: #817a70;
+  font-size: .43rem;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
 
+.columnHead {
+  display: none;
+}
+
 .fixture {
+  grid-column: 2;
   position: relative;
-  min-height: 5.15rem;
-  border-bottom: 1px solid rgba(245, 241, 232, .09);
-  color: #e3ddd3;
+  display: grid;
+  grid-template-columns: 6.6rem minmax(0, 1fr) 3.4rem 1rem;
+  column-gap: 1rem;
+  align-items: center;
+  min-height: 4.15rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .085);
+  color: #eee9df;
   text-decoration: none;
-  transition: background-color 160ms ease, color 160ms ease, padding 160ms ease;
+  transition: background-color 160ms ease, color 160ms ease, padding 160ms ease, transform 160ms ease;
+}
+
+.fixture:first-of-type {
+  border-top: 1px solid rgba(245, 241, 232, .12);
 }
 
 .fixture:hover {
-  margin-inline: -.8rem;
-  padding-inline: .8rem;
+  margin-inline: -.65rem;
+  padding-inline: .65rem;
   background: #f1ece2;
   color: #11110f;
 }
 
 .date {
   display: grid;
-  gap: .28rem;
+  gap: .2rem;
 }
 
 .date strong {
-  color: inherit;
-  font-size: .7rem;
-  font-weight: 580;
+  font-size: .64rem;
+  font-weight: 590;
+  white-space: nowrap;
 }
 
 .date span {
   color: #706b63;
-  font-size: .47rem;
+  font-size: .43rem;
   font-weight: 700;
   letter-spacing: .13em;
   text-transform: uppercase;
@@ -303,20 +326,22 @@
 }
 
 .matchup {
+  justify-self: center;
+  width: min(100%, 45rem);
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 5rem minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 3.9rem minmax(0, 1fr);
   align-items: center;
-  gap: 1.2rem;
+  gap: .65rem;
   min-width: 0;
 }
 
 .side {
   display: flex;
   align-items: center;
-  gap: .75rem;
+  gap: .55rem;
   min-width: 0;
   color: inherit;
-  font-size: .9rem;
+  font-size: .8rem;
   font-weight: 510;
 }
 
@@ -333,56 +358,51 @@
 
 .selectedTeam {
   color: #fffaf1;
-  font-weight: 700;
+  font-weight: 690;
 }
 
 .fixture:hover .selectedTeam {
-  color: #11110f;
+  color: inherit;
 }
 
 .kit {
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 1.45rem;
+  height: 1.45rem;
 }
 
 .kit :global(svg) {
-  width: 1.7rem;
-  height: 1.7rem;
+  width: 1.38rem;
+  height: 1.38rem;
 }
 
 .score {
-  color: #fffaf1;
   text-align: center;
-  font-size: 1.5rem;
-  font-weight: 650;
-  letter-spacing: -.05em;
+  font-size: 1.13rem;
+  font-weight: 680;
+  letter-spacing: -.045em;
   white-space: nowrap;
-}
-
-.fixture:hover .score {
-  color: #11110f;
 }
 
 .contextMeta {
   display: grid;
   justify-items: end;
-  gap: .28rem;
-  color: #918b82;
-  font-size: .49rem;
+  gap: .1rem;
+  color: #8f8980;
+  font-size: .43rem;
   font-weight: 700;
-  letter-spacing: .13em;
+  letter-spacing: .12em;
   text-transform: uppercase;
 }
 
 .contextMeta span + span {
-  color: #69645d;
+  display: none;
 }
 
 .arrow {
   color: #e85d3f;
-  font-size: .8rem;
+  font-size: .72rem;
   opacity: 0;
-  transform: translate(-4px, 4px);
+  transform: translate(-3px, 3px);
   transition: opacity 150ms ease, transform 150ms ease;
 }
 
@@ -564,40 +584,52 @@
   .headerGrid { grid-template-columns: 1fr auto; gap: 2rem; }
   .summary { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
   .refineButton { grid-column: 2; grid-row: 1; }
-  .columnHead, .fixture { grid-template-columns: 7rem minmax(0, 1fr) 5.5rem 1.4rem; gap: 1rem; }
-  .matchup { grid-template-columns: minmax(0, 1fr) 4rem minmax(0, 1fr); gap: .7rem; }
+  .month { grid-template-columns: 7.2rem minmax(0, 1fr); gap: 1rem; }
+  .fixture { grid-template-columns: 5.8rem minmax(0, 1fr) 3rem .9rem; gap: .75rem; }
+  .matchup { grid-template-columns: minmax(0, 1fr) 3.4rem minmax(0, 1fr); gap: .45rem; }
 }
 
 @media (max-width: 700px) {
   .page { padding-bottom: 3.5rem; }
-  .header { margin-inline: -1rem; padding: 1.15rem 1rem 1.2rem; }
+  .header { margin-inline: -1rem; padding: 1.1rem 1rem 1.2rem; }
   .header::after { left: 1rem; }
   .kicker { margin-bottom: 1rem; }
   .headerGrid { grid-template-columns: 1fr auto; gap: 1.5rem 1rem; }
   .teamMark { display: none; }
-  .identity h1 { font-size: 2.5rem; }
+  .identity h1 { font-size: 2.4rem; }
   .summary { gap: 1.2rem; overflow-x: auto; }
   .summary strong { font-size: 1.1rem; }
-  .monthNav { margin-inline: -1rem; padding-left: 1rem; padding-right: 1rem; }
-  .archive { margin-top: .75rem; }
-  .month + .month { margin-top: 2.6rem; }
-  .monthHeading { margin-inline: -1rem; padding-left: 1rem; padding-right: 1rem; }
-  .columnHead { display: none; }
-  .fixture {
-    grid-template-columns: 4.7rem minmax(0, 1fr) 1.2rem;
-    grid-template-areas: "date match arrow" "date meta arrow";
-    gap: .4rem .8rem;
-    min-height: 6rem;
-    padding: .8rem 0;
+  .monthNav { margin-inline: -1rem; padding-inline: 1rem; }
+  .archive { margin-top: .9rem; }
+  .month { display: block; }
+  .month + .month { margin-top: 2.2rem; }
+  .monthHeading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: .75rem;
+    min-height: 0;
+    margin-bottom: .25rem;
+    padding: .6rem .7rem;
   }
-  .fixture:hover { margin-inline: -.45rem; padding-inline: .45rem; }
+  .monthHeading::before { display: none; }
+  .monthHeading h2 { font-size: .85rem; }
+  .monthHeading span { margin: 0; }
+  .fixture {
+    grid-template-columns: 4.4rem minmax(0, 1fr) .9rem;
+    grid-template-areas: "date match arrow";
+    gap: .35rem .7rem;
+    min-height: 4.65rem;
+    padding: .55rem 0;
+  }
+  .fixture:hover { margin-inline: -.4rem; padding-inline: .4rem; }
   .date { grid-area: date; }
-  .matchup { grid-area: match; grid-template-columns: minmax(0, 1fr) 3.2rem minmax(0, 1fr); gap: .35rem; }
-  .side { gap: .35rem; font-size: .7rem; }
-  .kit { width: 1.25rem; height: 1.25rem; }
-  .kit :global(svg) { width: 1.2rem; height: 1.2rem; }
-  .score { font-size: 1.02rem; }
-  .contextMeta { grid-area: meta; display: flex; justify-content: flex-end; gap: .65rem; }
+  .matchup { grid-area: match; grid-template-columns: minmax(0, 1fr) 3rem minmax(0, 1fr); gap: .3rem; }
+  .side { gap: .3rem; font-size: .68rem; }
+  .kit { width: 1.15rem; height: 1.15rem; }
+  .kit :global(svg) { width: 1.1rem; height: 1.1rem; }
+  .score { font-size: .92rem; }
+  .contextMeta { display: none; }
   .arrow { grid-area: arrow; align-self: center; }
   .drawer { padding: 1.8rem 1.4rem; }
 }
