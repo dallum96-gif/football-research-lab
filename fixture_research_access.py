@@ -51,6 +51,23 @@ def _participation(values: dict[str, Any]) -> str:
     return "unknown"
 
 
+def _source_native_participation(row: dict[str, Any]) -> tuple[str, str]:
+    """Preserve a source-backed starter when PulseLive places the player in its XI.
+
+    The formation-line order is copied directly from the preserved PulseLive
+    ``formation.lineup`` resource. Membership therefore proves starting-XI
+    selection even when optional Player-Match participation enrichment is not
+    available. It does not infer substitute/bench status for the remaining rows.
+    """
+    order = row.get("source_formation_order")
+    if not isinstance(order, dict):
+        return "unknown", "UNAVAILABLE"
+    required = ("line_index", "slot_index", "line_size")
+    if any(key not in order for key in required):
+        return "unknown", "UNAVAILABLE"
+    return "starting", "PULSELIVE_FORMATION_LINEUP"
+
+
 def _player_match_lookup_identity(
     season: str,
     fixture_id: str,
@@ -163,6 +180,10 @@ def _derived_side_placements(
     ):
         return {}
 
+    starting_evidence = sorted({
+        str(row.get("participation_evidence") or "UNSPECIFIED")
+        for row in starting
+    })
     placements: dict[str, dict[str, Any]] = {}
     for line_index in range(len(expected_line_sizes)):
         for slot_index, row in by_line[line_index]:
@@ -187,7 +208,8 @@ def _derived_side_placements(
                     "source_line_index": line_index,
                     "source_slot_index": slot_index,
                     "source_line_size": expected_line_sizes[line_index],
-                    "starting_xi_status": "VERIFIED_PLAYER_MATCH_PARTICIPATION",
+                    "starting_xi_status": "VERIFIED_SOURCE_BACKED",
+                    "starting_xi_evidence": starting_evidence,
                     "side": side,
                 },
             }
@@ -241,24 +263,46 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
     if evidence["status"] == "UNAVAILABLE":
         return evidence
 
-    ura_rows = _ura_player_rows(season, fixture_id) if evidence.get("lineup") else {}
+    player_match_enrichment_error: Exception | None = None
+    if evidence.get("lineup"):
+        try:
+            ura_rows = _ura_player_rows(season, fixture_id)
+        except Exception as exc:
+            # Player-Match participation is optional enrichment. A failure here
+            # must never suppress source-native PulseLive lineup evidence.
+            ura_rows = {}
+            player_match_enrichment_error = exc
+    else:
+        ura_rows = {}
+
     lineup: list[dict[str, Any]] = []
     participation_missing = 0
 
     for row in evidence.get("lineup", []):
-        player_match_source_id, bridge = _player_match_lookup_identity(
-            season,
-            str(fixture_id),
-            row,
-        )
+        if player_match_enrichment_error is None:
+            player_match_source_id, bridge = _player_match_lookup_identity(
+                season,
+                str(fixture_id),
+                row,
+            )
+        else:
+            base_player = dict(row.get("player") or {})
+            player_match_source_id = str(
+                base_player.get("player_match_source_player_id") or ""
+            ).strip()
+            existing_bridge = base_player.get("identity_bridge")
+            bridge = existing_bridge if isinstance(existing_bridge, dict) else None
+
         values = ura_rows.get(player_match_source_id, {})
         if values:
             participation = _participation(values)
+            participation_evidence = "PLAYER_MATCH_PARTICIPATION"
             side = str(values.get("venue") or row.get("side") or "").strip().casefold() or None
         else:
-            participation = "unknown"
+            participation, participation_evidence = _source_native_participation(row)
             side = row.get("side")
-            participation_missing += 1
+            if participation == "unknown":
+                participation_missing += 1
 
         item = dict(row)
         item["player"] = {
@@ -275,6 +319,7 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
         }
         item["side"] = side
         item["participation"] = participation
+        item["participation_evidence"] = participation_evidence
         item["minutes"] = values.get("minutesPlayed") if values else None
         item["provenance"] = {
             **dict(row.get("provenance") or {}),
@@ -286,6 +331,7 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
                 if bridge is not None
                 else "player_match_stats.source_player_id()"
             ),
+            "participation_evidence": participation_evidence,
             **(
                 {
                     "identity_bridge_route": bridge["identity_route"],
@@ -307,6 +353,14 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
         for item in placement_coverage.values()
     )
 
+    enrichment_limitation = (
+        [
+            "Player-Match participation enrichment was unavailable for this request; source-native PulseLive formation membership remains authoritative for starting-XI evidence where available."
+        ]
+        if player_match_enrichment_error is not None
+        else []
+    )
+
     return {
         **evidence,
         "lineup": lineup,
@@ -324,17 +378,25 @@ def fixture_research_result(season: str, fixture_id: str) -> dict[str, Any]:
         # Unknown participation is a partial-evidence condition, not itself a
         # known exception. The individual row remains explicitly "unknown".
         "status": evidence["status"],
-        "limitations": list(evidence.get("limitations") or []) + (
-            [f"{participation_missing} lineup players lacked a reusable Player-Match participation observation; participation remains unknown."]
+        "limitations": list(evidence.get("limitations") or []) + enrichment_limitation + (
+            [f"{participation_missing} lineup players lacked both reusable Player-Match participation and source formation starter evidence; participation remains unknown."]
             if participation_missing else []
         ) + (
-            ["Tactical x/y coordinates marked DERIVED_FORMATION_LAYOUT are presentation-only geometry based on the verified starting XI, source formation and source formation-line order; they are not explicit source coordinates."]
+            ["Tactical x/y coordinates marked DERIVED_FORMATION_LAYOUT are presentation-only geometry based on the source-backed starting XI, source formation and source formation-line order; they are not explicit source coordinates."]
             if derived_layout else []
         ),
         "provenance": {
             **dict(evidence.get("provenance") or {}),
             "access_layer": "FRL Universal Research Access",
-            "player_match_access": True,
+            "player_match_access": player_match_enrichment_error is None,
+            "player_match_enrichment": {
+                "status": "AVAILABLE" if player_match_enrichment_error is None else "UNAVAILABLE",
+                "failure_type": (
+                    type(player_match_enrichment_error).__name__
+                    if player_match_enrichment_error is not None
+                    else None
+                ),
+            },
             "tactical_placement": {
                 "classification": "PRESENTATION_ONLY" if derived_layout else "SOURCE_OR_UNAVAILABLE",
                 "coverage": placement_coverage,

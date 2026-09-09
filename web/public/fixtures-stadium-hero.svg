@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 560" role="img" aria-labelledby="title desc">
+  <title id="title">FRL stadium architecture artwork</title>
+  <desc id="desc">Abstract modern football stadium architecture in deep charcoal and restrained red tones.</desc>
+  <rect width="1600" height="560" fill="#11110f"/>
+  <rect width="1600" height="560" fill="#151512"/>
+  <path d="M650 585C840 180 1120 40 1660 18v567H650Z" fill="#25110f"/>
+  <path d="M756 585C915 238 1178 91 1648 63" fill="none" stroke="#6a211b" stroke-width="92" opacity=".72"/>
+  <path d="M762 585C925 250 1189 107 1652 81" fill="none" stroke="#b33a2d" stroke-width="4" opacity=".9"/>
+  <path d="M712 585C862 224 1114 67 1578 24" fill="none" stroke="#4b2722" stroke-width="2" opacity=".85"/>
+  <path d="M825 585C963 287 1208 152 1630 125" fill="none" stroke="#4b2722" stroke-width="2" opacity=".85"/>
+  <g stroke="#713029" stroke-width="2" opacity=".72">
+    <path d="M855 520L905 338"/><path d="M930 483L988 293"/><path d="M1008 442L1073 249"/><path d="M1090 403L1160 210"/><path d="M1178 365L1250 175"/><path d="M1270 330L1342 145"/><path d="M1362 297L1433 119"/><path d="M1450 267L1520 96"/>
+  </g>
+  <g stroke="#2e2d29" stroke-width="1" opacity=".72">
+    <path d="M820 542C1030 324 1278 214 1600 176"/><path d="M792 565C1005 347 1263 234 1600 194"/><path d="M873 504C1070 309 1304 208 1600 173"/>
+  </g>
+  <path d="M0 420C310 392 520 408 782 476v84H0Z" fill="#0c0c0b" opacity=".8"/>
+  <circle cx="1260" cy="270" r="108" fill="none" stroke="#7d2a23" stroke-width="2" opacity=".56"/>
+  <circle cx="1260" cy="270" r="76" fill="none" stroke="#7d2a23" stroke-width="2" opacity=".56"/>
+  <path d="M1184 270h152M1260 194v152M1207 217l106 106M1313 217l-106 106" stroke="#7d2a23" stroke-width="2" opacity=".48"/>
+  <rect y="0" width="760" height="560" fill="#11110f" opacity=".94"/>
+  <rect x="760" y="0" width="260" height="560" fill="#11110f" opacity=".48"/>
+  <path d="M0 0h1600v560H0z" fill="none" stroke="#2c2b27" stroke-width="2"/>
+</svg>
