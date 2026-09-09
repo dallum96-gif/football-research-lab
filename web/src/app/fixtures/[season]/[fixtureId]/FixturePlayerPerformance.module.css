@@ -153,3 +153,93 @@
 @media (max-width: 650px) {
   .performanceList { grid-template-columns: 1fr; }
 }
+
+/* Players editorial hierarchy pass */
+.performanceList {
+  grid-template-columns: 1fr;
+}
+
+.heading {
+  margin-bottom: .15rem;
+  padding-bottom: .7rem;
+}
+
+.kicker {
+  font-size: .48rem;
+  letter-spacing: .14em;
+}
+
+.teamName {
+  font-size: .94rem;
+  font-weight: 720;
+}
+
+.performanceRow {
+  padding: .85rem 0 .8rem;
+}
+
+.metricLabel {
+  font-size: .48rem;
+  letter-spacing: .115em;
+}
+
+.playerLine {
+  gap: .7rem;
+  margin-top: .3rem;
+}
+
+.playerName {
+  font-size: .78rem;
+  font-weight: 680;
+}
+
+.metricValue {
+  font-size: 1.3rem;
+  font-weight: 780;
+  line-height: .9;
+}
+
+.metricUnit {
+  font-size: .4rem;
+}
+
+.secondaryLine {
+  margin-top: .2rem;
+  font-size: .43rem;
+}
+
+.performanceRow[data-tied="true"] .playerName {
+  color: #8d877e;
+  font-size: .72rem;
+}
+
+.performanceRow[data-state="unavailable"] {
+  opacity: .5;
+}
+
+.unavailableLine {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  margin-top: .3rem;
+}
+
+.home .unavailableLine {
+  justify-content: flex-end;
+}
+
+.away .unavailableLine {
+  justify-content: flex-start;
+}
+
+.unavailableLine span {
+  color: #8d877e;
+  font-size: .69rem;
+  font-weight: 650;
+}
+
+.unavailableLine small {
+  color: #5f5a53;
+  font-size: .39rem;
+  font-weight: 600;
+}
