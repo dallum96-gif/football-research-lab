@@ -1,13 +1,26 @@
 .page {
   width: 100%;
   margin: 0;
-  padding: 1.15rem 0 5.5rem;
+  padding: 0 0 5.5rem;
   color: #f5f1e8;
 }
 
 .header {
-  padding-bottom: 1.15rem;
-  border-bottom: 1px solid rgba(245, 241, 232, .2);
+  position: relative;
+  margin-inline: -2rem;
+  padding: 1.45rem 2rem 1.35rem;
+  background: #171715;
+  border-bottom: 1px solid rgba(245, 241, 232, .14);
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  left: 2rem;
+  bottom: -1px;
+  width: 4.25rem;
+  height: 1px;
+  background: #e85d3f;
 }
 
 .kicker {
@@ -15,7 +28,7 @@
   align-items: center;
   gap: .65rem;
   margin-bottom: 1.05rem;
-  color: #817c74;
+  color: #8d877f;
   font-size: .58rem;
   font-weight: 700;
   letter-spacing: .17em;
@@ -38,7 +51,7 @@
 .identity {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.05rem;
   min-width: 0;
 }
 
@@ -51,26 +64,27 @@
 }
 
 .teamMark {
-  width: 2.8rem;
-  height: 2.8rem;
+  width: 3.1rem;
+  height: 3.1rem;
 }
 
 .teamMark :global(svg) {
-  width: 2.7rem;
-  height: 2.7rem;
+  width: 3rem;
+  height: 3rem;
 }
 
 .identity h1 {
   margin: 0;
-  font-size: clamp(2.45rem, 4vw, 3.45rem);
+  color: #fffaf1;
+  font-size: clamp(2.7rem, 4.4vw, 3.75rem);
   font-weight: 650;
-  line-height: .92;
-  letter-spacing: -.06em;
+  line-height: .9;
+  letter-spacing: -.065em;
 }
 
 .identity p {
   margin: .62rem 0 0;
-  color: #918b82;
+  color: #9b958c;
   font-size: .7rem;
   font-weight: 550;
   letter-spacing: .04em;
@@ -94,6 +108,10 @@
   font-weight: 620;
   line-height: 1;
   letter-spacing: -.04em;
+}
+
+.summary div:first-child strong {
+  color: #e85d3f;
 }
 
 .summary span {
@@ -142,7 +160,9 @@
   align-items: center;
   gap: 1.45rem;
   overflow-x: auto;
-  padding: .82rem 0 .88rem;
+  margin-inline: -2rem;
+  padding: .8rem 2rem .84rem;
+  background: #0c0c0b;
   border-bottom: 1px solid rgba(245, 241, 232, .1);
   scrollbar-width: none;
 }
@@ -150,8 +170,9 @@
 .monthNav::-webkit-scrollbar { display: none; }
 
 .monthNav a {
+  position: relative;
   flex: 0 0 auto;
-  color: #777168;
+  color: #706b63;
   font-size: .52rem;
   font-weight: 700;
   letter-spacing: .15em;
@@ -160,7 +181,17 @@
 }
 
 .monthNav a:first-child {
-  color: #e6e1d8;
+  color: #f2ede4;
+}
+
+.monthNav a:first-child::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -.84rem;
+  height: 1px;
+  background: #e85d3f;
 }
 
 .monthNav a:hover {
@@ -174,7 +205,7 @@
 }
 
 .archive {
-  margin-top: 1.45rem;
+  margin-top: .95rem;
 }
 
 .month {
@@ -182,31 +213,34 @@
 }
 
 .month + .month {
-  margin-top: 3.4rem;
+  margin-top: 3.1rem;
 }
 
 .monthHeading {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: .55rem;
+  margin: 0 -2rem;
+  padding: .58rem 2rem .6rem;
+  background: #eee8de;
 }
 
 .monthHeading h2 {
   margin: 0;
-  color: #d8d2c8;
-  font-size: clamp(1.05rem, 1.35vw, 1.35rem);
-  font-weight: 620;
+  color: #171714;
+  font-size: .66rem;
+  font-weight: 780;
   line-height: 1;
-  letter-spacing: -.025em;
+  letter-spacing: .14em;
+  text-transform: uppercase;
 }
 
 .monthHeading span {
-  color: #68635c;
-  font-size: .54rem;
-  font-weight: 700;
-  letter-spacing: .12em;
+  color: #e85d3f;
+  font-size: .52rem;
+  font-weight: 760;
+  letter-spacing: .14em;
 }
 
 .columnHead,
@@ -219,7 +253,6 @@
 
 .columnHead {
   min-height: 1.8rem;
-  border-top: 1px solid rgba(245, 241, 232, .24);
   border-bottom: 1px solid rgba(245, 241, 232, .1);
   color: #68635c;
   font-size: .45rem;
@@ -230,9 +263,9 @@
 
 .fixture {
   position: relative;
-  min-height: 5.25rem;
+  min-height: 5.15rem;
   border-bottom: 1px solid rgba(245, 241, 232, .09);
-  color: #eee9df;
+  color: #e3ddd3;
   text-decoration: none;
   transition: background-color 160ms ease, color 160ms ease, padding 160ms ease;
 }
@@ -250,6 +283,7 @@
 }
 
 .date strong {
+  color: inherit;
   font-size: .7rem;
   font-weight: 580;
 }
@@ -282,7 +316,7 @@
   gap: .75rem;
   min-width: 0;
   color: inherit;
-  font-size: .88rem;
+  font-size: .9rem;
   font-weight: 510;
 }
 
@@ -298,32 +332,42 @@
 }
 
 .selectedTeam {
-  font-weight: 690;
+  color: #fffaf1;
+  font-weight: 700;
+}
+
+.fixture:hover .selectedTeam {
+  color: #11110f;
 }
 
 .kit {
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.8rem;
+  height: 1.8rem;
 }
 
 .kit :global(svg) {
-  width: 1.65rem;
-  height: 1.65rem;
+  width: 1.7rem;
+  height: 1.7rem;
 }
 
 .score {
+  color: #fffaf1;
   text-align: center;
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 650;
-  letter-spacing: -.045em;
+  letter-spacing: -.05em;
   white-space: nowrap;
+}
+
+.fixture:hover .score {
+  color: #11110f;
 }
 
 .contextMeta {
   display: grid;
   justify-items: end;
   gap: .28rem;
-  color: #8f8980;
+  color: #918b82;
   font-size: .49rem;
   font-weight: 700;
   letter-spacing: .13em;
@@ -517,7 +561,6 @@
 .drawerFoot button { color: #e85d3f; }
 
 @media (max-width: 980px) {
-  .page { padding-top: 1.1rem; }
   .headerGrid { grid-template-columns: 1fr auto; gap: 2rem; }
   .summary { grid-column: 1 / -1; grid-row: 2; justify-content: flex-start; }
   .refineButton { grid-column: 2; grid-row: 1; }
@@ -526,16 +569,19 @@
 }
 
 @media (max-width: 700px) {
-  .page { padding: 1rem 0 3.5rem; }
+  .page { padding-bottom: 3.5rem; }
+  .header { margin-inline: -1rem; padding: 1.15rem 1rem 1.2rem; }
+  .header::after { left: 1rem; }
   .kicker { margin-bottom: 1rem; }
   .headerGrid { grid-template-columns: 1fr auto; gap: 1.5rem 1rem; }
   .teamMark { display: none; }
-  .identity h1 { font-size: 2.4rem; }
+  .identity h1 { font-size: 2.5rem; }
   .summary { gap: 1.2rem; overflow-x: auto; }
   .summary strong { font-size: 1.1rem; }
-  .archive { margin-top: 1.25rem; }
-  .month + .month { margin-top: 3rem; }
-  .monthHeading h2 { font-size: 1.05rem; }
+  .monthNav { margin-inline: -1rem; padding-left: 1rem; padding-right: 1rem; }
+  .archive { margin-top: .75rem; }
+  .month + .month { margin-top: 2.6rem; }
+  .monthHeading { margin-inline: -1rem; padding-left: 1rem; padding-right: 1rem; }
   .columnHead { display: none; }
   .fixture {
     grid-template-columns: 4.7rem minmax(0, 1fr) 1.2rem;
@@ -550,7 +596,7 @@
   .side { gap: .35rem; font-size: .7rem; }
   .kit { width: 1.25rem; height: 1.25rem; }
   .kit :global(svg) { width: 1.2rem; height: 1.2rem; }
-  .score { font-size: .98rem; }
+  .score { font-size: 1.02rem; }
   .contextMeta { grid-area: meta; display: flex; justify-content: flex-end; gap: .65rem; }
   .arrow { grid-area: arrow; align-self: center; }
   .drawer { padding: 1.8rem 1.4rem; }
