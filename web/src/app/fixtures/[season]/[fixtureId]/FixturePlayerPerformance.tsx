@@ -78,9 +78,9 @@ function metricUnit(metric: PlayerMetric): string {
 
 function playerDisplay(metric: PlayerMetric): string {
   const player = metric.player;
-  if (!player) return "Data unavailable";
-  if (player.tie_count > 1) return `${player.tie_count} players`;
-  return player.player_name ?? "Data unavailable";
+  if (!player) return "Unavailable";
+  if (player.tie_count > 1) return `${player.tie_count} players tied`;
+  return player.player_name ?? "Unavailable";
 }
 
 function playerContext(metric: PlayerMetric): string | null {
@@ -103,13 +103,14 @@ function PlayerPanel({ side }: { side: PlayerPerformanceSide }) {
       aria-label={`${side.team_name} player performance`}
     >
       <div className={styles.heading}>
-        <span className={styles.kicker}>Key player performance</span>
+        <span className={styles.kicker}>{home ? "Home" : "Away"} side</span>
         <span className={styles.teamName}>{side.team_name}</span>
       </div>
 
       <div className={styles.performanceList}>
         {side.metrics.map((metric) => {
           const player = metric.player;
+          const unavailable = !player || player.value == null;
           const secondary =
             player?.secondary_value != null && metric.secondary_label
               ? `${metric.secondary_label} ${formatRate(player.secondary_value, metric.secondary_unit)}`
@@ -117,19 +118,33 @@ function PlayerPanel({ side }: { side: PlayerPerformanceSide }) {
           const context = playerContext(metric);
 
           return (
-            <div className={styles.performanceRow} key={metric.key}>
+            <div
+              className={styles.performanceRow}
+              data-state={unavailable ? "unavailable" : "available"}
+              data-tied={player && player.tie_count > 1 ? "true" : "false"}
+              key={metric.key}
+            >
               <div className={styles.metricLabel}>{metric.label}</div>
-              <div className={styles.playerLine}>
-                <div className={styles.playerIdentity}>
-                  <span className={styles.playerName}>{playerDisplay(metric)}</span>
-                  {context ? <span className={styles.playerContext}>{context}</span> : null}
+              {unavailable ? (
+                <div className={styles.unavailableLine}>
+                  <span>Unavailable</span>
+                  <small>Source evidence not available</small>
                 </div>
-                <div className={styles.metricOutput}>
-                  <span className={styles.metricValue}>{formatValue(player?.value ?? null)}</span>
-                  <span className={styles.metricUnit}>{metricUnit(metric)}</span>
-                </div>
-              </div>
-              {secondary ? <div className={styles.secondaryLine}>{secondary}</div> : null}
+              ) : (
+                <>
+                  <div className={styles.playerLine}>
+                    <div className={styles.playerIdentity}>
+                      <span className={styles.playerName}>{playerDisplay(metric)}</span>
+                      {context ? <span className={styles.playerContext}>{context}</span> : null}
+                    </div>
+                    <div className={styles.metricOutput}>
+                      <span className={styles.metricValue}>{formatValue(player.value)}</span>
+                      <span className={styles.metricUnit}>{metricUnit(metric)}</span>
+                    </div>
+                  </div>
+                  {secondary ? <div className={styles.secondaryLine}>{secondary}</div> : null}
+                </>
+              )}
             </div>
           );
         })}
