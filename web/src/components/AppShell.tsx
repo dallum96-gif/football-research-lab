@@ -74,9 +74,10 @@ export function AppShell({ children }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const activeSection =
     navSections.find((section) => sectionIsActive(pathname, section)) ?? navSections[0];
+  const darkSurface = pathname === "/fixtures";
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-tone={darkSurface ? "dark" : "light"}>
       <header className={styles.header}>
         <div className={styles.topRow}>
           <Link className={styles.brand} href="/" onClick={() => setMenuOpen(false)}>
