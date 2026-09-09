@@ -13,3 +13,6 @@ node_modules/
 
 # Materialised source evidence
 data/raw/pulselive/
+
+__pycache__/
+*.py[cod]
