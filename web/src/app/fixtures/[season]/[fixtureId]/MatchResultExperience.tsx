@@ -6,7 +6,7 @@ import { TeamCrest } from "@/components/TeamCrest";
 import { FixturePlayerPerformance } from "./FixturePlayerPerformance";
 import styles from "./MatchResultExperience.module.css";
 
-type View = "match" | "lineups" | "players" | "statistics";
+type View = "overview" | "players" | "events";
 
 type FixtureEventPlayer = {
   source_player_id: string | null;
@@ -171,15 +171,6 @@ function managerName(evidence: FixtureEvidence | null, side: "home" | "away") {
   return [manager.first_name, manager.last_name].filter(Boolean).join(" ") || "Manager unavailable";
 }
 
-function resultLabel(fixture: Fixture) {
-  const home = fixture.home_score;
-  const away = fixture.away_score;
-  if (home == null || away == null) return "Result unavailable";
-  if (home === away) return `Drawn ${home}–${away}`;
-  const winner = home > away ? fixture.home_team_name : fixture.away_team_name;
-  return `${winner} won ${home}–${away}`;
-}
-
 function EventFlow({ events }: { events: FixtureEvent[] }) {
   const ordered = useMemo(() => {
     let homeIndex = 0;
@@ -204,7 +195,7 @@ function EventFlow({ events }: { events: FixtureEvent[] }) {
   }
 
   return (
-    <div className={styles.flowCanvas} aria-label="Match event flow">
+    <div className={styles.flowCanvas} aria-label="Match event chronology">
       <div className={styles.flowTrack} />
       {[0, 45, 90].map((tick) => (
         <div key={tick} className={styles.flowTick} style={{ left: `${(tick / 90) * 100}%` }}>
@@ -239,58 +230,21 @@ function EventFlow({ events }: { events: FixtureEvent[] }) {
   );
 }
 
-function MetricRow({ metric }: { metric: Metric }) {
+function OverviewMetric({ metric }: { metric: Metric }) {
   const isPercentage = metric.suffix === "%";
   const [homeShare, awayShare] = metricShares(metric.home, metric.away, isPercentage);
+
   return (
-    <div className={styles.metricRow}>
-      <div className={styles.metricValues}>
+    <div className={styles.overviewMetric}>
+      <div className={styles.overviewMetricValues}>
         <strong>{numberLabel(metric.home, metric.suffix)}</strong>
         <span>{metric.label}</span>
         <strong>{numberLabel(metric.away, metric.suffix)}</strong>
       </div>
-      <div className={styles.metricScale} aria-hidden="true">
-        <span className={styles.metricHomeScale} style={{ width: `${homeShare}%` }} />
-        <span className={styles.metricAwayScale} style={{ width: `${awayShare}%` }} />
+      <div className={styles.overviewMetricScale} aria-hidden="true">
+        <i className={styles.overviewMetricHome} style={{ width: `${homeShare}%` }} />
+        <i className={styles.overviewMetricAway} style={{ width: `${awayShare}%` }} />
       </div>
-    </div>
-  );
-}
-
-function MatchView({ fixture, stats, evidence }: { fixture: Fixture; stats: MatchStats; evidence: FixtureEvidence | null }) {
-  const events = (evidence?.events ?? []).filter((event) => event.type === "goal" || event.type === "card");
-  const metrics: Metric[] = [
-    { label: "Possession", home: stats?.home_possession ?? null, away: stats?.away_possession ?? null, suffix: "%" },
-    { label: "Shots", home: stats?.home_shots ?? null, away: stats?.away_shots ?? null },
-    { label: "On target", home: stats?.home_shots_on_target ?? null, away: stats?.away_shots_on_target ?? null },
-    { label: "Corners", home: stats?.home_corners ?? null, away: stats?.away_corners ?? null },
-    { label: "Fouls", home: stats?.home_fouls ?? null, away: stats?.away_fouls ?? null },
-    { label: "Yellow cards", home: stats?.home_yellow_cards ?? null, away: stats?.away_yellow_cards ?? null },
-  ];
-
-  return (
-    <div className={`${styles.view} ${styles.matchView}`}>
-      <section className={styles.flowPanel}>
-        <div className={styles.viewHeading}>
-          <div>
-            <span>Match flow</span>
-            <strong>{events.length ? `${events.length} verified events` : "Event evidence unavailable"}</strong>
-          </div>
-          <small>0′ — 90′</small>
-        </div>
-        <EventFlow events={events} />
-      </section>
-
-      <aside className={styles.profilePanel}>
-        <div className={styles.profileHeading}>
-          <span>Match profile</span>
-          <strong>{resultLabel(fixture)}</strong>
-          <small>{fixture.home_team_name} · {fixture.away_team_name}</small>
-        </div>
-        <div className={styles.metricList}>
-          {metrics.map((metric) => <MetricRow key={metric.label} metric={metric} />)}
-        </div>
-      </aside>
     </div>
   );
 }
@@ -311,14 +265,11 @@ function LineupPanel({
     .filter((row) => row.placement != null);
 
   return (
-    <section className={styles.lineupPanel}>
+    <section className={styles.lineupPanel} data-side={side}>
       <div className={styles.lineupHeader}>
         <div className={styles.lineupIdentity}>
-          <TeamCrest teamName={teamName} size={32} />
-          <div>
-            <span>{side === "home" ? "Home XI" : "Away XI"}</span>
-            <strong>{teamName}</strong>
-          </div>
+          <span>Starting XI</span>
+          <strong>{teamName}</strong>
         </div>
         <div className={styles.lineupContext}>
           <strong>{formation ?? "—"}</strong>
@@ -352,11 +303,24 @@ function LineupPanel({
   );
 }
 
-function LineupsView({ fixture, evidence }: { fixture: Fixture; evidence: FixtureEvidence | null }) {
+function OverviewView({ fixture, stats, evidence }: { fixture: Fixture; stats: MatchStats; evidence: FixtureEvidence | null }) {
+  const metrics: Metric[] = [
+    { label: "Possession", home: stats?.home_possession ?? null, away: stats?.away_possession ?? null, suffix: "%" },
+    { label: "Shots", home: stats?.home_shots ?? null, away: stats?.away_shots ?? null },
+    { label: "On target", home: stats?.home_shots_on_target ?? null, away: stats?.away_shots_on_target ?? null },
+    { label: "Corners", home: stats?.home_corners ?? null, away: stats?.away_corners ?? null },
+    { label: "Fouls", home: stats?.home_fouls ?? null, away: stats?.away_fouls ?? null },
+  ];
+
   return (
-    <div className={`${styles.view} ${styles.lineupsView}`}>
-      <LineupPanel side="home" fixture={fixture} evidence={evidence} />
-      <LineupPanel side="away" fixture={fixture} evidence={evidence} />
+    <div className={`${styles.view} ${styles.overviewView}`}>
+      <section className={styles.overviewMetrics} aria-label="Core match statistics">
+        {metrics.map((metric) => <OverviewMetric key={metric.label} metric={metric} />)}
+      </section>
+      <div className={styles.overviewLineups} aria-label="Starting lineups">
+        <LineupPanel side="home" fixture={fixture} evidence={evidence} />
+        <LineupPanel side="away" fixture={fixture} evidence={evidence} />
+      </div>
     </div>
   );
 }
@@ -378,38 +342,25 @@ function PlayersView({ season, fixtureId }: { season: string; fixtureId: string 
   );
 }
 
-function StatisticsView({ fixture, stats }: { fixture: Fixture; stats: MatchStats }) {
-  const metrics: Metric[] = [
-    { label: "Possession", home: stats?.home_possession ?? null, away: stats?.away_possession ?? null, suffix: "%" },
-    { label: "Shots", home: stats?.home_shots ?? null, away: stats?.away_shots ?? null },
-    { label: "Shots on target", home: stats?.home_shots_on_target ?? null, away: stats?.away_shots_on_target ?? null },
-    { label: "Corners", home: stats?.home_corners ?? null, away: stats?.away_corners ?? null },
-    { label: "Fouls", home: stats?.home_fouls ?? null, away: stats?.away_fouls ?? null },
-    { label: "Yellow cards", home: stats?.home_yellow_cards ?? null, away: stats?.away_yellow_cards ?? null },
-  ];
+function EventsView({ evidence }: { evidence: FixtureEvidence | null }) {
+  const events = (evidence?.events ?? []).filter((event) => event.type === "goal" || event.type === "card");
 
   return (
-    <div className={`${styles.view} ${styles.statisticsView}`}>
-      <div className={styles.statsTeams}>
+    <div className={`${styles.view} ${styles.eventsView}`}>
+      <div className={styles.viewHeading}>
         <div>
-          <TeamCrest teamName={fixture.home_team_name} size={30} />
-          <strong>{fixture.home_team_name}</strong>
+          <span>Chronology</span>
+          <strong>{events.length ? `${events.length} verified goals & cards` : "Event evidence unavailable"}</strong>
         </div>
-        <span>Match statistics</span>
-        <div>
-          <strong>{fixture.away_team_name}</strong>
-          <TeamCrest teamName={fixture.away_team_name} size={30} />
-        </div>
+        <small>0′ — 90′</small>
       </div>
-      <div className={styles.fullStats}>
-        {metrics.map((metric) => <MetricRow key={metric.label} metric={metric} />)}
-      </div>
+      <EventFlow events={events} />
     </div>
   );
 }
 
 export function MatchResultExperience({ season, fixtureId, fixture, stats, evidence, date, time }: Props) {
-  const [view, setView] = useState<View>("match");
+  const [view, setView] = useState<View>("overview");
   const goalEvents = (evidence?.events ?? []).filter((event) => event.type === "goal");
   const homeGoals = goalEvents.filter((event) => event.side === "home");
   const awayGoals = goalEvents.filter((event) => event.side === "away");
@@ -426,10 +377,9 @@ export function MatchResultExperience({ season, fixtureId, fixture, stats, evide
   ];
 
   const tabs: Array<[View, string]> = [
-    ["match", "Match"],
-    ["lineups", "Lineups"],
+    ["overview", "Overview"],
     ["players", "Players"],
-    ["statistics", "Statistics"],
+    ["events", "Events"],
   ];
 
   return (
@@ -501,10 +451,9 @@ export function MatchResultExperience({ season, fixtureId, fixture, stats, evide
       </nav>
 
       <main className={styles.workspace}>
-        {view === "match" ? <MatchView fixture={fixture} stats={stats} evidence={evidence} /> : null}
-        {view === "lineups" ? <LineupsView fixture={fixture} evidence={evidence} /> : null}
+        {view === "overview" ? <OverviewView fixture={fixture} stats={stats} evidence={evidence} /> : null}
         {view === "players" ? <PlayersView season={season} fixtureId={fixtureId} /> : null}
-        {view === "statistics" ? <StatisticsView fixture={fixture} stats={stats} /> : null}
+        {view === "events" ? <EventsView evidence={evidence} /> : null}
       </main>
 
       <footer className={styles.recordFooter} aria-label="Match record">
