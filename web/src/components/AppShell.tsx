@@ -86,6 +86,7 @@ export function AppShell({ children }: AppShellProps) {
           </Link>
 
           <nav
+            id="frl-primary-navigation"
             className={styles.primaryNav}
             data-open={menuOpen ? "true" : "false"}
             aria-label="Primary navigation"
