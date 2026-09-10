@@ -4,7 +4,7 @@ This directory preserves the first reference-image set collected alongside `ANAL
 
 The screenshots remain the work of their original creators and are retained only as analytical/design references. FRL should extract principles and methods rather than reproduce the source designs literally.
 
-`reference-images-webp.zip` contains 15 reference-resolution WebP derivatives of the screenshots collected on 10 September 2026. The archive is intentionally compressed to keep the repository lightweight while retaining enough detail for future visual review.
+`reference-images-webp.zip` contains **15 lightweight WebP thumbnail derivatives** of the screenshots collected on 10 September 2026. The thumbnails are deliberately compressed for durable repo reference: their purpose is to preserve the visual composition and remind future FRL iterations which source graphics informed the moodboard. The written analytical interpretation remains authoritative in `ANALYTICAL_VISUAL_MOODBOARD.md`.
 
 Included references:
 
