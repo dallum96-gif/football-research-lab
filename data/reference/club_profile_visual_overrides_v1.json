@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "registry_kind": "FRL curated club profile visual overrides",
+  "reviewed_as_of": "2026-09-10",
+  "policy": "Manual visual review for Team Profile hero use. Overrides preserve source, author and licence metadata without mutating the underlying club profile registry.",
+  "profiles": [
+    {
+      "canonical_name": "Bournemouth",
+      "visual": {
+        "hero_image": "/club-profile/bournemouth-stadium.jpg",
+        "hero_image_credit": "Mr Ignavy / Geograph Britain and Ireland",
+        "hero_image_licence": "CC BY-SA 2.0",
+        "hero_image_licence_url": "https://creativecommons.org/licenses/by-sa/2.0/",
+        "hero_image_source": "https://commons.wikimedia.org/wiki/File:Before_kick-off_-_The_Vitality_Stadium_-_geograph.org.uk_-_7675184.jpg",
+        "hero_image_quality_status": "CURATED_VISUAL_REVIEW"
+      }
+    },
+    {
+      "canonical_name": "Brentford",
+      "visual": {
+        "hero_image": "https://upload.wikimedia.org/wikipedia/commons/7/7e/Brentford_Gtech_Community_Stadium.jpg",
+        "hero_image_credit": "AndyScott / Wikimedia Commons",
+        "hero_image_licence": "CC BY-SA 4.0",
+        "hero_image_licence_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "hero_image_source": "https://commons.wikimedia.org/wiki/File:Brentford_Gtech_Community_Stadium.jpg",
+        "hero_image_quality_status": "CURATED_VISUAL_REVIEW"
+      }
+    },
+    {
+      "canonical_name": "Everton",
+      "visual": {
+        "hero_image": "https://upload.wikimedia.org/wikipedia/commons/0/01/Hilldickinsonstadium.jpg",
+        "hero_image_credit": "Everton FC / Wikimedia Commons",
+        "hero_image_licence": "CC BY-SA 4.0",
+        "hero_image_licence_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "hero_image_source": "https://commons.wikimedia.org/wiki/File:Hilldickinsonstadium.jpg",
+        "hero_image_quality_status": "CURATED_VISUAL_REVIEW"
+      }
+    },
+    {
+      "canonical_name": "Liverpool",
+      "visual": {
+        "hero_image": "https://upload.wikimedia.org/wikipedia/commons/1/1e/Anfield_stadium_in_May_2024.jpg",
+        "hero_image_credit": "FYI2023 / Wikimedia Commons",
+        "hero_image_licence": "CC0 1.0",
+        "hero_image_licence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "hero_image_source": "https://commons.wikimedia.org/wiki/File:Anfield_stadium_in_May_2024.jpg",
+        "hero_image_quality_status": "CURATED_VISUAL_REVIEW"
+      }
+    },
+    {
+      "canonical_name": "Ipswich Town",
+      "visual": {
+        "hero_image": "https://upload.wikimedia.org/wikipedia/commons/9/91/Portman_Road_26.jpg",
+        "hero_image_credit": "James Cracknell / Wikimedia Commons",
+        "hero_image_licence": "CC BY-SA 4.0",
+        "hero_image_licence_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "hero_image_source": "https://commons.wikimedia.org/wiki/File:Portman_Road_26.jpg",
+        "hero_image_quality_status": "CURATED_VISUAL_REVIEW"
+      }
+    },
+    {
+      "canonical_name": "Newcastle United",
+      "visual": {
+        "hero_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a2/Newcastle_st-james-park_stadium.jpg/1920px-Newcastle_st-james-park_stadium.jpg",
+        "hero_image_credit": "Arne Müseler / arne-mueseler.com",
+        "hero_image_licence": "CC BY-SA 3.0 DE",
+        "hero_image_licence_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+        "hero_image_source": "https://commons.wikimedia.org/wiki/File:Newcastle_st-james-park_stadium.jpg",
+        "hero_image_quality_status": "CURATED_VISUAL_REVIEW"
+      }
+    },
+    {
+      "canonical_name": "Nottingham Forest",
+      "visual": {
+        "hero_image": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Nottingham_the_city_ground_stadium_forest.jpg/1920px-Nottingham_the_city_ground_stadium_forest.jpg",
+        "hero_image_credit": "Arne Müseler / arne-mueseler.com",
+        "hero_image_licence": "CC BY-SA 3.0 DE",
+        "hero_image_licence_url": "https://creativecommons.org/licenses/by-sa/3.0/de/deed.en",
+        "hero_image_source": "https://commons.wikimedia.org/wiki/File:Nottingham_the_city_ground_stadium_forest.jpg",
+        "hero_image_quality_status": "CURATED_VISUAL_REVIEW"
+      }
+    },
+    {
+      "canonical_name": "Tottenham Hotspur",
+      "visual": {
+        "hero_image": "https://upload.wikimedia.org/wikipedia/commons/f/f4/Tottenham_Hotspur_Stadium_March_2025.jpg",
+        "hero_image_credit": "Ecco4k / Wikimedia Commons",
+        "hero_image_licence": "CC BY 4.0",
+        "hero_image_licence_url": "https://creativecommons.org/licenses/by/4.0/",
+        "hero_image_source": "https://commons.wikimedia.org/wiki/File:Tottenham_Hotspur_Stadium_March_2025.jpg",
+        "hero_image_quality_status": "CURATED_VISUAL_REVIEW"
+      }
+    }
+  ]
+}
