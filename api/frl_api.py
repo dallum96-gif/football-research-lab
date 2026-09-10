@@ -25,7 +25,8 @@ import query_api
 import team_research_stats
 import team_analysis_kernel
 
-
+
+import club_profile_registry
 class CanonicalFixtureRef(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -341,6 +342,104 @@ class TeamSeasonRecordsResult(BaseModel):
     limitations: list[str] = Field(default_factory=list)
 
 
+
+class ClubProfileColour(BaseModel):
+    name: str
+    hex: str
+
+
+class ClubProfileIdentity(BaseModel):
+    full_name: str | None = None
+    nickname: str | None = None
+    founded_year: int | None = None
+    origin: str | None = None
+    home: str | None = None
+    locality: str | None = None
+    colours: list[ClubProfileColour] = Field(default_factory=list)
+
+
+class ClubProfileMilestone(BaseModel):
+    year: int
+    label: str
+
+
+class ClubProfileStory(BaseModel):
+    text: str | None = None
+    milestones: list[ClubProfileMilestone] = Field(default_factory=list)
+
+
+class ClubProfileStadium(BaseModel):
+    name: str
+    capacity: int | None = None
+    since_year: int | None = None
+    previous_home: str | None = None
+
+
+class ClubProfilePerson(BaseModel):
+    name: str
+    detail: str | None = None
+
+
+class ClubProfileLeadership(BaseModel):
+    manager: ClubProfilePerson | None = None
+    captain: ClubProfilePerson | None = None
+
+
+class ClubProfileHonourEdition(BaseModel):
+    season: str
+    competition: str | None = None
+
+
+class ClubProfileHonour(BaseModel):
+    key: str
+    label: str
+    wins: int
+    editions: list[ClubProfileHonourEdition] = Field(default_factory=list)
+
+
+class ClubProfileHonours(BaseModel):
+    as_of: str | None = None
+    note: str | None = None
+    categories: list[ClubProfileHonour] = Field(default_factory=list)
+
+
+class ClubProfileVisual(BaseModel):
+    hero_image: str | None = None
+    hero_image_credit: str | None = None
+    hero_image_licence: str | None = None
+    hero_image_licence_url: str | None = None
+    hero_image_source: str | None = None
+
+
+class ClubProfileSource(BaseModel):
+    id: str
+    publisher: str
+    url: str
+    use: str
+
+
+class ClubProfileProvenance(BaseModel):
+    registry: str
+    identity_authority: str
+    verified_as_of: str | None = None
+
+
+class ClubProfileResult(BaseModel):
+    schema_version: str
+    persistent_team_code: str
+    canonical_name: str
+    status: Literal["CURATED", "PARTIAL", "PENDING_CURATION"]
+    season: str | None = None
+    identity: ClubProfileIdentity
+    story: ClubProfileStory
+    stadium: ClubProfileStadium | None = None
+    leadership: ClubProfileLeadership | None = None
+    honours: ClubProfileHonours
+    visual: ClubProfileVisual
+    sources: list[ClubProfileSource] = Field(default_factory=list)
+    provenance: ClubProfileProvenance
+    limitations: list[str] = Field(default_factory=list)
+
 app = FastAPI(title="Football Research Laboratory API", version="0.1.0")
 
 app.add_middleware(
@@ -495,6 +594,31 @@ def _fixture_player_match_evidence(fixture: dict) -> tuple[list[FixturePlayerMat
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "football-research-laboratory-api"}
 
+
+
+@app.get(
+    "/api/v1/teams/{persistent_team_code}/profile",
+    response_model=ClubProfileResult,
+)
+def get_team_profile(
+    persistent_team_code: str,
+    season: str | None = Query(default=None),
+) -> ClubProfileResult:
+    profile = club_profile_registry.get_profile(
+        persistent_team_code,
+        season,
+    )
+
+    if profile is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"Club profile {persistent_team_code} "
+                "is not registered."
+            ),
+        )
+
+    return ClubProfileResult(**profile)
 
 @app.get("/api/v1/seasons")
 def get_seasons() -> dict[str, list[str]]:

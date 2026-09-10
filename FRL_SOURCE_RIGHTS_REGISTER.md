@@ -119,6 +119,24 @@ Before adopting any source, record:
 - seasons/competitions covered;
 - acquisition date/version/checksum where appropriate.
 
+
+## Club profile reference and imagery layer
+
+Team Profile biography uses a small governed reference layer for durable
+club identity, club history, honours and visual metadata.
+
+- Official club and competition pages may be used as factual references.
+  FRL stores concise facts and provenance rather than reproducing source
+  editorial text wholesale.
+- Stadium photography should preferentially use explicitly reusable media,
+  currently Wikimedia Commons where a suitable licence is recorded.
+- Image author, source, licence and licence URL must be retained with the
+  profile record and attribution requirements must remain visible in the UI.
+- Greyscale, crop, overlay or other presentation effects do not remove the
+  underlying image licence or attribution obligations.
+- A club being present in the persistent identity registry does not mean its
+  biography is curated. Missing profile evidence remains explicit.
+
 ## Immediate follow-up
 
 1. Complete a source-by-source terms review before FRL is publicly released or commercialised.

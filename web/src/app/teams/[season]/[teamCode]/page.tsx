@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { TeamSeasonSelect } from "./TeamSeasonSelect";
-import { TeamKit } from "../../TeamKit";
-import { OverviewDetailTabs } from "./OverviewDetailTabs";
+import { TeamCrest } from "@/components/TeamCrest";
+import { TeamOverviewV1, type ClubProfilePayload } from "./TeamOverviewV1";
 import { TeamXIView, type TeamXIResult } from "./TeamXIView";
 import { TeamFixturesView } from "./TeamFixturesView";
 import { TeamFormView } from "./TeamFormView";
@@ -265,6 +265,53 @@ export default async function TeamProfilePage({
 
   const finalFive = fixtures.slice(-5);
   const era = eraResult.ok ? eraResult.data ?? null : null;
+  const profileResult = await getJson<ClubProfilePayload>(
+    `/api/v1/teams/${encodeURIComponent(
+      teamCode
+    )}/profile?season=${encodeURIComponent(season)}`
+  );
+
+  const clubProfile =
+    profileResult.ok && profileResult.data
+      ? profileResult.data
+      : null;
+  // === FRL TEAM ERA TIMELINE START ===
+  const eraSeasonOptions = seasonOptions
+    .filter((option) => option.season <= season)
+    .sort((a, b) => a.season.localeCompare(b.season))
+    .slice(-5);
+
+  const eraOverviewResults = await Promise.all(
+    eraSeasonOptions.map((option) =>
+      getJson<TeamOverview>(
+        `/api/v1/teams/${encodeURIComponent(
+          option.season
+        )}/${encodeURIComponent(teamCode)}/overview`
+      )
+    )
+  );
+
+  const eraTimeline = eraSeasonOptions.flatMap(
+    (option, index) => {
+      const result = eraOverviewResults[index];
+
+      if (!result?.ok || !result.data) {
+        return [];
+      }
+
+      return [
+        {
+          season: option.season,
+          position: result.data.position,
+          points: result.data.points,
+          played: result.data.played,
+        },
+      ];
+    }
+  );
+  // === FRL TEAM ERA TIMELINE END ===
+  
+  
 
 
   const recordsResult =
@@ -319,8 +366,11 @@ export default async function TeamProfilePage({
       <div className={styles.profile}>
         <header className={styles.profileHeader}>
           <div className={styles.identity}>
-            <div className={styles.profileKit}>
-              <TeamKit teamName={overview.display_name} />
+            <div className={styles.profileCrest}>
+              <TeamCrest
+                teamName={overview.display_name}
+                size={56}
+              />
             </div>
 
             <div>
@@ -367,217 +417,23 @@ export default async function TeamProfilePage({
 
         <main className={styles.workspace}>
           {activeView === "overview" ? (
-            <div className={styles.overview}>
-              <section
-                className={styles.headlineStrip}
-                aria-label={`${overview.display_name} ${overview.season} season record`}
-              >
-                <div className={styles.headlineMetric}>
-                  <strong>{ordinal(overview.position)}</strong>
-                  <span>League finish</span>
-                </div>
-
-                <div className={styles.headlineMetric}>
-                  <strong>{overview.points}</strong>
-                  <span>Points</span>
-                </div>
-
-                <div className={styles.headlineMetric}>
-                  <strong>
-                    {overview.wins}–{overview.draws}–{overview.losses}
-                  </strong>
-                  <span>W–D–L</span>
-                </div>
-
-                <div className={styles.headlineMetric}>
-                  <strong>{signed(overview.goal_difference)}</strong>
-                  <span>Goal difference</span>
-                </div>
-
-                <div className={styles.headlineMetric}>
-                  <strong>
-                    {overview.goals_for}
-                    <small> : </small>
-                    {overview.goals_against}
-                  </strong>
-                  <span>Goals for : against</span>
-                </div>
-              </section>
-
-              <section className={styles.seasonPulse}>
-                <div className={styles.sectionHeading}>
-                  <div>
-                    <p className={styles.sectionKicker}>Season at a glance</p>
-                    <h2>The shape of the season</h2>
-                  </div>
-
-                  <div className={styles.legend} aria-label="Result legend">
-                    <span><i data-result="W" /> Win</span>
-                    <span><i data-result="D" /> Draw</span>
-                    <span><i data-result="L" /> Loss</span>
-                  </div>
-                </div>
-
-                {fixtures.length ? (
-                  <>
-                    <div
-                      className={styles.formRibbon}
-                      style={{ gridTemplateColumns: `repeat(${fixtures.length}, minmax(4px, 1fr))` }}
-                    >
-                      {fixtures.map((fixture) => (
-                        <Link
-                          key={fixture.fixture_id}
-                          href={`/fixtures/${encodeURIComponent(
-                            fixture.season
-                          )}/${encodeURIComponent(fixture.fixture_id)}`}
-                          className={styles.formResult}
-                          data-result={fixture.result}
-                          aria-label={`${fixture.result}: ${fixtureLabel(
-                            fixture,
-                            overview.display_name
-                          )}`}
-                          title={`${fixture.result} · ${fixtureLabel(
-                            fixture,
-                            overview.display_name
-                          )}`}
-                        >
-                          <span className={styles.formResultLetter}>{fixture.result}</span>
-                          <span className={styles.fixtureTooltip}>
-                            <strong>
-                              {opponentName(fixture, overview.display_name)}
-                            </strong>
-                            <small>
-                              {shortDate(fixture.kickoff_time)} ?{" "}
-                              {fixture.venue ?? "Venue unavailable"}
-                            </small>
-                            <b>{fixtureScore(fixture)}</b>
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-
-                    <div className={styles.ribbonAxis}>
-                      <span>{shortDate(fixtures[0]?.kickoff_time ?? null)}</span>
-                      <span>{overview.played} league matches</span>
-                      <span>
-                        {shortDate(fixtures[fixtures.length - 1]?.kickoff_time ?? null)}
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <p className={styles.unavailable}>
-                    Season result sequence unavailable.
-                  </p>
-                )}
-              </section>
-              <OverviewDetailTabs
-                position={ordinal(overview.position)}
-                played={overview.played}
-                points={overview.points}
-                wins={overview.wins}
-                draws={overview.draws}
-                losses={overview.losses}
-                goalsFor={overview.goals_for}
-                goalsAgainst={overview.goals_against}
-                goalDifference={overview.goal_difference}
-                closingFixtures={finalFive.map((fixture) => ({
-                  href: `/fixtures/${encodeURIComponent(
-                    fixture.season
-                  )}/${encodeURIComponent(fixture.fixture_id)}`,
-                  result: fixture.result ?? "?",
-                  opponent: opponentName(fixture, overview.display_name),
-                  score: fixtureScore(fixture),
-                  venue: fixture.venue ?? "Venue unavailable",
-                  date: shortDate(fixture.kickoff_time),
-                }))}
-              />
-
-              {era && (
-                <section className={styles.eraSection}>
-                  <header className={styles.eraHeading}>
-                    <div>
-                      <p className={styles.sectionKicker}>Across the FRL era</p>
-                      <h2>{era.first_season} to {era.last_season}</h2>
-                    </div>
-                    <span>{era.season_count} Premier League seasons</span>
-                  </header>
-
-                  <div className={styles.eraGrid}>
-                    <article className={styles.eraPanel}>
-                      <div className={styles.eraPanelHeader}>
-                        <span>01</span>
-                        <div>
-                          <p>Across seasons</p>
-                          <small>Best single-season marks</small>
-                        </div>
-                      </div>
-
-                      <div className={styles.eraRecords}>
-                        {era.across_seasons.map((record) => (
-                          <div className={styles.eraRecord} key={record.label}>
-                            <span>{record.label}</span>
-                            <strong>{record.value}</strong>
-                            <small>{record.detail}</small>
-                          </div>
-                        ))}
-                      </div>
-                    </article>
-
-                    <article className={styles.eraPanel}>
-                      <div className={styles.eraPanelHeader}>
-                        <span>02</span>
-                        <div>
-                          <p>Team records</p>
-                          <small>Results and runs across our dataset</small>
-                        </div>
-                      </div>
-
-                      <div className={styles.eraRecords}>
-                        {era.team_records.map((record) => (
-                          <div className={styles.eraRecord} key={record.label}>
-                            <span>{record.label}</span>
-                            <strong>{record.value.replaceAll("?", "-")}</strong>
-                            <small>{record.detail?.replaceAll("?", "/")}</small>
-                          </div>
-                        ))}
-                      </div>
-
-                      <Link
-                        className={styles.eraPanelLink}
-                        href={`/teams/${encodeURIComponent(season)}/${encodeURIComponent(
-                          teamCode
-                        )}?view=records`}
-                      >
-                        Open record book <span>?</span>
-                      </Link>
-                    </article>
-
-                    <article className={`${styles.eraPanel} ${styles.playerEraPanel}`}>
-                      <div className={styles.eraPanelHeader}>
-                        <span>03</span>
-                        <div>
-                          <p>Player records</p>
-                          <small>Across Arsenal's FRL-era seasons</small>
-                        </div>
-                      </div>
-
-                      <div className={styles.playerEraPreview}>
-                        <strong>Player record book</strong>
-                        <p>
-                          Goals, appearances, starts, minutes and other
-                          cross-season player records will live here once
-                          team-scoped identity comparison is governed.
-                        </p>
-                      </div>
-
-                      <span className={styles.evidenceLabel}>
-                        Evidence boundary preserved
-                      </span>
-                    </article>
-                  </div>
-                </section>
-              )}
-            </div>
+            <TeamOverviewV1
+              clubProfile={clubProfile}
+              displayName={overview.display_name}
+              competition={overview.competition}
+              season={overview.season}
+              position={overview.position}
+              played={overview.played}
+              points={overview.points}
+              wins={overview.wins}
+              draws={overview.draws}
+              losses={overview.losses}
+              goalsFor={overview.goals_for}
+              goalsAgainst={overview.goals_against}
+              goalDifference={overview.goal_difference}
+              fixtures={fixtures}
+              eraSeasons={eraTimeline}
+            />
           ) : activeView === "records" ? (
             records ? (
               <TeamRecordsView

@@ -1,4 +1,4 @@
-﻿.profile {
+.profile {
   width: 100%;
   max-width: 1260px;
   margin: 0 auto;
@@ -4067,3 +4067,1343 @@
     text-align: left;
   }
 }
+
+/* === FRL TEAM PROFILE OVERVIEW V1 START === */
+
+.profile {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  overflow: hidden;
+  background: #10100f;
+  color: #f5f1e8;
+}
+
+/* ------------------------------------------------------------
+   Club masthead
+   ------------------------------------------------------------ */
+
+.profileHeader {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  min-height: 8rem;
+  padding: 1.25rem 1.55rem 1rem;
+  border: 0;
+  background: #161614;
+}
+
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.profileCrest {
+  display: grid;
+  width: 5rem;
+  height: 5rem;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.profileCrest > span {
+  display: grid;
+  place-items: center;
+  transform: scale(1.25);
+}
+
+.eyebrow,
+.sectionKicker,
+.featureLabel {
+  margin: 0;
+  color: #e85d3f;
+  font-size: .45rem;
+  font-weight: 830;
+  letter-spacing: .16em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.identity h1 {
+  margin: .26rem 0 0;
+  color: #fffaf1;
+  font-size: clamp(2.6rem, 3.8vw, 3.45rem);
+  font-weight: 590;
+  letter-spacing: -.064em;
+  line-height: .9;
+}
+
+.context {
+  margin: .5rem 0 0;
+  color: #827b72;
+  font-size: .64rem;
+  font-weight: 610;
+}
+
+.headerControls {
+  flex: 0 0 auto;
+}
+
+.seasonControl {
+  display: grid;
+  gap: .38rem;
+  min-width: 8.2rem;
+}
+
+.seasonControl > span {
+  color: #625d56;
+  font-size: .4rem;
+  font-weight: 790;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+}
+
+.seasonControl select {
+  height: 2.2rem;
+  padding: 0 .7rem;
+  border: 1px solid rgba(245, 241, 232, .14);
+  border-radius: 0;
+  outline: 0;
+  background: #10100f;
+  color: #f5f1e8;
+  font: inherit;
+  font-size: .65rem;
+  font-weight: 690;
+}
+
+/* ------------------------------------------------------------
+   Integrated sub-navigation
+   ------------------------------------------------------------ */
+
+.tabs {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: stretch;
+  gap: 2.35rem;
+  min-height: 3.05rem;
+  padding: 0 1.55rem;
+  border-top: 1px solid rgba(245, 241, 232, .07);
+  border-bottom: 1px solid rgba(245, 241, 232, .1);
+  background: #161614;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  color: #716b63;
+  font-size: .6rem;
+  font-weight: 690;
+  text-decoration: none;
+}
+
+.tab:hover {
+  color: #f5f1e8;
+}
+
+.tab::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: transparent;
+}
+
+.tab[data-active="true"] {
+  color: #fffaf1;
+  font-weight: 780;
+}
+
+.tab[data-active="true"]::after {
+  background: #e85d3f;
+}
+
+.workspace {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 0;
+  background: #10100f;
+}
+
+.overviewV1 {
+  padding: 1.3rem 1.55rem 2rem;
+}
+
+/* ============================================================
+   WHO ARE ARSENAL?
+   ============================================================ */
+
+.whoGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.85fr) minmax(18rem, .85fr);
+  gap: 1.1rem;
+  align-items: stretch;
+}
+
+.whoPanel,
+.fiveYearPanel {
+  border: 1px solid rgba(245, 241, 232, .09);
+  background: #141412;
+}
+
+.whoPanel {
+  position: relative;
+  padding: 1.5rem 1.55rem 1.1rem;
+}
+
+.whoPanel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  background:
+    linear-gradient(
+      to right,
+      #d71920 0 72%,
+      #f4efe5 72% 100%
+    );
+}
+
+.whoHeader {
+  max-width: 44rem;
+  padding: .3rem 0 1.3rem;
+}
+
+.whoHeader h2 {
+  margin: .28rem 0 0;
+  color: #fffaf1;
+  font-size: clamp(1.8rem, 2.8vw, 2.45rem);
+  font-weight: 580;
+  letter-spacing: -.052em;
+}
+
+.whoHeader > p:last-child {
+  max-width: 40rem;
+  margin: .65rem 0 0;
+  color: #9b948a;
+  font-size: .66rem;
+  line-height: 1.65;
+}
+
+/* ------------------------------------------------------------
+   Identity facts
+   ------------------------------------------------------------ */
+
+.clubIdentityGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid rgba(245, 241, 232, .09);
+  border-bottom: 1px solid rgba(245, 241, 232, .09);
+}
+
+.clubIdentityGrid section {
+  display: grid;
+  align-content: start;
+  gap: .24rem;
+  min-height: 4.7rem;
+  padding: .85rem .9rem .75rem 0;
+}
+
+.clubIdentityGrid section + section {
+  padding-left: .9rem;
+  border-left: 1px solid rgba(245, 241, 232, .075);
+}
+
+.clubIdentityGrid span,
+.peopleFeature span {
+  color: #5e5953;
+  font-size: .4rem;
+  font-weight: 800;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.clubIdentityGrid strong {
+  color: #f0eadf;
+  font-size: .72rem;
+  font-weight: 680;
+}
+
+.clubIdentityGrid small,
+.homeFeature small,
+.peopleFeature small {
+  color: #68625b;
+  font-size: .46rem;
+  line-height: 1.4;
+}
+
+/* ------------------------------------------------------------
+   Home / People / Colours
+   ------------------------------------------------------------ */
+
+.clubFeatureRow {
+  display: grid;
+  grid-template-columns: 1.35fr 1.15fr .55fr;
+  border-bottom: 1px solid rgba(245, 241, 232, .09);
+}
+
+.clubFeatureRow > section {
+  padding: 1.05rem 1rem 1rem 0;
+}
+
+.clubFeatureRow > section + section {
+  padding-left: 1rem;
+  border-left: 1px solid rgba(245, 241, 232, .075);
+}
+
+.homeFeature {
+  display: grid;
+  align-content: start;
+  gap: .28rem;
+}
+
+.homeFeature > strong {
+  margin-top: .1rem;
+  color: #fffaf1;
+  font-size: 1.05rem;
+  font-weight: 620;
+  letter-spacing: -.035em;
+}
+
+.homeFeature > span {
+  color: #aaa298;
+  font-size: .56rem;
+  font-weight: 630;
+}
+
+.peopleFeature {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .85rem;
+}
+
+.peopleFeature > p {
+  grid-column: 1 / -1;
+}
+
+.peopleFeature > div {
+  display: grid;
+  align-content: start;
+  gap: .2rem;
+}
+
+.peopleFeature strong {
+  color: #eee8de;
+  font-size: .68rem;
+  font-weight: 670;
+}
+
+.colourFeature {
+  display: grid;
+  align-content: start;
+  gap: .5rem;
+}
+
+.colourFeature > strong {
+  color: #d9d2c8;
+  font-size: .6rem;
+  font-weight: 650;
+}
+
+.colourMarks {
+  display: flex;
+  gap: .35rem;
+}
+
+.colourMarks i {
+  display: block;
+  width: 2.2rem;
+  height: .42rem;
+}
+
+.colourMarks i[data-colour="primary"] {
+  background: #d71920;
+}
+
+.colourMarks i[data-colour="secondary"] {
+  background: #f5f1e8;
+}
+
+/* ------------------------------------------------------------
+   Club journey
+   ------------------------------------------------------------ */
+
+.clubJourney {
+  padding-top: 1.05rem;
+}
+
+.journeyTrack {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: .75rem;
+}
+
+.journeyStop {
+  position: relative;
+  display: grid;
+  gap: .2rem;
+  padding-right: 2rem;
+}
+
+.journeyStop + .journeyStop {
+  padding-left: 1rem;
+  border-left: 1px solid rgba(245, 241, 232, .075);
+}
+
+.journeyStop > span {
+  color: #e85d3f;
+  font-size: .48rem;
+  font-weight: 780;
+}
+
+.journeyStop > strong {
+  color: #e4ddd3;
+  font-size: .68rem;
+  font-weight: 690;
+}
+
+.journeyStop > small {
+  max-width: 12rem;
+  color: #625d56;
+  font-size: .43rem;
+  line-height: 1.45;
+}
+
+.journeyStop > b {
+  position: absolute;
+  top: .25rem;
+  right: .65rem;
+  color: #48443f;
+  font-size: .8rem;
+  font-weight: 400;
+}
+
+.profileProvenance {
+  margin: 1rem 0 0;
+  color: #49453f;
+  font-size: .4rem;
+}
+
+/* ============================================================
+   LAST FIVE — SECONDARY OBJECT
+   ============================================================ */
+
+.fiveYearPanel {
+  display: flex;
+  flex-direction: column;
+  padding: 1.35rem 1.25rem 1rem;
+}
+
+.fiveYearPanel > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+  padding-bottom: .8rem;
+  border-bottom: 1px solid rgba(245, 241, 232, .08);
+}
+
+.fiveYearPanel h2 {
+  margin: .25rem 0 0;
+  color: #fffaf1;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -.035em;
+}
+
+.fiveYearPanel > header > span {
+  color: #56514b;
+  font-size: .4rem;
+  font-weight: 690;
+}
+
+.miniEraChart {
+  position: relative;
+  height: 10.5rem;
+  margin-top: .9rem;
+  padding-left: 1.2rem;
+}
+
+.miniEraChart svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.miniRank {
+  position: absolute;
+  left: 0;
+  color: #4f4a44;
+  font-size: .37rem;
+}
+
+.miniRank[data-rank="1"] {
+  top: .55rem;
+}
+
+.miniRank[data-rank="10"] {
+  top: 48%;
+}
+
+.miniRank[data-rank="20"] {
+  bottom: .55rem;
+}
+
+.miniGuide {
+  stroke: rgba(245, 241, 232, .055);
+  stroke-width: 1;
+}
+
+.miniPath {
+  fill: none;
+  stroke: #898278;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.miniPointHalo {
+  fill: #141412;
+  stroke: rgba(245, 241, 232, .15);
+  stroke-width: 1;
+}
+
+.miniPoint {
+  fill: #d6cfc4;
+}
+
+.miniPoint[data-active="true"] {
+  fill: #e85d3f;
+}
+
+.miniEraLabels {
+  display: grid;
+  gap: .2rem;
+  margin-top: .35rem;
+  padding-left: 1.2rem;
+}
+
+.miniEraLabels > div {
+  display: grid;
+  gap: .12rem;
+  text-align: center;
+}
+
+.miniEraLabels span {
+  color: #58534d;
+  font-size: .37rem;
+}
+
+.miniEraLabels strong {
+  color: #aaa298;
+  font-size: .5rem;
+  font-weight: 670;
+}
+
+.miniEraLabels > div[data-active="true"] strong {
+  color: #f5f1e8;
+}
+
+.fiveYearFoot {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: .8rem;
+  border-top: 1px solid rgba(245, 241, 232, .075);
+}
+
+.fiveYearFoot span {
+  color: #55504a;
+  font-size: .38rem;
+  font-weight: 790;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.fiveYearFoot strong {
+  color: #aaa298;
+  font-size: .48rem;
+  font-weight: 670;
+}
+
+/* ============================================================
+   SHAPE OF SEASON — SECONDARY
+   ============================================================ */
+
+.currentChapter {
+  margin-top: 1.1rem;
+  padding: 1.3rem 0 0;
+  border-top: 1px solid rgba(245, 241, 232, .1);
+}
+
+.currentChapterHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.currentChapterHeader h2 {
+  margin: .25rem 0 0;
+  color: #fffaf1;
+  font-size: 1.35rem;
+  font-weight: 590;
+  letter-spacing: -.04em;
+}
+
+.currentChapterHeader > div:first-child > p:last-child {
+  margin: .3rem 0 0;
+  color: #615c55;
+  font-size: .47rem;
+}
+
+.currentSeasonReading {
+  display: flex;
+  align-items: baseline;
+  gap: .55rem;
+}
+
+.currentSeasonReading > strong {
+  color: #fffaf1;
+  font-size: 1.2rem;
+  font-weight: 610;
+}
+
+.currentSeasonReading > span {
+  color: #68625b;
+  font-size: .47rem;
+}
+
+.formRibbon {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  min-height: 4.35rem;
+}
+
+.formResult {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  place-items: center;
+  overflow: visible;
+  border-radius: 2px;
+  text-decoration: none;
+  transition:
+    transform 140ms ease,
+    filter 140ms ease;
+}
+
+.formResult[data-result="W"] {
+  background: #96a83f;
+}
+
+.formResult[data-result="D"] {
+  background: #8d8981;
+}
+
+.formResult[data-result="L"] {
+  background: #e25e45;
+}
+
+.formResult:hover,
+.formResult:focus-visible {
+  z-index: 20;
+  transform: translateY(-3px);
+  filter: brightness(1.09);
+  outline: 0;
+}
+
+.resultLetter {
+  color: #fffaf1;
+  font-size: .48rem;
+  font-weight: 850;
+  opacity: 0;
+}
+
+.formResult:hover .resultLetter,
+.formResult:focus-visible .resultLetter {
+  opacity: .95;
+}
+
+.ribbonAxis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: .5rem;
+  color: #57524c;
+  font-size: .42rem;
+}
+
+.ribbonAxis span:nth-child(2) {
+  color: #777169;
+}
+
+.fixtureTooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + .65rem);
+  z-index: 40;
+  display: none;
+  min-width: 10rem;
+  padding: .72rem .78rem;
+  transform: translateX(-50%);
+  border: 1px solid rgba(245, 241, 232, .13);
+  background: #181816;
+  color: #f5f1e8;
+  pointer-events: none;
+}
+
+.formResult:hover .fixtureTooltip,
+.formResult:focus-visible .fixtureTooltip {
+  display: grid;
+  gap: .18rem;
+}
+
+.fixtureTooltip em {
+  color: #e85d3f;
+  font-size: .4rem;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.fixtureTooltip strong {
+  font-size: .62rem;
+  font-weight: 700;
+}
+
+.fixtureTooltip small {
+  color: #7b756d;
+  font-size: .46rem;
+}
+
+.fixtureTooltip b {
+  margin-top: .1rem;
+  color: #fffaf1;
+  font-size: .76rem;
+  font-weight: 760;
+}
+
+/* ============================================================
+   PROFILE ROUTES
+   ============================================================ */
+
+.profileRoutes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 1rem;
+  border-top: 1px solid rgba(245, 241, 232, .075);
+  border-bottom: 1px solid rgba(245, 241, 232, .075);
+}
+
+.profileRoutes a {
+  display: grid;
+  gap: .2rem;
+  padding: .85rem 1rem .85rem 0;
+  color: #f5f1e8;
+  text-decoration: none;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
+}
+
+.profileRoutes a + a {
+  padding-left: 1rem;
+  border-left: 1px solid rgba(245, 241, 232, .075);
+}
+
+.profileRoutes span {
+  color: #5d5852;
+  font-size: .38rem;
+  font-weight: 790;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.profileRoutes b {
+  font-size: .55rem;
+  font-weight: 650;
+}
+
+.profileRoutes a:hover {
+  background: #f1ebdf;
+  color: #171714;
+  padding-left: .7rem;
+}
+
+.pendingView,
+.unavailable {
+  color: #777169;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .profile {
+    overflow: visible;
+  }
+
+  .profileHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .tabs {
+    padding-inline: 1rem;
+    overflow-x: auto;
+  }
+
+  .workspace {
+    overflow: visible;
+  }
+
+  .overviewV1 {
+    padding-inline: 1rem;
+  }
+
+  .whoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .clubIdentityGrid,
+  .clubFeatureRow {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .colourFeature {
+    border-top: 1px solid rgba(245, 241, 232, .075);
+    border-left: 0 !important;
+  }
+
+  .currentChapterHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .profileRoutes {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* === FRL TEAM PROFILE OPTION 3 START === */
+
+/*
+ * OPTION 3
+ * FRL visual language retained.
+ * One visual gesture: stadium photography.
+ */
+
+.whoPanel {
+  position: relative;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid rgba(245, 241, 232, .09);
+  background: #141412;
+}
+
+.whoPanel::before {
+  display: none;
+}
+
+.whoHero {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1.22fr)
+    minmax(17rem, .9fr);
+  min-height: 15.6rem;
+}
+
+.whoCopy {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 2rem 1rem 2rem 1.55rem;
+}
+
+.whoCopy h2 {
+  max-width: 30rem;
+  margin: .38rem 0 0;
+  color: #fffaf1;
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  font-weight: 580;
+  letter-spacing: -.055em;
+  line-height: .96;
+}
+
+.officialClubName {
+  margin-top: 1.05rem;
+  color: #ddd6cb;
+  font-size: .69rem;
+  font-weight: 650;
+}
+
+.originStory {
+  max-width: 30rem;
+  margin: .8rem 0 0;
+  color: #aaa298;
+  font-size: .62rem;
+  font-weight: 500;
+  line-height: 1.62;
+}
+
+.clubOriginLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .42rem;
+  margin: .3rem 0 0;
+  color: #777068;
+  font-size: .51rem;
+  font-weight: 540;
+}
+
+.clubOriginLine span {
+  color: #47433e;
+}
+
+/* ------------------------------------------------------------
+   Stadium is the visual anchor — not another card
+   ------------------------------------------------------------ */
+
+.clubHeroVisual {
+  position: relative;
+  min-width: 0;
+  background-color: #1a1917;
+  background-position: 52% center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-blend-mode: luminosity;
+}
+
+.clubHeroVisual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      90deg,
+      #141412 0%,
+      rgba(20, 20, 18, .84) 12%,
+      rgba(20, 20, 18, .34) 43%,
+      rgba(20, 20, 18, .10) 100%
+    ),
+    linear-gradient(
+      0deg,
+      rgba(12, 12, 11, .42),
+      rgba(12, 12, 11, .04) 55%
+    );
+}
+
+.clubHeroVisual::after {
+  content: "";
+  position: absolute;
+  top: 2rem;
+  right: 3.25rem;
+  z-index: 2;
+  width: 2px;
+  height: 3.1rem;
+  background: #e85d3f;
+}
+
+
+
+.heroCredit {
+  position: absolute;
+  right: .75rem;
+  bottom: .55rem;
+  z-index: 3;
+  max-width: 14rem;
+  color: rgba(245, 241, 232, .34);
+  font-size: .29rem;
+  line-height: 1.3;
+  text-align: right;
+}
+
+/* ------------------------------------------------------------
+   One information rail
+   ------------------------------------------------------------ */
+
+.profileFactRail {
+  display: grid;
+  grid-template-columns:
+    1.2fr
+    .85fr
+    .75fr
+    1fr
+    1fr;
+  min-height: 5.2rem;
+  border-top: 1px solid rgba(245, 241, 232, .095);
+  background: #141412;
+}
+
+.profileFactRail > div {
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: .2rem;
+  min-width: 0;
+  padding: .75rem .9rem;
+}
+
+.profileFactRail > div + div::before {
+  content: "";
+  position: absolute;
+  top: .8rem;
+  bottom: .8rem;
+  left: 0;
+  width: 1px;
+  background: rgba(245, 241, 232, .07);
+}
+
+.profileFactRail span {
+  color: #5b5650;
+  font-size: .36rem;
+  font-weight: 790;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.profileFactRail strong {
+  overflow: hidden;
+  color: #eee8de;
+  font-size: .62rem;
+  font-weight: 660;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+}
+
+.profileFactRail small {
+  color: #716b63;
+  font-size: .41rem;
+  line-height: 1.3;
+}
+
+.factColours {
+  display: flex;
+  gap: .25rem;
+  margin: .08rem 0 .02rem;
+}
+
+.factColours i {
+  width: 2rem;
+  height: .32rem;
+}
+
+.factColours i[data-colour="primary"] {
+  background: #d71920;
+}
+
+.factColours i[data-colour="secondary"] {
+  background: #f5f1e8;
+}
+
+/*
+ * Old structures no longer render, but neutralise them so they cannot
+ * affect this composition if the component is experimented with later.
+ */
+
+.clubIdentityGrid,
+.clubFeatureRow,
+.clubJourney,
+.profileProvenance {
+  display: none;
+}
+
+@media (max-width: 1050px) {
+  .whoHero {
+    grid-template-columns: 1fr .72fr;
+  }
+
+  .profileFactRail {
+    grid-template-columns:
+      1fr
+      1fr
+      1fr;
+  }
+
+  .profileFactRail > div:nth-child(4),
+  .profileFactRail > div:nth-child(5) {
+    border-top: 1px solid rgba(245, 241, 232, .07);
+  }
+}
+
+@media (max-width: 720px) {
+  .whoHero {
+    grid-template-columns: 1fr;
+  }
+
+  .clubHeroVisual {
+    min-height: 11rem;
+  }
+
+  .profileFactRail {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* === FRL CLUB REGISTRY VISUAL TREATMENT START === */
+
+/*
+ * Every club hero photograph uses the same FRL treatment.
+ * The underlying image remains untouched; the presentation layer
+ * creates the desaturated profile aesthetic.
+ */
+
+.clubHeroVisual {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #171715;
+}
+
+.clubHeroImage {
+  position: absolute;
+  inset: -2px;
+  z-index: 0;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  filter:
+    grayscale(1)
+    saturate(0)
+    contrast(1.08)
+    brightness(.68);
+  transform: scale(1.012);
+}
+
+.clubHeroVisual::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      90deg,
+      #141412 0%,
+      rgba(20, 20, 18, .82) 14%,
+      rgba(20, 20, 18, .31) 48%,
+      rgba(20, 20, 18, .09) 100%
+    ),
+    linear-gradient(
+      0deg,
+      rgba(10, 10, 9, .4),
+      transparent 62%
+    );
+  pointer-events: none;
+}
+
+.heroCredit {
+  position: absolute;
+  right: .7rem;
+  bottom: .5rem;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .3rem;
+  max-width: 17rem;
+  font-size: .28rem;
+  line-height: 1.35;
+  text-align: right;
+}
+
+.heroCredit a,
+.heroCredit span {
+  color: rgba(245, 241, 232, .42);
+  text-decoration: none;
+}
+
+.heroCredit a:hover {
+  color: rgba(245, 241, 232, .72);
+}
+
+/* one quiet honours line — not trophy cards */
+
+.honoursRail {
+  display: flex;
+  align-items: center;
+  min-height: 3.55rem;
+  padding: 0 1rem 0 1.55rem;
+  border-top: 1px solid rgba(245, 241, 232, .085);
+  border-bottom: 1px solid rgba(245, 241, 232, .085);
+  background: #121210;
+}
+
+.honoursTitle {
+  margin-right: auto;
+  padding-right: 1.6rem;
+  color: #706a62;
+  font-size: .38rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.honourItem {
+  display: flex;
+  align-items: baseline;
+  gap: .35rem;
+  padding: 0 .85rem;
+}
+
+.honourItem + .honourItem {
+  border-left: 1px solid rgba(245, 241, 232, .065);
+}
+
+.honourItem strong {
+  color: #f5f1e8;
+  font-size: .83rem;
+  font-weight: 610;
+  letter-spacing: -.025em;
+}
+
+.honourItem small {
+  color: #655f58;
+  font-size: .37rem;
+  font-weight: 610;
+  white-space: nowrap;
+}
+
+.factColours i {
+  display: block;
+  width: 2rem;
+  height: .32rem;
+}
+
+/* === FRL CLUB REGISTRY VISUAL TREATMENT END === */
+/* === FRL TEAM PROFILE OPTION 3 END === */
+
+/* === FRL TEAM PROFILE OVERVIEW V1 END === */
+/* === FRL CLUB PROFILE ROLLOUT FALLBACK === */
+
+/*
+ * Stadium imagery is deliberately normalised by presentation:
+ * source images may vary, FRL's treatment does not.
+ */
+
+.clubHeroImage {
+  filter:
+    grayscale(1)
+    saturate(0)
+    contrast(1.08)
+    brightness(.68);
+}
+
+.whoHero:not(:has(.clubHeroVisual)) {
+  grid-template-columns: 1fr;
+}
+
+/* === FRL CLUB PROFILE ROLLOUT FALLBACK END === */
+/* === FRL HONOURS DETAIL TOOLTIP START === */
+
+.honoursRail {
+  position: relative;
+  z-index: 20;
+  overflow: visible;
+}
+
+.honourItem {
+  position: relative;
+  cursor: default;
+  outline: none;
+}
+
+.honourItem:focus-visible {
+  background: rgba(245, 241, 232, .04);
+}
+
+.honourTooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + .65rem);
+  z-index: 100;
+  display: none;
+  width: max-content;
+  min-width: 11rem;
+  max-width: 22rem;
+  padding: .75rem .8rem;
+  border: 1px solid rgba(245, 241, 232, .13);
+  background: #191917;
+  color: #d8d1c7;
+  box-shadow: 0 .5rem 1.2rem rgba(0, 0, 0, .24);
+  pointer-events: none;
+}
+
+.honourItem:hover .honourTooltip,
+.honourItem:focus .honourTooltip {
+  display: block;
+}
+
+.honourTooltip > b {
+  display: block;
+  margin-bottom: .48rem;
+  color: #f5f1e8;
+  font-size: .48rem;
+  font-weight: 700;
+}
+
+.honourTooltipEditions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .24rem .45rem;
+}
+
+.honourTooltipEditions > span {
+  color: #938c82;
+  font-size: .4rem;
+  font-weight: 520;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.honourTooltipEditions > span::after {
+  content: "/";
+  margin-left: .45rem;
+  color: #48433e;
+}
+
+.honourTooltipEditions > span:last-child::after {
+  content: "";
+  margin: 0;
+}
+
+.honourTooltipEditions strong {
+  color: #d8d1c7;
+  font-size: inherit;
+  font-weight: 650;
+}
+
+/* === FRL HONOURS DETAIL TOOLTIP END === */
+/* === FRL UNIVERSAL STADIUM GREYSCALE START === */
+
+.clubHeroImage {
+  filter:
+    grayscale(1)
+    saturate(0)
+    contrast(1.08)
+    brightness(.68);
+}
+
+/* === FRL UNIVERSAL STADIUM GREYSCALE END === */

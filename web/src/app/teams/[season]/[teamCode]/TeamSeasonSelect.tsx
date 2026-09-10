@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 
 import { useRouter } from "next/navigation";
+import styles from "./TeamProfile.module.css";
 
 type SeasonOption = {
   season: string;
@@ -26,32 +27,52 @@ export function TeamSeasonSelect({
 }: Props) {
   const router = useRouter();
 
+  const options = seasons.some(
+    (option) => option.season === currentSeason,
+  )
+    ? seasons
+    : [
+        {
+          season: currentSeason,
+          display_name: "",
+          persistent_team_code: teamCode,
+          local_team_id: "",
+        },
+        ...seasons,
+      ];
+
   return (
     <label
-      className={`frl-context-control frl-context-control-season${
-        disabled ? " frl-context-control-disabled" : ""
-      }`}
-      aria-disabled={disabled}
+      className={styles.seasonControl}
+      data-disabled={disabled ? "true" : "false"}
     >
       <span>Season</span>
+
       <select
         aria-label="Team season"
         value={currentSeason}
         disabled={disabled}
         onChange={(event) => {
-          const season = event.target.value;
+          const selectedSeason = event.target.value;
+
           router.push(
-            `/teams/${encodeURIComponent(season)}/${encodeURIComponent(teamCode)}?view=${encodeURIComponent(currentView)}`
+            `/teams/${encodeURIComponent(
+              selectedSeason,
+            )}/${encodeURIComponent(
+              teamCode,
+            )}?view=${encodeURIComponent(currentView)}`,
           );
         }}
       >
-        {seasons.map((option) => (
-          <option key={option.season} value={option.season}>
+        {options.map((option) => (
+          <option
+            key={option.season}
+            value={option.season}
+          >
             {option.season}
           </option>
         ))}
       </select>
-      <span className="frl-context-chevron">⌄</span>
     </label>
   );
 }
