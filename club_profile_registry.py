@@ -6,11 +6,44 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 REGISTRY_PATH = ROOT / "data" / "reference" / "club_profiles_v1.json"
+VISUAL_OVERRIDES_PATH = (
+    ROOT / "data" / "reference" / "club_profile_visual_overrides_v1.json"
+)
 
 
 def _document() -> dict:
     with REGISTRY_PATH.open("r", encoding="utf-8") as handle:
-        return json.load(handle)
+        document = json.load(handle)
+
+    if not VISUAL_OVERRIDES_PATH.exists():
+        return document
+
+    with VISUAL_OVERRIDES_PATH.open("r", encoding="utf-8") as handle:
+        overrides = json.load(handle)
+
+    profiles_by_name = {
+        str(profile.get("canonical_name") or "").strip(): profile
+        for profile in document.get("profiles") or []
+    }
+
+    for override in overrides.get("profiles") or []:
+        canonical_name = str(
+            override.get("canonical_name") or ""
+        ).strip()
+        profile = profiles_by_name.get(canonical_name)
+        visual_override = override.get("visual")
+
+        if profile is None or not isinstance(visual_override, dict):
+            continue
+
+        visual = profile.get("visual")
+        if not isinstance(visual, dict):
+            visual = {}
+            profile["visual"] = visual
+
+        visual.update(copy.deepcopy(visual_override))
+
+    return document
 
 
 def all_profiles() -> list[dict]:
