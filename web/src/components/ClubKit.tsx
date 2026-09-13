@@ -25,9 +25,12 @@ const KITS: Array<[RegExp, KitDefinition]> = [
   [/brighton/i, { body: "#0057b8", sleeves: "#0057b8", trim: "#f2d13d", pattern: STRIPES("#ffffff", "#0057b8"), mark: "BHA" }],
   [/burnley/i, { body: "#6c1d45", sleeves: "#8ccce8", trim: "#f3cf57", mark: "BUR" }],
   [/chelsea/i, { body: "#034694", sleeves: "#034694", trim: "#ffffff", mark: "CHE" }],
+  [/coventry/i, { body: "#78bde8", sleeves: "#78bde8", trim: "#ffffff", mark: "COV" }],
   [/crystal palace|palace/i, { body: "#1b458f", sleeves: "#1b458f", trim: "#f7c843", pattern: STRIPES("#d71920", "#1b458f"), mark: "CRY" }],
   [/everton/i, { body: "#003399", sleeves: "#003399", trim: "#ffffff", mark: "EVE" }],
   [/fulham/i, { body: "#ffffff", sleeves: "#101010", trim: "#d71920", mark: "FUL" }],
+  [/hull/i, { body: "#f5a623", sleeves: "#111111", trim: "#111111", pattern: STRIPES("#f5a623", "#111111"), mark: "HUL" }],
+  [/ipswich/i, { body: "#0057b8", sleeves: "#0057b8", trim: "#ffffff", mark: "IPS" }],
   [/leeds/i, { body: "#ffffff", sleeves: "#ffffff", trim: "#1d428a", mark: "LEE" }],
   [/leicester/i, { body: "#003090", sleeves: "#003090", trim: "#e0b84c", mark: "LEI" }],
   [/liverpool/i, { body: "#c8102e", sleeves: "#c8102e", trim: "#f3e8c8", mark: "LIV" }],
@@ -40,19 +43,39 @@ const KITS: Array<[RegExp, KitDefinition]> = [
   [/tottenham|spurs/i, { body: "#ffffff", sleeves: "#ffffff", trim: "#132257", mark: "TOT" }],
   [/west ham/i, { body: "#7a263a", sleeves: "#80c7df", trim: "#f1d36b", mark: "WHU" }],
   [/wolves|wolverhampton/i, { body: "#fdb913", sleeves: "#fdb913", trim: "#111111", mark: "WOL" }],
-  [/ipswich/i, { body: "#0057b8", sleeves: "#0057b8", trim: "#ffffff", mark: "IPS" }],
   [/sheffield united/i, { body: "#d71920", sleeves: "#d71920", trim: "#111111", pattern: STRIPES("#ffffff", "#d71920"), mark: "SHU" }],
   [/middlesbrough/i, { body: "#d71920", sleeves: "#d71920", trim: "#ffffff", pattern: HOOPS("#d71920", "#ffffff"), mark: "MID" }],
-  [/coventry/i, { body: "#78bde8", sleeves: "#78bde8", trim: "#ffffff", mark: "COV" }],
   [/norwich/i, { body: "#fff200", sleeves: "#fff200", trim: "#009a44", mark: "NOR" }],
   [/watford/i, { body: "#fbee23", sleeves: "#fbee23", trim: "#111111", mark: "WAT" }],
   [/west brom/i, { body: "#ffffff", sleeves: "#132257", trim: "#132257", pattern: STRIPES("#ffffff", "#132257"), mark: "WBA" }],
   [/blackburn/i, { body: "#ffffff", sleeves: "#0067b1", trim: "#d71920", pattern: HALVES("#ffffff", "#0067b1"), mark: "BBR" }],
   [/birmingham/i, { body: "#0057b8", sleeves: "#0057b8", trim: "#ffffff", mark: "BIR" }],
   [/swansea/i, { body: "#ffffff", sleeves: "#ffffff", trim: "#111111", mark: "SWA" }],
-  [/hull/i, { body: "#f5a623", sleeves: "#111111", trim: "#111111", pattern: STRIPES("#f5a623", "#111111"), mark: "HUL" }],
   [/qpr|queens park rangers/i, { body: "#ffffff", sleeves: "#ffffff", trim: "#0057b8", pattern: HOOPS("#ffffff", "#0057b8"), mark: "QPR" }],
   [/stoke/i, { body: "#d71920", sleeves: "#d71920", trim: "#111111", pattern: STRIPES("#ffffff", "#d71920"), mark: "STK" }],
+];
+
+const FPL_2026_27_CODES: Array<[RegExp, number]> = [
+  [/arsenal/i, 3],
+  [/aston villa|villa/i, 7],
+  [/bournemouth/i, 91],
+  [/brentford/i, 94],
+  [/brighton/i, 36],
+  [/chelsea/i, 8],
+  [/coventry/i, 9],
+  [/crystal palace|palace/i, 31],
+  [/everton/i, 11],
+  [/fulham/i, 54],
+  [/hull/i, 88],
+  [/ipswich/i, 40],
+  [/leeds/i, 2],
+  [/liverpool/i, 14],
+  [/manchester city|man city/i, 43],
+  [/manchester united|man united/i, 1],
+  [/newcastle/i, 4],
+  [/nottingham forest|nott'?m forest|forest/i, 17],
+  [/sunderland/i, 56],
+  [/tottenham|spurs/i, 6],
 ];
 
 const FALLBACK: KitDefinition = {
@@ -67,7 +90,36 @@ function kitForClub(club: string) {
   return KITS.find(([pattern]) => pattern.test(club))?.[1] ?? FALLBACK;
 }
 
-export function ClubKit({ club, size = "medium" }: { club: string; size?: "tiny" | "small" | "medium" | "large" }) {
+function fplCodeForClub(club: string) {
+  return FPL_2026_27_CODES.find(([pattern]) => pattern.test(club))?.[1] ?? null;
+}
+
+export function ClubKit({
+  club,
+  size = "medium",
+  variant = "illustrated",
+}: {
+  club: string;
+  size?: "tiny" | "small" | "medium" | "large";
+  variant?: "illustrated" | "fpl-current";
+}) {
+  const fplCode = variant === "fpl-current" ? fplCodeForClub(club) : null;
+
+  if (fplCode != null) {
+    const style = {
+      "--kit-image": `url("https://fantasy.premierleague.com/dist/img/shirts/standard/shirt_${fplCode}-110.webp")`,
+    } as CSSProperties;
+
+    return (
+      <span
+        className={`${styles.kit} ${styles.fplKit}`}
+        data-size={size}
+        style={style}
+        aria-label={`${club} 2026/27 home kit visual`}
+      />
+    );
+  }
+
   const kit = kitForClub(club);
   const style = {
     "--kit-body": kit.body,
