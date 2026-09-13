@@ -21,6 +21,15 @@
   height: 88px;
 }
 
+.fplKit {
+  background: var(--kit-image) center / contain no-repeat;
+}
+
+.fplKit::before,
+.fplKit::after {
+  display: none;
+}
+
 .kit::before,
 .kit::after {
   content: "";
