@@ -1,15 +1,15 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 7 September 2026
-**Checkpoint:** `CURRENT_PLAYER_RICH_CAPABILITY_79_OF_83_V1`
+**Last updated:** 13 September 2026  
+**Checkpoint:** `ACTIVE_PRODUCT_REFERENCE_RECONCILIATION_V1`
 
-For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`.
+For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`. The dated audit for this checkpoint is `FRL_REPOSITORY_RECONCILIATION_2026-09-13.md`.
 
 ## Current platform state
 
-FRL is a governed football research and modelling environment. The active frontend is **Next.js + React**, with **FastAPI** as the frontend-facing API. Streamlit is legacy/reference only.
+FRL is a governed football research and modelling environment. The active frontend is **Next.js + React**, with **FastAPI** as the frontend-facing API. Python remains authoritative for source routing, identity, temporal semantics, provenance, analytical definitions and modelling. Streamlit is legacy/reference only.
 
-Standing rules:
+Standing rules remain unchanged:
 
 - canonical fixture/team/player identity, never source-ID coincidence;
 - preserved source-native evidence with provenance;
@@ -19,11 +19,66 @@ Standing rules:
 - reproducible materialisation from pinned evidence;
 - shared analytical services so product surfaces do not invent separate definitions or populations.
 
-The durable research North Star remains `FRL_MASTER_PROMPT.md`. The active product North Star remains `FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md`.
+The durable research North Star remains `FRL_MASTER_PROMPT.md`. The durable product architecture remains `FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md`.
 
-## Full-source capability hierarchy
+## Repository / branch state
+
+Stable `main` remains at:
+
+`0626878838b0734b7df8d79f966e814db75a61ed`
+
+The current integration/reference base `design/analyst-workspace-v1` has advanced beyond that stable-main commit.
+
+The active product/reference work is on:
+
+`design/bet-builder-reference-v1`
+
+Draft PR: **#53 — UI: premium FRL shell, Matchday builder and Fixtures reference design**.
+
+At the start of the 13 September reconciliation, that branch was at `ce8fa1493553923306cd0011c6146f821101b66e`, 79 commits ahead of its merge base and 4 commits behind the then-current `design/analyst-workspace-v1` head. Documentation reconciliation commits follow that code head.
+
+This branch is therefore **active experimental/product work, not a validated integration candidate**.
+
+Important boundary: repository state described here is the tracked remote state. Daniel's live local Windows working tree may contain newer uncommitted work and must be inspected before merge/rebase/destructive operations.
+
+## Active product phase
+
+FRL has moved beyond the earlier source-industrialisation checkpoint into a substantial product/reference-design phase over the governed evidence layer.
+
+The active branch currently includes:
+
+- a two-level top navigation shell for the reference experience;
+- a premium Fixtures experience and fixture-result workspace;
+- a Matchday Bet Builder reference route;
+- Team Profile / Team Overview reference work;
+- club crest and stadium imagery support;
+- a governed club-profile reference registry plus visual overrides;
+- supporting fixture-evidence, player-performance and runtime/API changes;
+- regression/registry tests for several of the added evidence paths.
+
+The branch is not frontend-only. It contains supporting backend/research-access changes and must be reviewed and validated accordingly.
+
+## Current visual direction
+
+The intended FRL visual language is now **dark, premium, editorial and football-first**.
+
+Current direction:
+
+- near-black / charcoal structural surfaces;
+- warm ivory / cream primary text;
+- muted greys for secondary hierarchy;
+- restrained coral/orange as the main brand/action emphasis;
+- green/olive used semantically or as a supporting signal rather than as default decoration;
+- no lime-green visual language;
+- typography, spacing, thin rules and composition should carry more of the design than dashboard chrome.
+
+The older warm parchment root tokens still exist in parts of the current CSS and some surfaces remain mid-migration. They are **implementation debt, not current design authority for new work**. See `UI_DESIGN_SYSTEM.md` and `FRL_LUXURY_DESIGN_CONSTITUTION.md`.
+
+## Preserved source capability — validated foundation
 
 The preserved PulseLive archive contains **3,800 Premier League fixture snapshots** across 2016/17–2025/26.
+
+Master preserved source universe:
 
 ```text
 553 MASTER SNAPSHOTTED RAW SOURCE PATHS
@@ -33,199 +88,112 @@ The preserved PulseLive archive contains **3,800 Premier League fixture snapshot
     └── 123 other football / match paths
 ```
 
-The 553-path universe remains the master PulseLive source/evidence universe.
-
-## Team-match source universe — routed and governed
-
-Initial reconciliation began at:
-
-- 26 exposed;
-- 164 packaged/source-field uncatalogued;
-- 59 raw-only.
-
-The source-universe milestone gate on 5 September 2026 proved:
+The validated team-match milestone remains:
 
 ```text
 249 TEAM-MATCH STATISTICAL PATHS
 ├── 176 canonical/governed + generic access verified
 ├──   8 governed retained source fields
 ├──   6 governed restricted source fields
-└──  59 raw-only source representations with generic preserved-snapshot route
+└──  59 raw-only source representations with governed preserved-snapshot route
 ```
 
-Validation result:
-
-- **Pytest: PASS across 12 milestone modules**;
-- packaged/governed: **176 exposed / 8 retained / 6 restricted / 0 uncatalogued**;
-- canonical generic access: **176/176 PASS**;
-- raw-only pathway: **59/59 ROUTED through preserved PulseLive stats**;
-- documentation sync: **PASS**.
-
-The 59 raw-only fields are no longer a pathway-discovery backlog. They remain source-native evidence until semantic promotion is justified, but every one has a governed research route.
-
-Standing missingness rule:
-
-> **A source blank is missing by default. Structural zero requires specific evidence for that concept, representation and period.**
-
-## Player-Match source universe — exhaustively accounted
-
-The decade-wide Player-Match schema union across 2016/17–2025/26 contains **86 observed source fields**.
-
-The same source-universe milestone gate proved:
+The Player-Match source universe remains exhaustively accounted:
 
 ```text
 86 PLAYER-MATCH SOURCE FIELDS
 ├── 81 exposed for generic research access
 ├──  4 retained metadata/source-context fields
 └──  1 restricted duplicate CSV column
-
-0 observed fields uncatalogued
-81/81 exposed fields generic-access PASS
 ```
 
-Partial-period capability is explicitly preserved rather than discarded. A legitimate field may be exposed even when it exists only in later seasons; outside its observed seasons it remains unavailable/missing and is never coerced to zero.
+Standing missingness rule:
 
-Examples include expected metrics, carry/progression fields and the 2025/26 physical-distance fields.
+> **A source blank is missing by default. Structural zero requires specific evidence for that concept, representation and period.**
 
-A stale Player-Match dribble route was also corrected: `successfulDribbles` / `unsuccessfulDribbles` are not advertised as native Player-Match source fields. Rich Player-Match take-on capability uses the observed `totalContest` / `wonContest` representation, with unsuccessful contests derived from attempts minus successful contests.
+## Fixture event and tactical context
 
-## Fixture event & tactical context — archive-wide proven
+The established `fixture_context_research.py` checkpoint remains valid historical evidence:
 
-`fixture_context_research.py` provides governed natural-grain access to fixture events and tactical context.
-
-Archive-wide proof:
-
-- Event route: **3,800 PASS / 0 FAIL**;
-- Tactical-context route: **3,800 PASS / 0 FAIL**;
-- normalised events: **50,182**;
-- lineup-player rows: **145,637**;
-- formation context: **7,600/7,600 team-sides**;
-- manager rows: **7,728**.
+- event route: 3,800 PASS / 0 FAIL;
+- tactical-context route: 3,800 PASS / 0 FAIL;
+- 50,182 normalised events;
+- 145,637 lineup-player rows;
+- formation context across 7,600/7,600 team-sides;
+- 7,728 manager rows.
 
 Unresolved identities remain explicit and are never guessed.
 
-## 2026/27 living-season state
+## 2026/27 living-season evidence
 
-Pinned upstream release currently integrated:
+The latest formally documented integration checkpoint remains based on pinned upstream evidence from `imadeddine-belkat/Premier-League-Stats`.
 
-`imadeddine-belkat/Premier-League-Stats@ffe99d25a5bd3a8f70c557748fead332f46ed14f`
+The last **formally validated rich Player capability checkpoint** remains:
 
-Materialised state:
+- 387 participating players with minutes greater than zero;
+- 79/83 Player product capabilities runtime-supported through GW1–3;
+- unavailable quartet: `ball_carries`, `progressive_carries`, `progressive_carry_distance`, `total_progression`.
 
-- 380 canonical fixtures;
-- 20 completed / 360 scheduled;
-- 1,236 FPL player × fixture rows;
-- 614 zero-minute/non-participation rows retained;
-- 0 duplicate player-fixture rows;
-- 0 unresolved fixture rows;
-- 626 player identities through explicit verified/source-native verified routes.
+Later local/current-season work may be newer, but it must be revalidated before replacing these standing capability claims.
 
-FPL remains a distinct source family. FPL ICT Creativity must never be relabelled as detailed passing/key-pass evidence.
-### Current-season rich Player capability — GW1–3
+## Team State and forecasting
 
-The governed 2026/27 Player pipeline now projects rich current-season Player evidence across the first three gameweeks.
+`Team State V1` remains available as a pre-fixture research object with recent-5, recent-10, season-to-date and prior-season windows. Historical source-publication-time equivalence remains explicitly unproven.
 
-Validated runtime state:
+Adaptive Dixon-Coles V1 remains the frozen **experimental forecasting control** from the earlier controlled evaluation. It improved the common-population holdout metrics over Poisson V1, including log loss, Brier score and accuracy, but it is **not a trusted production model and no betting-market edge is claimed**.
 
-- **387 participating players** with minutes greater than zero;
-- **22 GKP / 136 DEF / 182 MID / 47 FWD**;
-- **387/387** participating players represented in the production rich Player projection;
-- **79/83 Player product capabilities runtime-supported**.
+The earlier control status remains:
 
-Of the 50 previously identified Player capability gaps, **46 are now supported**. At the validated snapshot, 41 are fully available and five are partial or applicability-limited: xgot, pass_completion, rich_pass_accuracy, long_ball_accuracy and keeper_sweeper_accuracy.
+`CONTROL_FREEZE_SUPPORTED_FOR_NEXT_EXPERIMENT`
 
-The only currently unavailable Player product capabilities are ball_carries, progressive_carries, progressive_carry_distance and total_progression.
+## Head-to-Head / Matchday / BetBuilder evidence
 
-These remain explicit evidence gaps rather than being manufactured from adjacent variables.
+The governed Head-to-Head and BetBuilder work remains part of the active product programme.
 
-Validation passed capability inventory regeneration/checking, **4 inventory tests**, the Player module compile gate, **6 Player Analysis kernel tests**, and the runtime **79/83** capability audit.
+The key interpretation rule is unchanged:
 
-## Team State and forecasting — first controlled model progression
+> **`evidence_index` is descriptive evidence synthesis, not a calibrated betting probability.**
 
-`Team State V1` is available as a pre-fixture research object with recent-5, recent-10, season-to-date and prior-season windows. Its event-time cutoff is the target fixture kickoff; historical source-publication-time equivalence remains explicitly not yet proven.
+Matchday/Fixture Intelligence now has a broader product surface on the reference branch, including richer fixture presentation and Bet Builder experimentation. Football evidence, model output, market price and staking/strategy must remain distinct layers.
 
-The first controlled forecasting challenger is complete:
+## Club/profile reference evidence
 
-- frozen Poisson V1 control;
-- Adaptive Dixon-Coles V1 selected only on 2017/18–2020/21 development seasons;
-- untouched holdout: 2021/22–2025/26;
-- Adaptive DC coverage: **1,900/1,900** completed holdout fixtures;
-- Poisson V1 coverage: **1,360/1,900**;
-- common-population log loss: **1.065515 Poisson / 1.013105 Adaptive DC**;
-- common-population Brier: **0.638726 / 0.606504**;
-- common-population accuracy: **47.43% / 50.51%**;
-- paired log-loss improvement: **+0.052411**.
+The active branch adds a governed club-profile reference registry and visual overrides, plus club crest and stadium-image assets. These are product/reference inputs and must preserve provenance/rights metadata where applicable.
 
-Robustness closeout strengthened the result:
+They do not replace canonical club identity. Canonical/season-local/persistent identity rules still govern joins and deep links.
 
-- Adaptive DC improved log loss in **all five holdout seasons**;
-- paired bootstrap 95% interval: **+0.031951 to +0.072532**;
-- the Dixon-Coles low-score `rho` correction itself contributed only about **+0.000334** log-loss improvement, so the useful gain is predominantly the adaptive time-varying strength system;
-- control status: `CONTROL_FREEZE_SUPPORTED_FOR_NEXT_EXPERIMENT`.
+## Validation status
 
-Adaptive DC is therefore the **frozen experimental forecasting control** for the next Team State incremental-information experiment. It is not yet a trusted production model and no betting-market edge is claimed.
+The pre-reconciliation active branch head `ce8fa1493553923306cd0011c6146f821101b66e` had **no GitHub Actions workflow run attached**.
 
-## Head-to-Head + BetBuilder Stat Pack V1 — visible product milestone
+Therefore the current reference branch must not be described as fully validated.
 
-The first combined analytical matchup product is now implemented on `model/poisson-v1`.
+Before integration, current validation should include:
 
-Route:
+- base-branch reconciliation/conflict review;
+- targeted Python/regression tests for changed evidence/API seams;
+- club-profile/reference-data validation;
+- Next.js `npm run typecheck`;
+- Next.js `npm run build`;
+- `project-health.ps1` where canonical/query/data behaviour is implicated and the required local source environment is available;
+- `python scripts/check_documentation_sync.py --base-ref <appropriate-base>`;
+- explicit API compatibility review, especially around the large `api/frl_api.py` branch diff.
 
-`/head-to-head/{season}/{fixtureId}`
-
-API:
-
-`/api/v1/head-to-head/{season}/{fixture_id}`
-
-The page is deliberately organised around the workflow:
-
-**fixture → BetBuilder evidence → analytical team profiles → independent model picture → player watchlists**
-
-V1 BetBuilder evidence uses ten fixed, pre-specified team thresholds — five for each side:
-
-- 1+ goal;
-- 10+ shots;
-- 4+ shots on target;
-- 4+ corners;
-- 2+ yellow cards.
-
-Each entry pairs:
-
-1. the selected team's recent pre-match hit frequency; and
-2. the opponent's recent allowance frequency for the same governed statistic.
-
-The resulting `evidence_index` is explicitly descriptive and **must not be presented as a calibrated betting probability**. Thresholds were fixed before target-match evaluation and are not selected after seeing results.
-
-The same page also exposes:
-
-- recent analytical profiles for both teams from governed pre-kickoff team evidence;
-- the frozen Adaptive Dixon-Coles control as a separate probability layer;
-- expected goals and leading exact-score probabilities from the forecasting control;
-- current-season player watchlists from governed FPL evidence;
-- explicit early-season and coverage limitations;
-- direct navigation from the existing Matchday workspace.
-
-The Head-to-Head route deliberately avoids the legacy external Player-Match filesystem dependency required by full fixture-detail enrichment and runs from repository-contained governed evidence. The older Matchday fixture-detail path still contains a hard-coded local `Premier-League-Stats` root in `match_stats.py`; this is now explicit portability debt rather than a hidden dependency of Head-to-Head V1.
-
-Validation for this milestone on GitHub Actions:
-
-- **17 Python / regression tests: PASS**;
-- **Next.js TypeScript check: PASS**;
-- **Next.js production build: PASS**.
+Dated historical pass counts remain checkpoint evidence only.
 
 ## Immediate objective
 
-> **Develop Analytical Profile + Head-to-Head as complementary views over one governed evidence layer, with the BetBuilder Stat Pack at the centre of fixture-specific synthesis.**
+> **Reconcile and validate the active product/reference branch so FRL can continue product development from a trustworthy current state rather than from stale documentation or an unverified design prototype.**
 
-Near-term sequence:
+Immediate sequence:
 
-1. deepen the analytical team profile beyond the initial recent-match slice using the now-routed 249-field team universe;
-2. expand Head-to-Head from fixed V1 thresholds into richer attack-v-opponent-defence evidence while preserving exact coverage and provenance;
-3. promote fouls/cards, set-piece and player-market evidence only where source semantics support it;
-4. remove the remaining hard-coded local Player-Match filesystem dependency from the legacy Matchday enrichment path;
-5. run the pre-registered Adaptive DC + Team State forecasting experiment without allowing model work to displace the scouting/opposition product programme.
-
-Team Scouting, Player Scouting, Opposition Report, Matchday / Fixture Intelligence, Rankings and Research Explorer remain active destinations for the same source universe rather than separate statistical systems.
+1. keep living documentation aligned with the 13 September reconciliation;
+2. reconcile `design/bet-builder-reference-v1` with the newer base-branch commits without destroying local/uncommitted work;
+3. establish the live local working-tree state before merge/rebase;
+4. run current backend/frontend/documentation validation;
+5. resolve API/backend regressions and visual-token migration debt;
+6. then continue Fixture Intelligence / Matchday, Team and Player analytical profiles, Rankings/Compare and Research Explorer from the governed evidence layer;
+7. run the pre-registered Adaptive DC + Team State experiment without allowing model work to displace the broader research/product programme.
 
 ## Non-negotiables
 
@@ -235,4 +203,5 @@ Team Scouting, Player Scouting, Opposition Report, Matchday / Fixture Intelligen
 - Never discard a legitimate variable solely because coverage begins later than 2016/17.
 - Never force event/tactical objects through a scalar-variable interface merely for uniformity.
 - Never let product surfaces invent independent definitions of governed football concepts.
-- Never present a descriptive BetBuilder evidence index as a calibrated probability or guaranteed betting return.
+- Never present descriptive BetBuilder evidence as a calibrated probability or guaranteed betting return.
+- Never treat an experimental branch or uncommitted local work as stable integrated state without explicit validation and integration evidence.
