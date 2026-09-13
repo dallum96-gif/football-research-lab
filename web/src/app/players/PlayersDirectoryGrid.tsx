@@ -283,7 +283,7 @@ export function PlayersDirectoryGrid({
                   <strong>{Math.round(score)}</strong>
                   <small>avg pctl</small>
                 </span>
-                <ClubKit club={club} size="medium" />
+                <ClubKit club={club} size="medium" variant="fpl-current" />
               </div>
 
               <div className={styles.body}>
