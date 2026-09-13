@@ -1,12 +1,12 @@
 # Football Research Laboratory — Project Orientation
 
-**Last reviewed:** 30 August 2026
+**Last reviewed:** 13 September 2026
 
-This is the fast-start guide for a new contributor or new AI coding session.
+This is the fast-start guide for a new contributor or AI coding/research session.
 
 For repository-memory governance see `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
 
-## 1. Read order
+## 1. Recovery order
 
 Before substantive work:
 
@@ -14,18 +14,22 @@ Before substantive work:
 2. read this file;
 3. read `CURRENT_WORK.md`;
 4. inspect `data/frl_documentation_state_v1.json`;
-5. inspect the task-relevant contracts, dated audits and implementation;
-6. establish current branch/working-tree/upstream state before changing files.
+5. follow `AGENTS.md`;
+6. establish the current branch / upstream / ahead-behind / working-tree state;
+7. inspect task-relevant contracts, dated audits and implementation;
+8. run validation appropriate to the actual change.
 
-Do not ask the user to reconstruct project information that the repository can establish.
+Do not ask Daniel to reconstruct project information that the repository, connected GitHub state or relevant project history can establish.
+
+Historical chats and dated repository documents are valuable evidence of reasoning and previous state, but they do not automatically override current implementation or current governing documentation.
 
 ## 2. FRL in one sentence
 
 > **Give us the data and let us ask whatever football question we can think of.**
 
-FRL is intended to become a provenance-aware historical football research and modelling environment, not merely a statistics site, an FPL dashboard or one betting model.
+FRL is a provenance-aware historical football research and modelling environment, not merely a statistics site, FPL dashboard or one betting model.
 
-The long-term progression is:
+The durable progression is:
 
 ```text
 question / hypothesis
@@ -41,9 +45,9 @@ models / evaluation
 application where justified
 ```
 
-Betting is a downstream application of validated research, not the definition of the platform.
+Betting is a downstream application of research, not the definition of the platform.
 
-## 3. Current stable principles
+## 3. Stable principles
 
 FRL must preserve:
 
@@ -57,11 +61,9 @@ FRL must preserve:
 - source/version differences where equivalence is unproven;
 - reproducibility and non-destruction during migration.
 
-## 4. Current architectural direction
+## 4. Analytical architecture direction
 
-The lower evidence/identity layers are mature relative to the current analytical layer.
-
-The target analytical spine now being established is:
+The target analytical spine remains:
 
 ```text
 PRESERVED SOURCE EVIDENCE
@@ -85,26 +87,37 @@ FASTAPI
 NEXT.JS PRODUCT / RESEARCH CONSUMERS
 ```
 
-Existing implementation is transitional: useful research logic remains distributed across `query_lab.py`, `query_api.py`, `research_access.py`, specialist team/player modules and `api/frl_api.py`. Do not assume the target spine is already fully implemented merely because it is the current architecture direction.
+Existing code is transitional. Useful logic remains distributed across established query/research modules and specialist services. Reuse trusted seams; do not rewrite merely to make the architecture diagram look cleaner.
 
 ## 5. Source-routing rule
 
-The source ecosystem can contain several preserved representations of the same football concept.
+The preserved ecosystem may contain several representations of the same football concept.
 
 Therefore:
 
 > **Do not choose a source by field name or first non-null value. Choose a governed representation for the requested concept, grain, period and analytical purpose.**
 
-Read:
+Read as needed:
 
 - `FRL_SOURCE_NORMALISATION_CONTRACT.md`
 - `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`
 - `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`
 - `FRL_SOURCE_RIGHTS_REGISTER.md`
 
-The current source-route audit concludes that the existing direct team-match route is generally strong for established core fields, while expected metrics such as xG demonstrate genuine multi-representation and derived-route cases.
+A field being present does not prove a research metric exists, and a connected route does not prove it is the strongest preserved representation.
 
-## 6. Trusted data foundation
+Useful capability states remain:
+
+```text
+SOURCE_PRESENT
+CONNECTED
+DERIVABLE
+GOVERNED
+COMPARABLE
+PRODUCT_READY
+```
+
+## 6. Trusted evidence foundation
 
 Important evidence/canonical artefacts include:
 
@@ -112,26 +125,35 @@ Important evidence/canonical artefacts include:
 - `identity/team_seasons.csv` — season-local → persistent club identity;
 - `identity/data_quality/fixture_corrections.csv` — explicit correction provenance;
 - `data/fixture_match_stats.csv` — packaged direct team-match statistics;
-- historical FPL player/gameweek datasets;
-- Player-Match / Player-Season source families in the preserved upstream workspace;
+- historical FPL player/gameweek evidence;
+- Player-Match / Player-Season source families;
 - preserved PulseLive fixture snapshots;
-- versioned historical-state features.
+- governed historical-state/model artefacts.
 
-A source copy is not automatically canonical truth. Grain, identity, missingness, version and provenance are part of the meaning.
+A source copy is evidence, not automatically canonical truth. Grain, identity, missingness, version and provenance are part of the meaning.
 
-## 7. Identity and relationship architecture
+## 7. Current validated capability foundation
 
-Season-local team IDs are not globally stable.
+The standing source-universe checkpoints include:
 
-Persistent club identity is separate from source/season-local identity.
+- 3,800 preserved Premier League fixture snapshots for 2016/17–2025/26;
+- 553 master raw source paths;
+- 249 team-match statistical paths reconciled, including 176 canonical/governed generic-access fields, 8 retained fields, 6 restricted fields and 59 preserved raw-only governed routes;
+- 86 observed Player-Match source fields, with 81 exposed for generic research access;
+- archive-wide governed fixture event/tactical-context routing;
+- the last formally validated rich current-season Player checkpoint at 79/83 product capabilities through GW1–3.
 
-The same principle applies to fixtures, players, teams, competitions, events, FPL seasonal identifiers and Player-Match / Player-Season source identifiers.
+Read `CURRENT_WORK.md` for current interpretation and do not silently replace these validated claims with newer local/experimental state until it is revalidated.
 
-Read the relevant identity/relationship contracts before changing joins.
+## 8. Identity and relationships
 
-Never use fuzzy/display-name matching as a substitute for an established bridge when a governed relationship is required.
+Season-local team IDs are not globally stable. Persistent club identity is separate from source/season-local identity.
 
-## 8. Active frontend / product architecture
+The same discipline applies to fixtures, players, teams, competitions, FPL seasonal identity and Player-Match / Player-Season source identity.
+
+Never join numeric IDs across source families by coincidence and never use fuzzy/display-name matching as a substitute for a governed bridge where one is required.
+
+## 9. Active frontend / API
 
 Active frontend:
 
@@ -141,143 +163,156 @@ Frontend-facing API:
 
 **FastAPI under `api/`**
 
-Streamlit is legacy/reference implementation. It can remain useful as historical behaviour evidence but is not the target architecture for new product work.
+Python remains authoritative for source routing, identity, temporal semantics, provenance, statistical definitions, analytical semantics and modelling.
 
-Current product rule:
+Streamlit is legacy/reference implementation.
+
+Current durable product rule:
 
 > **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
 
-Current completed/frozen-for-now product surfaces and current analytical work are recorded in `CURRENT_WORK.md` rather than hard-coded here.
+## 10. Current product phase
 
-## 9. Team / Player analytical information architecture
+The current product/reference work has progressed beyond the earlier team-source-industrialisation phase.
 
-Read `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`.
+`design/bet-builder-reference-v1` / draft PR #53 contains active reference work across:
 
-For teams:
+- global shell/navigation;
+- Fixtures;
+- fixture result workspace;
+- Matchday / Bet Builder;
+- Team Profile / Team Overview;
+- club crest/stadium identity assets;
+- supporting backend/evidence/reference seams.
 
-```text
-Team Profile
-    ↓
-Team Stats
-    ├── Team View
-    ├── League Rankings
-    └── Compare later
-```
+It is an active experimental branch, not a validated integration candidate. It is also behind newer commits on its current base and requires reconciliation before integration.
 
-Analytical families currently use the broad structure:
+See `FRL_REPOSITORY_RECONCILIATION_2026-09-13.md` and `CURRENT_WORK.md`.
 
-`Overview · Attack · Possession · Passing · Defence · Discipline`
+## 11. Current visual direction
 
-These categories should be populated only where governed capability exists.
+The intended visual language is now **dark, premium, editorial, analytical and football-first**.
 
-Team View and Rankings must ultimately be projections of the same governed result, not separate implementations whose rankings merely happen to agree.
+Use `UI_DESIGN_SYSTEM.md` and `FRL_LUXURY_DESIGN_CONSTITUTION.md` as current design authority.
 
-Player analytics can share the interaction shell but require player-specific cohort/population semantics.
+The codebase still contains older warm parchment-era root tokens and mixed-generation surfaces. Treat those as migration state, not as permission to resurrect the superseded palette on new work.
 
-## 10. Research-access architecture
+Current high-level direction:
 
-Universal Research Access remains an important governed capability-discovery/validation/query layer.
+- near-black / charcoal structure;
+- warm ivory / cream primary text;
+- muted greys;
+- restrained coral/orange emphasis;
+- green/olive used semantically rather than as default branding;
+- no lime-green brand language;
+- two-level top navigation for the active reference shell rather than a permanent sidebar assumption.
 
-Its completed milestone is preserved in `FRL_BACKEND_CLOSEOUT_2026-08-26.md`.
+## 12. Team / Player analytical information architecture
 
-However, the 30 August source-route review establishes an important distinction:
+Read `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md` for the analytical interaction model.
 
-> a variable being catalogued/connected is not the same as proving FRL is using the strongest analytical representation available anywhere in the preserved ecosystem.
+Team View and Team Rankings should be projections of the same governed analytical result, not separate implementations that happen to agree.
 
-Future capability metadata should distinguish source-present, connected, derivable, governed, comparable and product-ready states.
+Player analytics may share interaction patterns but require player-specific cohort, minutes and role semantics.
 
-## 11. Analytical safety
+The signature vertical-list / multi-tile pattern remains useful for statistical browsing, but it is a component language rather than the whole product architecture.
+
+## 13. Analytical safety
 
 Do not allow product code to invent analytical semantics.
 
 In particular:
 
 - React should not independently define rolling form, last-N populations, ranks or percentiles;
-- FastAPI routes should increasingly orchestrate domain services rather than own metric formulas;
-- missing source observations must not be silently divided by complete populations;
+- FastAPI should increasingly orchestrate domain services rather than own ad hoc formulas;
+- missing observations must not be silently divided by complete populations;
 - ratios/percentages require correct numerator/denominator aggregation;
-- ranks require an explicit eligible population and tie/percentile policy;
-- partial evidence requires visible coverage/limitations before normal product exposure.
+- ranks require explicit eligible populations and tie/percentile policies;
+- partial evidence requires visible coverage/limitations;
+- descriptive BetBuilder evidence must not be presented as calibrated betting probability.
 
-## 12. Historical / as-of discipline
+## 14. Historical / as-of discipline
 
-FRL distinguishes event time, information-availability time and ingestion/retrieval time.
+FRL distinguishes:
 
-Final historical data does not prove that the information was knowable at the earlier prediction/research cutoff.
+- event time;
+- information-availability time;
+- ingestion/retrieval time.
 
-Historical state and future model evaluation must remain time-safe.
+Final historical data does not prove that information was knowable at an earlier research/prediction cutoff.
 
-## 13. Quality and validation
+Historical state and model evaluation must remain time-safe.
+
+## 15. Research / modelling discipline
+
+Adaptive Dixon-Coles V1 is currently an **experimental forecasting control**, not a trusted production betting model.
+
+Model work should separate:
+
+- historical association;
+- predictive improvement;
+- out-of-sample performance;
+- calibration;
+- market price;
+- edge/expected value;
+- staking/strategy.
+
+The next controlled model progression should follow the preregistered Team State incremental-information experiment rather than unconstrained backtest search.
+
+## 16. Quality and validation
 
 `RISK_STRATEGY_FRAMEWORK.md` and `NON_DESTRUCTION_ASSURANCE.md` are the primary quality contracts.
 
-Do not treat an old fixed test count as the eternal current baseline.
+For substantial work:
 
-For each change:
+1. establish objective and definition of done;
+2. inspect current behaviour/state;
+3. define the change surface and non-goals;
+4. predict failure modes;
+5. implement the smallest sensible change;
+6. run targeted validation;
+7. run relevant regression/data/query/frontend gates;
+8. perform a convergence check against the objective;
+9. reconcile standing documentation when project-level state changes.
 
-1. establish current behaviour/state;
-2. identify the change surface;
-3. predict failure modes;
-4. implement the smallest sensible change;
-5. run targeted validation;
-6. run relevant regression/data/query/frontend gates;
-7. report actual output;
-8. reconcile standing documentation if the milestone changed project-level state.
+Do not treat old fixed test counts as current evidence.
 
-## 14. Repository safety
+## 17. Repository safety
 
 Treat `main` as the stable integration line.
 
-Before changing code:
+Before changing/integrating code:
 
 - inspect branch/upstream/ahead-behind state;
-- preserve unrelated local and untracked files;
+- inspect Daniel's live local working tree when local changes may exist;
+- preserve unrelated tracked/untracked/generated/backup work;
 - do not use `git clean` or `git reset --hard` for ordinary workspace management;
-- do not use `git add .` casually;
-- do not delete backups/recovery artefacts merely to obtain a clean status;
+- do not stage broadly with `git add .` without understanding the change surface;
 - prefer reversible, scoped changes.
 
-## 15. Current visual system
+## 18. Key re-entry files
 
-The current active Next.js visual language is the warm-light parchment/editorial system documented in `UI_DESIGN_SYSTEM.md`.
-
-Do not infer visual direction from older Streamlit-era examples or historical screenshots.
-
-## 16. Key current files
-
-Start with these when re-entering the project:
+Start with:
 
 1. `FRL_MASTER_PROMPT.md`
 2. `PROJECT_ORIENTATION.md`
 3. `CURRENT_WORK.md`
 4. `data/frl_documentation_state_v1.json`
-5. `FRL_DOCUMENTATION_SYNC_CONTRACT.md`
-6. `FRL_SOURCE_ROUTE_AUDIT_2026-08-30.md`
-7. `FRL_SOURCE_NORMALISATION_CONTRACT.md`
-8. `FRL_DATA_ECOSYSTEM_DISCOVERY_CONTRACT.md`
-9. `FRL_TEAM_PLAYER_STATS_VISUALISATION_PROTOTYPE.md`
-10. `RISK_STRATEGY_FRAMEWORK.md`
-11. `NON_DESTRUCTION_ASSURANCE.md`
-12. `research_access.py`
-13. `query_lab.py`
-14. `query_api.py`
-15. `match_stats.py`
-16. `team_research_stats.py`
-17. `team_research_analytics.py`
-18. `api/frl_api.py`
-19. `web/`
-20. `tests/`
+5. `AGENTS.md`
+6. `FRL_REPOSITORY_RECONCILIATION_2026-09-13.md`
+7. `FRL_DOCUMENTATION_SYNC_CONTRACT.md`
+8. `RISK_STRATEGY_FRAMEWORK.md`
+9. `NON_DESTRUCTION_ASSURANCE.md`
+10. task-relevant source/identity/analytical/design contracts and implementation.
 
-Then inspect task-specific contracts/data rather than assuming these files alone define the entire source ecosystem.
+Do not assume this list alone defines the full preserved source ecosystem.
 
-## 17. Documentation freshness rule
+## 19. Documentation freshness
 
 Repository documentation is operational memory.
 
-Whenever a material milestone changes architecture, active product phase, source routing/capability interpretation, validation interpretation or frontend/design status, reconcile the standing documents before calling the milestone complete.
+Whenever a material milestone changes architecture, active product phase, source-routing/capability interpretation, validation interpretation or frontend/design language, reconcile the standing documents before calling the milestone complete.
 
-See `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
-
-## 18. Final orientation principle
+## Final orientation principle
 
 > **Preserve source truth, govern the analytical meaning, keep time honest, and make the repository describe the system that actually exists.**
