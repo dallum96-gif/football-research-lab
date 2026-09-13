@@ -1,361 +1,216 @@
 # Football Research Laboratory — Short-Term Product Roadmap
 
-**Status:** Active near-term planning document  
-**Last updated:** 4 September 2026
+**Status:** active near-term planning document  
+**Last updated:** 13 September 2026
 
 For repository-memory governance see `FRL_DOCUMENTATION_SYNC_CONTRACT.md`.
 
+Current-state detail belongs in `CURRENT_WORK.md`. The 13 September reconciliation is recorded in `FRL_REPOSITORY_RECONCILIATION_2026-09-13.md`.
+
 ## Purpose
 
-This roadmap turns FRL's governed research/data foundation into a coherent analytical product while preserving the principle that product needs should drive capability and source decisions.
-
-Current-state detail belongs in `CURRENT_WORK.md`.
-
-The active product architecture is defined in:
-
-`FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md`
-
-The machine-readable requirements map is:
-
-`data/frl_product_capability_requirements_v1.json`
-
-## Governing product principles
-
-> **The GUI should be a window into the research environment, not a collection of disconnected football pages.**
-
-> **FRL should feel simple before it feels powerful.**
-
-> **Curate the first view; preserve the full evidence underneath.**
+This roadmap turns FRL's governed research/data foundation into a coherent product without allowing presentation work to outrun evidence quality, identity, provenance, temporal discipline or validation.
 
 The durable information-architecture rule remains:
 
 > **Profiles describe entities. Stats analyse entities. Rankings analyse populations. Compare analyses selected entities together. Research tests the questions these surfaces reveal.**
 
-The new experience architecture adds explicit product lenses over that shared analytical foundation:
+Product lenses remain shared projections over one governed evidence layer rather than separate statistical systems.
 
-- Player Scouting;
-- Team Scouting;
-- Opposition Report;
-- Matchday / Fixture Intelligence;
-- Stats / Rankings / Compare;
-- Research Explorer.
+## Completed / established foundations
 
-These must share governed variables/results rather than becoming separate data systems.
+The following are no longer 'next tasks'; they are standing foundations or validated historical checkpoints:
 
----
+- canonical fixture, team and player identity rules;
+- fixture correction provenance and temporal/as-of discipline;
+- Universal Research Access and governed source-routing work;
+- the 553-path preserved PulseLive source universe;
+- reconciliation of the 249 team-match statistical paths, including governed generic access and preserved raw-only routing;
+- exhaustive Player-Match source-universe accounting;
+- archive-wide fixture event/tactical-context routing;
+- Team and Player Stats/Rankings analytical shells;
+- 2026/27 governed living-season integration process;
+- Team State V1 research object;
+- Adaptive Dixon-Coles V1 as the frozen experimental forecasting control for the next controlled experiment;
+- Head-to-Head / BetBuilder evidence as a governed descriptive product layer.
 
-# Completed / substantially completed foundations
+These remain subject to their own coverage and validation limitations; 'completed foundation' does not mean every future football question is solved.
 
-## Fixture / identity / provenance foundation
+## Active product phase — reference branch reconciliation
 
-Canonical fixture, team and player identity, source provenance, temporal discipline and missingness contracts are established enough to support continued analytical work.
+The immediate priority is to turn the current product/reference work into a trustworthy integration candidate.
 
-## Team Stats analytical kernel
+Active branch:
 
-Team View and League Rankings have proven that multiple product projections can consume one shared governed season analysis result.
+`design/bet-builder-reference-v1`
 
-## Player analytical shell
+Draft PR:
 
-Player Stats / Rankings / profiles have established the initial player product and cohort interaction shell, while richer player capability remains source/coverage dependent.
+`#53 — UI: premium FRL shell, Matchday builder and Fixtures reference design`
 
-## League Table
+The branch contains substantial frontend/product work **and supporting backend/evidence changes**. It is also behind newer commits on its current base branch and therefore must be reconciled before integration.
 
-League Table provides a governed competition-state surface over canonical results.
+### Definition of done for this phase
 
-## Matchday V1
+- live local working-tree state established and protected;
+- active branch reconciled with the current base without destructive cleanup;
+- supporting backend/API diffs reviewed for compatibility;
+- targeted regressions pass;
+- club-profile/reference-data validation passes;
+- Next.js typecheck/build pass;
+- relevant project-health checks pass where the local environment permits them;
+- documentation-sync gate passes;
+- current design tokens/direction are no longer contradicted by living docs;
+- PR #53 accurately describes its real scope and validation status.
 
-The fixture-first Matchday workspace exists and now becomes the base for a broader Fixture Intelligence experience rather than a final product endpoint.
+## Workstream 1 — Fixture Intelligence / Matchday
 
-## 2026/27 governed living-season pipeline
+**Priority:** high after branch reconciliation.
 
-The release process is established and currently integrated through the second gameweek release on the active development branch.
+Objective:
 
-## Raw PulseLive capability inventory
+> **For any fixture, show what the governed evidence says about the matchup, why it says it, what remains uncertain, and which downstream questions are worth testing.**
 
-The preserved archive has been exhaustively scanned at raw-path level:
+Current building blocks include Fixtures, result workspace, Matchday, Head-to-Head and Bet Builder reference work.
 
-- 3,800 fixture snapshots;
-- 553 scalar raw paths;
-- 372 football/match paths;
-- 249 team-match statistical paths.
+Near-term progression:
 
-The next task is not to put 249 values on a screen. It is to industrialise their governed accessibility.
+- keep fixture-first navigation coherent;
+- deepen attack-v-opponent-defence matchup evidence;
+- improve player-level evidence where source semantics/coverage support it;
+- keep descriptive hit-rate evidence visually/conceptually separate from calibrated model probabilities;
+- preserve explicit sample size and missingness;
+- remove hard-coded/local-only data-path dependencies from product-critical routes where practical;
+- treat bookmaker/market price as a downstream layer rather than an input to football truth unless a research question explicitly requires it.
 
----
+## Workstream 2 — Team Profile → Team Scouting
 
-# Phase 1 — Industrialise broad team-match capability
+**Priority:** high / parallel product work where it reuses governed evidence.
 
-**Status: next / highest-priority backend capability task.**
+Objective:
 
-## Objective
+> **Describe the club clearly, then let the user move naturally into how the team plays and what is unusual about it.**
 
-Make the broad PulseLive team-match statistics surface accessible through a generic governed research seam where semantics permit.
+Current reference work includes richer club identity, crest/stadium context and Team Overview experimentation.
 
-## Required work
+Next progression should connect profile identity to governed analytical families such as:
 
-1. reconcile the 249 raw team-match statistical paths with existing source-field catalogues and canonical variables;
-2. distinguish duplicate/source-local representations from distinct football concepts;
-3. classify each variable's natural grain;
-4. classify aggregation semantics;
-5. classify sparse-zero / missingness behaviour;
-6. record season coverage and provider/version identity;
-7. identify existing governed routes before creating new ones;
-8. expose generic research access where the variable is sufficiently understood;
-9. leave unresolved semantics fail-closed;
-10. avoid page-specific retrieval implementations.
-
-## Success condition
-
-Adding the next legitimate team statistic should increasingly require:
-
-> catalogue + semantic/governance definition
-
-rather than:
-
-> bespoke backend + bespoke API + bespoke frontend calculation.
-
----
-
-# Phase 2 — Player Scouting information hierarchy
-
-**Status: design/prototype after Phase 1 is underway; may proceed in parallel where it uses existing governed evidence only.**
-
-## Objective
-
-Create a visual-first player analytical experience that answers within seconds:
-
-- what type of player is this?
-- what are the major strengths?
-- what are comparatively weak areas?
-- how are they performing now?
-- where do they sit within an appropriate cohort?
-
-## Prototype constraints
-
-- visual summaries first;
-- no invented player passing metrics;
-- cohort/position/minutes semantics remain governed;
-- detailed metrics remain reachable through progressive disclosure;
-- interpretation text is optional until it can be defended reproducibly.
-
-## Capability implications
-
-Rich current-season player-match technical evidence — especially passing/progression — is a demonstrated high-value requirement.
-
----
-
-# Phase 3 — Team Scouting + Opposition Report
-
-**Status: design/prototype after broad team-variable accessibility improves.**
-
-## Team Scouting objective
-
-Answer:
-
-> **What kind of team is this, how do they play, and what is unusual about them?**
-
-## Opposition Report objective
-
-Answer:
-
-> **If I were preparing to face this team, what would I need to understand?**
-
-## Candidate analytical sections
-
-- at-a-glance style profile;
-- build-up / passing / progression;
-- territory / possession;
-- chance creation;
-- threat profile;
+- attacking output and chance creation;
+- territory/possession/passing;
 - defensive behaviour;
-- transitions / recoveries / possession loss;
-- set pieces;
+- discipline/set pieces;
+- form/state and tactical context;
 - personnel dependencies;
-- recent tactical change;
-- deep evidence / coverage / provenance.
+- league/population context.
 
-The interface should organise information around football questions rather than provider field names.
+Do not turn Team Profile into a metric wall. Profile and Team Stats remain distinct but connected surfaces.
 
----
+## Workstream 3 — Player Profile / Player Scouting
 
-# Phase 4 — Matchday → Fixture Intelligence
+**Priority:** active after/alongside current product reconciliation.
 
-**Status: evolve existing Matchday V1.**
+Objective:
 
-## Objective
+> **Make it possible to understand what type of player someone is, what they are doing well, their role/context, and the evidence limitations in seconds — then drill deeper.**
 
-Keep fixture-first navigation and answer:
+Use the existing governed player capability/cohort work rather than inventing browser-side player semantics.
 
-> **What does the evidence tell us about this fixture?**
+Important constraints:
 
-The initial product should form an independent football view without requiring bookmaker odds.
+- position/role/minutes cohorts must be explicit;
+- later-period rich technical fields remain partial-period evidence rather than universal history;
+- the four currently unsupported carry/progression product capabilities must remain unavailable until genuine evidence exists;
+- percentile/rank displays require governed population semantics.
 
-## Evidence families
+## Workstream 4 — Stats / Rankings / Compare
 
-Potential high-value evidence includes:
+The signature vertical-list / multi-tile language remains useful for fast browsing, but it is a component pattern rather than the whole product architecture.
 
-- team matchup / style interaction;
-- recent time-safe form/state;
-- shooting / shots on target;
-- scoring / xG;
-- chance creation / assists;
-- likely player involvement;
-- saves / goalkeeper workload;
-- tackles / recoveries;
-- fouls / cards;
-- corners / crosses;
-- home/away context;
-- model probabilities where validated;
-- explicit sample/uncertainty context.
+Next work should improve:
 
-Common betting markets are useful as a clue to which football phenomena matter, but they must not define the data architecture.
+- relationship between entity value and league context;
+- cohort/population clarity;
+- full-ledger progressive disclosure;
+- comparison of selected teams/players using shared governed results;
+- coverage/eligibility visibility;
+- navigation between metric, entity and ranking contexts.
 
-A future odds layer should remain separate and explicit.
+## Workstream 5 — Research Explorer / natural-language depth
 
----
+**Status:** architectural progression rather than one page sprint.
 
-# Phase 5 — Research Explorer / universal depth
+Objective:
 
-**Status: architectural progression rather than one immediate page build.**
+Keep the full governed capability universe discoverable underneath curated product surfaces.
 
-## Objective
+Progressively support:
 
-Ensure the full governed capability universe remains discoverable and usable even when product summaries are deliberately curated.
-
-Research access should progressively support:
-
-- variable discovery;
-- natural grain;
+- variable/concept discovery;
+- source representation and natural grain;
 - season availability;
-- definitions;
-- source routes;
+- definitions and derivations;
 - coverage/missingness;
 - populations/cohorts;
-- ranks/distributions;
-- splits/rolling windows;
-- derivations;
+- ranks/distributions/splits/rolling windows;
 - provenance;
-- eventual natural-language investigation.
+- as-of reconstruction;
+- eventual natural-language investigation that links back to evidence and research objects.
 
----
+## Workstream 6 — Controlled modelling progression
 
-# Phase 6 — Capability-gap scoring
+Do not allow modelling work to become an unstructured search for a profitable backtest.
 
-**Status: mandatory before broad supplementary-provider search.**
+Near-term modelling sequence:
 
-For each product experience, classify capabilities as:
+1. preserve Adaptive Dixon-Coles V1 as the frozen experimental control;
+2. run the pre-registered Team State incremental-information experiment;
+3. use time-respecting evaluation and explicit holdouts;
+4. distinguish predictive improvement, calibration and economic value;
+5. keep market price / edge / staking strategy downstream and explicit.
 
-```text
-STRONG_NOW
-PARTIAL_NOW
-HISTORICAL_ONLY
-CURRENT_ONLY
-SOURCE_PRESENT_NOT_CONNECTED
-DEMONSTRATED_GAP
-NOT_YET_REQUIRED
-```
+No descriptive evidence index should be upgraded into a betting probability by presentation alone.
 
-Every gap must also be diagnosed by cause:
+## Workstream 7 — Portability and technical debt
 
-```text
-SOURCE_PRESENT_NOT_CONNECTED
-CONNECTED_NOT_GOVERNED
-SEMANTICS_UNRESOLVED
-IDENTITY_UNRESOLVED
-DERIVATION_NOT_APPROVED
-COVERAGE_INSUFFICIENT
-CURRENT_SEASON_ABSENT
-HISTORICAL_ABSENT
-COMPARABILITY_UNRESOLVED
-RIGHTS_OR_OPERATIONAL_BLOCK
-```
+Product growth now makes a few technical debts more important:
 
-Score unresolved requirements by:
+- hard-coded local Player-Match/source paths in legacy enrichment routes;
+- mixed-generation API/runtime seams;
+- visual-token migration from older warm-root tokens to the current dark editorial design language;
+- branch divergence and long-lived reference branches;
+- validation that depends on Daniel's local source workspace.
 
-- number of product experiences unlocked;
-- research/modelling value;
-- current-season importance;
-- historical-depth value;
-- player/team grain importance;
-- identity/semantic complexity;
-- rights/operational cost;
-- provider-lock-in risk.
+Resolve these at established seams rather than through broad rewrites.
 
----
+## Current design direction
 
-# Phase 7 — Requirement-led source evaluation
+The intended product language is now **dark, premium, editorial, analytical and football-first**.
 
-**Status: follows the gap-scoring milestone.**
+See `UI_DESIGN_SYSTEM.md` and `FRL_LUXURY_DESIGN_CONSTITUTION.md`.
 
-Do not begin with:
+The earlier warm parchment token system remains in parts of the codebase during migration, but it is not the design authority for new work.
 
-> Which provider has the most variables?
+External products may inspire information hierarchy, but FRL must retain its own identity and avoid generic SaaS/dashboard/sportsbook styling.
 
-Begin with:
-
-> Which exact high-value capability bundles remain genuinely unresolved after the preserved FRL ecosystem has been exhausted?
-
-Then evaluate candidate sources against:
-
-- required variables and natural grain;
-- historical/current coverage;
-- update cadence;
-- player/team/fixture identity reliability;
-- semantic comparability;
-- reproducibility / preservation;
-- rights / redistribution constraints;
-- operational fragility;
-- provider-lock-in risk;
-- cost where relevant.
-
-Prefer sources that close several coherent high-value gaps rather than sources that merely advertise a large field count.
-
----
-
-# Cross-cutting interaction direction
-
-FRL uses progressive disclosure:
-
-1. **Glance** — visual story in seconds;
-2. **Explore** — football families / key visuals;
-3. **Analyse** — broader metrics / distributions / splits / ranks;
-4. **Research** — provenance / coverage / definitions / source semantics.
-
-Navigation should preserve football context and make transitions between fixture, team, player, metric and ranking feel natural.
-
-The signature tiled vertical-list language remains valid for statistical browsing, but it is one component pattern rather than the whole product architecture.
-
----
-
-# Visual direction
-
-The active warm editorial FRL design system remains authoritative.
-
-External football products may inspire information hierarchy and interaction, but FRL should retain its own identity:
-
-> **sleek + sexy + analytical + a little fun + professional**
-
-Avoid generic SaaS dashboards and neon sportsbook aesthetics.
-
-Use playful interaction only when it improves understanding.
-
----
-
-# Validation / safety
+## Validation / safety
 
 For each implementation slice:
 
-- inspect existing mechanisms first;
+- inspect the existing mechanism first;
+- establish objective and definition of done;
 - reuse governed analytical seams;
 - preserve source/identity/temporal/missingness contracts;
-- validate targeted invariants;
+- prefer the smallest reversible change;
+- validate targeted invariants first;
 - run relevant API/data/query regressions;
 - run Next.js typecheck/build for frontend changes;
+- run project-health where appropriate and possible;
 - run documentation-sync validation when project state changes;
-- preserve `main` as the stable line and make development work reversible.
+- preserve unrelated tracked/untracked/local work;
+- perform a convergence check against the original objective before declaring completion.
 
----
+## Current next step
 
-# Current next step
+> **Finish the 13 September repository/branch reconciliation and validate the active reference branch before treating it as integrated current state.**
 
-> **Begin Phase 1: reconcile and industrialise the 249 team-match-statistic source surface, while using the new product requirements map to determine which fields deserve first governance and which future gaps matter most.**
+Once that is complete, continue Fixture Intelligence, Team/Player analytical product work and the controlled modelling programme from the same governed evidence foundation.
