@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useRouter } from "next/navigation";
 import styles from "./PlayerProfile.module.css";
@@ -25,13 +25,14 @@ export function PlayerSeasonSelect({
   return (
     <label className={styles.selectControl}>
       <span>Season</span>
+
       <select
         value={currentSeason}
         onChange={(event) =>
           router.push(
-            `/players/${encodeURIComponent(event.target.value)}/${encodeURIComponent(
-              playerCode
-            )}`
+            `/players/${encodeURIComponent(
+              event.target.value
+            )}/${encodeURIComponent(playerCode)}`
           )
         }
       >

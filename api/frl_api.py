@@ -24,8 +24,10 @@ from pulselive_fixture_evidence import (
 import query_api
 import team_research_stats
 import team_analysis_kernel
+import team_records_materialization
 
-
+
+
 import club_profile_registry
 class CanonicalFixtureRef(BaseModel):
     model_config = ConfigDict(frozen=True)
@@ -2344,6 +2346,18 @@ def get_team_season_records(
 ) -> TeamSeasonRecordsResult:
     requested_code = persistent_team_code.strip()
 
+    if (
+        scope == "overall"
+        and os.environ.get("FRL_DISABLE_TEAM_RECORDS_MATERIALIZATION") != "1"
+    ):
+        materialized = team_records_materialization.load_overall(
+            season,
+            requested_code,
+        )
+        if materialized is not None:
+            return TeamSeasonRecordsResult.model_validate(materialized)
+
+
     try:
         if scope == "overall":
             options = get_team_seasons(requested_code)
@@ -2871,7 +2885,7 @@ def get_fixtures(
         ),
         references=references,
         provenance=ResearchProvenance(
-            source="query_api.fixtures → fixtures_master_corrected.csv",
+            source="query_api.fixtures â†’ fixtures_master_corrected.csv",
             transformation_version=str(payload.get("query_version", "unknown")),
         ),
         methodology=ResearchMethodology(
@@ -2933,7 +2947,7 @@ def get_fixture_detail(season: str, fixture_id: str) -> FixtureDetailResult:
         player_match=player_match,
         player_match_status=player_match_status,
         provenance=ResearchProvenance(
-            source="query_api.fixture_detail → query_lab.fixture_detail → canonical fixture + match statistics; player-match evidence via player_match_stats",
+            source="query_api.fixture_detail â†’ query_lab.fixture_detail â†’ canonical fixture + match statistics; player-match evidence via player_match_stats",
             transformation_version=str(detail.get("query_version", "unknown")),
         ),
         limitations=limitations,

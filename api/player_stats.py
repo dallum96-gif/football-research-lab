@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from typing import Any, Literal
 
@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 
 import player_analysis_kernel
 import player_research
+import player_profile_radar
+import player_profile_biography
 
 
 router = APIRouter()
@@ -37,6 +39,31 @@ class PlayerProfileMetric(BaseModel):
     unit: str
 
 
+class PlayerBiographyResult(BaseModel):
+    available: bool
+    identity_status: str
+
+    first_name: str | None = None
+    last_name: str | None = None
+    display_name: str | None = None
+
+    nationality: str | None = None
+    nationality_code: str | None = None
+    birth_date: str | None = None
+    birth_country: str | None = None
+    preferred_foot: str | None = None
+
+    height_cm: float | None = None
+    weight_kg: float | None = None
+
+    shirt_number: str | None = None
+    join_date: str | None = None
+    on_loan: str | None = None
+
+    evidence: dict[str, Any] = Field(default_factory=dict)
+    limitations: list[str] = Field(default_factory=list)
+
+
 class PlayerProfileResult(BaseModel):
     season: str
     player_code: str
@@ -47,6 +74,7 @@ class PlayerProfileResult(BaseModel):
     appearances: int
     starts: int
     minutes: int
+    biography: PlayerBiographyResult
     metrics: list[PlayerProfileMetric]
     evidence: dict[str, Any] = Field(default_factory=dict)
     limitations: list[str] = Field(default_factory=list)
@@ -253,6 +281,12 @@ def get_player_profile(season: str, player_code: str) -> PlayerProfileResult:
         appearances=_integer(player.get("appearances")),
         starts=_integer(player.get("starts")),
         minutes=_integer(player.get("minutes")),
+        biography=PlayerBiographyResult(
+            **player_profile_biography.resolve_player_biography(
+                season,
+                player_code,
+            )
+        ),
         metrics=_profile_metrics(player),
         evidence=dict(player.get("_evidence") or {}),
         limitations=[
@@ -364,3 +398,45 @@ def get_player_rankings(
         percentile_policy=str(analysis["percentile_policy"]),
         metrics=metrics,
     )
+
+@router.get(
+    "/api/v1/player-profile-radar/{season}/{player_code}",
+    response_model=dict[str, Any],
+)
+def get_player_profile_radar(
+    season: str,
+    player_code: str,
+) -> dict[str, Any]:
+    try:
+        result = (
+            player_profile_radar
+            .build_player_profile_radar(
+                season,
+                player_code,
+            )
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        ) from exc
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Player profile radar failed safely."
+            ),
+        ) from exc
+
+    if result is None:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                "Player profile radar is unavailable "
+                "for this player and season."
+            ),
+        )
+
+    return result
+
+

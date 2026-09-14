@@ -1,111 +1,311 @@
-.page {
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
+﻿.page {
+  position: relative;
+  left: 50%;
+  width: 100vw;
+  margin-left: -50vw;
+  min-height: calc(100vh - 96px);
+  isolation: isolate;
+  overflow: hidden;
+  color: #eee9df;
+  background: transparent !important;
 }
 
-.profileHeader {
-  min-height: 112px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  padding: .65rem 0 1rem;
+.page::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  background: #11110f;
+  pointer-events: none;
 }
 
-.identity {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  min-width: 0;
+.inner {
+  position: relative;
+  z-index: 1;
+  width: min(1280px, calc(100% - 64px));
+  margin-inline: auto;
 }
 
-.avatar {
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+.hero {
+  position: relative;
   display: grid;
-  place-items: center;
-  width: 62px;
-  height: 62px;
-  flex: 0 0 auto;
-  border: 1px solid var(--frl-border-strong);
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at 25% 20%, rgba(232, 93, 63, .15), transparent 38%),
-    var(--frl-surface);
-  color: var(--frl-accent);
-  font-size: 1.1rem;
-  font-weight: 900;
-  letter-spacing: -.04em;
+  grid-template-columns:
+    minmax(0, 1.04fr)
+    minmax(360px, 0.9fr)
+    minmax(220px, 0.56fr);
+  min-height: 475px;
+  overflow: hidden;
+  border-bottom: 1px solid rgba(238, 233, 223, 0.09);
 }
 
-.eyebrow,
-.kicker {
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: -90px;
+  left: 35%;
+  width: 610px;
+  height: 610px;
+  background: radial-gradient(
+    circle,
+    rgba(113, 77, 78, 0.13) 0%,
+    rgba(68, 64, 75, 0.07) 38%,
+    transparent 69%
+  );
+  pointer-events: none;
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 3;
+  align-self: center;
+  padding: 38px 30px 92px 0;
+}
+
+.eyebrow {
   margin: 0;
-  color: var(--frl-accent);
-  font-size: .54rem;
-  font-weight: 850;
-  letter-spacing: .14em;
+  color: #91a9e6;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 
-.identity h1 {
-  margin: .13rem 0 0;
-  font-size: clamp(2.2rem, 3.4vw, 3.25rem);
-  font-weight: 850;
-  letter-spacing: -.055em;
-  line-height: .96;
+.heroCopy h1 {
+  max-width: 570px;
+  margin: 17px 0 0;
+  color: #f0ebe2;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(4.15rem, 6vw, 6.65rem);
+  font-weight: 400;
+  letter-spacing: -0.072em;
+  line-height: 0.79;
+  text-wrap: balance;
 }
 
-.context {
-  margin: .32rem 0 0;
-  color: var(--frl-muted);
-  font-size: .66rem;
+.contextLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 27px 0 0;
+  color: #888178;
+  font-size: 0.78rem;
+}
+
+.contextLine i {
+  color: #48443f;
+  font-style: normal;
+}
+
+.heroBiography {
+  max-width: 470px;
+  margin: 20px 0 0;
+  color: #c6bfb5;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.98rem;
+  line-height: 1.52;
+}
+
+
+/* ============================================================
+   PORTRAIT
+   ============================================================ */
+
+.portraitStage {
+  position: relative;
+  z-index: 2;
+  align-self: stretch;
+  min-width: 0;
+}
+
+.portraitStage::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  top: 28px;
+  right: -25px;
+  bottom: 35px;
+  left: -35px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(119, 93, 98, 0.11),
+    rgba(36, 37, 41, 0.045) 45%,
+    transparent 71%
+  );
+}
+
+.portraitStage::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  right: -30px;
+  bottom: 52px;
+  left: -30px;
+  height: 112px;
+  background: linear-gradient(
+    to bottom,
+    rgba(17, 17, 15, 0),
+    #11110f 92%
+  );
+  pointer-events: none;
+}
+
+.portraitImage {
+  position: absolute;
+  z-index: 2;
+  bottom: 43px;
+  left: 50%;
+  width: auto;
+  height: 455px;
+  max-width: none;
+  object-fit: contain;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 20px 26px rgba(0, 0, 0, 0.2));
+}
+
+.portraitFallback {
+  position: absolute;
+  z-index: 2;
+  bottom: 126px;
+  left: 50%;
+  display: grid;
+  place-items: center;
+  transform: translateX(-50%) scale(1.65);
+  transform-origin: center bottom;
+}
+
+
+/* ============================================================
+   RIGHT RAIL
+   ============================================================ */
+
+.heroRail {
+  position: relative;
+  z-index: 5;
+  align-self: stretch;
+  padding: 34px 0 86px 31px;
 }
 
 .selectControl {
   display: grid;
-  gap: .25rem;
+  gap: 7px;
+  width: 100%;
 }
 
 .selectControl > span {
-  color: var(--frl-muted-soft);
-  font-size: .47rem;
-  font-weight: 800;
-  letter-spacing: .09em;
+  color: #777169;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
 }
 
 .selectControl select {
-  min-width: 126px;
-  height: 34px;
-  padding: 0 2rem 0 .7rem;
-  border: 1px solid var(--frl-border);
-  border-radius: 8px;
-  background: var(--frl-surface);
-  color: var(--frl-text);
+  width: 100%;
+  height: 39px;
+  padding: 0 12px;
+  border: 1px solid rgba(238, 233, 223, 0.17);
+  border-radius: 5px;
+  outline: 0;
+  background: #141412;
+  color: #e5dfd6;
   font: inherit;
-  font-size: .62rem;
-  font-weight: 720;
+  font-size: 0.77rem;
 }
 
+.selectControl select:focus-visible {
+  border-color: #91a9e6;
+}
+
+.railStatement {
+  margin: 32px 0 27px;
+  color: #b7b0a6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.08rem;
+  font-style: italic;
+  line-height: 1.38;
+}
+
+.identityList {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(238, 233, 223, 0.12);
+  list-style: none;
+}
+
+.identityList li {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(238, 233, 223, 0.075);
+}
+
+.identityMark {
+  color: #58534d;
+  font-size: 0.53rem;
+  letter-spacing: 0.08em;
+}
+
+.identityList li > span:last-child {
+  display: grid;
+  gap: 3px;
+}
+
+.identityList strong {
+  color: #dcd5cc;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.88rem;
+  font-weight: 400;
+}
+
+.identityList small {
+  color: #5f5a54;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.095em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   LOCAL PROFILE NAV
+   ============================================================ */
+
 .tabs {
+  position: absolute;
+  z-index: 7;
+  right: 0;
+  bottom: 0;
+  left: 0;
   display: flex;
   align-items: center;
-  gap: 1.4rem;
-  min-height: 44px;
-  border-top: 1px solid var(--frl-border);
-  border-bottom: 1px solid var(--frl-border-strong);
+  gap: 31px;
+  height: 55px;
+  border-top: 1px solid rgba(238, 233, 223, 0.08);
 }
 
 .activeTab,
 .tabLink {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  align-self: stretch;
-  color: var(--frl-text);
-  font-size: .62rem;
-  font-weight: 790;
+  height: 100%;
+  color: #6d6760;
+  font-size: 0.7rem;
+  font-weight: 600;
   text-decoration: none;
+}
+
+.activeTab {
+  color: #eee9df;
 }
 
 .activeTab::after {
@@ -114,192 +314,1184 @@
   right: 0;
   bottom: -1px;
   left: 0;
-  height: 2px;
-  background: var(--frl-accent);
+  height: 1px;
+  background: #91a9e6;
 }
 
-.tabLink {
-  color: var(--frl-muted);
+.tabLink:hover {
+  color: #eee9df;
 }
+
+
+/* ============================================================
+   PROFILE BODY
+   ============================================================ */
 
 .workspace {
+  padding-bottom: 34px;
+}
+
+.profileRow {
   display: grid;
-  gap: 10px;
-  padding-top: 12px;
+  grid-template-columns: 188px minmax(0, 1fr);
+  gap: 34px;
+  align-items: center;
+  min-height: 112px;
+  border-bottom: 1px solid rgba(238, 233, 223, 0.085);
 }
 
-.headlineStrip {
+.rowHeading {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  overflow: hidden;
-  border: 1px solid var(--frl-border);
-  border-radius: 13px;
-  background: var(--frl-surface);
+  grid-template-columns: 23px minmax(0, 1fr);
+  gap: 11px;
+  align-items: baseline;
 }
 
-.headlineStrip > div {
+.rowHeading > span {
+  color: #54504a;
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+}
+
+.rowHeading h2 {
+  margin: 0;
+  color: #cfc8be;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+}
+
+.factGrid {
   display: grid;
-  gap: 3px;
-  padding: 16px;
-  border-right: 1px solid var(--frl-border);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 23px;
+  margin: 0;
 }
 
-.headlineStrip > div:last-child {
-  border-right: 0;
+.factGrid > div {
+  min-width: 0;
 }
 
-.headlineStrip strong {
-  font-size: 1.45rem;
-  font-weight: 850;
-  letter-spacing: -.04em;
-  font-variant-numeric: tabular-nums;
-}
-
-.headlineStrip span,
-.metricCard span {
-  color: var(--frl-muted-soft);
-  font-size: .46rem;
-  font-weight: 760;
-  letter-spacing: .05em;
+.factGrid dt {
+  margin: 0 0 8px;
+  color: #5f5a54;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.115em;
   text-transform: uppercase;
 }
 
-.contentGrid {
+.factGrid dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  color: #dfd8cf;
+  font-size: 0.81rem;
+  font-weight: 560;
+  line-height: 1.3;
+}
+
+
+/* ============================================================
+   PARTICIPATION
+   ============================================================ */
+
+.participation {
   display: grid;
-  grid-template-columns: minmax(0, 1.65fr) minmax(280px, .7fr);
-  gap: 10px;
+  grid-template-columns: repeat(3, 145px);
+  gap: 31px;
 }
 
-.metricPanel,
-.readPanel,
-.sourcePanel {
-  border: 1px solid var(--frl-border);
-  border-radius: 14px;
-  background: var(--frl-surface);
-}
-
-.metricPanel,
-.readPanel {
-  padding: 15px;
-}
-
-.sectionHeading {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.sectionHeading h2,
-.readPanel h2 {
-  margin: .15rem 0 0;
-  font-size: 1rem;
-  font-weight: 830;
-  letter-spacing: -.035em;
-}
-
-.sectionHeading > span {
-  color: var(--frl-muted-soft);
-  font-size: .44rem;
-}
-
-.metricGrid {
+.participation > div {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  margin-top: 13px;
 }
 
-.metricCard {
+.participation strong {
+  color: #eee9df;
+  font-size: 1.72rem;
+  font-weight: 580;
+  letter-spacing: -0.055em;
+  line-height: 1;
+}
+
+.participation span {
+  color: #655f58;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.profileFooter {
   display: grid;
-  gap: 7px;
-  min-height: 82px;
-  padding: 12px;
-  border: 1px solid var(--frl-border);
-  border-radius: 11px;
-  background: var(--frl-surface-raised);
+  grid-template-columns: auto minmax(300px, 470px);
+  gap: 50px;
+  align-items: center;
+  padding: 22px 0 0;
 }
 
-.metricCard strong {
-  align-self: end;
-  font-size: 1.25rem;
-  font-weight: 850;
-  letter-spacing: -.04em;
-  font-variant-numeric: tabular-nums;
+.footerActions {
+  display: flex;
+  gap: 12px;
 }
 
-.readPanel > p:not(.kicker) {
-  margin: 10px 0 0;
-  color: var(--frl-muted);
-  font-size: .56rem;
-  line-height: 1.55;
-}
-
-.primaryAction {
+.primaryAction,
+.secondaryAction {
   display: inline-flex;
-  margin-top: 16px;
-  padding: 8px 10px;
-  border: 1px solid var(--frl-border-strong);
-  border-radius: 8px;
-  color: var(--frl-text);
-  font-size: .52rem;
-  font-weight: 790;
+  align-items: center;
+  min-height: 39px;
+  padding: 0 16px;
+  border-radius: 5px;
+  font-size: 0.67rem;
+  font-weight: 650;
   text-decoration: none;
 }
 
-.unavailable {
-  display: inline-block;
-  margin-top: 15px;
-  color: var(--frl-muted-soft);
-  font-size: .52rem;
+.primaryAction {
+  background: #eee9df;
+  color: #11110f;
 }
 
-.sourcePanel {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 20px;
-  align-items: center;
-  padding: 12px 15px;
+.secondaryAction {
+  border: 1px solid rgba(238, 233, 223, 0.2);
+  color: #d4cdc3;
 }
 
-.sourcePanel strong {
-  display: block;
-  margin-top: 3px;
-  font-size: .68rem;
+.primaryAction:hover {
+  background: #ffffff;
 }
 
-.sourcePanel > p {
+.secondaryAction:hover {
+  border-color: rgba(238, 233, 223, 0.38);
+  color: #eee9df;
+}
+
+.provenance {
+  display: flex;
+  gap: 9px;
+  justify-self: end;
   margin: 0;
-  color: var(--frl-muted);
-  font-size: .5rem;
-  line-height: 1.5;
+  color: #59544e;
+  font-size: 0.58rem;
+  line-height: 1.55;
+  text-align: right;
 }
 
-@media (max-width: 880px) {
-  .contentGrid {
+.provenance span {
+  flex: 0 0 auto;
+  color: #777169;
+}
+
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+
+.historyView {
+  width: min(1060px, 100%);
+  margin-inline: auto;
+  padding: 52px 0 30px;
+}
+
+.historyHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  align-items: end;
+  padding-bottom: 29px;
+}
+
+.historyHeader h2 {
+  margin: 12px 0 0;
+  color: #eee9df;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(2.7rem, 4vw, 4.3rem);
+  font-weight: 400;
+  letter-spacing: -0.055em;
+  line-height: 0.92;
+}
+
+.historyHeader > span {
+  color: #615b55;
+  font-size: 0.67rem;
+}
+
+.timeline {
+  border-top: 1px solid rgba(238, 233, 223, 0.09);
+}
+
+.timelineRow {
+  display: grid;
+  grid-template-columns: 50px 120px minmax(0, 1fr) 70px;
+  gap: 21px;
+  align-items: center;
+  min-height: 83px;
+  border-bottom: 1px solid rgba(238, 233, 223, 0.075);
+  color: inherit;
+  text-decoration: none;
+}
+
+.timelineIndex {
+  color: #4c4842;
+  font-size: 0.59rem;
+}
+
+.timelineRow > strong {
+  color: #d8d1c7;
+  font-size: 0.83rem;
+}
+
+.timelineRow > div {
+  display: grid;
+  gap: 4px;
+}
+
+.timelineRow b {
+  color: #e9e3da;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.92rem;
+  font-weight: 400;
+}
+
+.timelineRow > div > span,
+.timelineRow i {
+  color: #666059;
+  font-size: 0.61rem;
+  font-style: normal;
+}
+
+.timelineRow i {
+  justify-self: end;
+}
+
+.timelineRow[data-current="true"] i {
+  color: #91a9e6;
+}
+
+.historyFooter {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 24px;
+}
+
+.historyFooter a {
+  color: #999289;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.historyFooter a:hover {
+  color: #eee9df;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 1050px) {
+  .hero {
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(310px, 0.85fr);
+  }
+
+  .heroRail {
+    display: none;
+  }
+
+  .factGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 24px;
+  }
+
+  .profileRow {
+    min-height: 145px;
+  }
+}
+
+@media (max-width: 720px) {
+  .inner {
+    width: calc(100% - 32px);
+  }
+
+  .hero {
+    display: block;
+    min-height: 680px;
+  }
+
+  .heroCopy {
+    position: relative;
+    z-index: 5;
+    padding: 48px 0 0;
+  }
+
+  .heroCopy h1 {
+    max-width: 100%;
+    font-size: clamp(3.8rem, 15vw, 5.2rem);
+  }
+
+  .heroBiography {
+    max-width: 100%;
+  }
+
+  .portraitStage {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 410px;
+  }
+
+  .portraitImage {
+    height: 395px;
+  }
+
+  .profileRow {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    padding: 29px 0;
+  }
+
+  .factGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .participation {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .profileFooter {
     grid-template-columns: 1fr;
   }
 
-  .metricGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .provenance {
+    justify-self: start;
+    text-align: left;
+  }
+
+  .footerActions {
+    flex-wrap: wrap;
   }
 }
 
-@media (max-width: 650px) {
-  .profileHeader {
-    align-items: flex-start;
-    flex-direction: column;
+/* ============================================================
+   PROFILE COMPOSITION REFINEMENT
+   Compact single-screen overview
+   ============================================================ */
+
+.hero {
+  min-height: 398px;
+}
+
+.heroCopy {
+  padding-top: 24px;
+  padding-bottom: 70px;
+}
+
+.heroCopy h1 {
+  margin-top: 13px;
+  max-width: 540px;
+  font-size: clamp(3.85rem, 5.35vw, 5.85rem);
+  line-height: .79;
+}
+
+.contextLine {
+  margin-top: 20px;
+}
+
+.heroBiography {
+  max-width: 445px;
+  margin-top: 14px;
+  font-size: .87rem;
+  line-height: 1.45;
+}
+
+.portraitImage {
+  bottom: 37px;
+  height: 405px;
+}
+
+.portraitStage::after {
+  bottom: 45px;
+  height: 83px;
+}
+
+.heroRail {
+  padding-top: 26px;
+  padding-bottom: 70px;
+}
+
+.railStatement {
+  margin: 24px 0 18px;
+  color: #9f988e;
+  font-size: .77rem;
+  font-style: normal;
+  letter-spacing: .025em;
+}
+
+.identityList li {
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 8px;
+  padding: 9px 0;
+}
+
+.identityMark {
+  color: #4f4a44;
+  font-size: .58rem;
+}
+
+.identityList strong {
+  color: #d8d1c7;
+  font-size: .82rem;
+}
+
+.tabs {
+  height: 46px;
+}
+
+.profileRow {
+  min-height: 88px;
+}
+
+.rowHeading h2 {
+  font-size: .96rem;
+}
+
+.factGrid {
+  gap: 20px;
+}
+
+.factGrid dt {
+  margin-bottom: 6px;
+}
+
+.factGrid dd {
+  font-size: .75rem;
+}
+
+.factValue {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.flag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.14rem;
+  line-height: 1;
+}
+
+.participation {
+  gap: 28px;
+}
+
+.participation strong {
+  font-size: 1.5rem;
+}
+
+.profileFooter {
+  padding-top: 15px;
+  padding-bottom: 14px;
+}
+
+.primaryAction,
+.secondaryAction {
+  min-height: 34px;
+  padding-inline: 14px;
+}
+
+.historyView {
+  padding-top: 32px;
+}
+
+.historyHeader {
+  padding-bottom: 22px;
+}
+
+.timelineRow {
+  min-height: 67px;
+}
+
+.historyFooter {
+  padding-top: 18px;
+}
+
+@media (min-width: 1051px) and (max-height: 900px) {
+  .hero {
+    min-height: 365px;
   }
 
-  .headlineStrip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .portraitImage {
+    height: 370px;
   }
 
-  .headlineStrip > div:nth-child(2) {
-    border-right: 0;
+  .heroCopy h1 {
+    font-size: clamp(3.6rem, 5vw, 5.3rem);
   }
 
-  .sourcePanel {
-    grid-template-columns: 1fr;
+  .heroBiography {
+    font-size: .82rem;
+  }
+
+  .profileRow {
+    min-height: 80px;
   }
 }
+
+/* ============================================================
+   PLAYER PORTRAIT — CINEMATIC DEPTH
+   Same source asset becomes the atmospheric background.
+   ============================================================ */
+
+.portraitComposition {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.portraitBackdrop {
+  position: absolute;
+  z-index: 0;
+  top: -17%;
+  left: -24%;
+  width: 148%;
+  height: 128%;
+  object-fit: cover;
+  object-position: 50% 22%;
+  opacity: .27;
+  filter:
+    blur(34px)
+    saturate(.72)
+    brightness(.48);
+  transform: scale(1.08);
+}
+
+.portraitComposition::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background:
+    radial-gradient(
+      ellipse at 52% 41%,
+      rgba(122, 82, 84, .16) 0%,
+      rgba(55, 46, 49, .09) 34%,
+      rgba(17, 17, 15, .24) 66%,
+      #11110f 100%
+    );
+  pointer-events: none;
+}
+
+.portraitComposition::after {
+  content: "";
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  background:
+    linear-gradient(
+      90deg,
+      #11110f 0%,
+      transparent 14%,
+      transparent 86%,
+      #11110f 100%
+    );
+  pointer-events: none;
+}
+
+.portraitImage {
+  z-index: 2;
+  filter:
+    drop-shadow(0 22px 30px rgba(0, 0, 0, .26))
+    saturate(.96);
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 82%,
+      rgba(0,0,0,.94) 90%,
+      transparent 100%
+    );
+  mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 82%,
+      rgba(0,0,0,.94) 90%,
+      transparent 100%
+    );
+}
+
+.portraitStage::before {
+  display: none;
+}
+
+.portraitStage::after {
+  z-index: 4;
+  height: 72px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    #11110f 96%
+  );
+}
+
+/* Stronger cinematic portrait atmosphere */
+
+.portraitComposition {
+  inset: -35px -105px 0;
+  overflow: hidden;
+}
+
+.portraitBackdrop {
+  top: -8%;
+  left: -18%;
+  width: 136%;
+  height: 120%;
+  object-fit: contain;
+  object-position: 50% 30%;
+  opacity: .58;
+  filter:
+    blur(48px)
+    saturate(1.18)
+    brightness(.72);
+  transform: scale(1.72);
+}
+
+.portraitComposition::before {
+  background:
+    radial-gradient(
+      ellipse at 50% 43%,
+      rgba(133, 68, 71, .10) 0%,
+      rgba(17, 17, 15, .04) 42%,
+      rgba(17, 17, 15, .58) 82%,
+      #11110f 100%
+    );
+}
+
+.portraitComposition::after {
+  background:
+    linear-gradient(
+      90deg,
+      #11110f 0%,
+      rgba(17,17,15,.38) 10%,
+      transparent 28%,
+      transparent 72%,
+      rgba(17,17,15,.38) 90%,
+      #11110f 100%
+    );
+}
+
+
+/* ============================================================
+   PORTRAIT BOTTOM BLEND
+   Remove visible waist crop / red atmospheric shelf
+   ============================================================ */
+
+.portraitBackdrop {
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 62%,
+      rgba(0,0,0,.88) 72%,
+      rgba(0,0,0,.38) 84%,
+      transparent 97%
+    );
+  mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 62%,
+      rgba(0,0,0,.88) 72%,
+      rgba(0,0,0,.38) 84%,
+      transparent 97%
+    );
+}
+
+.portraitImage {
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 74%,
+      rgba(0,0,0,.92) 82%,
+      rgba(0,0,0,.48) 90%,
+      transparent 98%
+    );
+  mask-image:
+    linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 74%,
+      rgba(0,0,0,.92) 82%,
+      rgba(0,0,0,.48) 90%,
+      transparent 98%
+    );
+}
+
+.portraitStage::after {
+  right: -115px;
+  bottom: 0;
+  left: -115px;
+  height: 125px;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(17,17,15,0) 0%,
+      rgba(17,17,15,.32) 28%,
+      rgba(17,17,15,.82) 57%,
+      #11110f 78%,
+      #11110f 100%
+    );
+}
+
+
+/* Remove visible top edge from cinematic portrait backdrop */
+
+.portraitBackdrop {
+  top: -18%;
+  height: 132%;
+
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0,0,0,.32) 7%,
+      rgba(0,0,0,.78) 14%,
+      #000 22%,
+      #000 62%,
+      rgba(0,0,0,.88) 72%,
+      rgba(0,0,0,.38) 84%,
+      transparent 97%
+    );
+
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent 0%,
+      rgba(0,0,0,.32) 7%,
+      rgba(0,0,0,.78) 14%,
+      #000 22%,
+      #000 62%,
+      rgba(0,0,0,.88) 72%,
+      rgba(0,0,0,.38) 84%,
+      transparent 97%
+    );
+}
+
+
+/* Eliminate visible top clipping edge from portrait atmosphere */
+
+.portraitComposition {
+  top: -150px;
+  right: -105px;
+  bottom: 0;
+  left: -105px;
+}
+
+.portraitBackdrop {
+  top: 0;
+  height: 118%;
+}
+
+
+/* ============================================================
+   FINAL HERO ATMOSPHERE
+   Do not blur the rectangular portrait asset as a backdrop.
+   Atmosphere belongs to the whole hero, so there is no seam.
+   ============================================================ */
+
+.portraitBackdrop {
+  display: none !important;
+}
+
+.portraitComposition {
+  inset: 0 !important;
+  overflow: visible !important;
+}
+
+.portraitComposition::before,
+.portraitComposition::after {
+  content: none !important;
+}
+
+/* Full-hero atmospheric field */
+.hero::before {
+  content: "";
+  display: block !important;
+  position: absolute;
+  z-index: 0;
+  inset: -80px -120px -40px -120px;
+  width: auto;
+  height: auto;
+
+  background:
+    radial-gradient(
+      ellipse 38% 58% at 61% 42%,
+      rgba(132, 76, 79, .30) 0%,
+      rgba(103, 61, 65, .20) 27%,
+      rgba(54, 42, 45, .10) 51%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 28% 32% at 57% 68%,
+      rgba(135, 38, 43, .11) 0%,
+      transparent 76%
+    );
+
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* Portrait remains the crisp focal point */
+.portraitImage {
+  z-index: 2;
+}
+
+/* Preserve the successful bottom dissolve */
+.portraitStage::after {
+  right: -115px;
+  bottom: 0;
+  left: -115px;
+  height: 125px;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(17,17,15,0) 0%,
+      rgba(17,17,15,.24) 27%,
+      rgba(17,17,15,.76) 57%,
+      #11110f 80%,
+      #11110f 100%
+    );
+}
+
+
+/* More dramatic cinematic atmosphere behind player */
+
+.hero::before {
+  inset: -120px -170px -70px -170px;
+
+  background:
+    radial-gradient(
+      ellipse 34% 52% at 61% 41%,
+      rgba(174, 91, 94, .42) 0%,
+      rgba(135, 67, 72, .34) 24%,
+      rgba(91, 53, 59, .23) 45%,
+      rgba(43, 36, 40, .10) 65%,
+      transparent 82%
+    ),
+    radial-gradient(
+      ellipse 48% 68% at 61% 48%,
+      rgba(110, 45, 52, .20) 0%,
+      rgba(62, 41, 46, .12) 48%,
+      transparent 78%
+    ),
+    radial-gradient(
+      ellipse 25% 24% at 60% 74%,
+      rgba(180, 32, 42, .15) 0%,
+      transparent 78%
+    );
+
+  filter: blur(27px);
+  opacity: 1;
+}
+
+/* Soft halo immediately behind the portrait */
+.portraitStage::before {
+  content: "";
+  display: block !important;
+  position: absolute;
+  z-index: 1;
+  top: 8%;
+  right: -10%;
+  bottom: 19%;
+  left: -10%;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 48%,
+      rgba(188, 107, 102, .18) 0%,
+      rgba(115, 63, 67, .12) 39%,
+      transparent 72%
+    );
+
+  filter: blur(32px);
+  pointer-events: none;
+}
+
+
+/* ============================================================
+   FULL-WIDTH HERO ATMOSPHERE
+   Burgundy now belongs to the entire identity composition.
+   ============================================================ */
+
+.hero::before {
+  inset: 0 -120px -55px -120px;
+
+  background:
+    /* Main burgundy field across heading + portrait */
+    radial-gradient(
+      ellipse 72% 82% at 48% 24%,
+      rgba(137, 70, 74, .32) 0%,
+      rgba(105, 57, 62, .25) 27%,
+      rgba(69, 45, 50, .16) 49%,
+      rgba(35, 31, 34, .08) 67%,
+      transparent 84%
+    ),
+
+    /* Stronger photographic warmth around player */
+    radial-gradient(
+      ellipse 34% 68% at 61% 40%,
+      rgba(179, 91, 94, .34) 0%,
+      rgba(128, 64, 69, .23) 35%,
+      transparent 76%
+    ),
+
+    /* Very restrained red depth near the shirt */
+    radial-gradient(
+      ellipse 28% 26% at 60% 72%,
+      rgba(168, 35, 43, .13) 0%,
+      transparent 78%
+    ),
+
+    /* Keep outside edges dark */
+    linear-gradient(
+      90deg,
+      rgba(17,17,15,.80) 0%,
+      rgba(17,17,15,.25) 22%,
+      rgba(17,17,15,.06) 50%,
+      rgba(17,17,15,.20) 79%,
+      rgba(17,17,15,.78) 100%
+    );
+
+  filter: none;
+}
+
+/* Let the portrait halo support, rather than define, the atmosphere */
+.portraitStage::before {
+  top: 3%;
+  right: -22%;
+  bottom: 14%;
+  left: -22%;
+
+  background:
+    radial-gradient(
+      ellipse at 50% 45%,
+      rgba(191, 111, 105, .16) 0%,
+      rgba(114, 65, 68, .08) 45%,
+      transparent 75%
+    );
+
+  filter: blur(38px);
+}
+
+
+/* ============================================================
+   ROUTE-LEVEL HERO ATMOSPHERE
+   Burgundy begins directly beneath the locked ivory navigation.
+   ============================================================ */
+
+.page::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+
+  background:
+    /* broad burgundy wash starting at the very top edge */
+    radial-gradient(
+      ellipse 78% 520px at 50% 0%,
+      rgba(130, 68, 73, .28) 0%,
+      rgba(101, 55, 60, .23) 28%,
+      rgba(64, 43, 48, .14) 52%,
+      rgba(31, 28, 30, .07) 72%,
+      transparent 88%
+    ),
+
+    /* stronger central warmth behind player */
+    radial-gradient(
+      ellipse 34% 430px at 59% 15%,
+      rgba(177, 87, 91, .26) 0%,
+      rgba(118, 61, 66, .18) 42%,
+      transparent 78%
+    ),
+
+    /* softer wash behind the name */
+    radial-gradient(
+      ellipse 42% 390px at 29% 17%,
+      rgba(105, 58, 62, .15) 0%,
+      rgba(64, 44, 48, .09) 48%,
+      transparent 82%
+    ),
+
+    #11110f;
+
+  pointer-events: none;
+}
+
+/*
+  Hero atmosphere now enhances the route-level field rather than
+  defining its upper boundary.
+*/
+.hero::before {
+  inset: 0 -120px -55px -120px;
+
+  background:
+    radial-gradient(
+      ellipse 38% 72% at 61% 40%,
+      rgba(177, 91, 94, .24) 0%,
+      rgba(119, 63, 68, .14) 39%,
+      transparent 77%
+    );
+
+  filter: blur(20px);
+}
+
+
+/* ============================================================
+   MIDFIELDER PROFILE RADAR
+   Data arrives governed from Python; SVG only renders geometry.
+   ============================================================ */
+
+.radarBlock {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(238,233,223,.10);
+}
+
+.radarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  margin-bottom: 1px;
+}
+
+.radarHeader > div {
+  display: grid;
+  gap: 3px;
+}
+
+.radarHeader span,
+.radarSample {
+  color: #67615a;
+  font-size: .50rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.radarHeader strong {
+  color: #d7d0c6;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: .78rem;
+  font-weight: 400;
+}
+
+.radar {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  margin: 1px 0 -4px;
+}
+
+.radarGrid,
+.radarMidGrid {
+  fill: none;
+  stroke: rgba(238,233,223,.07);
+  stroke-width: .65;
+}
+
+.radarMidGrid {
+  stroke: rgba(238,233,223,.14);
+}
+
+.radarAxis {
+  stroke: rgba(238,233,223,.07);
+  stroke-width: .6;
+}
+
+.radarLabel {
+  fill: #777068;
+  font-size: 6.2px;
+  font-family: inherit;
+  letter-spacing: .01em;
+}
+
+.radarAverage {
+  fill: rgba(238,233,223,.018);
+  stroke: rgba(225,218,208,.46);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.radarPlayer {
+  fill: rgba(158,74,78,.18);
+  stroke: #d09a91;
+  stroke-width: 1.35;
+}
+
+.radarPlayerPoint {
+  fill: #eee9df;
+  stroke: #8e5558;
+  stroke-width: .7;
+}
+
+.radarLegend {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  margin-top: -2px;
+  color: #777068;
+  font-size: .54rem;
+}
+
+.radarLegend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.radarLegend i {
+  display: inline-block;
+  width: 14px;
+  height: 1px;
+}
+
+.radarPlayerKey {
+  background: #d09a91;
+}
+
+.radarAverageKey {
+  border-top: 1px dashed rgba(225,218,208,.6);
+}
+
+.radarCaveat {
+  margin: 8px 0 0;
+  color: #4f4a45;
+  font-size: .48rem;
+  font-weight: 650;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+/*
+  Radar needs a little more horizontal breathing room than
+  the old four-line identity list, but remains inside the
+  existing profile hero.
+*/
+.heroRail {
+  padding-left: 24px;
+}
+
