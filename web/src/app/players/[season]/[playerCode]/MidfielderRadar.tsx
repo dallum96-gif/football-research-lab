@@ -4,19 +4,23 @@ export type PlayerRadarAxis = {
   key: string;
   label: string;
   metric_label: string;
-  value: number;
+  value: number | null;
   unit: string;
-  percentile: number;
-  average_value?: number;
-  average_percentile: number;
+  percentile: number | null;
+  average_value?: number | null;
+  average_percentile: number | null;
   rank: number | null;
   out_of: number;
   observed_players: number;
   eligible_players: number;
+  availability: "AVAILABLE" | "PARTIAL" | "UNAVAILABLE";
 };
 
 export type PlayerProfileRadarData = {
   available: boolean;
+  complete?: boolean;
+  observed_axis_count?: number;
+  required_axis_count?: number;
   position: string;
   season: string;
   player_code: string;
@@ -100,17 +104,29 @@ export function MidfielderRadar({
     return null;
   }
 
-  const playerPoints = polygon(
-    axes.map(
-      (axis) => axis.percentile
-    )
-  );
+  const complete =
+    radar.complete === true &&
+    axes.every(
+      (axis) =>
+        axis.percentile != null &&
+        axis.average_percentile != null
+    );
 
-  const averagePoints = polygon(
-    axes.map(
-      (axis) => axis.average_percentile
-    )
-  );
+  const playerPoints = complete
+    ? polygon(
+        axes.map(
+          (axis) => axis.percentile as number
+        )
+      )
+    : null;
+
+  const averagePoints = complete
+    ? polygon(
+        axes.map(
+          (axis) => axis.average_percentile as number
+        )
+      )
+    : null;
 
   return (
     <section className={styles.radarBlock}>
@@ -186,7 +202,11 @@ export function MidfielderRadar({
               />
 
               <text
-                className={styles.radarLabel}
+                className={
+                  axis.availability === "UNAVAILABLE"
+                    ? styles.radarUnavailableLabel
+                    : styles.radarLabel
+                }
                 x={label.x}
                 y={label.y}
                 textAnchor={anchor}
@@ -194,21 +214,41 @@ export function MidfielderRadar({
               >
                 {axis.label}
               </text>
+
+              {axis.availability === "UNAVAILABLE" ? (
+                <text
+                  className={styles.radarUnavailableValue}
+                  x={label.x}
+                  y={label.y + 8}
+                  textAnchor={anchor}
+                  dominantBaseline="middle"
+                >
+                  N/A
+                </text>
+              ) : null}
             </g>
           );
         })}
 
-        <polygon
-          className={styles.radarAverage}
-          points={averagePoints}
-        />
+        {averagePoints ? (
+          <polygon
+            className={styles.radarAverage}
+            points={averagePoints}
+          />
+        ) : null}
 
-        <polygon
-          className={styles.radarPlayer}
-          points={playerPoints}
-        />
+        {playerPoints ? (
+          <polygon
+            className={styles.radarPlayer}
+            points={playerPoints}
+          />
+        ) : null}
 
         {axes.map((axis, index) => {
+          if (axis.percentile == null) {
+            return null;
+          }
+
           const p = point(
             index,
             axes.length,
@@ -216,21 +256,35 @@ export function MidfielderRadar({
           );
 
           return (
-            <circle
-              key={axis.key}
-              className={styles.radarPlayerPoint}
-              cx={p.x}
-              cy={p.y}
-              r="2.3"
-            >
-              <title>
-                {axis.label}:{" "}
-                {axis.percentile.toFixed(0)}
-                th percentile · rank{" "}
-                {axis.rank ?? "—"} of{" "}
-                {axis.out_of}
-              </title>
-            </circle>
+            <g key={axis.key}>
+              {!complete ? (
+                <line
+                  className={styles.radarPlayerRay}
+                  x1={CX}
+                  y1={CY}
+                  x2={p.x}
+                  y2={p.y}
+                />
+              ) : null}
+
+              <circle
+                className={styles.radarPlayerPoint}
+                cx={p.x}
+                cy={p.y}
+                r="2.3"
+              >
+                <title>
+                  {axis.label}:{" "}
+                  {axis.percentile.toFixed(0)}
+                  th percentile · rank{" "}
+                  {axis.rank ?? "—"} of{" "}
+                  {axis.out_of}
+                  {axis.availability === "PARTIAL"
+                    ? " · partial source coverage"
+                    : ""}
+                </title>
+              </circle>
+            </g>
           );
         })}
       </svg>
@@ -241,14 +295,17 @@ export function MidfielderRadar({
           {playerName.split(" ")[0]}
         </span>
 
-        <span>
-          <i className={styles.radarAverageKey} />
-          MID average
-        </span>
+        {complete ? (
+          <span>
+            <i className={styles.radarAverageKey} />
+            MID average
+          </span>
+        ) : null}
       </div>
 
       <p className={styles.radarCaveat}>
-        Per 90 · minimum{" "}
+        Per 90 · {radar.observed_axis_count ?? axes.length}/
+        {radar.required_axis_count ?? axes.length} dimensions · minimum{" "}
         {radar.cohort?.minimum_minutes ?? "—"} minutes
       </p>
     </section>

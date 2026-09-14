@@ -25,7 +25,7 @@ MIDFIELD_PROFILE_TEMPLATE = (
         "Advanced passing",
     ),
     (
-        "successful_dribbles_per_90",
+        "progressive_carries_per_90",
         "Carrying",
     ),
     (
@@ -163,11 +163,20 @@ def _summary(
 ) -> str:
     minutes = int(float(player.get("minutes") or 0))
 
-    if not axes:
+    observed_axes = [
+        axis
+        for axis in axes
+        if (
+            axis.get("percentile") is not None
+            and axis.get("average_percentile") is not None
+        )
+    ]
+
+    if not observed_axes:
         return ""
 
     ranked = sorted(
-        axes,
+        observed_axes,
         key=lambda axis: (
             float(axis["percentile"])
             - float(axis["average_percentile"])
@@ -206,7 +215,7 @@ def _summary(
 
     return (
         f"Through {minutes} Premier League minutes, "
-        "his current six-part profile sits broadly around "
+        "his observed profile sits broadly around "
         "the qualified midfielder average."
     )
 
@@ -338,20 +347,38 @@ def build_player_profile_radar(
             None,
         )
 
-        if (
-            selected is None
-            or selected.get("value") is None
-            or selected.get("percentile") is None
-        ):
-            continue
-
         observed_values = [
             float(entry["value"])
             for entry in entries
             if entry.get("value") is not None
         ]
 
-        if not observed_values:
+        if (
+            selected is None
+            or selected.get("value") is None
+            or selected.get("percentile") is None
+            or not observed_values
+        ):
+            axes.append(
+                {
+                    "key": key,
+                    "label": display_label,
+                    "metric_label":
+                        definition.label,
+                    "value": None,
+                    "unit": definition.unit,
+                    "percentile": None,
+                    "average_value": None,
+                    "average_percentile": None,
+                    "rank": None,
+                    "out_of": len(observed_values),
+                    "observed_players":
+                        len(observed_values),
+                    "eligible_players":
+                        len(population),
+                    "availability": "UNAVAILABLE",
+                }
+            )
             continue
 
         average_value = fmean(
@@ -398,25 +425,62 @@ def build_player_profile_radar(
                     len(observed_values),
                 "eligible_players":
                     len(population),
+                "availability": (
+                    "AVAILABLE"
+                    if len(observed_values)
+                    == len(population)
+                    else "PARTIAL"
+                ),
             }
         )
 
-    available = (
-        len(axes)
+    observed_axis_count = sum(
+        axis["availability"] != "UNAVAILABLE"
+        for axis in axes
+    )
+
+    complete = (
+        observed_axis_count
         == len(MIDFIELD_PROFILE_TEMPLATE)
     )
 
+    partial_axes = [
+        axis
+        for axis in axes
+        if axis["availability"] == "PARTIAL"
+    ]
+
+    unavailable_axes = [
+        axis
+        for axis in axes
+        if axis["availability"] == "UNAVAILABLE"
+    ]
+
+    coverage_limitations = [
+        (
+            f"{axis['label']} compares {axis['observed_players']} "
+            f"observed players from {axis['eligible_players']} eligible "
+            "players because source coverage is partial."
+        )
+        for axis in partial_axes
+    ] + [
+        (
+            f"{axis['label']} is unavailable for this player-season and "
+            "is not plotted as zero."
+        )
+        for axis in unavailable_axes
+    ]
+
     return {
-        "available": available,
+        "available": observed_axis_count > 0,
+        "complete": complete,
+        "observed_axis_count": observed_axis_count,
+        "required_axis_count": len(MIDFIELD_PROFILE_TEMPLATE),
         "position": position,
         "season": season,
         "player_code": str(player_code),
-        "axes":
-            axes if available else [],
-        "summary":
-            _summary(player, axes)
-            if available
-            else "",
+        "axes": axes,
+        "summary": _summary(player, axes),
         "cohort": {
             "competition":
                 "Premier League",
@@ -464,6 +528,7 @@ def build_player_profile_radar(
                 "Defensive event output is not "
                 "possession-adjusted in Profile V1."
             ),
+            *coverage_limitations,
         ],
     }
 

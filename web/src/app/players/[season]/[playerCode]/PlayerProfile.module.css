@@ -1442,10 +1442,30 @@
   stroke-width: 1.35;
 }
 
+.radarPlayerRay {
+  stroke: #d09a91;
+  stroke-width: 1.35;
+  stroke-linecap: round;
+}
+
 .radarPlayerPoint {
   fill: #eee9df;
   stroke: #8e5558;
   stroke-width: .7;
+}
+
+.radarUnavailableLabel {
+  fill: #5f5952;
+  font-size: 6.2px;
+  font-family: inherit;
+  letter-spacing: .01em;
+}
+
+.radarUnavailableValue {
+  fill: #8a625f;
+  font-size: 5.2px;
+  font-weight: 700;
+  letter-spacing: .08em;
 }
 
 .radarLegend {
@@ -1494,4 +1514,3 @@
 .heroRail {
   padding-left: 24px;
 }
-
