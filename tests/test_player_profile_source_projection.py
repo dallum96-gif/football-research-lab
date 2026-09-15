@@ -96,6 +96,9 @@ def test_same_row_ratio_and_derived_metrics() -> None:
         "source_minutes": 180.0,
         "aerial_duels_won": 6.0,
         "aerial_duels": 10.0,
+        "total_tackles": 8.0,
+        "total_shots": 8.0,
+        "shots_on_target": 4.0,
         "expected_goals_on_target_conceded": 5.5,
         "goals_conceded": 4.0,
         "saves_made": 12.0,
@@ -105,12 +108,16 @@ def test_same_row_ratio_and_derived_metrics() -> None:
         "punches": 2.0,
     }
     defender_aerial = player_profile_source_projection.POSITION_PROFILE_METRICS["DEF"][0]
+    defender_tackling = player_profile_source_projection.POSITION_PROFILE_METRICS["DEF"][1]
+    forward_accuracy = player_profile_source_projection.POSITION_PROFILE_METRICS["FWD"][5]
     keeper_stopping = player_profile_source_projection.POSITION_PROFILE_METRICS["GKP"][0]
     keeper_save_rate = player_profile_source_projection.POSITION_PROFILE_METRICS["GKP"][1]
     keeper_claiming = player_profile_source_projection.POSITION_PROFILE_METRICS["GKP"][3]
     keeper_distribution = player_profile_source_projection.POSITION_PROFILE_METRICS["GKP"][5]
 
     assert player_profile_source_projection.metric_value(row, defender_aerial) == 60.0
+    assert player_profile_source_projection.metric_value(row, defender_tackling) == 4.0
+    assert player_profile_source_projection.metric_value(row, forward_accuracy) == 50.0
     assert abs(
         player_profile_source_projection.metric_value(row, keeper_stopping)
         - ((5.5 - 4.0) / 180 * 90)
@@ -137,6 +144,8 @@ def test_profile_materializer_preserves_fields_for_all_position_templates(tmp_pa
         "gamesPlayed": "3",
         "starts": "3",
         "timePlayed": "270",
+        "totalShots": "8",
+        "shotsOnTargetIncGoals": "4",
         "expectedGoalsOnTargetConceded": "4.5",
         "goalsConceded": "3",
         "savesMade": "9",
@@ -153,6 +162,8 @@ def test_profile_materializer_preserves_fields_for_all_position_templates(tmp_pa
     row = rows[0]
     assert row["source_player_id"] == "154561"
     assert row["source_minutes"] == "270.0"
+    assert row["total_shots"] == "8.0"
+    assert row["shots_on_target"] == "4.0"
     assert row["expected_goals_on_target_conceded"] == "4.5"
     assert row["goals_conceded"] == "3.0"
     assert row["saves_made"] == "9.0"
