@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-09-15",
-  "checkpoint_id": "PLAYER_PROFILE_POSITIONAL_RADARS_V1",
+  "checkpoint_id": "PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Player Profile is a validated current-state profile candidate over the active experimental product/reference line. The approved profile composition is preserved while GKP, DEF, MID and FWD each have a governed six-axis analytical template from one pinned Player-Season representation. The hero season selector is intentionally removed; prior-season exploration remains in the separate History view with governed season-specific route identities. Current DEF Tackling uses totalTackles / 90 and current FWD Shot accuracy uses shotsOnTargetIncGoals / totalShots. Daniel's Windows working state has been inspected, externally safety-snapshotted and reconciled in an isolated review worktree; tracked integration remains deliberately separate pending final review and the existing reference-branch API import blocker.",
+  "active_product_phase": "Player Profile is a validated current-state universal rollout candidate over the active experimental product/reference line. The approved composition is preserved; GKP, DEF, MID and FWD each have governed position-specific analytical templates. All 654 current 2026/27 Player directory records build a Profile. Statistical claims are governed by sample state: 253 QUALIFIED players enter ranked same-position benchmark cohorts, 128 PROVISIONAL players are compared indicatively against qualified cohorts without entering them or receiving formal ranks, and 273 INSUFFICIENT_SAMPLE players retain the Profile with statistical analysis explicitly pending. The hero season selector remains removed; prior-season exploration remains in History. Daniel's Windows working state remains protected and separate pending deliberate integration.",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -39,6 +39,7 @@
     "FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md",
     "FRL_PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1_2026-09-15.md",
     "FRL_PLAYER_PROFILE_POSITIONAL_RADARS_V1_2026-09-15.md",
+    "FRL_PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1_2026-09-15.md",
     "data/player_profile_source_stats_v1.metadata.json",
     "data/player_profile_biography_v1.metadata.json",
     "data/player_season_source_stats_v1.metadata.json",
@@ -77,7 +78,10 @@
     "18.3258 per 90",
     "DEF/FWD/GKP analytical templates remain ungoverned",
     "Player Profile radar V1 is governed only for MID players",
-    "Player Profile comparison V1 is governed only for MID players; other positional templates require separate research and governance."
+    "Player Profile comparison V1 is governed only for MID players; other positional templates require separate research and governance.",
+    "Players below the Profile minute threshold receive no analytical profile at all",
+    "Low-minute players enter the qualified Player Profile comparison population",
+    "Provisional Player Profile ranks are formal competition ranks"
   ],
   "architecture_sensitive_paths": [
     "FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md",
@@ -112,6 +116,7 @@
     "scripts/validate_player_profile_universal_foundation.py",
     "web/src/app/players/[season]/[playerCode]/MidfielderRadar.tsx",
     "web/src/app/players/[season]/[playerCode]/PlayerSeasonSelect.tsx",
+    "web/src/app/players/[season]/[playerCode]/page.tsx",
     "team_state.py",
     "adaptive_dixon_coles.py",
     "head_to_head.py",
@@ -138,6 +143,7 @@
   ],
   "checkpoint_files": [
     "CURRENT_WORK.md",
-    "data/frl_documentation_state_v1.json"
+    "data/frl_documentation_state_v1.json",
+    "FRL_PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1_2026-09-15.md"
   ]
 }
