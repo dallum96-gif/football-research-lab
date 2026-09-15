@@ -28,6 +28,7 @@ def _validate_product_contract() -> None:
     page_path = ROOT / "web" / "src" / "app" / "players" / "[season]" / "[playerCode]"
     page = (page_path / "page.tsx").read_text(encoding="utf-8-sig")
     radar = (page_path / "MidfielderRadar.tsx").read_text(encoding="utf-8-sig")
+    season_control = (page_path / "PlayerSeasonSelect.tsx").read_text(encoding="utf-8-sig")
     api = (ROOT / "api" / "player_stats.py").read_text(encoding="utf-8-sig")
 
     if "/api/v1/player-profile-foundation/" in page:
@@ -40,7 +41,11 @@ def _validate_product_contract() -> None:
         if route_fragment not in page:
             raise RuntimeError(f"Player Profile no longer uses established route contract: {route_fragment}")
     if "?season=${encodeURIComponent(season)}" not in page:
-        raise RuntimeError("Player Profile season-history request does not seed longitudinal identity with the selected season.")
+        raise RuntimeError("Player Profile history request does not seed longitudinal identity with the selected route season.")
+    if "<select" in season_control or "useRouter" in season_control:
+        raise RuntimeError("Player Profile hero still exposes a season selector; current Profile must represent now while History owns prior-season navigation.")
+    if "return null" not in season_control:
+        raise RuntimeError("Player Profile season-control seam is not explicitly disabled for the current-state Profile.")
     if "import player_profile_foundation" not in api:
         raise RuntimeError("Established Player API is not consuming the governed Profile foundation.")
     if (ROOT / "api" / "player_profile.py").exists():
@@ -82,6 +87,8 @@ def main() -> int:
                 raise RuntimeError(f"Acceptance case is not six-axis: {label}")
             if comparison.get("template_key") != f"{expected_position}_PROFILE_V1":
                 raise RuntimeError(f"Acceptance case template mismatch: {label}")
+            if comparison.get("complete") is not True or comparison.get("observed_axis_count") != 6:
+                raise RuntimeError(f"Acceptance case does not have six observed dimensions: {label}")
 
         matrix.append({
             "case": label,
@@ -112,7 +119,7 @@ def main() -> int:
     seasons = player_profile_identity.profile_seasons("2026-27", "184029")
     historical_option = next((row for row in seasons if row.get("season") == "2024-25"), None)
     if historical_option is None or historical_option.get("player_code") != "13":
-        raise RuntimeError("Ødegaard season navigation did not retain the historical route code 13.")
+        raise RuntimeError("Ødegaard History navigation did not retain the historical route code 13.")
 
     current_profile = player_profile_foundation.build_player_profile("2026-27", "184029")
     assert current_profile is not None
@@ -134,6 +141,7 @@ def main() -> int:
         "milestone": "PLAYER_PROFILE_POSITIONAL_RADARS_V1",
         "status": "PASS",
         "product_route_contract": "ESTABLISHED_PLAYER_PROFILE_ENDPOINTS_PRESERVED",
+        "profile_time_scope": "CURRENT_STATE_WITH_HISTORY_SEPARATE",
         "position_templates": ["GKP", "DEF", "MID", "FWD"],
         "cases": matrix,
     }, indent=2, ensure_ascii=False))
