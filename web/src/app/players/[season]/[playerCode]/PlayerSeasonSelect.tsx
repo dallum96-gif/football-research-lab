@@ -9,14 +9,15 @@ type PlayerSeasonOption = {
   player_name: string;
   position: string;
   clubs: string[];
-  identity_status?: string;
 };
 
 export function PlayerSeasonSelect({
   currentSeason,
+  playerCode,
   seasons,
 }: {
   currentSeason: string;
+  playerCode: string;
   seasons: PlayerSeasonOption[];
 }) {
   const router = useRouter();
@@ -24,22 +25,22 @@ export function PlayerSeasonSelect({
   return (
     <label className={styles.selectControl}>
       <span>Season</span>
+
       <select
         value={currentSeason}
         onChange={(event) => {
-          const selected = seasons.find(
-            (option) => option.season === event.target.value
+          const option = seasons.find(
+            (candidate) => candidate.season === event.target.value
           );
-          if (!selected) return;
           router.push(
-            `/players/${encodeURIComponent(selected.season)}/${encodeURIComponent(
-              selected.player_code
-            )}`
+            `/players/${encodeURIComponent(
+              event.target.value
+            )}/${encodeURIComponent(option?.player_code ?? playerCode)}`
           );
         }}
       >
         {seasons.map((option) => (
-          <option key={`${option.season}-${option.player_code}`} value={option.season}>
+          <option key={option.season} value={option.season}>
             {option.season}
           </option>
         ))}

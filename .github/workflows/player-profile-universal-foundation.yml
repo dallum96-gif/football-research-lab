@@ -58,10 +58,18 @@ jobs:
           player_profile_source_projection.py
           player_profile_biography_projection.py
           player_profile_foundation.py
-          api/player_profile.py
+          api/player_stats.py
           scripts/materialize_player_profile_source_stats.py
           scripts/materialize_player_profile_biography.py
           scripts/validate_player_profile_universal_foundation.py
+
+      - name: Preserve approved Player Profile presentation
+        run: >-
+          git diff --exit-code
+          11a42f68cf7c4c0eab2b1ea0286cddf3337cbda3 --
+          'web/src/app/players/[season]/[playerCode]/PlayerProfile.module.css'
+          'web/src/app/players/[season]/[playerCode]/MidfielderRadar.tsx'
+          'web/src/app/players/[season]/[playerCode]/PlayerPortrait.tsx'
 
       - name: Run focused Player Profile regression suite
         run: >-
