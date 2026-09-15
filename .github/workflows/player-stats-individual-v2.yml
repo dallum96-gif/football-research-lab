@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - design/player-stats-individual-v2
+      - design/player-stats-individual-v2-art-direction
   pull_request:
     branches:
       - feat/player-profile-universal-foundation-v1
