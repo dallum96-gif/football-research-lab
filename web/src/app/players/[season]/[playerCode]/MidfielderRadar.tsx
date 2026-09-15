@@ -205,6 +205,14 @@ export function MidfielderRadar({
         {axes.map((axis, index) => {
           if (axis.percentile == null) return null;
           const p = point(index, axes.length, axis.percentile);
+          const tooltip = `${axis.label}: ${axis.percentile.toFixed(0)}th percentile · rank ${
+            axis.rank ?? "—"
+          } of ${axis.out_of}${
+            axis.availability === "PARTIAL"
+              ? " · partial source coverage"
+              : ""
+          }`;
+
           return (
             <g key={axis.key}>
               {!complete ? (
@@ -222,13 +230,7 @@ export function MidfielderRadar({
                 cy={p.y}
                 r="2.3"
               >
-                <title>
-                  {axis.label}: {axis.percentile.toFixed(0)}th percentile · rank{" "}
-                  {axis.rank ?? "—"} of {axis.out_of}
-                  {axis.availability === "PARTIAL"
-                    ? " · partial source coverage"
-                    : ""}
-                </title>
+                <title>{tooltip}</title>
               </circle>
             </g>
           );
