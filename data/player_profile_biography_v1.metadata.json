@@ -9,7 +9,8 @@
   "source_resource": "pl_stats/*/squad/{season}_squad.csv",
   "source_grain": "player-squad-season",
   "runtime_policy": "RUNTIME_READS_PACKAGED_PROJECTION_ONLY",
-  "identity_policy": "VERIFIED_PROFILE_SOURCE_PLAYER_ID_PLUS_EXACT_NORMALISED_NAME",
+  "identity_policy": "VERIFIED_PROFILE_SOURCE_PLAYER_ID; DISPLAY_NAME_IS_CORROBORATION_NOT_JOIN_KEY",
+  "conflict_policy": "WITHHOLD_WHEN_SAME_VERIFIED_SOURCE_ID_DISAGREES_ON_STABLE_BIOGRAPHICAL_FACTS",
   "seasons": [
     "2016-17",
     "2017-18",
