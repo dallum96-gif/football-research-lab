@@ -1,38 +1,63 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { ClubKit } from "@/components/ClubKit";
 import styles from "./PlayerProfile.module.css";
 
-type PortraitStage = "remote" | "local" | "kit";
+type PortraitStage = "remote" | "local" | "fallback";
+
+function initials(name: string) {
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join("") || "P"
+  );
+}
 
 export function PlayerPortrait({
-  playerCode,
+  portraitPlayerCode,
   playerName,
   club,
 }: {
-  playerCode: string;
+  portraitPlayerCode: string | null;
   playerName: string;
-  club: string;
+  club: string | null;
 }) {
-  const [stage, setStage] = useState<PortraitStage>("remote");
+  const [stage, setStage] = useState<PortraitStage>(
+    portraitPlayerCode ? "remote" : "fallback"
+  );
 
-  const remoteSrc =
-    `https://resources.premierleague.com/premierleague25/photos/players/500x500/${playerCode}.png`;
-
-  const localSrc = `/player-portraits/${playerCode}.png`;
-
-  if (stage === "kit") {
+  if (!portraitPlayerCode || stage === "fallback") {
     return (
       <div
         className={styles.portraitFallback}
         aria-label={`${playerName} portrait unavailable`}
       >
-        <ClubKit club={club} size="large" />
+        {club ? (
+          <ClubKit club={club} size="large" />
+        ) : (
+          <span
+            aria-hidden="true"
+            style={{
+              color: "#d8d1c7",
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontSize: "4rem",
+              letterSpacing: "-.06em",
+            }}
+          >
+            {initials(playerName)}
+          </span>
+        )}
       </div>
     );
   }
 
+  const remoteSrc =
+    `https://resources.premierleague.com/premierleague25/photos/players/500x500/${portraitPlayerCode}.png`;
+  const localSrc = `/player-portraits/${portraitPlayerCode}.png`;
   const src = stage === "remote" ? remoteSrc : localSrc;
 
   return (
@@ -43,17 +68,16 @@ export function PlayerPortrait({
         alt=""
         aria-hidden="true"
       />
-
       <img
         className={styles.portraitImage}
         src={src}
-        alt={`${playerName}`}
+        alt={playerName}
         onError={() =>
-          setStage((current) => (current === "remote" ? "local" : "kit"))
+          setStage((current) =>
+            current === "remote" ? "local" : "fallback"
+          )
         }
       />
     </div>
   );
 }
-
-
