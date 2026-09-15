@@ -37,6 +37,7 @@ PROFILE_SOURCE_FIELDS = (
     "aerial_duels",
     "aerial_duels_won",
     "total_shots",
+    "shots_on_target",
     "total_touches_in_opposition_box",
     "successful_dribbles",
     "expected_goals_on_target_conceded",
@@ -60,7 +61,7 @@ POSITION_PROFILE_METRICS = {
     ),
     "DEF": (
         {"key": "aerial_duel_win_pct", "label": "Aerial duels", "metric_label": "Aerial duel win percentage", "unit": "%", "calculation": "ratio_pct", "numerator_key": "aerial_duels_won", "denominator_key": "aerial_duels", "denominator": "aerialDuels", "higher_is_better": True},
-        {"key": "tackle_success_pct", "label": "Tackling", "metric_label": "Tackle success percentage", "unit": "%", "calculation": "ratio_pct", "numerator_key": "tackles_won", "denominator_key": "total_tackles", "denominator": "totalTackles", "higher_is_better": True},
+        {"key": "tackles_per_90", "label": "Tackling", "metric_label": "Tackles / 90", "unit": "tackles", "calculation": "per_90", "source_key": "total_tackles", "denominator": "timePlayed", "higher_is_better": True},
         {"key": "interceptions_per_90", "label": "Interceptions", "metric_label": "Interceptions / 90", "unit": "interceptions", "calculation": "per_90", "source_key": "interceptions", "denominator": "timePlayed", "higher_is_better": True},
         {"key": "clearances_per_90", "label": "Clearances", "metric_label": "Clearances / 90", "unit": "clearances", "calculation": "per_90", "source_key": "total_clearances", "denominator": "timePlayed", "higher_is_better": True},
         {"key": "recoveries_per_90", "label": "Recoveries", "metric_label": "Recoveries / 90", "unit": "recoveries", "calculation": "per_90", "source_key": "recoveries", "denominator": "timePlayed", "higher_is_better": True},
@@ -80,7 +81,7 @@ POSITION_PROFILE_METRICS = {
         {"key": "xa_per_90", "label": "Chance creation", "metric_label": "Expected assists / 90", "unit": "xA", "calculation": "per_90", "source_key": "expected_assists", "denominator": "timePlayed", "higher_is_better": True},
         {"key": "shots_per_90", "label": "Shot volume", "metric_label": "Shots / 90", "unit": "shots", "calculation": "per_90", "source_key": "total_shots", "denominator": "timePlayed", "higher_is_better": True},
         {"key": "box_touches_per_90", "label": "Box presence", "metric_label": "Touches in opposition box / 90", "unit": "touches", "calculation": "per_90", "source_key": "total_touches_in_opposition_box", "denominator": "timePlayed", "higher_is_better": True},
-        {"key": "successful_dribbles_per_90", "label": "1v1 threat", "metric_label": "Successful dribbles / 90", "unit": "dribbles", "calculation": "per_90", "source_key": "successful_dribbles", "denominator": "timePlayed", "higher_is_better": True},
+        {"key": "shot_accuracy_pct", "label": "Shot accuracy", "metric_label": "Shots on target percentage", "unit": "%", "calculation": "ratio_pct", "numerator_key": "shots_on_target", "denominator_key": "total_shots", "denominator": "totalShots", "higher_is_better": True},
     ),
 }
 
