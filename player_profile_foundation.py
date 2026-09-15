@@ -1,9 +1,9 @@
 """Universal Player Profile service over governed FRL evidence.
 
 The page composition is universal; comparative templates remain position-
-specific. MID V1 is the first governed comparison template and uses a single
-Player-Season source representation, including source-native playing time, for
-all six per-90 axes.
+specific. MID V1 is the first governed comparison template. Where complete,
+Player Profile descriptive participation and all six comparison axes come from
+the same pinned Player-Season representation.
 """
 from __future__ import annotations
 
@@ -229,6 +229,19 @@ def build_player_profile(season: str, player_code: str) -> dict | None:
     identity = player_profile_identity.resolve_player_identity(season, player)
     context = player_profile_context.resolve_club_context(player, season)
     portrait_code = _text(identity.get("portrait_player_code"))
+    source_row = player_profile_source_projection.season_rows(season).get(portrait_code)
+    source_participation = player_profile_source_projection.complete_participation(source_row)
+    if source_participation is not None:
+        participation = source_participation
+        participation_representation = "PLAYER_PROFILE_SOURCE_STATS_V1"
+    else:
+        participation = {
+            "appearances": int(player.get("appearances") or 0),
+            "starts": int(float(player.get("starts") or 0)),
+            "minutes": int(float(player.get("minutes") or 0)),
+        }
+        participation_representation = "FPL_PLAYER_FIXTURE_AGGREGATE_FALLBACK"
+
     biography = player_profile_biography_projection.resolve_biography(
         season,
         portrait_code,
@@ -256,9 +269,8 @@ def build_player_profile(season: str, player_code: str) -> dict | None:
             "player_name": _text(player.get("player_name")),
             "position": _text(player.get("position")),
             "competition": "Premier League",
-            "appearances": int(player.get("appearances") or 0),
-            "starts": int(float(player.get("starts") or 0)),
-            "minutes": int(float(player.get("minutes") or 0)),
+            **participation,
+            "participation_representation": participation_representation,
             "clubs": list(context.get("clubs") or ()),
             "primary_club": context.get("primary_club"),
             "club_context_status": context.get("status"),
@@ -273,12 +285,21 @@ def build_player_profile(season: str, player_code: str) -> dict | None:
             "identity": identity,
             "club_context": context,
             "player_source": dict(player.get("_evidence") or {}),
+            "profile_source_player_id": portrait_code or None,
+            "profile_source_participation": source_participation,
             "profile_source_metadata": player_profile_source_projection.metadata(),
         },
         "limitations": [
             *list(identity.get("limitations") or ()),
             *list(context.get("limitations") or ()),
             *list(biography.get("limitations") or ()),
+            *(
+                [
+                    "Player Profile participation falls back to the governed FPL player-fixture aggregate because complete Player-Season participation fields are unavailable for this player-season."
+                ]
+                if source_participation is None
+                else []
+            ),
         ],
     }
 

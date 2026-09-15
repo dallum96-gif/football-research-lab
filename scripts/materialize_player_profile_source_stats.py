@@ -1,9 +1,9 @@
 """Materialise the governed Player-Season representation used by Player Profile.
 
-All MID V1 profile axes and their per-90 denominator are preserved from the
-same Player-Season source row. The merged upstream season file is preferred;
-direct club files are a validated fallback. Missing source fields and source
-blanks remain unavailable rather than aborting the decade or becoming zero.
+Descriptive participation, all MID V1 profile axes and their per-90 denominator
+are preserved from the same Player-Season source row. The merged upstream
+season file is preferred; direct club files are a validated fallback. Missing
+source fields and source blanks remain unavailable rather than becoming zero.
 """
 from __future__ import annotations
 
@@ -20,6 +20,8 @@ DEFAULT_OUTPUT = ROOT / "data" / "player_profile_source_stats_v1.csv"
 DEFAULT_METADATA = ROOT / "data" / "player_profile_source_stats_v1.metadata.json"
 
 SOURCE_FIELDS = {
+    "source_appearances": "gamesPlayed",
+    "source_starts": "starts",
     "source_minutes": "timePlayed",
     "expected_goals": "expectedGoals",
     "expected_assists": "expectedAssists",
@@ -134,6 +136,7 @@ def materialize(
         "source_resource": "pl_stats/_merged/players/{season}_players_stats.csv (preferred); direct club players_stats fallback",
         "source_grain": "player-season",
         "source_fields": SOURCE_FIELDS,
+        "participation_policy": "PROFILE_PARTICIPATION_USES_SAME_PLAYER_SEASON_ROW_WHEN_COMPLETE; FPL_PLAYER_FIXTURE_AGGREGATE_IS_FAIL_CLOSED_FALLBACK",
         "denominator_policy": "ALL_PROFILE_PER90_METRICS_USE_SAME_ROW_TIMEPLAYED",
         "missingness_policy": "MISSING_FIELD_OR_SOURCE_BLANK_IS_UNAVAILABLE_NOT_ZERO",
         "duplicate_policy": "DEDUPLICATE_IDENTICAL_PLAYER_SEASON_ROWS_FAIL_ON_CONFLICT",

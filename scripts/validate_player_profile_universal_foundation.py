@@ -45,6 +45,10 @@ def main() -> int:
             "identity_key": profile["player_identity_key"],
             "portrait_player_code": profile["portrait_player_code"],
             "primary_club": profile["primary_club"],
+            "participation_representation": profile["participation_representation"],
+            "appearances": profile["appearances"],
+            "starts": profile["starts"],
+            "minutes": profile["minutes"],
             "biography_available": profile["biography"]["available"],
             "comparison_available": comparison["available"],
             "comparison_complete": comparison.get("complete", False),
@@ -57,6 +61,14 @@ def main() -> int:
 
     current_profile = player_profile_foundation.build_player_profile("2026-27", "184029")
     assert current_profile is not None
+    profile = current_profile["profile"]
+    if (
+        profile.get("appearances") != 3
+        or profile.get("starts") != 3
+        or profile.get("minutes") != 224
+        or profile.get("participation_representation") != "PLAYER_PROFILE_SOURCE_STATS_V1"
+    ):
+        raise RuntimeError("Current Ødegaard descriptive participation is not using the pinned Player-Season representation.")
     comparison = current_profile["comparison"]
     if comparison.get("available") is not True or len(comparison.get("axes") or []) != 6:
         raise RuntimeError("Current Ødegaard six-axis Profile comparison is unavailable.")

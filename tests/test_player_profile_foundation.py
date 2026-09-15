@@ -8,9 +8,14 @@ def test_current_odegaard_profile_uses_one_player_season_representation() -> Non
 
     assert result is not None
     assert result["milestone"] == "PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1"
-    assert result["profile"]["player_identity_key"] == "player_match:547410"
-    assert result["profile"]["portrait_player_code"] == "184029"
-    assert result["profile"]["primary_club"] == "Arsenal"
+    profile = result["profile"]
+    assert profile["player_identity_key"] == "player_match:547410"
+    assert profile["portrait_player_code"] == "184029"
+    assert profile["primary_club"] == "Arsenal"
+    assert profile["appearances"] == 3
+    assert profile["starts"] == 3
+    assert profile["minutes"] == 224
+    assert profile["participation_representation"] == "PLAYER_PROFILE_SOURCE_STATS_V1"
 
     comparison = result["comparison"]
     assert comparison["available"] is True

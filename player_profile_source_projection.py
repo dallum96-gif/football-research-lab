@@ -1,9 +1,9 @@
 """Pinned same-representation Player-Season evidence for Player Profile.
 
-Player Profile comparison deliberately uses one Player-Season representation
-for all six MID V1 axes and the same representation's ``timePlayed`` as the
-per-90 denominator.  This prevents a source-native numerator from being divided
-by a different product's participation minutes.
+Player Profile uses one Player-Season representation for descriptive
+participation and for all six MID V1 comparison axes. Per-90 metrics use that
+same representation's ``timePlayed`` denominator, preventing source-native
+numerators from being divided by a different product's participation minutes.
 """
 from __future__ import annotations
 
@@ -16,6 +16,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 PACKAGED = ROOT / "data" / "player_profile_source_stats_v1.csv"
 METADATA = ROOT / "data" / "player_profile_source_stats_v1.metadata.json"
+
+PARTICIPATION_FIELDS = (
+    "source_appearances",
+    "source_starts",
+    "source_minutes",
+)
 
 PROFILE_METRICS = (
     {
@@ -100,7 +106,10 @@ def season_rows(season: str) -> dict[str, dict]:
             "source_player_id": source_player_id,
             "source_player_name": str(row.get("source_player_name") or "").strip() or None,
             "source_position": str(row.get("source_position") or "").strip() or None,
-            "source_minutes": _number(row.get("source_minutes")),
+            **{
+                field: _number(row.get(field))
+                for field in PARTICIPATION_FIELDS
+            },
             **{
                 definition["source_key"]: _number(row.get(definition["source_key"]))
                 for definition in PROFILE_METRICS
@@ -117,6 +126,20 @@ def per_90(row: dict, source_key: str) -> float | None:
     return numerator / minutes * 90.0
 
 
+def complete_participation(row: dict | None) -> dict[str, int] | None:
+    """Return source-native participation only when all three fields exist."""
+    if row is None:
+        return None
+    values = {field: _number(row.get(field)) for field in PARTICIPATION_FIELDS}
+    if any(value is None for value in values.values()):
+        return None
+    return {
+        "appearances": int(float(values["source_appearances"] or 0)),
+        "starts": int(float(values["source_starts"] or 0)),
+        "minutes": int(float(values["source_minutes"] or 0)),
+    }
+
+
 def clear_caches() -> None:
     _rows.cache_clear()
     metadata.cache_clear()
@@ -126,8 +149,10 @@ def clear_caches() -> None:
 __all__ = [
     "METADATA",
     "PACKAGED",
+    "PARTICIPATION_FIELDS",
     "PROFILE_METRICS",
     "clear_caches",
+    "complete_participation",
     "metadata",
     "per_90",
     "season_rows",

@@ -67,6 +67,7 @@ jobs:
         run: >-
           python -m pytest -q
           tests/test_player_profile_identity.py
+          tests/test_player_profile_context.py
           tests/test_player_profile_source_projection.py
           tests/test_player_profile_biography_projection.py
           tests/test_player_profile_foundation.py
