@@ -14,6 +14,7 @@ export type PlayerRadarAxis = {
   observed_players: number;
   eligible_players: number;
   availability: "AVAILABLE" | "PARTIAL" | "UNAVAILABLE";
+  comparison_status?: "RANKED" | "INDICATIVE";
 };
 
 export type PlayerProfileRadarData = {
@@ -37,6 +38,13 @@ export type PlayerProfileRadarData = {
     description: string;
     label?: string;
   } | null;
+  sample_status?: "QUALIFIED" | "PROVISIONAL" | "INSUFFICIENT_SAMPLE";
+  sample_minutes?: number;
+  qualification_minutes?: number;
+  qualification_progress?: number;
+  comparison_mode?: "RANKED" | "INDICATIVE" | "NONE";
+  formal_rank_available?: boolean;
+  sample_message?: string;
   analysis_version?: string;
   ranking_policy?: string;
   percentile_policy?: string;
@@ -104,13 +112,53 @@ export function MidfielderRadar({
   playerName: string;
 }) {
   const axes = radar.axes;
-  if (!radar.available || axes.length !== 6) return null;
-
   const copy = POSITION_COPY[radar.position] ?? {
     profile: "Player profile",
     comparison: "vs qualified same-position PL players",
     average: "Position average",
   };
+  const sampleStatus = radar.sample_status ?? "QUALIFIED";
+  const sampleMinutes = radar.sample_minutes ?? 0;
+  const qualificationMinutes =
+    radar.qualification_minutes ?? radar.cohort?.minimum_minutes ?? 0;
+  const qualificationProgress = Math.round(
+    Math.max(0, Math.min(1, radar.qualification_progress ?? 0)) * 100
+  );
+
+  if (!radar.available || axes.length !== 6) {
+    return (
+      <section className={styles.radarBlock}>
+        <header className={styles.radarHeader}>
+          <div>
+            <span>{copy.profile}</span>
+            <strong>Statistical profile pending</strong>
+          </div>
+          <span className={styles.radarSample}>
+            {qualificationMinutes > 0
+              ? `${qualificationMinutes} min threshold`
+              : "sample pending"}
+          </span>
+        </header>
+
+        <p className={styles.railStatement}>
+          {radar.sample_message ??
+            "Comparable Player-Season evidence is not available yet."}
+        </p>
+
+        <p className={styles.radarCaveat}>
+          Sample status · {sampleStatus.toLowerCase().replaceAll("_", " ")}
+        </p>
+      </section>
+    );
+  }
+
+  const provisional = sampleStatus === "PROVISIONAL";
+  const profileLabel = provisional
+    ? `Provisional ${copy.profile.toLowerCase()}`
+    : copy.profile;
+  const comparisonLabel = provisional
+    ? copy.comparison.replace("vs ", "indicative vs ")
+    : copy.comparison;
 
   const complete =
     radar.complete === true &&
@@ -129,8 +177,8 @@ export function MidfielderRadar({
     <section className={styles.radarBlock}>
       <header className={styles.radarHeader}>
         <div>
-          <span>{copy.profile}</span>
-          <strong>{copy.comparison}</strong>
+          <span>{profileLabel}</span>
+          <strong>{comparisonLabel}</strong>
         </div>
         <span className={styles.radarSample}>
           {radar.cohort?.population_size ?? "—"} players
@@ -141,7 +189,7 @@ export function MidfielderRadar({
         className={styles.radar}
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         role="img"
-        aria-label={`${playerName} percentile profile ${copy.comparison}`}
+        aria-label={`${playerName} percentile profile ${comparisonLabel}`}
       >
         {[25, 50, 75, 100].map((ring) => (
           <polygon
@@ -205,13 +253,21 @@ export function MidfielderRadar({
         {axes.map((axis, index) => {
           if (axis.percentile == null) return null;
           const p = point(index, axes.length, axis.percentile);
-          const tooltip = `${axis.label}: ${axis.percentile.toFixed(0)}th percentile · rank ${
-            axis.rank ?? "—"
-          } of ${axis.out_of}${
-            axis.availability === "PARTIAL"
-              ? " · partial source coverage"
-              : ""
-          }`;
+          const tooltip = provisional
+            ? `${axis.label}: indicative ${axis.percentile.toFixed(
+                0
+              )}th percentile vs qualified cohort${
+                axis.availability === "PARTIAL"
+                  ? " · partial source coverage"
+                  : ""
+              }`
+            : `${axis.label}: ${axis.percentile.toFixed(0)}th percentile · rank ${
+                axis.rank ?? "—"
+              } of ${axis.out_of}${
+                axis.availability === "PARTIAL"
+                  ? " · partial source coverage"
+                  : ""
+              }`;
 
           return (
             <g key={axis.key}>
@@ -245,15 +301,24 @@ export function MidfielderRadar({
         {complete ? (
           <span>
             <i className={styles.radarAverageKey} />
-            {copy.average}
+            {provisional ? `qualified ${copy.average}` : copy.average}
           </span>
         ) : null}
       </div>
 
       <p className={styles.radarCaveat}>
-        Percentile profile · {radar.observed_axis_count ?? axes.length}/
-        {radar.required_axis_count ?? axes.length} dimensions · minimum{" "}
-        {radar.cohort?.minimum_minutes ?? "—"} minutes
+        {provisional ? (
+          <>
+            Provisional sample · {sampleMinutes}/{qualificationMinutes} minutes ·{" "}
+            {qualificationProgress}% of qualification threshold · formal ranks withheld
+          </>
+        ) : (
+          <>
+            Percentile profile · {radar.observed_axis_count ?? axes.length}/
+            {radar.required_axis_count ?? axes.length} dimensions · minimum{" "}
+            {radar.cohort?.minimum_minutes ?? "—"} minutes
+          </>
+        )}
       </p>
     </section>
   );
