@@ -5,6 +5,7 @@ on:
     branches:
       - design/player-stats-individual-v2
       - design/player-stats-individual-v2-art-direction
+      - design/player-stats-individual-v2-ratio-rebuild
   pull_request:
     branches:
       - feat/player-profile-universal-foundation-v1
