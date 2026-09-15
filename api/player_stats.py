@@ -258,7 +258,8 @@ def get_player_seasons(
             ]
 
         # Preserve the legacy route contract for consumers that do not yet
-        # provide a seed season. The Player Profile itself always supplies one.
+        # provide a seed season. The Player Profile itself supplies one so the
+        # separate History view can resolve season-specific route identities.
         options: list[PlayerSeasonOption] = []
         for candidate_season in player_research.available_seasons():
             player = player_research.player_detail(candidate_season, player_code)
@@ -320,7 +321,7 @@ def get_player_profile(season: str, player_code: str) -> PlayerProfileResult:
         evidence=dict(foundation.get("evidence") or {}),
         limitations=[
             *list(foundation.get("limitations") or ()),
-            "Profile participation and MID comparison use the pinned Player-Season representation when complete; otherwise participation falls back as one block rather than mixing representations.",
+            "Profile participation and position-specific comparison use the pinned Player-Season representation when complete; otherwise participation falls back as one block rather than mixing representations.",
             "FPL-native measures outside the Profile foundation remain labelled as FPL measures and are not asserted as historically equivalent to richer Opta player-match fields.",
         ],
     )
