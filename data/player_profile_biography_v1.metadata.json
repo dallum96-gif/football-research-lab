@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0.0",
+  "projection_version": "PLAYER_PROFILE_BIOGRAPHY_V1",
+  "milestone": "PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1",
+  "materialized_date": "2026-09-15",
+  "source_repository": "imadeddine-belkat/Premier-League-Stats",
+  "source_release_sha": "115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6",
+  "source_release_date": "2026-09-09T01:18:58+01:00",
+  "source_resource": "pl_stats/*/squad/{season}_squad.csv",
+  "source_grain": "player-squad-season",
+  "runtime_policy": "RUNTIME_READS_PACKAGED_PROJECTION_ONLY",
+  "identity_policy": "VERIFIED_PROFILE_SOURCE_PLAYER_ID_PLUS_EXACT_NORMALISED_NAME",
+  "seasons": [
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2020-21",
+    "2021-22",
+    "2022-23",
+    "2023-24",
+    "2024-25",
+    "2025-26",
+    "2026-27"
+  ],
+  "rows_by_season": {
+    "2016-17": 727,
+    "2017-18": 600,
+    "2018-19": 751,
+    "2019-20": 756,
+    "2020-21": 647,
+    "2021-22": 879,
+    "2022-23": 880,
+    "2023-24": 898,
+    "2024-25": 695,
+    "2025-26": 665,
+    "2026-27": 567
+  }
+}

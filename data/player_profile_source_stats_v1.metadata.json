@@ -1,0 +1,150 @@
+{
+  "schema_version": "1.0.0",
+  "projection_version": "PLAYER_PROFILE_SOURCE_STATS_V1",
+  "milestone": "PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1",
+  "materialized_date": "2026-09-15",
+  "source_repository": "imadeddine-belkat/Premier-League-Stats",
+  "source_release_sha": "115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6",
+  "source_release_date": "2026-09-09T01:18:58+01:00",
+  "source_resource": "pl_stats/_merged/players/{season}_players_stats.csv (preferred); direct club players_stats fallback",
+  "source_grain": "player-season",
+  "source_fields": {
+    "source_minutes": "timePlayed",
+    "expected_goals": "expectedGoals",
+    "expected_assists": "expectedAssists",
+    "accurate_opposition_half_passes": "successfulPassesOppositionHalf",
+    "forward_passes": "forwardPasses",
+    "recoveries": "recoveries",
+    "tackles_won": "tacklesWon"
+  },
+  "denominator_policy": "ALL_PROFILE_PER90_METRICS_USE_SAME_ROW_TIMEPLAYED",
+  "missingness_policy": "MISSING_FIELD_OR_SOURCE_BLANK_IS_UNAVAILABLE_NOT_ZERO",
+  "duplicate_policy": "DEDUPLICATE_IDENTICAL_PLAYER_SEASON_ROWS_FAIL_ON_CONFLICT",
+  "seasons": [
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2020-21",
+    "2021-22",
+    "2022-23",
+    "2023-24",
+    "2024-25",
+    "2025-26",
+    "2026-27"
+  ],
+  "rows_by_season": {
+    "2016-17": 591,
+    "2017-18": 547,
+    "2018-19": 558,
+    "2019-20": 560,
+    "2020-21": 590,
+    "2021-22": 667,
+    "2022-23": 667,
+    "2023-24": 712,
+    "2024-25": 632,
+    "2025-26": 665,
+    "2026-27": 450
+  },
+  "observed_by_season": {
+    "2016-17": {
+      "source_minutes": 505,
+      "expected_goals": 428,
+      "expected_assists": 500,
+      "accurate_opposition_half_passes": 499,
+      "forward_passes": 501,
+      "recoveries": 492,
+      "tackles_won": 437
+    },
+    "2017-18": {
+      "source_minutes": 481,
+      "expected_goals": 407,
+      "expected_assists": 478,
+      "accurate_opposition_half_passes": 478,
+      "forward_passes": 476,
+      "recoveries": 469,
+      "tackles_won": 425
+    },
+    "2018-19": {
+      "source_minutes": 495,
+      "expected_goals": 417,
+      "expected_assists": 487,
+      "accurate_opposition_half_passes": 487,
+      "forward_passes": 486,
+      "recoveries": 483,
+      "tackles_won": 428
+    },
+    "2019-20": {
+      "source_minutes": 481,
+      "expected_goals": 415,
+      "expected_assists": 475,
+      "accurate_opposition_half_passes": 473,
+      "forward_passes": 473,
+      "recoveries": 469,
+      "tackles_won": 423
+    },
+    "2020-21": {
+      "source_minutes": 493,
+      "expected_goals": 413,
+      "expected_assists": 482,
+      "accurate_opposition_half_passes": 478,
+      "forward_passes": 480,
+      "recoveries": 478,
+      "tackles_won": 428
+    },
+    "2021-22": {
+      "source_minutes": 531,
+      "expected_goals": 435,
+      "expected_assists": 513,
+      "accurate_opposition_half_passes": 516,
+      "forward_passes": 511,
+      "recoveries": 511,
+      "tackles_won": 451
+    },
+    "2022-23": {
+      "source_minutes": 540,
+      "expected_goals": 447,
+      "expected_assists": 533,
+      "accurate_opposition_half_passes": 533,
+      "forward_passes": 523,
+      "recoveries": 517,
+      "tackles_won": 457
+    },
+    "2023-24": {
+      "source_minutes": 558,
+      "expected_goals": 452,
+      "expected_assists": 542,
+      "accurate_opposition_half_passes": 540,
+      "forward_passes": 536,
+      "recoveries": 528,
+      "tackles_won": 463
+    },
+    "2024-25": {
+      "source_minutes": 524,
+      "expected_goals": 427,
+      "expected_assists": 500,
+      "accurate_opposition_half_passes": 512,
+      "forward_passes": 510,
+      "recoveries": 503,
+      "tackles_won": 452
+    },
+    "2025-26": {
+      "source_minutes": 498,
+      "expected_goals": 421,
+      "expected_assists": 491,
+      "accurate_opposition_half_passes": 492,
+      "forward_passes": 490,
+      "recoveries": 485,
+      "tackles_won": 430
+    },
+    "2026-27": {
+      "source_minutes": 381,
+      "expected_goals": 242,
+      "expected_assists": 370,
+      "accurate_opposition_half_passes": 371,
+      "forward_passes": 358,
+      "recoveries": 335,
+      "tackles_won": 228
+    }
+  }
+}
