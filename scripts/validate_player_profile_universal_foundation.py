@@ -32,6 +32,10 @@ def main() -> int:
             raise RuntimeError(f"Acceptance case unavailable: {label} {season}/{code}")
         profile = result["profile"]
         comparison = result["comparison"]
+        if profile["identity_status"] not in {"VERIFIED", "SOURCE_NATIVE_VERIFIED"}:
+            raise RuntimeError(f"Acceptance case identity unresolved: {label}")
+        if profile["biography"].get("available") is not True:
+            raise RuntimeError(f"Acceptance case packaged biography unavailable: {label}")
         matrix.append({
             "case": label,
             "season": season,
@@ -53,8 +57,6 @@ def main() -> int:
 
     current_profile = player_profile_foundation.build_player_profile("2026-27", "184029")
     assert current_profile is not None
-    if current_profile["profile"]["biography"].get("available") is not True:
-        raise RuntimeError("Current Ødegaard packaged biography is unavailable.")
     comparison = current_profile["comparison"]
     if comparison.get("available") is not True or len(comparison.get("axes") or []) != 6:
         raise RuntimeError("Current Ødegaard six-axis Profile comparison is unavailable.")

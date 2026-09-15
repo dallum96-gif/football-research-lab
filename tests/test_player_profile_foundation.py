@@ -36,8 +36,19 @@ def test_non_midfielder_keeps_universal_profile_but_not_mid_radar() -> None:
     result = player_profile_foundation.build_player_profile("2026-27", "226597")
     assert result is not None
     assert result["profile"]["player_name"].startswith("Gabriel")
+    assert result["profile"]["biography"]["available"] is True
+    assert result["profile"]["biography"]["nationality"] == "Brazil"
     assert result["comparison"]["available"] is False
     assert "only for MID" in result["comparison"]["limitations"][0]
+
+
+def test_goalkeeper_profile_keeps_packaged_biography_without_mid_radar() -> None:
+    result = player_profile_foundation.build_player_profile("2026-27", "154561")
+    assert result is not None
+    assert result["profile"]["player_name"].startswith("David Raya")
+    assert result["profile"]["biography"]["available"] is True
+    assert result["profile"]["biography"]["nationality"] == "Spain"
+    assert result["comparison"]["available"] is False
 
 
 def test_low_minute_midfielder_fails_profile_threshold_without_becoming_zero() -> None:
