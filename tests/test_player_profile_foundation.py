@@ -7,7 +7,7 @@ def test_current_odegaard_profile_uses_one_player_season_representation() -> Non
     result = player_profile_foundation.build_player_profile("2026-27", "184029")
 
     assert result is not None
-    assert result["milestone"] == "PLAYER_PROFILE_POSITIONAL_RADARS_V1"
+    assert result["milestone"] == "PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1"
     profile = result["profile"]
     assert profile["player_identity_key"] == "player_match:547410"
     assert profile["portrait_player_code"] == "184029"
@@ -22,6 +22,9 @@ def test_current_odegaard_profile_uses_one_player_season_representation() -> Non
     assert comparison["complete"] is True
     assert comparison["position"] == "MID"
     assert comparison["template_key"] == "MID_PROFILE_V1"
+    assert comparison["sample_status"] == "QUALIFIED"
+    assert comparison["comparison_mode"] == "RANKED"
+    assert comparison["formal_rank_available"] is True
     assert comparison["source_representation"] == "PLAYER_PROFILE_SOURCE_STATS_V1"
     assert len(comparison["axes"]) == 6
     assert all(axis["denominator"] == "timePlayed" for axis in comparison["axes"])
@@ -50,6 +53,7 @@ def test_current_defender_has_complete_position_specific_radar() -> None:
     assert comparison["observed_axis_count"] == 6
     assert comparison["position"] == "DEF"
     assert comparison["template_key"] == "DEF_PROFILE_V1"
+    assert comparison["sample_status"] == "QUALIFIED"
     assert len(comparison["axes"]) == 6
     assert {axis["label"] for axis in comparison["axes"]} == {
         "Aerial duels",
@@ -75,6 +79,7 @@ def test_current_goalkeeper_has_complete_position_specific_radar() -> None:
     assert comparison["observed_axis_count"] == 6
     assert comparison["position"] == "GKP"
     assert comparison["template_key"] == "GKP_PROFILE_V1"
+    assert comparison["sample_status"] == "QUALIFIED"
     assert len(comparison["axes"]) == 6
     assert {axis["label"] for axis in comparison["axes"]} == {
         "Shot stopping",
@@ -96,6 +101,7 @@ def test_current_forward_has_complete_position_specific_radar() -> None:
     assert comparison["observed_axis_count"] == 6
     assert comparison["position"] == "FWD"
     assert comparison["template_key"] == "FWD_PROFILE_V1"
+    assert comparison["sample_status"] == "QUALIFIED"
     assert len(comparison["axes"]) == 6
     assert {axis["label"] for axis in comparison["axes"]} == {
         "Goal threat",
@@ -110,9 +116,30 @@ def test_current_forward_has_complete_position_specific_radar() -> None:
     assert accuracy["denominator"] == "totalShots"
 
 
-def test_low_minute_midfielder_fails_profile_threshold_without_becoming_zero() -> None:
+def test_low_minute_player_is_provisional_without_entering_formal_ranks() -> None:
+    result = player_profile_foundation.build_player_profile("2026-27", "91651")
+    assert result is not None
+    assert result["profile"]["player_name"] == "Mateo Kovacic"
+    comparison = result["comparison"]
+    assert comparison["sample_status"] == "PROVISIONAL"
+    assert comparison["sample_minutes"] == 42
+    assert comparison["sample_minutes"] < comparison["qualification_minutes"]
+    assert comparison["comparison_mode"] == "INDICATIVE"
+    assert comparison["formal_rank_available"] is False
+    assert comparison["available"] is True
+    assert any(axis["percentile"] is not None for axis in comparison["axes"])
+    assert all(axis["rank"] is None for axis in comparison["axes"])
+    assert "formal ranks are withheld" in comparison["sample_message"]
+
+
+def test_missing_comparable_minutes_remain_insufficient_not_zero() -> None:
     result = player_profile_foundation.build_player_profile("2026-27", "232413")
     assert result is not None
     assert result["profile"]["position"] == "MID"
-    assert result["comparison"]["available"] is False
-    assert "does not meet" in result["comparison"]["limitations"][0]
+    comparison = result["comparison"]
+    assert comparison["sample_status"] == "INSUFFICIENT_SAMPLE"
+    assert comparison["available"] is False
+    assert comparison["comparison_mode"] == "NONE"
+    assert comparison["formal_rank_available"] is False
+    assert comparison["axes"] == []
+    assert "pending" in comparison["sample_message"].lower()
