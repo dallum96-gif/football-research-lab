@@ -9,6 +9,8 @@
   "source_resource": "pl_stats/_merged/players/{season}_players_stats.csv (preferred); direct club players_stats fallback",
   "source_grain": "player-season",
   "source_fields": {
+    "source_appearances": "gamesPlayed",
+    "source_starts": "starts",
     "source_minutes": "timePlayed",
     "expected_goals": "expectedGoals",
     "expected_assists": "expectedAssists",
@@ -17,6 +19,7 @@
     "recoveries": "recoveries",
     "tackles_won": "tacklesWon"
   },
+  "participation_policy": "PROFILE_PARTICIPATION_USES_SAME_PLAYER_SEASON_ROW_WHEN_COMPLETE; FPL_PLAYER_FIXTURE_AGGREGATE_IS_FAIL_CLOSED_FALLBACK",
   "denominator_policy": "ALL_PROFILE_PER90_METRICS_USE_SAME_ROW_TIMEPLAYED",
   "missingness_policy": "MISSING_FIELD_OR_SOURCE_BLANK_IS_UNAVAILABLE_NOT_ZERO",
   "duplicate_policy": "DEDUPLICATE_IDENTICAL_PLAYER_SEASON_ROWS_FAIL_ON_CONFLICT",
@@ -48,6 +51,8 @@
   },
   "observed_by_season": {
     "2016-17": {
+      "source_appearances": 505,
+      "source_starts": 467,
       "source_minutes": 505,
       "expected_goals": 428,
       "expected_assists": 500,
@@ -57,6 +62,8 @@
       "tackles_won": 437
     },
     "2017-18": {
+      "source_appearances": 481,
+      "source_starts": 455,
       "source_minutes": 481,
       "expected_goals": 407,
       "expected_assists": 478,
@@ -66,6 +73,8 @@
       "tackles_won": 425
     },
     "2018-19": {
+      "source_appearances": 495,
+      "source_starts": 455,
       "source_minutes": 495,
       "expected_goals": 417,
       "expected_assists": 487,
@@ -75,6 +84,8 @@
       "tackles_won": 428
     },
     "2019-20": {
+      "source_appearances": 481,
+      "source_starts": 448,
       "source_minutes": 481,
       "expected_goals": 415,
       "expected_assists": 475,
@@ -84,6 +95,8 @@
       "tackles_won": 423
     },
     "2020-21": {
+      "source_appearances": 493,
+      "source_starts": 455,
       "source_minutes": 493,
       "expected_goals": 413,
       "expected_assists": 482,
@@ -93,6 +106,8 @@
       "tackles_won": 428
     },
     "2021-22": {
+      "source_appearances": 531,
+      "source_starts": 481,
       "source_minutes": 531,
       "expected_goals": 435,
       "expected_assists": 513,
@@ -102,6 +117,8 @@
       "tackles_won": 451
     },
     "2022-23": {
+      "source_appearances": 540,
+      "source_starts": 478,
       "source_minutes": 540,
       "expected_goals": 447,
       "expected_assists": 533,
@@ -111,6 +128,8 @@
       "tackles_won": 457
     },
     "2023-24": {
+      "source_appearances": 558,
+      "source_starts": 484,
       "source_minutes": 558,
       "expected_goals": 452,
       "expected_assists": 542,
@@ -120,6 +139,8 @@
       "tackles_won": 463
     },
     "2024-25": {
+      "source_appearances": 524,
+      "source_starts": 475,
       "source_minutes": 524,
       "expected_goals": 427,
       "expected_assists": 500,
@@ -129,6 +150,8 @@
       "tackles_won": 452
     },
     "2025-26": {
+      "source_appearances": 498,
+      "source_starts": 455,
       "source_minutes": 498,
       "expected_goals": 421,
       "expected_assists": 491,
@@ -138,6 +161,8 @@
       "tackles_won": 430
     },
     "2026-27": {
+      "source_appearances": 381,
+      "source_starts": 274,
       "source_minutes": 381,
       "expected_goals": 242,
       "expected_assists": 370,
