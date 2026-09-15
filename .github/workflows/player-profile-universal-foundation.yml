@@ -113,6 +113,9 @@ jobs:
         working-directory: web
         run: npm run build
 
+      - name: Validate documentation sync
+        run: python scripts/check_documentation_sync.py --base-ref 11a42f68cf7c4c0eab2b1ea0286cddf3337cbda3
+
       - name: Commit generated governed evidence
         if: github.actor != 'github-actions[bot]'
         run: |
