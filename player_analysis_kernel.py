@@ -9,7 +9,7 @@ import player_research
 
 COMPETITION_RANK = "COMPETITION_RANK"
 RANK_POSITION_PERCENTILE = "RANK_POSITION_PERCENTILE"
-ANALYSIS_VERSION = "player-analysis-kernel-v3"
+ANALYSIS_VERSION = "player-analysis-kernel-v4"
 PLAYER_SEASON_AGGREGATE = "PLAYER_SEASON_AGGREGATE"
 PLAYER_SEASON_DERIVATION = "PLAYER_SEASON_DERIVATION"
 
@@ -145,6 +145,8 @@ METRIC_DEFINITIONS = (
     _total("accurate_passes", "Accurate passes", "passes", "possession"),
     _per90("accurate_passes_per_90", "accurate_passes", "Accurate passes / 90", "passes", "possession"),
     _rate("rich_pass_accuracy", "Pass accuracy", "possession", "accurate_passes", "passes"),
+    _total("forward_passes", "Forward passes", "passes", "possession", positions=OUTFIELD),
+    _per90("forward_passes_per_90", "forward_passes", "Forward passes / 90", "passes", "possession", positions=OUTFIELD),
     _total("long_balls", "Long balls", "passes", "possession"),
     _per90("long_balls_per_90", "long_balls", "Long balls / 90", "passes", "possession"),
     _total("accurate_long_balls", "Accurate long balls", "passes", "possession"),
@@ -290,7 +292,7 @@ OVERVIEW_KEYS_BY_POSITION = {
         "shots_per_90",
         "key_passes_per_90",
         "successful_dribbles_per_90",
-        "progressive_carries_per_90",
+        "forward_passes_per_90",
         "duels_won_per_90",
         "recoveries_per_90",
     ),

@@ -102,7 +102,7 @@ def test_per_90_values_are_derived_from_pooled_player_season_totals() -> None:
 
 
 
-def test_current_season_surfaces_governed_current_rich_metrics_without_inventing_unsupported_carries() -> None:
+def test_current_season_surfaces_governed_source_metrics_without_inventing_unsupported_carries() -> None:
     analysis = player_analysis_kernel.season_position_analysis(
         CURRENT_SEASON,
         "MID",
@@ -121,6 +121,26 @@ def test_current_season_surfaces_governed_current_rich_metrics_without_inventing
     assert (
         analysis["metrics"]["pass_completion"]["availability"]
         in {"AVAILABLE", "PARTIAL"}
+    )
+
+    assert (
+        analysis["metrics"]["forward_passes"]["availability"]
+        == "PARTIAL"
+    )
+
+    assert (
+        analysis["metrics"]["forward_passes_per_90"]["availability"]
+        == "PARTIAL"
+    )
+
+    assert (
+        analysis["metrics"]["forward_passes_per_90"]["observed_players"]
+        == 169
+    )
+
+    assert (
+        analysis["metrics"]["forward_passes_per_90"]["eligible_players"]
+        == 182
     )
 
     for key in (

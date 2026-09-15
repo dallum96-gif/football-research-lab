@@ -25,8 +25,8 @@ MIDFIELD_PROFILE_TEMPLATE = (
         "Advanced passing",
     ),
     (
-        "progressive_carries_per_90",
-        "Carrying",
+        "forward_passes_per_90",
+        "Forward passing",
     ),
     (
         "recoveries_per_90",

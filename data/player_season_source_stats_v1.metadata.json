@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0.0",
+  "projection_version": "PLAYER_SEASON_SOURCE_STATS_V1",
+  "materialized_date": "2026-09-15",
+  "source_repository": "imadeddine-belkat/Premier-League-Stats",
+  "source_release_sha": "115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6",
+  "source_release_date": "2026-09-09T01:18:58+01:00",
+  "source_resource": "pl_stats/*/players_stats/{season}_players_stats.csv",
+  "source_grain": "player-season",
+  "source_fields": {
+    "forward_passes": "forwardPasses"
+  },
+  "identity_policy": {
+    "current": "FPL_PLAYER_CODE_TO_PLAYER_SEASON_PLAYER_ID_EXACT",
+    "historical": "FPL_ELEMENT_TO_VERIFIED_PLAYER_MATCH_ID_TO_PLAYER_SEASON_PLAYER_ID",
+    "unresolved": "UNAVAILABLE"
+  },
+  "duplicate_policy": "DEDUPLICATE_IDENTICAL_PLAYER_SEASON_ROWS",
+  "missingness_policy": "SOURCE_BLANK_IS_UNAVAILABLE_NOT_ZERO",
+  "seasons": [
+    "2016-17",
+    "2017-18",
+    "2018-19",
+    "2019-20",
+    "2020-21",
+    "2021-22",
+    "2022-23",
+    "2023-24",
+    "2024-25",
+    "2025-26",
+    "2026-27"
+  ],
+  "rows_by_season": {
+    "2016-17": 591,
+    "2017-18": 547,
+    "2018-19": 558,
+    "2019-20": 560,
+    "2020-21": 590,
+    "2021-22": 667,
+    "2022-23": 667,
+    "2023-24": 712,
+    "2024-25": 632,
+    "2025-26": 665,
+    "2026-27": 450
+  },
+  "observed_forward_passes_by_season": {
+    "2016-17": 501,
+    "2017-18": 476,
+    "2018-19": 486,
+    "2019-20": 473,
+    "2020-21": 480,
+    "2021-22": 511,
+    "2022-23": 523,
+    "2023-24": 536,
+    "2024-25": 510,
+    "2025-26": 490,
+    "2026-27": 358
+  }
+}

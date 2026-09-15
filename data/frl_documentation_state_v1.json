@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
-  "checkpoint_date": "2026-09-13",
-  "checkpoint_id": "ACTIVE_PRODUCT_REFERENCE_RECONCILIATION_V1",
+  "checkpoint_date": "2026-09-15",
+  "checkpoint_id": "PLAYER_PROFILE_FORWARD_PASSING_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Reconcile and validate the active product/reference branch before integration, while continuing Fixture Intelligence, Team/Player analytical product work and controlled modelling from the governed evidence layer. The current intended visual direction is dark, premium and editorial; legacy warm root tokens remain migration debt rather than design authority.",
+  "active_product_phase": "Reconcile and validate the active product/reference branch before integration, while continuing Fixture Intelligence, Team/Player analytical product work and controlled modelling from the governed evidence layer. Player Profile now includes the first governed Player-Season source projection: source-native forwardPasses is materialised with explicit provenance, identity and missingness, then compared per 90 within qualified same-position cohorts. The current intended visual direction is dark, premium and editorial; legacy warm root tokens remain migration debt rather than design authority.",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -37,6 +37,8 @@
     "FRL_LUXURY_DESIGN_CONSTITUTION.md",
     "ANALYTICAL_VISUAL_MOODBOARD.md",
     "FRL_REPOSITORY_RECONCILIATION_2026-09-13.md",
+    "FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md",
+    "data/player_season_source_stats_v1.metadata.json",
     "data/frl_product_capability_requirements_v1.json",
     "data/team_match_semantic_promotion_batch_v7.json",
     "data/pulselive_team_stat_raw_field_index.json",

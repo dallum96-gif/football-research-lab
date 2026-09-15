@@ -336,6 +336,29 @@ def season_totals_by_pulselive_code(season: str) -> dict[str, dict[str, float | 
     return output
 
 
+@lru_cache(maxsize=20)
+def pulselive_code_by_player_match_source_id(
+    season: str,
+) -> dict[str, str]:
+    """Return unambiguous packaged Player-Match -> PulseLive ID edges."""
+    candidates: dict[str, set[str]] = {}
+    for row in _packaged_rows():
+        if str(row.get("season") or "").strip() != season:
+            continue
+        player_match_id = str(
+            row.get("source_player_id") or ""
+        ).strip()
+        pulselive_code = str(row.get("player_code") or "").strip()
+        if player_match_id and pulselive_code:
+            candidates.setdefault(player_match_id, set()).add(pulselive_code)
+
+    return {
+        player_match_id: next(iter(pulselive_codes))
+        for player_match_id, pulselive_codes in candidates.items()
+        if len(pulselive_codes) == 1
+    }
+
+
 def enrich_player(player: dict, season: str) -> dict:
     """Add packaged rich source-backed metrics to one player research record."""
     enriched = dict(player)
@@ -388,6 +411,7 @@ def enrich_player(player: dict, season: str) -> dict:
 def clear_caches() -> None:
     _packaged_rows.cache_clear()
     season_totals_by_pulselive_code.cache_clear()
+    pulselive_code_by_player_match_source_id.cache_clear()
 
 
 __all__ = [
@@ -396,5 +420,6 @@ __all__ = [
     "aggregate_source_records",
     "clear_caches",
     "enrich_player",
+    "pulselive_code_by_player_match_source_id",
     "season_totals_by_pulselive_code",
 ]

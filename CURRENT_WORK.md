@@ -1,9 +1,9 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 13 September 2026  
-**Checkpoint:** `ACTIVE_PRODUCT_REFERENCE_RECONCILIATION_V1`
+**Last updated:** 15 September 2026
+**Checkpoint:** `PLAYER_PROFILE_FORWARD_PASSING_V1`
 
-For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`. The dated audit for this checkpoint is `FRL_REPOSITORY_RECONCILIATION_2026-09-13.md`.
+For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`. The current Player Profile promotion is recorded in `FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md`; repository reconciliation context remains in `FRL_REPOSITORY_RECONCILIATION_2026-09-13.md`.
 
 ## Current platform state
 
@@ -136,6 +136,27 @@ The last **formally validated rich Player capability checkpoint** remains:
 
 Later local/current-season work may be newer, but it must be revalidated before replacing these standing capability claims.
 
+## Player Profile Player-Season promotion
+
+The midfielder Player Profile now uses source-native **Forward passing** in place of the intermittently observed Carrying axis for every season template.
+
+The first governed Player-Season Product projection is:
+
+- runtime module: `player_season_source_projection.py`;
+- materialised evidence: `data/player_season_source_stats_v1.csv`;
+- provenance: `data/player_season_source_stats_v1.metadata.json`;
+- native source field: Player-Season `forwardPasses`;
+- upstream release: `115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6` (9 September 2026);
+- preserved coverage: 6,639 unique player-season source identities from 2016-17 through 2026-27;
+- missingness: source blanks and unresolved identity relationships remain unavailable, never zero;
+- comparison: `forward_passes_per_90` against the qualified same-season, same-position population.
+
+For 2026-27, all 108 midfielders meeting the Profile's 90-minute threshold have an observed forward-pass value. Ødegaard's Profile uses 45 source forward passes over 221 governed Profile minutes (18.3258 per 90), restoring a complete six-dimension comparison. Historical populations may remain partial where the existing verified FPL-element identity route does not resolve; no name-based runtime join was added.
+
+Progressive carries remain preserved as a separate metric where the Player-Match representation exists. They are not treated as take-ons, forward passes or structural zero.
+
+See `FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md` for coverage, identity and spatial-source conclusions.
+
 ## Team State and forecasting
 
 `Team State V1` remains available as a pre-fixture research object with recent-5, recent-10, season-to-date and prior-season windows. Historical source-publication-time equivalence remains explicitly unproven.
@@ -193,7 +214,8 @@ Immediate sequence:
 4. run current backend/frontend/documentation validation;
 5. resolve API/backend regressions and visual-token migration debt;
 6. then continue Fixture Intelligence / Matchday, Team and Player analytical profiles, Rankings/Compare and Research Explorer from the governed evidence layer;
-7. run the pre-registered Adaptive DC + Team State experiment without allowing model work to displace the broader research/product programme.
+7. extend the governed Player-Season promotion pattern to other source-present variables only after field-specific semantic, identity, missingness and comparability review;
+8. run the pre-registered Adaptive DC + Team State experiment without allowing model work to displace the broader research/product programme.
 
 ## Non-negotiables
 

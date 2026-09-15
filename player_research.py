@@ -1,6 +1,7 @@
 from collections import defaultdict
 from functools import lru_cache
 
+import player_season_source_projection
 import query_lab
 import rich_player_projection
 
@@ -402,8 +403,11 @@ def season_players(season):
             (season,),
         )
         results.append(
-            rich_player_projection.enrich_player(
-                base,
+            player_season_source_projection.enrich_player(
+                rich_player_projection.enrich_player(
+                    base,
+                    season,
+                ),
                 season,
             )
         )
