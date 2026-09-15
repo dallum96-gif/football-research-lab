@@ -23,8 +23,8 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Python test dependency
-        run: python -m pip install --upgrade pytest
+      - name: Install Python test dependencies
+        run: python -m pip install --upgrade pytest fastapi
 
       - name: Checkout pinned Player-Season source
         if: github.actor != 'github-actions[bot]'
