@@ -1,9 +1,9 @@
 """Materialise the governed Player-Season representation used by Player Profile.
 
-Descriptive participation, all MID V1 profile axes and their per-90 denominator
-are preserved from the same Player-Season source row. The merged upstream
-season file is preferred; direct club files are a validated fallback. Missing
-source fields and source blanks remain unavailable rather than becoming zero.
+Descriptive participation and all four position-specific profile templates are
+preserved from the same Player-Season source row. The merged upstream season
+file is preferred; direct club files are a validated fallback. Missing source
+fields and source blanks remain unavailable rather than becoming zero.
 """
 from __future__ import annotations
 
@@ -25,10 +25,27 @@ SOURCE_FIELDS = {
     "source_minutes": "timePlayed",
     "expected_goals": "expectedGoals",
     "expected_assists": "expectedAssists",
+    "goals": "goals",
     "accurate_opposition_half_passes": "successfulPassesOppositionHalf",
     "forward_passes": "forwardPasses",
     "recoveries": "recoveries",
     "tackles_won": "tacklesWon",
+    "total_tackles": "totalTackles",
+    "interceptions": "interceptions",
+    "total_clearances": "totalClearances",
+    "aerial_duels": "aerialDuels",
+    "aerial_duels_won": "aerialDuelsWon",
+    "total_shots": "totalShots",
+    "total_touches_in_opposition_box": "totalTouchesInOppositionBox",
+    "successful_dribbles": "successfulDribbles",
+    "expected_goals_on_target_conceded": "expectedGoalsOnTargetConceded",
+    "goals_conceded": "goalsConceded",
+    "saves_made": "savesMade",
+    "catches": "catches",
+    "punches": "punches",
+    "goalkeeper_smothers": "goalkeeperSmother",
+    "gk_successful_distribution": "gkSuccessfulDistribution",
+    "gk_unsuccessful_distribution": "gkUnsuccessfulDistribution",
 }
 
 
@@ -126,9 +143,9 @@ def materialize(
         for season in seasons
     }
     metadata = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "projection_version": "PLAYER_PROFILE_SOURCE_STATS_V1",
-        "milestone": "PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1",
+        "milestone": "PLAYER_PROFILE_POSITIONAL_RADARS_V1",
         "materialized_date": date.today().isoformat(),
         "source_repository": "imadeddine-belkat/Premier-League-Stats",
         "source_release_sha": source_release_sha,
@@ -136,8 +153,9 @@ def materialize(
         "source_resource": "pl_stats/_merged/players/{season}_players_stats.csv (preferred); direct club players_stats fallback",
         "source_grain": "player-season",
         "source_fields": SOURCE_FIELDS,
+        "position_templates": ["GKP", "DEF", "MID", "FWD"],
         "participation_policy": "PROFILE_PARTICIPATION_USES_SAME_PLAYER_SEASON_ROW_WHEN_COMPLETE; FPL_PLAYER_FIXTURE_AGGREGATE_IS_FAIL_CLOSED_FALLBACK",
-        "denominator_policy": "ALL_PROFILE_PER90_METRICS_USE_SAME_ROW_TIMEPLAYED",
+        "denominator_policy": "PER90_USES_SAME_ROW_TIMEPLAYED; RATIOS_USE_ONLY_SAME_ROW_SOURCE_FIELDS",
         "missingness_policy": "MISSING_FIELD_OR_SOURCE_BLANK_IS_UNAVAILABLE_NOT_ZERO",
         "duplicate_policy": "DEDUPLICATE_IDENTICAL_PLAYER_SEASON_ROWS_FAIL_ON_CONFLICT",
         "seasons": list(seasons),

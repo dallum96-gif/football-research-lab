@@ -1,4 +1,4 @@
-"""Acceptance matrix for PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1."""
+"""Acceptance matrix for PLAYER_PROFILE_POSITIONAL_RADARS_V1."""
 from __future__ import annotations
 
 import json
@@ -15,53 +15,55 @@ import player_profile_identity
 
 
 CASES = (
-    ("current_odegaard", "2026-27", "184029"),
-    ("historical_odegaard_route", "2024-25", "13"),
-    ("current_defender", "2026-27", "226597"),
-    ("low_minute_mid", "2026-27", "232413"),
-    ("goalkeeper", "2026-27", "154561"),
-    ("forward", "2026-27", "219847"),
+    ("current_odegaard", "2026-27", "184029", "MID", True),
+    ("historical_odegaard_route", "2024-25", "13", "MID", True),
+    ("current_defender", "2026-27", "226597", "DEF", True),
+    ("low_minute_mid", "2026-27", "232413", "MID", False),
+    ("goalkeeper", "2026-27", "154561", "GKP", True),
+    ("forward", "2026-27", "219847", "FWD", True),
 )
 
 
 def _validate_product_contract() -> None:
-    page = (ROOT / "web" / "src" / "app" / "players" / "[season]" / "[playerCode]" / "page.tsx").read_text(
-        encoding="utf-8-sig"
-    )
+    page_path = ROOT / "web" / "src" / "app" / "players" / "[season]" / "[playerCode]"
+    page = (page_path / "page.tsx").read_text(encoding="utf-8-sig")
+    radar = (page_path / "MidfielderRadar.tsx").read_text(encoding="utf-8-sig")
     api = (ROOT / "api" / "player_stats.py").read_text(encoding="utf-8-sig")
 
     if "/api/v1/player-profile-foundation/" in page:
-        raise RuntimeError(
-            "Player Profile presentation regressed to the feature-only foundation endpoint."
-        )
+        raise RuntimeError("Player Profile presentation regressed to the feature-only foundation endpoint.")
     for route_fragment in (
         "/api/v1/players/",
         "/api/v1/player-seasons/",
         "/api/v1/player-profile-radar/",
     ):
         if route_fragment not in page:
-            raise RuntimeError(
-                f"Player Profile no longer uses established route contract: {route_fragment}"
-            )
+            raise RuntimeError(f"Player Profile no longer uses established route contract: {route_fragment}")
     if "?season=${encodeURIComponent(season)}" not in page:
-        raise RuntimeError(
-            "Player Profile season-history request does not seed longitudinal identity with the selected season."
-        )
+        raise RuntimeError("Player Profile season-history request does not seed longitudinal identity with the selected season.")
     if "import player_profile_foundation" not in api:
-        raise RuntimeError(
-            "Established Player API is not consuming the governed Profile foundation."
-        )
+        raise RuntimeError("Established Player API is not consuming the governed Profile foundation.")
     if (ROOT / "api" / "player_profile.py").exists():
-        raise RuntimeError(
-            "Feature-only Player Profile API router still exists; preserve the established product route contract instead."
-        )
+        raise RuntimeError("Feature-only Player Profile API router still exists; preserve the established product route contract instead.")
+
+    for position_marker in ("GKP:", "DEF:", "MID:", "FWD:"):
+        if position_marker not in radar:
+            raise RuntimeError(f"Player Profile radar is not position-aware for {position_marker[:-1]}.")
+    for required_copy in (
+        "Goalkeeper profile",
+        "Defender profile",
+        "Midfielder profile",
+        "Forward profile",
+    ):
+        if required_copy not in radar:
+            raise RuntimeError(f"Player Profile radar copy is missing positional contract: {required_copy}.")
 
 
 def main() -> int:
     _validate_product_contract()
 
     matrix = []
-    for label, season, code in CASES:
+    for label, season, code, expected_position, expect_comparison in CASES:
         result = player_profile_foundation.build_player_profile(season, code)
         if result is None:
             raise RuntimeError(f"Acceptance case unavailable: {label} {season}/{code}")
@@ -71,11 +73,22 @@ def main() -> int:
             raise RuntimeError(f"Acceptance case identity unresolved: {label}")
         if profile["biography"].get("available") is not True:
             raise RuntimeError(f"Acceptance case packaged biography unavailable: {label}")
+        if profile.get("position") != expected_position:
+            raise RuntimeError(f"Acceptance case position mismatch: {label} expected {expected_position}, got {profile.get('position')}")
+        if bool(comparison.get("available")) is not expect_comparison:
+            raise RuntimeError(f"Acceptance case comparison availability mismatch: {label}")
+        if expect_comparison:
+            if len(comparison.get("axes") or []) != 6:
+                raise RuntimeError(f"Acceptance case is not six-axis: {label}")
+            if comparison.get("template_key") != f"{expected_position}_PROFILE_V1":
+                raise RuntimeError(f"Acceptance case template mismatch: {label}")
+
         matrix.append({
             "case": label,
             "season": season,
             "route_code": code,
             "player": profile["player_name"],
+            "position": profile["position"],
             "identity_status": profile["identity_status"],
             "identity_key": profile["player_identity_key"],
             "portrait_player_code": profile["portrait_player_code"],
@@ -87,6 +100,8 @@ def main() -> int:
             "biography_available": profile["biography"]["available"],
             "comparison_available": comparison["available"],
             "comparison_complete": comparison.get("complete", False),
+            "comparison_template": comparison.get("template_key"),
+            "observed_axis_count": comparison.get("observed_axis_count", 0),
         })
 
     current = player_profile_identity.resolve_route_identity("2026-27", "184029")
@@ -95,14 +110,9 @@ def main() -> int:
         raise RuntimeError("Ødegaard cross-season identity continuity failed.")
 
     seasons = player_profile_identity.profile_seasons("2026-27", "184029")
-    historical_option = next(
-        (row for row in seasons if row.get("season") == "2024-25"),
-        None,
-    )
+    historical_option = next((row for row in seasons if row.get("season") == "2024-25"), None)
     if historical_option is None or historical_option.get("player_code") != "13":
-        raise RuntimeError(
-            "Ødegaard season navigation did not retain the historical route code 13."
-        )
+        raise RuntimeError("Ødegaard season navigation did not retain the historical route code 13.")
 
     current_profile = player_profile_foundation.build_player_profile("2026-27", "184029")
     assert current_profile is not None
@@ -113,19 +123,18 @@ def main() -> int:
         or profile.get("minutes") != 224
         or profile.get("participation_representation") != "PLAYER_PROFILE_SOURCE_STATS_V1"
     ):
-        raise RuntimeError(
-            "Current Ødegaard descriptive participation is not using the pinned Player-Season representation."
-        )
+        raise RuntimeError("Current Ødegaard descriptive participation is not using the pinned Player-Season representation.")
     comparison = current_profile["comparison"]
     if comparison.get("available") is not True or len(comparison.get("axes") or []) != 6:
         raise RuntimeError("Current Ødegaard six-axis Profile comparison is unavailable.")
     if any(axis.get("denominator") != "timePlayed" for axis in comparison["axes"]):
-        raise RuntimeError("Player Profile contains a non-native per-90 denominator.")
+        raise RuntimeError("Ødegaard MID Profile contains a non-native per-90 denominator.")
 
     print(json.dumps({
-        "milestone": "PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1",
+        "milestone": "PLAYER_PROFILE_POSITIONAL_RADARS_V1",
         "status": "PASS",
         "product_route_contract": "ESTABLISHED_PLAYER_PROFILE_ENDPOINTS_PRESERVED",
+        "position_templates": ["GKP", "DEF", "MID", "FWD"],
         "cases": matrix,
     }, indent=2, ensure_ascii=False))
     return 0
