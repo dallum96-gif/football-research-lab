@@ -229,7 +229,8 @@ function formatDate(value?: string | null) {
 }
 
 function trim(value: number, decimals = 2) {
-  return value.toFixed(decimals).replace(/\.0+$|(?<=\.[0-9]*?)0+$/g, "").replace(/\.$/, "");
+  const fixed = value.toFixed(decimals);
+  return fixed.includes(".") ? fixed.replace(/0+$/, "").replace(/\.$/, "") : fixed;
 }
 
 function formatMetric(metric: { unit: string; label?: string }, value: number | null) {
@@ -448,7 +449,9 @@ export default async function PlayerStatsRedesignPage({ searchParams }: { search
   const samePositionPlayers = eligiblePlayers
     .filter((player) => player.position === selected.position && player.player_code !== playerCode)
     .sort((a, b) => b.minutes - a.minutes || a.player_name.localeCompare(b.player_name));
-  const requestedCompare = query.compare && samePositionPlayers.find((player) => player.player_code === query.compare);
+  const requestedCompare = query.compare
+    ? samePositionPlayers.find((player) => player.player_code === query.compare)
+    : undefined;
   const comparePlayer = requestedCompare ?? (activeView === "compare" ? samePositionPlayers[0] : undefined);
   const compareStats = comparePlayer
     ? await getJson<PlayerStatsResult>(`/api/v1/player-stats/${encodeURIComponent(season)}/${encodeURIComponent(comparePlayer.player_code)}`)
