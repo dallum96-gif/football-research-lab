@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-09-15",
-  "checkpoint_id": "PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1",
+  "checkpoint_id": "PLAYER_PROFILE_POSITIONAL_RADARS_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Player Profile now has a validated universal foundation candidate over the active experimental product/reference line: explicit cross-source player identity relationships, seasonal route continuity, separate portrait identity, transfer-aware club context, packaged biography, and a single pinned Player-Season representation for Profile participation plus all MID V1 per-90 axes. The universal page composition is distinct from position-specific comparison templates; DEF/FWD/GKP analytical templates remain ungoverned. Integration still requires review against Daniel's uninspected local Windows state and the existing reference-branch API import blocker.",
+  "active_product_phase": "Player Profile is a validated current-state profile candidate over the active experimental product/reference line. The approved profile composition is preserved while GKP, DEF, MID and FWD each have a governed six-axis analytical template from one pinned Player-Season representation. The hero season selector is intentionally removed; prior-season exploration remains in the separate History view with governed season-specific route identities. Current DEF Tackling uses totalTackles / 90 and current FWD Shot accuracy uses shotsOnTargetIncGoals / totalShots. Daniel's Windows working state has been inspected, externally safety-snapshotted and reconciled in an isolated review worktree; tracked integration remains deliberately separate pending final review and the existing reference-branch API import blocker.",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
@@ -38,6 +38,7 @@
     "FRL_REPOSITORY_RECONCILIATION_2026-09-13.md",
     "FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md",
     "FRL_PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1_2026-09-15.md",
+    "FRL_PLAYER_PROFILE_POSITIONAL_RADARS_V1_2026-09-15.md",
     "data/player_profile_source_stats_v1.metadata.json",
     "data/player_profile_biography_v1.metadata.json",
     "data/player_season_source_stats_v1.metadata.json",
@@ -73,7 +74,10 @@
     "Team Profile V1 is frozen for now",
     "Begin Phase 1: reconcile and industrialise the 249 team-match-statistic source surface",
     "Ødegaard's Profile uses 45 source forward passes over 221 governed Profile minutes",
-    "18.3258 per 90"
+    "18.3258 per 90",
+    "DEF/FWD/GKP analytical templates remain ungoverned",
+    "Player Profile radar V1 is governed only for MID players",
+    "Player Profile comparison V1 is governed only for MID players; other positional templates require separate research and governance."
   ],
   "architecture_sensitive_paths": [
     "FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md",
@@ -100,12 +104,14 @@
     "player_profile_source_projection.py",
     "player_profile_biography_projection.py",
     "player_profile_foundation.py",
-    "api/player_profile.py",
+    "api/player_stats.py",
     "data/player_profile_source_stats_v1.metadata.json",
     "data/player_profile_biography_v1.metadata.json",
     "scripts/materialize_player_profile_source_stats.py",
     "scripts/materialize_player_profile_biography.py",
     "scripts/validate_player_profile_universal_foundation.py",
+    "web/src/app/players/[season]/[playerCode]/MidfielderRadar.tsx",
+    "web/src/app/players/[season]/[playerCode]/PlayerSeasonSelect.tsx",
     "team_state.py",
     "adaptive_dixon_coles.py",
     "head_to_head.py",
