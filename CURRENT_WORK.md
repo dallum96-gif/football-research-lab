@@ -1,9 +1,15 @@
 # Current Work — Football Research Laboratory
 
-**Last updated:** 15 September 2026
-**Checkpoint:** `PLAYER_PROFILE_FORWARD_PASSING_V1`
+**Last updated:** 15 September 2026  
+**Checkpoint:** `PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1`
 
-For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`. The current Player Profile promotion is recorded in `FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md`; repository reconciliation context remains in `FRL_REPOSITORY_RECONCILIATION_2026-09-13.md`.
+For documentation-governance rules see `FRL_DOCUMENTATION_SYNC_CONTRACT.md` and `data/frl_documentation_state_v1.json`. The dated Player Profile records are:
+
+- `FRL_PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1_2026-09-15.md`;
+- `FRL_PLAYER_PROFILE_POSITIONAL_RADARS_V1_2026-09-15.md`;
+- `FRL_PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1_2026-09-15.md`.
+
+Earlier source-capability work remains historical evidence in `FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md`; repository reconciliation context remains in `FRL_REPOSITORY_RECONCILIATION_2026-09-13.md`.
 
 ## Current platform state
 
@@ -11,13 +17,14 @@ FRL is a governed football research and modelling environment. The active fronte
 
 Standing rules remain unchanged:
 
-- canonical fixture/team/player identity, never source-ID coincidence;
-- preserved source-native evidence with provenance;
-- temporal/as-of reconstruction;
-- explicit missing/partial/unresolved/unavailable states rather than silent zero or fallback behaviour;
-- governed source routing and explicit derivation;
-- reproducible materialisation from pinned evidence;
-- shared analytical services so product surfaces do not invent separate definitions or populations.
+- source identifiers are evidence, not universal canonical identifiers;
+- canonical fixture/team/player relationships must be explicit and governed;
+- preserved source-native evidence retains provenance and release context;
+- temporal/as-of reconstruction must remain explicit;
+- missing/partial/unresolved/unavailable states are not silently converted to zero;
+- derived rates must use a semantically justified denominator from a compatible representation;
+- populations/cohorts, tie rules and percentile rules must be explicit;
+- product surfaces consume governed analytical services rather than inventing browser-side football semantics.
 
 The durable research North Star remains `FRL_MASTER_PROMPT.md`. The durable product architecture remains `FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md`.
 
@@ -27,58 +34,193 @@ Stable `main` remains at:
 
 `0626878838b0734b7df8d79f966e814db75a61ed`
 
-The current integration/reference base `design/analyst-workspace-v1` has advanced beyond that stable-main commit.
-
-The active product/reference work is on:
+The active product/reference branch remains:
 
 `design/bet-builder-reference-v1`
 
-Draft PR: **#53 — UI: premium FRL shell, Matchday builder and Fixtures reference design**.
+Its relevant tracked base for the Player Profile line is:
 
-At the start of the 13 September reconciliation, that branch was at `ce8fa1493553923306cd0011c6146f821101b66e`, 79 commits ahead of its merge base and 4 commits behind the then-current `design/analyst-workspace-v1` head. Documentation reconciliation commits follow that code head.
+`11a42f68cf7c4c0eab2b1ea0286cddf3337cbda3`
 
-This branch is therefore **active experimental/product work, not a validated integration candidate**.
+Draft PR **#54** carries the Player Profile work on:
 
-Important boundary: repository state described here is the tracked remote state. Daniel's live local Windows working tree may contain newer uncommitted work and must be inspected before merge/rebase/destructive operations.
+`feat/player-profile-universal-foundation-v1`
 
-## Active product phase
+PR #54 targets `design/bet-builder-reference-v1`, not stable `main`. It remains a **draft integration candidate**.
 
-FRL has moved beyond the earlier source-industrialisation checkpoint into a substantial product/reference-design phase over the governed evidence layer.
+Daniel's normal Windows working tree is separate, newer in multiple product areas and protected. It was externally safety-snapshotted at:
 
-The active branch currently includes:
+`C:\Users\dlall\football_database\frl-local-safety-20260915-215837`
 
-- a two-level top navigation shell for the reference experience;
-- a premium Fixtures experience and fixture-result workspace;
-- a Matchday Bet Builder reference route;
-- Team Profile / Team Overview reference work;
-- club crest and stadium imagery support;
-- a governed club-profile reference registry plus visual overrides;
-- supporting fixture-evidence, player-performance and runtime/API changes;
-- regression/registry tests for several of the added evidence paths.
+The isolated reconciliation worktree is:
 
-The branch is not frontend-only. It contains supporting backend/research-access changes and must be reviewed and validated accordingly.
+`C:\Users\dlall\football_database\frl-player-profile-reconcile`
 
-## Current visual direction
+The original Windows working copy must not be destructively reset, cleaned, rebased or overwritten.
 
-The intended FRL visual language is now **dark, premium, editorial and football-first**.
+## Active Player Profile phase
 
-Current direction:
+The Player Profile is now a validated **universal current-player surface** over the current 2026/27 Player directory.
 
-- near-black / charcoal structural surfaces;
-- warm ivory / cream primary text;
-- muted greys for secondary hierarchy;
-- restrained coral/orange as the main brand/action emphasis;
-- green/olive used semantically or as a supporting signal rather than as default decoration;
-- no lime-green visual language;
-- typography, spacing, thin rules and composition should carry more of the design than dashboard chrome.
+The approved Ødegaard page remains the universal visual/profile composition reference. The page shell is universal; analytical concepts remain position-specific for **GKP, DEF, MID and FWD**.
 
-The older warm parchment root tokens still exist in parts of the current CSS and some surfaces remain mid-migration. They are **implementation debt, not current design authority for new work**. See `UI_DESIGN_SYSTEM.md` and `FRL_LUXURY_DESIGN_CONSTITUTION.md`.
+Player Profile is intentionally a **current-state surface**:
 
-## Preserved source capability — validated foundation
+- the hero season selector is removed;
+- current routes retain the season identifier as part of the FRL route contract;
+- previous-season/career exploration belongs in **History**;
+- History preserves governed season-specific route identities where route IDs changed across seasons.
 
-The preserved PulseLive archive contains **3,800 Premier League fixture snapshots** across 2016/17–2025/26.
+No global shell, AppShell, primary/secondary navigation, shared header or global token redesign is part of this milestone.
 
-Master preserved source universe:
+## Governed Player Profile source
+
+The Player Profile source is pinned to:
+
+`imadeddine-belkat/Premier-League-Stats@115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6`
+
+Profile projection:
+
+- runtime: `player_profile_source_projection.py`;
+- materialised evidence: `data/player_profile_source_stats_v1.csv`;
+- metadata: `data/player_profile_source_stats_v1.metadata.json`;
+- grain: Player-Season;
+- seasons: 2016/17 through 2026/27;
+- 2026/27 source rows: 450.
+
+Per-90 Profile axes use source-native numerators divided by the same Player-Season row's `timePlayed`. Ratio axes use same-row numerator and denominator fields. Source blanks remain unavailable rather than becoming zero.
+
+Profile participation uses source-native `gamesPlayed`, `starts` and `timePlayed` as one atomic block when all are available; otherwise it falls back as one block to the governed FPL player-fixture aggregate rather than constructing a hybrid row.
+
+At the pinned checkpoint Ødegaard remains **3 appearances / 3 starts / 224 Player-Season minutes**. Forward passing remains **45 / 224 × 90 = 18.0804 per 90**.
+
+## Identity, biography and club context
+
+- seasonal route identity, Player-Match/research identity and Player-Season/portrait identity remain distinct;
+- current Ødegaard `2026-27/184029` and historical Ødegaard `2024-25/13` resolve to the same research identity `player_match:547410` while retaining their correct route IDs;
+- portrait lookup uses verified portrait/source identity rather than assuming route ID = portrait ID;
+- packaged biography runtime uses `data/player_profile_biography_v1.csv` and its metadata rather than Daniel's external source checkout;
+- multi-club context uses temporal evidence where available and withholds unresolved primary-club context rather than guessing;
+- fuzzy/display-name matching is not used as a substitute for governed identity relationships.
+
+## Position-specific analytical templates
+
+The governed six-axis templates remain:
+
+**GKP** — Shot stopping · Save rate · Save volume · Claiming · Smothering · Distribution  
+**DEF** — Aerial duels · Tackling · Interceptions · Clearances · Recoveries · Progression  
+**MID** — Goal threat · Chance creation · Advanced passing · Forward passing · Recoveries · Ball winning  
+**FWD** — Goal threat · Scoring · Chance creation · Shot volume · Box presence · Shot accuracy
+
+DEF Tackling uses `totalTackles / timePlayed * 90`. FWD Shot accuracy uses `shotsOnTargetIncGoals / totalShots`.
+
+## Universal rollout sample-state contract
+
+Checkpoint:
+
+`PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1`
+
+Every current Player directory record gets a Profile, but the strength of the statistical claim changes with evidence.
+
+### `QUALIFIED`
+
+- Player-Season source minutes meet the dynamic Profile threshold.
+- Threshold remains 33% of maximum league minutes available so far.
+- At the pinned current state, 270 minutes are available and the threshold is **90 minutes**.
+- Only qualified players enter the same-position benchmark population.
+- Qualified players receive formal ranks and ranked percentile profiles.
+
+### `PROVISIONAL`
+
+- Player has positive comparable Player-Season minutes but is below the threshold.
+- Player does **not** enter the qualified benchmark population.
+- Observed rates may be placed indicatively against that qualified cohort.
+- Formal ranks are withheld.
+- Product copy explicitly shows sample minutes, qualification threshold/progress and provisional status.
+- Missing axes remain unavailable, not zero.
+
+### `INSUFFICIENT_SAMPLE`
+
+- Comparable positive Player-Season evidence is unavailable.
+- The Player Profile remains available.
+- The analytical rail says **Statistical profile pending**.
+- No percentile, rank or fabricated zero is created.
+
+No extra arbitrary 30/45-minute cutoff was added. Evidence strength is represented explicitly through the governed state and dynamic qualification threshold.
+
+## Universal 2026/27 validation
+
+Authoritative rollout run:
+
+`35029496354`
+
+Feature commit validated:
+
+`382cee5475701cce7d2bc365875dd0623473faf9`
+
+The validator iterated every record returned by `player_research.season_players("2026-27")`.
+
+```text
+654 CURRENT PLAYER DIRECTORY RECORDS
+└── 654 PLAYER PROFILES VALIDATED
+    ├── 253 QUALIFIED
+    ├── 128 PROVISIONAL
+    └── 273 INSUFFICIENT_SAMPLE
+```
+
+Position coverage:
+
+```text
+GKP   71
+DEF  214
+MID  291
+FWD   78
+TOTAL 654
+```
+
+At this checkpoint:
+
+- 375 players have some comparative analytical output;
+- 579 players have packaged biography evidence;
+- all 654 current directory records build a governed Profile.
+
+Representative provisional cases include Mateo Kovačić at 42 source minutes and Eberechi Eze at 59. Both are compared indicatively against the qualified MID cohort and expose no formal axis ranks.
+
+## Validation status
+
+The rollout run passed:
+
+- pinned Player-Season checkout: PASS;
+- Player Profile source materialisation: PASS;
+- packaged biography materialisation: PASS;
+- Python compile: PASS;
+- approved Profile CSS/portrait composition guard: PASS;
+- focused Player Profile regressions: **30 passed**;
+- whole-current-player-universe validation: **654 / 654 PASS**;
+- GKP/DEF/MID/FWD coverage: PASS;
+- `QUALIFIED` / `PROVISIONAL` / `INSUFFICIENT_SAMPLE` invariants: PASS;
+- current Ødegaard 3 / 3 / 224 contract: PASS;
+- cross-season Ødegaard History route identity: PASS;
+- hero season-selector-absent contract: PASS;
+- Next.js TypeScript check: PASS;
+- Next.js production build: PASS;
+- documentation sync: PASS.
+
+The earlier React/Next development hydration issue has been resolved. Its cause was an SVG `<title>` constructed from multiple JSX children in the radar tooltip; the tooltip is now one string child, eliminating the hydration mismatch / `destination stream closed early` error without changing radar geometry or styling.
+
+## Known separate integration / technical debt
+
+These are not silently absorbed into Player Profile:
+
+1. The tracked target branch still imports `team_records_materialization` from `api/frl_api.py` while the module is absent from tracked GitHub. Daniel's Windows tree contains a local untracked copy; reconciliation remains deliberate future work.
+2. `npm install` reports three critical-severity dependency vulnerabilities in the existing frontend dependency graph. Typecheck/build pass; security remediation remains separate.
+3. The Players landing page can emit Next fetch-cache warnings because some Player Rankings responses exceed the 2 MB Next data-cache limit. This is separate from Player Profile and remains a performance/cache task.
+
+## Preserved broader FRL foundation
+
+The preserved PulseLive archive remains **3,800 Premier League fixture snapshots** across 2016/17–2025/26.
+
+The standing source universe remains:
 
 ```text
 553 MASTER SNAPSHOTTED RAW SOURCE PATHS
@@ -88,142 +230,37 @@ Master preserved source universe:
     └── 123 other football / match paths
 ```
 
-The validated team-match milestone remains:
+The Player-Match source universe remains exhaustively accounted at 86 fields: 81 generically exposed, 4 retained metadata/source-context fields and 1 restricted duplicate CSV column.
 
-```text
-249 TEAM-MATCH STATISTICAL PATHS
-├── 176 canonical/governed + generic access verified
-├──   8 governed retained source fields
-├──   6 governed restricted source fields
-└──  59 raw-only source representations with governed preserved-snapshot route
-```
-
-The Player-Match source universe remains exhaustively accounted:
-
-```text
-86 PLAYER-MATCH SOURCE FIELDS
-├── 81 exposed for generic research access
-├──  4 retained metadata/source-context fields
-└──  1 restricted duplicate CSV column
-```
-
-Standing missingness rule:
-
-> **A source blank is missing by default. Structural zero requires specific evidence for that concept, representation and period.**
-
-## Fixture event and tactical context
-
-The established `fixture_context_research.py` checkpoint remains valid historical evidence:
-
-- event route: 3,800 PASS / 0 FAIL;
-- tactical-context route: 3,800 PASS / 0 FAIL;
-- 50,182 normalised events;
-- 145,637 lineup-player rows;
-- formation context across 7,600/7,600 team-sides;
-- 7,728 manager rows.
-
-Unresolved identities remain explicit and are never guessed.
-
-## 2026/27 living-season evidence
-
-The latest formally documented integration checkpoint remains based on pinned upstream evidence from `imadeddine-belkat/Premier-League-Stats`.
-
-The last **formally validated rich Player capability checkpoint** remains:
-
-- 387 participating players with minutes greater than zero;
-- 79/83 Player product capabilities runtime-supported through GW1–3;
-- unavailable quartet: `ball_carries`, `progressive_carries`, `progressive_carry_distance`, `total_progression`.
-
-Later local/current-season work may be newer, but it must be revalidated before replacing these standing capability claims.
-
-## Player Profile Player-Season promotion
-
-The midfielder Player Profile now uses source-native **Forward passing** in place of the intermittently observed Carrying axis for every season template.
-
-The first governed Player-Season Product projection is:
-
-- runtime module: `player_season_source_projection.py`;
-- materialised evidence: `data/player_season_source_stats_v1.csv`;
-- provenance: `data/player_season_source_stats_v1.metadata.json`;
-- native source field: Player-Season `forwardPasses`;
-- upstream release: `115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6` (9 September 2026);
-- preserved coverage: 6,639 unique player-season source identities from 2016-17 through 2026-27;
-- missingness: source blanks and unresolved identity relationships remain unavailable, never zero;
-- comparison: `forward_passes_per_90` against the qualified same-season, same-position population.
-
-For 2026-27, all 108 midfielders meeting the Profile's 90-minute threshold have an observed forward-pass value. Ødegaard's Profile uses 45 source forward passes over 221 governed Profile minutes (18.3258 per 90), restoring a complete six-dimension comparison. Historical populations may remain partial where the existing verified FPL-element identity route does not resolve; no name-based runtime join was added.
-
-Progressive carries remain preserved as a separate metric where the Player-Match representation exists. They are not treated as take-ons, forward passes or structural zero.
-
-See `FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md` for coverage, identity and spatial-source conclusions.
-
-## Team State and forecasting
-
-`Team State V1` remains available as a pre-fixture research object with recent-5, recent-10, season-to-date and prior-season windows. Historical source-publication-time equivalence remains explicitly unproven.
-
-Adaptive Dixon-Coles V1 remains the frozen **experimental forecasting control** from the earlier controlled evaluation. It improved the common-population holdout metrics over Poisson V1, including log loss, Brier score and accuracy, but it is **not a trusted production model and no betting-market edge is claimed**.
-
-The earlier control status remains:
-
-`CONTROL_FREEZE_SUPPORTED_FOR_NEXT_EXPERIMENT`
-
-## Head-to-Head / Matchday / BetBuilder evidence
-
-The governed Head-to-Head and BetBuilder work remains part of the active product programme.
-
-The key interpretation rule is unchanged:
-
-> **`evidence_index` is descriptive evidence synthesis, not a calibrated betting probability.**
-
-Matchday/Fixture Intelligence now has a broader product surface on the reference branch, including richer fixture presentation and Bet Builder experimentation. Football evidence, model output, market price and staking/strategy must remain distinct layers.
-
-## Club/profile reference evidence
-
-The active branch adds a governed club-profile reference registry and visual overrides, plus club crest and stadium-image assets. These are product/reference inputs and must preserve provenance/rights metadata where applicable.
-
-They do not replace canonical club identity. Canonical/season-local/persistent identity rules still govern joins and deep links.
-
-## Validation status
-
-The pre-reconciliation active branch head `ce8fa1493553923306cd0011c6146f821101b66e` had **no GitHub Actions workflow run attached**.
-
-Therefore the current reference branch must not be described as fully validated.
-
-Before integration, current validation should include:
-
-- base-branch reconciliation/conflict review;
-- targeted Python/regression tests for changed evidence/API seams;
-- club-profile/reference-data validation;
-- Next.js `npm run typecheck`;
-- Next.js `npm run build`;
-- `project-health.ps1` where canonical/query/data behaviour is implicated and the required local source environment is available;
-- `python scripts/check_documentation_sync.py --base-ref <appropriate-base>`;
-- explicit API compatibility review, especially around the large `api/frl_api.py` branch diff.
-
-Dated historical pass counts remain checkpoint evidence only.
+`Team State V1` remains descriptive/pre-fixture research infrastructure. Adaptive Dixon-Coles V1 remains an experimental forecasting control, not a trusted production model. BetBuilder `evidence_index` remains descriptive evidence synthesis rather than calibrated betting probability.
 
 ## Immediate objective
 
-> **Reconcile and validate the active product/reference branch so FRL can continue product development from a trustworthy current state rather than from stale documentation or an unverified design prototype.**
+> **Visually review one qualified, one provisional and one insufficient-sample Player Profile in the isolated reconciliation worktree, then assess draft PR #54 for deliberate integration into `design/bet-builder-reference-v1` while preserving Daniel's newer Windows product work.**
 
-Immediate sequence:
+Recommended review set:
 
-1. keep living documentation aligned with the 13 September reconciliation;
-2. reconcile `design/bet-builder-reference-v1` with the newer base-branch commits without destroying local/uncommitted work;
-3. establish the live local working-tree state before merge/rebase;
-4. run current backend/frontend/documentation validation;
-5. resolve API/backend regressions and visual-token migration debt;
-6. then continue Fixture Intelligence / Matchday, Team and Player analytical profiles, Rankings/Compare and Research Explorer from the governed evidence layer;
-7. extend the governed Player-Season promotion pattern to other source-present variables only after field-specific semantic, identity, missingness and comparability review;
-8. run the pre-registered Adaptive DC + Team State experiment without allowing model work to displace the broader research/product programme.
+- qualified: Martin Ødegaard `2026-27/184029`;
+- provisional: Mateo Kovačić `2026-27/91651`;
+- insufficient: select an actual current route from the validated universe rather than assuming a named player belongs to that state.
+
+After that:
+
+1. deliberately reconcile final tracked PR changes with the protected Windows state;
+2. resolve or explicitly carry the `team_records_materialization` target-branch blocker;
+3. separately address the >2 MB Player Rankings fetch-cache warnings;
+4. separately audit broader Player Stats / rich Player-Match denominator provenance;
+5. continue Fixture Intelligence, Team analytical profiles, Rankings/Compare, Research Explorer and controlled modelling from the governed evidence layer.
 
 ## Non-negotiables
 
-- Never manufacture semantic equivalence from field-name similarity.
-- Never convert source blanks to zero without concept-specific audited approval.
-- Never collapse raw source path → source field → canonical variable into one layer.
-- Never discard a legitimate variable solely because coverage begins later than 2016/17.
-- Never force event/tactical objects through a scalar-variable interface merely for uniformity.
-- Never let product surfaces invent independent definitions of governed football concepts.
-- Never present descriptive BetBuilder evidence as a calibrated probability or guaranteed betting return.
-- Never treat an experimental branch or uncommitted local work as stable integrated state without explicit validation and integration evidence.
+- Never convert missing source evidence to zero without concept-specific proof.
+- Never let provisional players contaminate qualified benchmark populations.
+- Never expose formal rank language for a provisional Profile.
+- Never create comparative claims for an insufficient-sample Profile.
+- Never collapse route, research and portrait identities into one key by coincidence.
+- Never guess unresolved primary club context.
+- Never use fuzzy name matching as identity governance.
+- Never mechanically reuse one position's analytical concepts for another merely for visual uniformity.
+- Never reintroduce hero season switching without an explicit product decision; History owns previous seasons at this checkpoint.
+- Never treat draft PR #54, the experimental reference branch or Daniel's local working state as stable integrated `main` without explicit validation and integration evidence.

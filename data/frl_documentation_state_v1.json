@@ -1,15 +1,14 @@
 {
   "schema_version": "1.0.0",
   "checkpoint_date": "2026-09-15",
-  "checkpoint_id": "PLAYER_PROFILE_FORWARD_PASSING_V1",
+  "checkpoint_id": "PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1",
   "active_frontend": "Next.js + React",
   "legacy_frontend": "Streamlit",
-  "active_product_phase": "Reconcile and validate the active product/reference branch before integration, while continuing Fixture Intelligence, Team/Player analytical product work and controlled modelling from the governed evidence layer. Player Profile now includes the first governed Player-Season source projection: source-native forwardPasses is materialised with explicit provenance, identity and missingness, then compared per 90 within qualified same-position cohorts. The current intended visual direction is dark, premium and editorial; legacy warm root tokens remain migration debt rather than design authority.",
+  "active_product_phase": "Player Profile is a validated current-state universal rollout candidate over the active experimental product/reference line. The approved composition is preserved; GKP, DEF, MID and FWD each have governed position-specific analytical templates. All 654 current 2026/27 Player directory records build a Profile. Statistical claims are governed by sample state: 253 QUALIFIED players enter ranked same-position benchmark cohorts, 128 PROVISIONAL players are compared indicatively against qualified cohorts without entering them or receiving formal ranks, and 273 INSUFFICIENT_SAMPLE players retain the Profile with statistical analysis explicitly pending. The hero season selector remains removed; prior-season exploration remains in History. Daniel's Windows working state remains protected and separate pending deliberate integration.",
   "living_documents": [
     "CURRENT_WORK.md",
     "FRL_SHORT_TERM_PRODUCT_ROADMAP.md",
     "UI_DESIGN_SYSTEM.md",
-    "FRL_LUXURY_DESIGN_CONSTITUTION.md",
     "README.md"
   ],
   "orientation_documents": [
@@ -38,6 +37,11 @@
     "ANALYTICAL_VISUAL_MOODBOARD.md",
     "FRL_REPOSITORY_RECONCILIATION_2026-09-13.md",
     "FRL_PLAYER_PROFILE_SOURCE_CAPABILITY_AUDIT_2026-09-14.md",
+    "FRL_PLAYER_PROFILE_UNIVERSAL_FOUNDATION_V1_2026-09-15.md",
+    "FRL_PLAYER_PROFILE_POSITIONAL_RADARS_V1_2026-09-15.md",
+    "FRL_PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1_2026-09-15.md",
+    "data/player_profile_source_stats_v1.metadata.json",
+    "data/player_profile_biography_v1.metadata.json",
     "data/player_season_source_stats_v1.metadata.json",
     "data/frl_product_capability_requirements_v1.json",
     "data/team_match_semantic_promotion_batch_v7.json",
@@ -69,7 +73,15 @@
     "sidebar / dark anchor: `#1b1b18`",
     "standalone Fixtures V1 is frozen for now",
     "Team Profile V1 is frozen for now",
-    "Begin Phase 1: reconcile and industrialise the 249 team-match-statistic source surface"
+    "Begin Phase 1: reconcile and industrialise the 249 team-match-statistic source surface",
+    "Ødegaard's Profile uses 45 source forward passes over 221 governed Profile minutes",
+    "18.3258 per 90",
+    "DEF/FWD/GKP analytical templates remain ungoverned",
+    "Player Profile radar V1 is governed only for MID players",
+    "Player Profile comparison V1 is governed only for MID players; other positional templates require separate research and governance.",
+    "Players below the Profile minute threshold receive no analytical profile at all",
+    "Low-minute players enter the qualified Player Profile comparison population",
+    "Provisional Player Profile ranks are formal competition ranks"
   ],
   "architecture_sensitive_paths": [
     "FRL_PRODUCT_NORTH_STAR_AND_EXPERIENCE_ARCHITECTURE_V1.md",
@@ -91,6 +103,20 @@
     "fixture_metadata_evidence.py",
     "club_profile_registry.py",
     "rich_player_projection.py",
+    "player_profile_identity.py",
+    "player_profile_context.py",
+    "player_profile_source_projection.py",
+    "player_profile_biography_projection.py",
+    "player_profile_foundation.py",
+    "api/player_stats.py",
+    "data/player_profile_source_stats_v1.metadata.json",
+    "data/player_profile_biography_v1.metadata.json",
+    "scripts/materialize_player_profile_source_stats.py",
+    "scripts/materialize_player_profile_biography.py",
+    "scripts/validate_player_profile_universal_foundation.py",
+    "web/src/app/players/[season]/[playerCode]/MidfielderRadar.tsx",
+    "web/src/app/players/[season]/[playerCode]/PlayerSeasonSelect.tsx",
+    "web/src/app/players/[season]/[playerCode]/page.tsx",
     "team_state.py",
     "adaptive_dixon_coles.py",
     "head_to_head.py",
@@ -105,6 +131,7 @@
     "web/src/app/matchday/",
     "web/src/app/head-to-head/",
     "web/src/app/teams/",
+    "web/src/app/players/",
     "FRL_TEAM_MATCH_MISSINGNESS_CONTRACT.md",
     "FRL_EXPECTED_METRIC_ROUTING_CONTRACT.md",
     "scripts/audit_player_match_source_universe.py",
@@ -116,6 +143,7 @@
   ],
   "checkpoint_files": [
     "CURRENT_WORK.md",
-    "data/frl_documentation_state_v1.json"
+    "data/frl_documentation_state_v1.json",
+    "FRL_PLAYER_PROFILE_UNIVERSAL_ROLLOUT_V1_2026-09-15.md"
   ]
 }

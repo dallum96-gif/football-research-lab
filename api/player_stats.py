@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from typing import Any, Literal
 
@@ -6,9 +6,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 import player_analysis_kernel
+import player_profile_foundation
+import player_profile_identity
 import player_research
-import player_profile_radar
-import player_profile_biography
 
 
 router = APIRouter()
@@ -70,6 +70,12 @@ class PlayerProfileResult(BaseModel):
     player_name: str
     position: str
     clubs: list[str]
+    primary_club: str | None = None
+    portrait_player_code: str | None = None
+    player_identity_key: str | None = None
+    identity_status: str | None = None
+    club_context_status: str | None = None
+    participation_representation: str | None = None
     competition: str
     appearances: int
     starts: int
@@ -233,27 +239,46 @@ def get_players(season: str) -> list[PlayerOption]:
     "/api/v1/player-seasons/{player_code}",
     response_model=list[PlayerSeasonOption],
 )
-def get_player_seasons(player_code: str) -> list[PlayerSeasonOption]:
-    options: list[PlayerSeasonOption] = []
-
+def get_player_seasons(
+    player_code: str,
+    season: str | None = None,
+) -> list[PlayerSeasonOption]:
     try:
-        for season in player_research.available_seasons():
-            player = player_research.player_detail(season, player_code)
+        if season:
+            rows = player_profile_identity.profile_seasons(season, player_code)
+            return [
+                PlayerSeasonOption(
+                    season=str(row.get("season") or ""),
+                    player_code=str(row.get("player_code") or ""),
+                    player_name=str(row.get("player_name") or ""),
+                    position=str(row.get("position") or ""),
+                    clubs=list(row.get("clubs") or ()),
+                )
+                for row in rows
+            ]
+
+        # Preserve the legacy route contract for consumers that do not yet
+        # provide a seed season. The Player Profile itself supplies one so the
+        # separate History view can resolve season-specific route identities.
+        options: list[PlayerSeasonOption] = []
+        for candidate_season in player_research.available_seasons():
+            player = player_research.player_detail(candidate_season, player_code)
             if player is None:
                 continue
             options.append(
                 PlayerSeasonOption(
-                    season=season,
+                    season=candidate_season,
                     player_code=str(player.get("player_code") or player_code),
                     player_name=str(player.get("player_name") or ""),
                     position=str(player.get("position") or ""),
                     clubs=list(player.get("clubs") or ()),
                 )
             )
+        return options
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail="Player season navigation failed safely.") from exc
-
-    return options
 
 
 @router.get(
@@ -262,37 +287,42 @@ def get_player_seasons(player_code: str) -> list[PlayerSeasonOption]:
 )
 def get_player_profile(season: str, player_code: str) -> PlayerProfileResult:
     try:
-        player = player_research.player_detail(season, player_code)
+        foundation = player_profile_foundation.build_player_profile(season, player_code)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail="Player profile failed safely.") from exc
 
-    if player is None:
+    if foundation is None:
         raise HTTPException(status_code=404, detail="Player is unavailable for this season.")
 
+    profile = dict(foundation.get("profile") or {})
+    player = player_research.player_detail(season, player_code) or {}
+    biography = dict(profile.get("biography") or {})
+
     return PlayerProfileResult(
-        season=season,
-        player_code=str(player.get("player_code") or ""),
-        player_name=str(player.get("player_name") or ""),
-        position=str(player.get("position") or ""),
-        clubs=list(player.get("clubs") or ()),
-        competition="Premier League",
-        appearances=_integer(player.get("appearances")),
-        starts=_integer(player.get("starts")),
-        minutes=_integer(player.get("minutes")),
-        biography=PlayerBiographyResult(
-            **player_profile_biography.resolve_player_biography(
-                season,
-                player_code,
-            )
-        ),
+        season=str(profile.get("season") or season),
+        player_code=str(profile.get("player_code") or player_code),
+        player_name=str(profile.get("player_name") or ""),
+        position=str(profile.get("position") or ""),
+        clubs=list(profile.get("clubs") or ()),
+        primary_club=profile.get("primary_club"),
+        portrait_player_code=profile.get("portrait_player_code"),
+        player_identity_key=profile.get("player_identity_key"),
+        identity_status=profile.get("identity_status"),
+        club_context_status=profile.get("club_context_status"),
+        participation_representation=profile.get("participation_representation"),
+        competition=str(profile.get("competition") or "Premier League"),
+        appearances=_integer(profile.get("appearances")),
+        starts=_integer(profile.get("starts")),
+        minutes=_integer(profile.get("minutes")),
+        biography=PlayerBiographyResult(**biography),
         metrics=_profile_metrics(player),
-        evidence=dict(player.get("_evidence") or {}),
+        evidence=dict(foundation.get("evidence") or {}),
         limitations=[
-            "Profile totals use the governed season player-fixture aggregate available for the selected season.",
-            "A profile can include a registered zero-minute player; analytical rankings require at least one recorded minute.",
-            "FPL-native measures remain labelled as FPL measures and are not asserted as historically equivalent to richer Opta player-match fields.",
+            *list(foundation.get("limitations") or ()),
+            "Profile participation and position-specific comparison use the pinned Player-Season representation when complete; otherwise participation falls back as one block rather than mixing representations.",
+            "FPL-native measures outside the Profile foundation remain labelled as FPL measures and are not asserted as historically equivalent to richer Opta player-match fields.",
         ],
     )
 
@@ -399,6 +429,7 @@ def get_player_rankings(
         metrics=metrics,
     )
 
+
 @router.get(
     "/api/v1/player-profile-radar/{season}/{player_code}",
     response_model=dict[str, Any],
@@ -408,35 +439,16 @@ def get_player_profile_radar(
     player_code: str,
 ) -> dict[str, Any]:
     try:
-        result = (
-            player_profile_radar
-            .build_player_profile_radar(
-                season,
-                player_code,
-            )
-        )
+        foundation = player_profile_foundation.build_player_profile(season, player_code)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=400,
-            detail=str(exc),
-        ) from exc
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
-        raise HTTPException(
-            status_code=500,
-            detail=(
-                "Player profile radar failed safely."
-            ),
-        ) from exc
+        raise HTTPException(status_code=500, detail="Player profile radar failed safely.") from exc
 
-    if result is None:
+    if foundation is None:
         raise HTTPException(
             status_code=404,
-            detail=(
-                "Player profile radar is unavailable "
-                "for this player and season."
-            ),
+            detail="Player profile radar is unavailable for this player and season.",
         )
 
-    return result
-
-
+    return dict(foundation.get("comparison") or {})

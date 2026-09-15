@@ -1,0 +1,139 @@
+name: Player Profile Universal Rollout V1
+
+on:
+  push:
+    branches:
+      - feat/player-profile-universal-foundation-v1
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python test dependencies
+        run: python -m pip install --upgrade pytest fastapi
+
+      - name: Checkout pinned Player-Season source
+        if: github.actor != 'github-actions[bot]'
+        uses: actions/checkout@v4
+        with:
+          repository: imadeddine-belkat/Premier-League-Stats
+          ref: 115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6
+          path: external/premier-league-stats
+
+      - name: Materialise Player Profile source representation
+        if: github.actor != 'github-actions[bot]'
+        run: >-
+          python scripts/materialize_player_profile_source_stats.py
+          --pl-stats-root external/premier-league-stats/pl_stats
+          --source-release-sha 115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6
+          --source-release-date 2026-09-09T01:18:58+01:00
+
+      - name: Materialise packaged Player Profile biography
+        if: github.actor != 'github-actions[bot]'
+        run: >-
+          python scripts/materialize_player_profile_biography.py
+          --pl-stats-root external/premier-league-stats/pl_stats
+          --source-release-sha 115d889df4e2efab5e7c1d8ca0f3ca86ecfd2ae6
+          --source-release-date 2026-09-09T01:18:58+01:00
+
+      - name: Compile changed Python modules
+        run: >-
+          python -m compileall -q
+          player_profile_identity.py
+          player_profile_context.py
+          player_profile_source_projection.py
+          player_profile_biography_projection.py
+          player_profile_foundation.py
+          api/player_stats.py
+          scripts/materialize_player_profile_source_stats.py
+          scripts/materialize_player_profile_biography.py
+          scripts/validate_player_profile_universal_foundation.py
+
+      - name: Preserve approved Player Profile composition
+        run: >-
+          git diff --exit-code
+          11a42f68cf7c4c0eab2b1ea0286cddf3337cbda3 --
+          'web/src/app/players/[season]/[playerCode]/PlayerProfile.module.css'
+          'web/src/app/players/[season]/[playerCode]/PlayerPortrait.tsx'
+
+      - name: Run focused Player Profile regression suite
+        run: >-
+          python -m pytest -q
+          tests/test_player_profile_identity.py
+          tests/test_player_profile_context.py
+          tests/test_player_profile_source_projection.py
+          tests/test_player_profile_biography_projection.py
+          tests/test_player_profile_foundation.py
+          tests/test_player_profile_radar.py
+          tests/test_player_season_source_projection.py
+
+      - name: Record base API integration blocker
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          frl_api = Path("api/frl_api.py").read_text(encoding="utf-8-sig")
+          missing = (
+              "import team_records_materialization" in frl_api
+              and not Path("team_records_materialization.py").is_file()
+          )
+          if missing:
+              print(
+                  "BASE_INTEGRATION_BLOCKER: api/frl_api.py imports "
+                  "team_records_materialization but the tracked module is absent. "
+                  "Full api.player_stats collection remains a base-branch issue."
+              )
+          else:
+              print("Base API import blocker not observed.")
+          PY
+
+      - name: Run Player Profile universal rollout acceptance matrix
+        run: python scripts/validate_player_profile_universal_foundation.py
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install frontend dependencies
+        working-directory: web
+        run: npm install --no-package-lock
+
+      - name: Typecheck frontend
+        working-directory: web
+        run: npm run typecheck
+
+      - name: Build frontend
+        working-directory: web
+        run: npm run build
+
+      - name: Validate documentation sync
+        run: python scripts/check_documentation_sync.py --base-ref 11a42f68cf7c4c0eab2b1ea0286cddf3337cbda3
+
+      - name: Commit generated governed evidence
+        if: github.actor != 'github-actions[bot]'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add \
+            data/player_profile_source_stats_v1.csv \
+            data/player_profile_source_stats_v1.metadata.json \
+            data/player_profile_biography_v1.csv \
+            data/player_profile_biography_v1.metadata.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: materialize player profile foundation evidence"
+            git push
+          fi
