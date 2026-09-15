@@ -36,6 +36,7 @@ SOURCE_FIELDS = {
     "aerial_duels": "aerialDuels",
     "aerial_duels_won": "aerialDuelsWon",
     "total_shots": "totalShots",
+    "shots_on_target": "shotsOnTargetIncGoals",
     "total_touches_in_opposition_box": "totalTouchesInOppositionBox",
     "successful_dribbles": "successfulDribbles",
     "expected_goals_on_target_conceded": "expectedGoalsOnTargetConceded",
@@ -143,7 +144,7 @@ def materialize(
         for season in seasons
     }
     metadata = {
-        "schema_version": "1.1.0",
+        "schema_version": "1.2.0",
         "projection_version": "PLAYER_PROFILE_SOURCE_STATS_V1",
         "milestone": "PLAYER_PROFILE_POSITIONAL_RADARS_V1",
         "materialized_date": date.today().isoformat(),
