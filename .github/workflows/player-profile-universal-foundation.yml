@@ -1,4 +1,4 @@
-name: Player Profile Positional Radars V1
+name: Player Profile Universal Rollout V1
 
 on:
   push:
@@ -100,7 +100,7 @@ jobs:
               print("Base API import blocker not observed.")
           PY
 
-      - name: Run Player Profile positional acceptance matrix
+      - name: Run Player Profile universal rollout acceptance matrix
         run: python scripts/validate_player_profile_universal_foundation.py
 
       - name: Set up Node
