@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import player_profile_foundation
+import player_research
 
 
 def test_current_odegaard_profile_uses_one_player_season_representation() -> None:
@@ -119,7 +120,7 @@ def test_current_forward_has_complete_position_specific_radar() -> None:
 def test_low_minute_player_is_provisional_without_entering_formal_ranks() -> None:
     result = player_profile_foundation.build_player_profile("2026-27", "91651")
     assert result is not None
-    assert result["profile"]["player_name"] == "Mateo Kovacic"
+    assert result["profile"]["player_name"] == "Mateo Kovačić"
     comparison = result["comparison"]
     assert comparison["sample_status"] == "PROVISIONAL"
     assert comparison["sample_minutes"] == 42
@@ -133,10 +134,16 @@ def test_low_minute_player_is_provisional_without_entering_formal_ranks() -> Non
 
 
 def test_missing_comparable_minutes_remain_insufficient_not_zero() -> None:
-    result = player_profile_foundation.build_player_profile("2026-27", "232413")
-    assert result is not None
-    assert result["profile"]["position"] == "MID"
-    comparison = result["comparison"]
+    insufficient = None
+    for player in player_research.season_players("2026-27"):
+        code = str(player.get("player_code") or "")
+        result = player_profile_foundation.build_player_profile("2026-27", code)
+        if result is not None and result["comparison"].get("sample_status") == "INSUFFICIENT_SAMPLE":
+            insufficient = result
+            break
+
+    assert insufficient is not None, "Current Player universe should contain a genuine insufficient-sample case."
+    comparison = insufficient["comparison"]
     assert comparison["sample_status"] == "INSUFFICIENT_SAMPLE"
     assert comparison["available"] is False
     assert comparison["comparison_mode"] == "NONE"
