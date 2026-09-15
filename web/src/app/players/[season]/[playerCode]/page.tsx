@@ -4,7 +4,6 @@ import { AppShell } from "@/components/AppShell";
 import { TeamCrest } from "@/components/TeamCrest";
 import { PlayerPortrait } from "./PlayerPortrait";
 import { MidfielderRadar, type PlayerProfileRadarData } from "./MidfielderRadar";
-import { PlayerSeasonSelect } from "./PlayerSeasonSelect";
 import styles from "./PlayerProfile.module.css";
 
 type PlayerBiography = {
@@ -430,12 +429,6 @@ export default async function PlayerProfilePage({
             </section>
 
             <aside className={styles.heroRail}>
-              <PlayerSeasonSelect
-                currentSeason={season}
-                playerCode={playerCode}
-                seasons={seasonOptions}
-              />
-
               {radar ? (
                 <MidfielderRadar
                   radar={radar}
