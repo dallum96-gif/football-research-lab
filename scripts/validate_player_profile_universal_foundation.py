@@ -20,8 +20,8 @@ CASES = (
     ("current_odegaard", "2026-27", "184029", "MID", "QUALIFIED"),
     ("historical_odegaard_route", "2024-25", "13", "MID", "QUALIFIED"),
     ("current_defender", "2026-27", "226597", "DEF", "QUALIFIED"),
-    ("provisional_mid", "2026-27", "91651", "MID", "PROVISIONAL"),
-    ("insufficient_mid", "2026-27", "232413", "MID", "INSUFFICIENT_SAMPLE"),
+    ("provisional_kovacic", "2026-27", "91651", "MID", "PROVISIONAL"),
+    ("provisional_eze", "2026-27", "232413", "MID", "PROVISIONAL"),
     ("goalkeeper", "2026-27", "154561", "GKP", "QUALIFIED"),
     ("forward", "2026-27", "219847", "FWD", "QUALIFIED"),
 )
