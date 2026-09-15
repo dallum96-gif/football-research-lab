@@ -1,0 +1,33 @@
+name: Player Stats Individual V2
+
+on:
+  push:
+    branches:
+      - design/player-stats-individual-v2
+  pull_request:
+    branches:
+      - feat/player-profile-universal-foundation-v1
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout FRL
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install frontend dependencies
+        working-directory: web
+        run: npm install --no-package-lock
+
+      - name: Typecheck frontend
+        working-directory: web
+        run: npm run typecheck
+
+      - name: Build frontend
+        working-directory: web
+        run: npm run build
