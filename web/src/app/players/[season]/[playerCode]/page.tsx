@@ -136,16 +136,13 @@ function profileNarrative(
   club: string,
   radar: PlayerProfileRadarData | null
 ) {
-  const role =
-    positionLabel(profile.position).toLowerCase();
+  const role = positionLabel(profile.position).toLowerCase();
 
-  const article =
-    /^[aeiou]/i.test(club) ? "an" : "a";
+  const article = /^[aeiou]/i.test(club) ? "an" : "a";
 
-  const nationality =
-    biography.nationality
-      ? ` from ${biography.nationality}`
-      : "";
+  const nationality = biography.nationality
+    ? ` from ${biography.nationality}`
+    : "";
 
   const sentences = [
     `${profile.player_name} is ${article} ${club} ${role}${nationality}.`,
@@ -154,21 +151,15 @@ function profileNarrative(
   const facts: string[] = [];
 
   if (biography.birth_date) {
-    facts.push(
-      `Born ${formatDate(biography.birth_date)}`
-    );
+    facts.push(`Born ${formatDate(biography.birth_date)}`);
   }
 
   if (biography.preferred_foot) {
-    facts.push(
-      `${biography.preferred_foot.toLowerCase()}-footed`
-    );
+    facts.push(`${biography.preferred_foot.toLowerCase()}-footed`);
   }
 
   if (biography.height_cm != null) {
-    facts.push(
-      `listed at ${formatHeight(biography.height_cm)}`
-    );
+    facts.push(`listed at ${formatHeight(biography.height_cm)}`);
   }
 
   if (facts.length > 0) {
@@ -221,18 +212,16 @@ export default async function PlayerProfilePage({
     searchParams,
   ]);
 
-  const [
-    profileResult,
-    seasonsResult,
-    radarResult,
-  ] = await Promise.all([
+  const [profileResult, seasonsResult, radarResult] = await Promise.all([
     getJson<PlayerProfile>(
-      `/api/v1/players/${encodeURIComponent(
-        season
-      )}/${encodeURIComponent(playerCode)}`
+      `/api/v1/players/${encodeURIComponent(season)}/${encodeURIComponent(
+        playerCode
+      )}`
     ),
     getJson<PlayerSeasonOption[]>(
-      `/api/v1/player-seasons/${encodeURIComponent(playerCode)}?season=${encodeURIComponent(season)}`
+      `/api/v1/player-seasons/${encodeURIComponent(
+        playerCode
+      )}?season=${encodeURIComponent(season)}`
     ),
     getJson<PlayerProfileRadarData>(
       `/api/v1/player-profile-radar/${encodeURIComponent(
@@ -244,9 +233,7 @@ export default async function PlayerProfilePage({
   if (!profileResult.ok || !profileResult.data) {
     if (profileResult.status === 404) notFound();
 
-    throw new Error(
-      `FRL Player Profile request failed: ${profileResult.status}`
-    );
+    throw new Error(`FRL Player Profile request failed: ${profileResult.status}`);
   }
 
   const profile = profileResult.data;
@@ -293,11 +280,9 @@ export default async function PlayerProfilePage({
     "Club unavailable";
   const role = positionLabel(profile.position);
 
-  const radar =
-    radarResult.ok &&
-    radarResult.data?.available
-      ? radarResult.data
-      : null;
+  const radarData =
+    radarResult.ok && radarResult.data ? radarResult.data : null;
+  const radar = radarData?.available ? radarData : null;
 
   const viewValue = Array.isArray(query.view) ? query.view[0] : query.view;
   const historyActive = viewValue === "history";
@@ -351,9 +336,7 @@ export default async function PlayerProfilePage({
     {
       label: "Squad no.",
       value:
-        biography.shirt_number == null
-          ? "—"
-          : String(biography.shirt_number),
+        biography.shirt_number == null ? "—" : String(biography.shirt_number),
     },
     {
       label: "Joined",
@@ -364,9 +347,7 @@ export default async function PlayerProfilePage({
   const railItems = [
     club,
     role,
-    biography.preferred_foot
-      ? `${biography.preferred_foot}-footed`
-      : null,
+    biography.preferred_foot ? `${biography.preferred_foot}-footed` : null,
     biography.nationality,
   ].filter((item): item is string => Boolean(item));
 
@@ -375,8 +356,7 @@ export default async function PlayerProfilePage({
       ? biography.evidence.source_season
       : null;
 
-  const historicalFallback =
-    biography.evidence?.historical_fallback === true;
+  const historicalFallback = biography.evidence?.historical_fallback === true;
 
   const provenance = biography.available
     ? sourceSeason
@@ -429,17 +409,15 @@ export default async function PlayerProfilePage({
             </section>
 
             <aside className={styles.heroRail}>
-              {radar ? (
+              {radarData ? (
                 <MidfielderRadar
-                  radar={radar}
+                  radar={radarData}
                   playerName={profile.player_name}
                 />
               ) : (
                 <>
-                  <p className={styles.railStatement}>
-                    Football identity
-                  </p>
-              
+                  <p className={styles.railStatement}>Football identity</p>
+
                   <ul className={styles.identityList}>
                     {railItems.map((item) => (
                       <li key={item}>
@@ -457,28 +435,21 @@ export default async function PlayerProfilePage({
               )}
             </aside>
 
-            <nav
-              className={styles.tabs}
-              aria-label="Player profile views"
-            >
+            <nav className={styles.tabs} aria-label="Player profile views">
               <Link
-                href={`/players/${encodeURIComponent(
-                  season
-                )}/${encodeURIComponent(playerCode)}`}
-                className={
-                  historyActive ? styles.tabLink : styles.activeTab
-                }
+                href={`/players/${encodeURIComponent(season)}/${encodeURIComponent(
+                  playerCode
+                )}`}
+                className={historyActive ? styles.tabLink : styles.activeTab}
               >
                 Overview
               </Link>
 
               <Link
-                href={`/players/${encodeURIComponent(
-                  season
-                )}/${encodeURIComponent(playerCode)}?view=history`}
-                className={
-                  historyActive ? styles.activeTab : styles.tabLink
-                }
+                href={`/players/${encodeURIComponent(season)}/${encodeURIComponent(
+                  playerCode
+                )}?view=history`}
+                className={historyActive ? styles.activeTab : styles.tabLink}
               >
                 History
               </Link>
@@ -530,12 +501,9 @@ export default async function PlayerProfilePage({
 
                         <div>
                           <b>
-                            {option.clubs.join(" · ") ||
-                              "Club unavailable"}
+                            {option.clubs.join(" · ") || "Club unavailable"}
                           </b>
-                          <span>
-                            {positionLabel(option.position)}
-                          </span>
+                          <span>{positionLabel(option.position)}</span>
                         </div>
 
                         <i>{current ? "Current" : "View"}</i>
