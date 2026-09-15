@@ -1,8 +1,3 @@
-"use client";
-
-import { useRouter } from "next/navigation";
-import styles from "./PlayerProfile.module.css";
-
 type PlayerSeasonOption = {
   season: string;
   player_code: string;
@@ -11,40 +6,18 @@ type PlayerSeasonOption = {
   clubs: string[];
 };
 
-export function PlayerSeasonSelect({
-  currentSeason,
-  playerCode,
-  seasons,
-}: {
+/**
+ * Player Profile is intentionally a current-state surface.
+ *
+ * Career/previous-season navigation remains available through the History view,
+ * which retains the governed season-specific route identities. Keep this seam as
+ * a no-op while the approved Profile composition still imports it; a later
+ * structural cleanup can remove the import without changing the page design.
+ */
+export function PlayerSeasonSelect(_props: {
   currentSeason: string;
   playerCode: string;
   seasons: PlayerSeasonOption[];
 }) {
-  const router = useRouter();
-
-  return (
-    <label className={styles.selectControl}>
-      <span>Season</span>
-
-      <select
-        value={currentSeason}
-        onChange={(event) => {
-          const option = seasons.find(
-            (candidate) => candidate.season === event.target.value
-          );
-          router.push(
-            `/players/${encodeURIComponent(
-              event.target.value
-            )}/${encodeURIComponent(option?.player_code ?? playerCode)}`
-          );
-        }}
-      >
-        {seasons.map((option) => (
-          <option key={option.season} value={option.season}>
-            {option.season}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
+  return null;
 }
